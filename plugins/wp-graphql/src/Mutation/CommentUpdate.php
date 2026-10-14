@@ -99,10 +99,17 @@ class CommentUpdate {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
+			$can_moderate = current_user_can( 'moderate_comments' );
+
 			// Only users with moderate_comments may change moderation status (status/approved).
 			$attempting_status_change = isset( $input['status'] ) || array_key_exists( 'approved', $input );
-			if ( $attempting_status_change && ! current_user_can( 'moderate_comments' ) ) {
+			if ( $attempting_status_change && ! $can_moderate ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to change the moderation status of this comment.', 'wp-graphql' ) );
+			}
+
+			// A caller without moderation rights may edit what their comment says, nothing else.
+			if ( ! $can_moderate ) {
+				self::assert_only_content_changes( $input, $raw_comment_args );
 			}
 
 			/**
@@ -113,6 +120,11 @@ class CommentUpdate {
 			// If there are no changes between the existing comment and the incoming comment
 			if ( $comment_args === $raw_comment_args ) {
 				throw new UserError( esc_html__( 'No changes have been provided to the comment.', 'wp-graphql' ) );
+			}
+
+			// Edited content has not been moderated yet, whatever the comment it replaced was.
+			if ( ! $can_moderate ) {
+				self::maybe_hold_for_moderation( $comment_args, $raw_comment_args );
 			}
 
 			/**
@@ -144,5 +156,140 @@ class CommentUpdate {
 				'success' => (bool) $success,
 			];
 		};
+	}
+
+	/**
+	 * Asserts that a caller without the `moderate_comments` capability is changing nothing but
+	 * the content of the comment they own.
+	 *
+	 * `UpdateCommentInput` inherits every field of `CreateCommentInput`, which means the fields
+	 * that decide which node a comment belongs to, who it appears to have been written by, and
+	 * when, are writable on an update. Deciding those is moderation, not authorship, so a caller
+	 * who may edit their own comment may not change them. Sending a value equal to the stored one
+	 * is accepted, so a client that resubmits a whole form is not rejected for fields it left
+	 * alone.
+	 *
+	 * The restricted fields are named explicitly rather than allowlisted because
+	 * `CommentMutation::prepare_comment_object()` writes a fixed set of columns. An input field an
+	 * extension registers on `UpdateCommentInput` is that extension's to authorize, through the
+	 * hooks it writes its own data on.
+	 *
+	 * @param array<string,mixed> $input        The input for the mutation.
+	 * @param array<string,mixed> $comment_args The comment as it is currently stored.
+	 *
+	 * @throws \GraphQL\Error\UserError If a restricted field is being changed.
+	 */
+	private static function assert_only_content_changes( array $input, array $comment_args ): void {
+		$restricted_fields = [
+			'commentOn'   => 'comment_post_ID',
+			'author'      => 'comment_author',
+			'authorEmail' => 'comment_author_email',
+			'authorUrl'   => 'comment_author_url',
+			'date'        => 'comment_date',
+			'parent'      => 'comment_parent',
+			'type'        => 'comment_type',
+		];
+
+		foreach ( $restricted_fields as $field => $column ) {
+			/**
+			 * An empty value is never written by prepare_comment_object(), so it cannot change
+			 * anything. `author` is the exception: when it is empty the caller's own display name
+			 * is written in its place, which is their identity rather than someone else's.
+			 */
+			if ( empty( $input[ $field ] ) ) {
+				continue;
+			}
+
+			$incoming = (string) $input[ $field ];
+			$stored   = (string) ( $comment_args[ $column ] ?? '' );
+
+			// Normalize each value the way prepare_comment_object() does before it writes the column.
+			if ( 'commentOn' === $field ) {
+				$incoming = (string) absint( $incoming );
+				$stored   = (string) absint( $stored );
+			} elseif ( 'parent' === $field ) {
+				$incoming = (string) absint( Utils::get_database_id_from_id( $input[ $field ] ) );
+				$stored   = (string) absint( $stored );
+			} elseif ( 'date' === $field ) {
+				$timestamp = strtotime( $incoming );
+
+				// An unparseable date is never written, so it cannot change anything.
+				if ( false === $timestamp ) {
+					continue;
+				}
+
+				$incoming = gmdate( 'Y-m-d H:i:s', $timestamp );
+			}
+
+			if ( $incoming !== $stored ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to change the target, author, date, parent or type of this comment.', 'wp-graphql' ) );
+			}
+		}
+	}
+
+	/**
+	 * Re-runs WordPress's moderation decision when a caller without the `moderate_comments`
+	 * capability edits the content of a comment that is already approved, holding the comment for
+	 * review when the new content would not have been approved had it arrived as a new comment.
+	 *
+	 * Approval belongs to the content a moderator read, not to the comment row, so without this an
+	 * approved comment is a slot its author can refill with content nobody has reviewed.
+	 *
+	 * @param array<string,mixed> $comment_args     The comment args about to be saved, passed by reference.
+	 * @param array<string,mixed> $raw_comment_args The comment as it is currently stored.
+	 */
+	private static function maybe_hold_for_moderation( array &$comment_args, array $raw_comment_args ): void {
+		// Only an edit to the content of an approved comment needs a new decision.
+		if ( '1' !== (string) ( $raw_comment_args['comment_approved'] ?? '' ) ) {
+			return;
+		}
+
+		if ( ( $comment_args['comment_content'] ?? null ) === ( $raw_comment_args['comment_content'] ?? null ) ) {
+			return;
+		}
+
+		/**
+		 * WordPress approves a comment left by the author of the node it is on without checking
+		 * it, so an author editing their own comment on their own content is left alone too.
+		 *
+		 * @see wp_check_comment_data()
+		 */
+		$node_author = (int) get_post_field( 'post_author', absint( $comment_args['comment_post_ID'] ?? 0 ) );
+
+		if ( 0 !== $node_author && absint( get_current_user_id() ) === $node_author ) {
+			return;
+		}
+
+		$author     = (string) ( $comment_args['comment_author'] ?? '' );
+		$email      = (string) ( $comment_args['comment_author_email'] ?? '' );
+		$url        = (string) ( $comment_args['comment_author_url'] ?? '' );
+		$content    = (string) ( $comment_args['comment_content'] ?? '' );
+		$ip         = (string) ( $comment_args['comment_author_IP'] ?? '' );
+		$user_agent = (string) ( $comment_args['comment_agent'] ?? '' );
+		$type       = (string) ( $comment_args['comment_type'] ?? '' );
+
+		$requires_moderation = ! check_comment( $author, $email, $url, $content, $ip, $user_agent, $type )
+			|| wp_check_comment_disallowed_list( $author, $email, $url, $content, $ip, $user_agent );
+
+		/**
+		 * Filters whether an edited comment is sent back for moderation.
+		 *
+		 * When a caller without the `moderate_comments` capability edits the content of a comment
+		 * that is already approved, WordPress's moderation checks are run against the new content
+		 * and the comment is held for review if they do not pass. Return false to let the comment
+		 * keep its approved status regardless of what the new content says.
+		 *
+		 * @param bool                $requires_moderation Whether the comment will be held for review.
+		 * @param array<string,mixed> $comment_args        The comment args about to be saved.
+		 * @param array<string,mixed> $raw_comment_args    The comment as it is currently stored.
+		 *
+		 * @since x-release-please-version
+		 * @hookGroup models
+		 */
+		$requires_moderation = (bool) apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );
+
+		if ( $requires_moderation ) {
+			$comment_args['comment_approved'] = '0';
+		}
 	}
 }

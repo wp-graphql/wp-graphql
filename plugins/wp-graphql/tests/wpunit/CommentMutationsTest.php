@@ -803,4 +803,388 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals('SPAM', $actual['data']['updateComment']['comment']['status']);
 	}
 
+	/**
+	 * Creates a published post owned by $this->author and an approved comment on it owned by
+	 * $this->subscriber, for the updateComment authorization tests.
+	 *
+	 * @param array<string,mixed> $post_args Overrides for the post.
+	 *
+	 * @return array{0:int,1:int} The post ID and the comment ID.
+	 */
+	public function createApprovedSubscriberComment( $post_args = [] ) {
+		$post_id = $this->factory()->post->create(
+			array_merge(
+				[
+					'post_author'    => $this->author,
+					'post_type'      => 'post',
+					'post_status'    => 'publish',
+					'post_title'     => 'Post for updateComment authorization tests',
+					'post_content'   => 'Content',
+					'comment_status' => 'open',
+				],
+				$post_args
+			)
+		);
+
+		$subscriber_user = get_user_by( 'id', $this->subscriber );
+
+		$comment_id = $this->factory()->comment->create(
+			[
+				'user_id'              => $this->subscriber,
+				'comment_author'       => $subscriber_user->display_name,
+				'comment_author_email' => $subscriber_user->user_email,
+				'comment_author_url'   => $subscriber_user->user_url,
+				'comment_post_ID'      => $post_id,
+				'comment_content'      => 'Content a moderator approved',
+				'comment_approved'     => '1',
+			]
+		);
+
+		return [ $post_id, $comment_id ];
+	}
+
+	/**
+	 * A non-moderator must not be able to carry an approved comment onto a post they were never
+	 * allowed to comment on. @see GHSA-cf67-w9ww-p68v, GHSA-2w4p-8q7g-h7xv
+	 */
+	public function testUpdateCommentOwnerCannotMoveCommentToAnotherPost() {
+		list( $post_id, $comment_id ) = $this->createApprovedSubscriberComment();
+
+		$target_post_id = $this->factory()->post->create(
+			[
+				'post_author'    => $this->admin,
+				'post_type'      => 'post',
+				'post_status'    => 'publish',
+				'post_title'     => 'Post with comments closed',
+				'comment_status' => 'closed',
+			]
+		);
+
+		wp_set_current_user( $this->subscriber );
+		$this->assertFalse( current_user_can( 'moderate_comments' ), 'The subscriber must not be able to moderate comments.' );
+
+		$query = '
+		mutation moveComment( $id: ID!, $commentOn: Int!, $content: String! ) {
+			updateComment( input: { id: $id, commentOn: $commentOn, content: $content } ) {
+				success
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id'        => $comment_id,
+					'commentOn' => $target_post_id,
+					'content'   => 'Content nobody approved',
+				],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A non-moderator must not be allowed to move their comment to another post.' );
+
+		$comment = get_comment( $comment_id );
+		$this->assertEquals( $post_id, (int) $comment->comment_post_ID, 'The comment must still be on the post it was left on.' );
+		$this->assertEquals( '1', $comment->comment_approved, 'The comment must still be approved.' );
+		$this->assertEquals( 'Content a moderator approved', $comment->comment_content, 'The content must be unchanged.' );
+	}
+
+	/**
+	 * @dataProvider dataProviderRestrictedUpdateCommentFields
+	 *
+	 * @param string $field  The input field a non-moderator must not be allowed to change.
+	 * @param string $column The comment column that field writes to.
+	 */
+	public function testUpdateCommentOwnerCannotChangeIdentityFields( $field, $column ) {
+		list( $post_id, $comment_id ) = $this->createApprovedSubscriberComment();
+
+		// A sibling comment to point `parent` at.
+		$parent_comment_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID'  => $post_id,
+				'comment_content'  => 'Sibling comment',
+				'comment_approved' => '1',
+			]
+		);
+
+		$values = [
+			'author'      => 'Site Administrator',
+			'authorEmail' => 'admin@example.test',
+			'authorUrl'   => 'https://example.test/not-mine',
+			'date'        => '2001-01-01 00:00:00',
+			'parent'      => (string) $parent_comment_id,
+			'type'        => 'pingback',
+		];
+
+		$before = get_comment( $comment_id );
+
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+		mutation updateComment( $input: UpdateCommentInput! ) {
+			updateComment( input: $input ) {
+				success
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'   => $comment_id,
+						$field => $values[ $field ],
+					],
+				],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A non-moderator must not be allowed to change `%s`.', $field ) );
+
+		$after = get_comment( $comment_id );
+		$this->assertEquals( $before->{$column}, $after->{$column}, sprintf( '`%s` must be unchanged.', $column ) );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataProviderRestrictedUpdateCommentFields() {
+		return [
+			'author'      => [ 'author', 'comment_author' ],
+			'authorEmail' => [ 'authorEmail', 'comment_author_email' ],
+			'authorUrl'   => [ 'authorUrl', 'comment_author_url' ],
+			'date'        => [ 'date', 'comment_date' ],
+			'parent'      => [ 'parent', 'comment_parent' ],
+			'type'        => [ 'type', 'comment_type' ],
+		];
+	}
+
+	/**
+	 * A client that resubmits a whole form sends fields it did not change, which must not be read
+	 * as an attempt to change them.
+	 */
+	public function testUpdateCommentOwnerCanResendUnchangedValues() {
+		list( $post_id, $comment_id ) = $this->createApprovedSubscriberComment();
+
+		$before          = get_comment( $comment_id );
+		$subscriber_user = get_user_by( 'id', $this->subscriber );
+
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+		mutation updateComment( $input: UpdateCommentInput! ) {
+			updateComment( input: $input ) {
+				success
+				comment { databaseId content status }
+			}
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'          => $comment_id,
+						'commentOn'   => $post_id,
+						'author'      => $subscriber_user->display_name,
+						'authorEmail' => $subscriber_user->user_email,
+						'date'        => $before->comment_date,
+						'type'        => $before->comment_type,
+						'content'     => 'A typo fixed in my own comment',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'Resending the stored values alongside new content must be allowed.' );
+
+		$after = get_comment( $comment_id );
+		$this->assertEquals( 'A typo fixed in my own comment', $after->comment_content, 'The content must be updated.' );
+		$this->assertEquals( $post_id, (int) $after->comment_post_ID, 'The comment must still be on the same post.' );
+		$this->assertEquals( $before->comment_date, $after->comment_date, 'The date must be unchanged.' );
+	}
+
+	/**
+	 * Approval belongs to the content a moderator read, so content edited into something that
+	 * fails the site's moderation checks goes back for review.
+	 */
+	public function testUpdateCommentOwnerContentEditIsHeldWhenItFailsModeration() {
+		$previous = [
+			'comment_moderation'          => get_option( 'comment_moderation' ),
+			'comment_previously_approved' => get_option( 'comment_previously_approved' ),
+			'moderation_keys'             => get_option( 'moderation_keys' ),
+		];
+
+		update_option( 'comment_moderation', '0' );
+		update_option( 'comment_previously_approved', '1' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		try {
+			list( , $clean_comment_id )   = $this->createApprovedSubscriberComment();
+			list( , $flagged_comment_id ) = $this->createApprovedSubscriberComment();
+
+			wp_set_current_user( $this->subscriber );
+
+			$query = '
+			mutation updateComment( $id: ID!, $content: String! ) {
+				updateComment( input: { id: $id, content: $content } ) {
+					success
+				}
+			}
+			';
+
+			$clean = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id'      => $clean_comment_id,
+						'content' => 'An ordinary edit to my own comment',
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $clean, 'An ordinary content edit must be allowed.' );
+			$this->assertEquals( '1', get_comment( $clean_comment_id )->comment_approved, 'An ordinary content edit must keep its approved status.' );
+
+			$flagged = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id'      => $flagged_comment_id,
+						'content' => 'An edit containing a forbiddenword',
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $flagged, 'The edit itself is allowed, it is the approval that is withdrawn.' );
+			$this->assertEquals( '0', get_comment( $flagged_comment_id )->comment_approved, 'Content that fails moderation must be held for review.' );
+			$this->assertEquals( 'An edit containing a forbiddenword', get_comment( $flagged_comment_id )->comment_content, 'The edited content must be saved.' );
+		} finally {
+			foreach ( $previous as $option => $value ) {
+				update_option( $option, $value );
+			}
+		}
+	}
+
+	/**
+	 * Sites that treat their comment owners as trusted can keep the old behavior.
+	 */
+	public function testUpdateCommentOwnerContentEditKeepsApprovalWhenFilterSaysSo() {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$filter_ran    = false;
+		$keep_approval = static function ( $requires_moderation ) use ( &$filter_ran ) {
+			$filter_ran = true;
+
+			// The comment would have been held without the filter.
+			\PHPUnit\Framework\Assert::assertTrue( $requires_moderation );
+
+			return false;
+		};
+		add_filter( 'graphql_comment_update_requires_moderation', $keep_approval );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+			wp_set_current_user( $this->subscriber );
+
+			$actual = $this->graphql(
+				[
+					'query'     => '
+					mutation updateComment( $id: ID!, $content: String! ) {
+						updateComment( input: { id: $id, content: $content } ) {
+							success
+						}
+					}
+					',
+					'variables' => [
+						'id'      => $comment_id,
+						'content' => 'An edit containing a forbiddenword',
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertTrue( $filter_ran, 'The filter must be applied before the comment is held.' );
+			$this->assertEquals( '1', get_comment( $comment_id )->comment_approved, 'The filter must be able to keep the comment approved.' );
+		} finally {
+			remove_filter( 'graphql_comment_update_requires_moderation', $keep_approval );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * Regression guard: the restrictions apply to callers without `moderate_comments` only.
+	 */
+	public function testUpdateCommentModeratorCanChangeTargetAndAuthor() {
+		list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+		$target_post_id = $this->factory()->post->create(
+			[
+				'post_author'    => $this->admin,
+				'post_type'      => 'post',
+				'post_status'    => 'publish',
+				'post_title'     => 'Post a moderator is moving the comment to',
+				'comment_status' => 'closed',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+				mutation moveComment( $id: ID!, $commentOn: Int!, $author: String! ) {
+					updateComment( input: { id: $id, commentOn: $commentOn, author: $author } ) {
+						success
+					}
+				}
+				',
+				'variables' => [
+					'id'        => $comment_id,
+					'commentOn' => $target_post_id,
+					'author'    => 'Renamed By A Moderator',
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'A moderator must still be able to move a comment and rename its author.' );
+
+		$comment = get_comment( $comment_id );
+		$this->assertEquals( $target_post_id, (int) $comment->comment_post_ID, 'The moderator move must be saved.' );
+		$this->assertEquals( 'Renamed By A Moderator', $comment->comment_author, 'The moderator rename must be saved.' );
+	}
+
+	/**
+	 * `wp_update_comment()` rejects a `comment_post_ID` that holds nothing, so this is a guard on
+	 * WordPress's behavior rather than on anything WPGraphQL checks itself.
+	 */
+	public function testUpdateCommentCannotMoveCommentToANodeThatDoesNotExist() {
+		list( $post_id, $comment_id ) = $this->createApprovedSubscriberComment();
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+				mutation moveComment( $id: ID!, $commentOn: Int! ) {
+					updateComment( input: { id: $id, commentOn: $commentOn } ) {
+						success
+					}
+				}
+				',
+				'variables' => [
+					'id'        => $comment_id,
+					'commentOn' => 99999999,
+				],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A comment must not be movable to a node that does not exist.' );
+		$this->assertEquals( $post_id, (int) get_comment( $comment_id )->comment_post_ID, 'The comment must still be on the post it was left on.' );
+	}
 }
