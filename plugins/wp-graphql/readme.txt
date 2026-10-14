@@ -78,6 +78,16 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.24.0 =
+
+**New: a settings review.** Administrators see a dismissable notice inviting them to review the WPGraphQL settings that affect who can use the API, how much work one request can ask for, and what debugging information responses include. It changes nothing on its own: every setting starts at your current value, "Skip for now" saves nothing, and only settings you actually change are written. To suppress the invitation, filter `graphql_settings_review_show_invitation` to false.
+
+**Query depth limiting is now on for new installs.** Existing sites are unchanged. A new install starts with the limit enabled and a maximum depth of 15, and operations that only request introspection are exempt. Change the effective maximum with the `graphql_query_depth_max` filter, or the setting under GraphQL > Settings.
+
+**Non-public taxonomies are now described in the Schema.** A taxonomy registered `public => false` with `show_in_graphql => true` previously returned null from the `taxonomy` field, while the terms inside it were served to everyone. The taxonomy is now returned, so the Schema describes what it already serves. Its configuration fields still require `edit_terms`, so an anonymous caller sees a limited set and null for the rest. To hide a taxonomy again, filter `graphql_data_is_private`.
+
+**`public` reports false instead of null.** Content types and taxonomies registered `public => false` previously reported `public: null` and now report `public: false`. If a client treats null as "unknown" and false as "not public", that branch now behaves differently.
+
 = 2.23.1 =
 
 **Security release.** Fixes an authorization issue in the `updateMediaItem` mutation that let users with the Author or Contributor role take over, and then delete, media items owned by other users. Updating is recommended. See GHSA-4h2c-85f8-g3jh.
