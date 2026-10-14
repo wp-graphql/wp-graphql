@@ -1686,6 +1686,87 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * Hardening for GHSA-3j5r-mp5g-4wrw. Several IPv6 forms carry an IPv4 address
+	 * and route to it, and PHP's FILTER_FLAG_NO_RES_RANGE does not treat them
+	 * consistently: on PHP 8.3.35 it rejects ::ffff:7f00:1 while allowing
+	 * ::7f00:1, 64:ff9b::7f00:1 and 2002:7f00:1::, and the behaviour differs
+	 * across the PHP versions this plugin supports. is_public_ip() therefore
+	 * unwraps the embedded IPv4 itself and rejects the IPv6 ranges the filter
+	 * misses, rather than trusting the filter for IPv6.
+	 *
+	 * @param string $address The address to classify.
+	 * @param string $why     The message shown when the assertion fails.
+	 *
+	 * @dataProvider dataInternalAddressesAreNotPublic
+	 */
+	public function testInternalAddressesAreNotPublic( string $address, string $why ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'is_public_ip' );
+		$method->setAccessible( true );
+
+		$this->assertFalse( $method->invoke( null, $address ), $why );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataInternalAddressesAreNotPublic(): array {
+		return [
+			// Forms that embed an IPv4 address and route to it.
+			'IPv4-mapped loopback, dotted'     => [ '::ffff:127.0.0.1', 'IPv4-mapped loopback must be rejected' ],
+			'IPv4-mapped loopback, hex'        => [ '::ffff:7f00:1', 'The hex spelling targets the same loopback address' ],
+			'IPv4-mapped metadata, hex'        => [ '::ffff:a9fe:a9fe', 'The hex spelling targets 169.254.169.254' ],
+			'IPv4-compatible loopback, hex'    => [ '::7f00:1', 'IPv4-compatible ::/96 routes to the embedded IPv4' ],
+			'IPv4-compatible metadata, dotted' => [ '::169.254.169.254', 'IPv4-compatible ::/96 routes to the embedded IPv4' ],
+			'NAT64 loopback'                   => [ '64:ff9b::7f00:1', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
+			'NAT64 metadata'                   => [ '64:ff9b::a9fe:a9fe', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
+			'6to4 loopback'                    => [ '2002:7f00:1::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
+			'6to4 metadata'                    => [ '2002:a9fe:a9fe::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
+			// Native IPv6 ranges that are not publicly routable.
+			'IPv6 loopback'                    => [ '::1', 'Loopback must be rejected' ],
+			'IPv6 unspecified'                 => [ '::', 'The unspecified address must be rejected' ],
+			'IPv6 link-local'                  => [ 'fe80::1', 'Link-local must be rejected' ],
+			'IPv6 unique-local'                => [ 'fd00::1', 'Unique-local must be rejected' ],
+			'IPv6 site-local, deprecated'      => [ 'fec0::1', 'Site-local is still routable inside a network' ],
+			'IPv6 multicast'                   => [ 'ff02::1', 'Multicast must be rejected' ],
+			'IPv6 discard-only'                => [ '100::1', 'The discard-only range must be rejected' ],
+			'IPv6 documentation'               => [ '2001:db8::1', 'The documentation range must be rejected' ],
+			// Nothing we cannot parse is vouched for.
+			'not an address'                   => [ 'not-an-ip', 'An unparseable address must fail closed' ],
+			'empty string'                     => [ '', 'An empty address must fail closed' ],
+		];
+	}
+
+	/**
+	 * The counterpart to testInternalAddressesAreNotPublic: an IPv6 form that
+	 * embeds a *public* IPv4 address is still reachable and must keep working, so
+	 * the hardening above does not cut off legitimate dual-stack hosts.
+	 *
+	 * @param string $address The address to classify.
+	 * @param string $why     The message shown when the assertion fails.
+	 *
+	 * @dataProvider dataPublicAddressesStayPublic
+	 */
+	public function testPublicAddressesStayPublic( string $address, string $why ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'is_public_ip' );
+		$method->setAccessible( true );
+
+		$this->assertTrue( $method->invoke( null, $address ), $why );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataPublicAddressesStayPublic(): array {
+		return [
+			'public IPv4'        => [ '8.8.8.8', 'A public IPv4 address must stay allowed' ],
+			'public IPv6'        => [ '2606:4700:4700::1111', 'A public IPv6 address must stay allowed' ],
+			'IPv4-mapped public' => [ '::ffff:8.8.8.8', 'A mapped public IPv4 is still public' ],
+			'NAT64 public'       => [ '64:ff9b::8.8.8.8', 'NAT64 to a public IPv4 is still public' ],
+			'6to4 public'        => [ '2002:0808:0808::', '6to4 to a public IPv4 is still public' ],
+		];
+	}
+
+	/**
 	 * Network-dependent smoke test (no teeth by design) for the dual-stack AAAA
 	 * resolution added for GHSA-p8rh-c2gc-j42m. gethostbynamel() returns A
 	 * records only, so an IPv4-only guard would miss an internal AAAA on a
@@ -1926,7 +2007,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public function testUpdateMediaItemCannotTakeOverAnotherUsersMediaItem() {
 		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
 
-		foreach ( [ 'author' => $this->author, 'contributor' => $contributor ] as $role => $user_id ) {
+		foreach ( [
+			'author'      => $this->author,
+			'contributor' => $contributor,
+		] as $role => $user_id ) {
 			wp_set_current_user( $user_id );
 
 			$this->update_variables['input']['authorId'] = $user_id;

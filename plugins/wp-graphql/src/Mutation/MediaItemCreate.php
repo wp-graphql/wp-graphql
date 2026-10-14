@@ -589,18 +589,45 @@ class MediaItemCreate {
 	 * Determines whether an IP address is publicly routable.
 	 *
 	 * Rejects private, reserved, loopback, and link-local ranges for both IPv4
-	 * and IPv6. IPv4-mapped IPv6 addresses (::ffff:a.b.c.d) are unwrapped so the
-	 * embedded IPv4 range is evaluated rather than trusted.
+	 * and IPv6. Several IPv6 forms carry an IPv4 address inside them, and those
+	 * are unwrapped so the embedded IPv4 range is evaluated rather than trusted:
+	 * IPv4-mapped (::ffff:a.b.c.d), IPv4-compatible (::a.b.c.d), NAT64
+	 * (64:ff9b::/96) and 6to4 (2002::/16).
+	 *
+	 * The unwrapping is done on the packed bytes rather than on the string, and
+	 * the IPv6 ranges below are rejected explicitly, because PHP's
+	 * FILTER_FLAG_NO_RES_RANGE does not treat these forms consistently. On PHP
+	 * 8.3.35 it rejects ::ffff:7f00:1 while allowing ::7f00:1, 64:ff9b::7f00:1
+	 * and 2002:7f00:1::, and the behaviour differs across the PHP versions this
+	 * plugin supports, so it is not relied on for IPv6.
 	 *
 	 * @param string $ip The IP address to check.
 	 */
 	private static function is_public_ip( string $ip ): bool {
-		// Unwrap an IPv4-mapped IPv6 address so ::ffff:169.254.169.254 is judged
-		// as the link-local 169.254/16 range it actually targets.
-		if ( 0 === stripos( $ip, '::ffff:' ) ) {
-			$mapped = substr( $ip, strlen( '::ffff:' ) );
-			if ( filter_var( $mapped, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-				$ip = $mapped;
+		$packed = @inet_pton( $ip ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- an unparseable address is rejected below.
+
+		if ( false === $packed ) {
+			// Fail closed: an address we cannot parse is not one we can vouch for.
+			return false;
+		}
+
+		if ( 16 === strlen( $packed ) ) {
+			$embedded = self::embedded_ipv4( $packed );
+
+			// An IPv6 form carrying an IPv4 address is judged on that address.
+			if ( null !== $embedded ) {
+				$ip     = $embedded;
+				$packed = inet_pton( $embedded );
+			} else {
+				// Ranges PHP's filter flags do not reject. fec0::/10 is the
+				// deprecated site-local range, still routable inside a network;
+				// ff00::/8 is multicast; ::/128 is unspecified; 100::/64 is the
+				// discard-only range; 2001:db8::/32 is documentation.
+				foreach ( [ 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32' ] as $cidr ) {
+					if ( self::ip_in_cidr( (string) $packed, $cidr ) ) {
+						return false;
+					}
+				}
 			}
 		}
 
@@ -630,6 +657,79 @@ class MediaItemCreate {
 	 * @param string $ip   A validated IPv4 address.
 	 * @param string $cidr A CIDR block in "network/prefix" form.
 	 */
+	/**
+	 * Returns the IPv4 address carried inside an IPv6 address, if there is one.
+	 *
+	 * Four IPv6 forms embed an IPv4 address and route to it: IPv4-mapped
+	 * (::ffff:0:0/96), IPv4-compatible (::/96, deprecated but still resolvable),
+	 * NAT64 (64:ff9b::/96) and 6to4 (2002::/16, where the address sits in the
+	 * second through fifth bytes). Each is judged on the IPv4 address it targets.
+	 *
+	 * @param string $packed The address in its packed 16-byte form.
+	 *
+	 * @return string|null The embedded IPv4 address in dotted form, or null if there is none.
+	 */
+	private static function embedded_ipv4( string $packed ): ?string {
+		$prefixes = [
+			// [ prefix bytes, offset of the embedded IPv4 ]
+			[ "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff", 12 ], // ::ffff:0:0/96, IPv4-mapped
+			[ "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00", 12 ], // 64:ff9b::/96, NAT64
+			[ "\x20\x02", 2 ], // 2002::/16, 6to4
+		];
+
+		foreach ( $prefixes as [ $prefix, $offset ] ) {
+			if ( 0 === strncmp( $packed, $prefix, strlen( $prefix ) ) ) {
+				return inet_ntop( substr( $packed, $offset, 4 ) ) ?: null;
+			}
+		}
+
+		// ::/96 IPv4-compatible. The all-zero prefix also covers :: and ::1, so
+		// only treat it as an embedded address when the low 32 bits are not 0 or 1.
+		if ( 0 === strncmp( $packed, str_repeat( "\x00", 12 ), 12 ) ) {
+			$low = substr( $packed, 12, 4 );
+			if ( "\x00\x00\x00\x00" !== $low && "\x00\x00\x00\x01" !== $low ) {
+				return inet_ntop( $low ) ?: null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether a packed IP address falls inside a CIDR range.
+	 *
+	 * Works on the packed form so it handles IPv6 as well as IPv4, comparing
+	 * whole bytes and then the remaining bits of the final partial byte.
+	 *
+	 * @param string $packed The address in its packed form.
+	 * @param string $cidr   The range, for example `fec0::/10`.
+	 */
+	private static function ip_in_cidr( string $packed, string $cidr ): bool {
+		[ $subnet, $prefix ] = explode( '/', $cidr );
+
+		$subnet_packed = @inet_pton( $subnet ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a malformed range matches nothing.
+
+		if ( false === $subnet_packed || strlen( $subnet_packed ) !== strlen( $packed ) ) {
+			return false;
+		}
+
+		$bits        = (int) $prefix;
+		$whole_bytes = intdiv( $bits, 8 );
+		$spare_bits  = $bits % 8;
+
+		if ( $whole_bytes > 0 && 0 !== strncmp( $packed, $subnet_packed, $whole_bytes ) ) {
+			return false;
+		}
+
+		if ( 0 === $spare_bits ) {
+			return true;
+		}
+
+		$mask = ~( ( 1 << ( 8 - $spare_bits ) ) - 1 ) & 0xff;
+
+		return ( ord( $packed[ $whole_bytes ] ) & $mask ) === ( ord( $subnet_packed[ $whole_bytes ] ) & $mask );
+	}
+
 	private static function ipv4_in_cidr( string $ip, string $cidr ): bool {
 		[ $subnet, $prefix ] = explode( '/', $cidr );
 
