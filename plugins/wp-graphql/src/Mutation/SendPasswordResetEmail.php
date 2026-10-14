@@ -80,7 +80,7 @@ class SendPasswordResetEmail {
 			$user_data = self::get_user_data( $input['username'] );
 
 			if ( ! $user_data ) {
-				graphql_debug( self::get_user_not_found_error_message( $input['username'] ) );
+				self::debug_reason( self::get_user_not_found_error_message( $input['username'] ) );
 
 				return $payload;
 			}
@@ -88,7 +88,7 @@ class SendPasswordResetEmail {
 			// Get the password reset key.
 			$key = get_password_reset_key( $user_data );
 			if ( is_wp_error( $key ) ) {
-				graphql_debug( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
+				self::debug_reason( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
 
 				return $payload;
 			}
@@ -105,7 +105,7 @@ class SendPasswordResetEmail {
 
 			// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
 			if ( is_wp_error( $email_sent ) ) {
-				graphql_debug( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
+				self::debug_reason( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
 
 				return $payload;
 			}
@@ -237,5 +237,44 @@ class SendPasswordResetEmail {
 		 * @param \WP_User $user_data WP_User object.
 		 */
 		return (string) apply_filters( 'retrieve_password_message', $message, $key, $user_data->user_login, $user_data );
+	}
+
+	/**
+	 * Surfaces why no password reset email was sent, to callers entitled to know.
+	 *
+	 * Every reason this mutation can give is specific to one account: that no such account
+	 * exists, that a reset key could not be generated for it, or that mail to it failed. The
+	 * mutation deliberately returns the same payload either way so it cannot be used to discover
+	 * who has an account, but `extensions.debug` is attached to the response of every caller when
+	 * debugging is enabled, anonymous ones included, so a reason that varies with the account puts
+	 * the answer back in the response.
+	 *
+	 * Callers who are not entitled to the reason get no message at all. A generic message would
+	 * read better but would only be emitted on the branches that fail, which leaves the same
+	 * oracle: a message means no email went out, silence means one did.
+	 *
+	 * @param string $message The reason to surface.
+	 */
+	private static function debug_reason( string $message ): void {
+		/**
+		 * Filters the capability a caller needs to be told why no password reset email was sent.
+		 *
+		 * The default is `list_users` because a caller who holds it can already enumerate accounts
+		 * through WordPress itself, so the reason tells them nothing they could not look up
+		 * directly. By default only administrators hold it. Lower it to open the debug output up,
+		 * for example while developing against the anonymous flow.
+		 *
+		 * @param string $capability The capability required to see the reason. Default 'list_users'.
+		 *
+		 * @since x-release-please-version
+		 * @hookGroup authentication
+		 */
+		$capability = (string) apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );
+
+		if ( ! current_user_can( $capability ) ) {
+			return;
+		}
+
+		graphql_debug( $message );
 	}
 }
