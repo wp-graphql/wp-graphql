@@ -80,7 +80,7 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 = 2.24.0 =
 
-**New: a settings review.** Administrators see a dismissable notice inviting them to review the WPGraphQL settings that affect who can use the API, how much work one request can ask for, and what debugging information responses include. It changes nothing on its own: every setting starts at your current value, "Skip for now" saves nothing, and only settings you actually change are written. To suppress the invitation, filter `graphql_settings_review_show_invitation` to false.
+**New: a settings review.** Administrators see a dismissable notice inviting them to review the WPGraphQL settings that affect who can use the API, how much work one request can ask for, and what debugging information responses include. It changes nothing on its own: every setting starts at your current value, "Skip for now" saves nothing, and only settings you actually change are written. To suppress the invitation, filter `graphql_settings_review_show_invitation` to false. You can also handle the review from the command line, which is easier across many sites: `wp graphql settings-review status` reports what is left, and `wp graphql settings-review skip` records it as skipped without changing any settings.
 
 **Query depth limiting is now on for new installs.** Existing sites are unchanged. A new install starts with the limit enabled and a maximum depth of 15, and operations that only request introspection are exempt. Change the effective maximum with the `graphql_query_depth_max` filter, or the setting under GraphQL > Settings.
 
