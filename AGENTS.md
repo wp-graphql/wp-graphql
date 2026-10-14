@@ -90,6 +90,24 @@ The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcil
 
 ## Development Workflow
 
+- **Branch from an up-to-date `origin/main`, never from whatever happens to be checked out.**
+
+  ```bash
+  git fetch origin main
+  git switch -c <type>/<short-name> origin/main
+  ```
+
+  PRs are squash-merged, so a branch cut from another branch folds that branch's **entire** diff into one commit under your subject. Three things go wrong at once: the other work reaches `main` without being reviewed on its own PR, that PR is left with an empty diff, and release-please attributes everything to your commit type, so a `ci:`, `docs:` or `chore:` subject means the folded-in work gets no changelog entry and ships unannounced.
+
+  Before opening a PR, confirm the diff is only yours:
+
+  ```bash
+  git fetch -q origin main
+  git diff --stat origin/main...HEAD
+  ```
+
+  If that lists files you did not touch, you branched from the wrong place. Re-create the branch from `origin/main` and move only your own commits onto it. Deliberately stacking a PR on another is fine when it is intentional, but say so in the PR description and target the parent branch, not `main`.
+
 - **Every bug fix ships with a regression test.** A fix is not done until a test that fails before the fix and passes after it is committed alongside the change. No fix-only commits for reproducible bugs.
 - **Test the widest user-facing surface first.** Prefer the test that exercises the software the way a user does — e2e (Playwright) and integration/functional/acceptance (Codeception) — over a narrow unit test. Reach for the broadest layer that can reproduce the bug; reproduce it there first. Unit tests are valuable and we want them, but the core priority is proving the software works as a whole, not that one function does. When a unit test is faster or more precise for the specific logic, add it _in addition to_ — not _instead of_ — the surface-level test.
 - **TDD preferred**: For bug fixes, write the failing test(s) first, confirm they fail, implement the fix, confirm they pass.
