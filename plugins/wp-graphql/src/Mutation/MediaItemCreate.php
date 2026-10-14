@@ -601,6 +601,12 @@ class MediaItemCreate {
 	 * and 2002:7f00:1::, and the behaviour differs across the PHP versions this
 	 * plugin supports, so it is not relied on for IPv6.
 	 *
+	 * Unwrapping only the dotted IPv4-mapped form previously let an author who
+	 * can upload files point filePath at a host whose AAAA record was one of the
+	 * other forms and have the server fetch an internal URL.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-3j5r-mp5g-4wrw
+	 *
 	 * @param string $ip The IP address to check.
 	 */
 	private static function is_public_ip( string $ip ): bool {
