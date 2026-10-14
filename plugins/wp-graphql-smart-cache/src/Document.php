@@ -423,7 +423,7 @@ class Document {
 		 * @param bool   $allowed Whether the write is allowed. Default follows the setting.
 		 * @param string $mode    The configured mode ('public', 'authenticated' or 'off').
 		 *
-		 * @since x-release-please-version
+		 * @since 2.3.3
 		 * @hookGroup authentication
 		 */
 		return (bool) apply_filters( 'graphql_smart_cache_can_auto_persist_document', $allowed, $mode );
@@ -465,7 +465,7 @@ class Document {
 		 *
 		 * @param int $limit The limit. Default from the Saved Queries settings.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.3.3
 		 * @hookGroup settings
 		 */
 		$limit = (int) apply_filters( 'graphql_smart_cache_automatic_document_limit', $limit );

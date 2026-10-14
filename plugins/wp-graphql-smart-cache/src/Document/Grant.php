@@ -229,7 +229,7 @@ class Grant {
 		 * @param string                  $grant_mode The current global grant mode ('only_allowed' or 'some_denied').
 		 * @param \WPGraphQL\Request|null $request    The current GraphQL request.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.3.3
 		 * @hookGroup authentication
 		 */
 		$exempt_capability = apply_filters( 'graphql_smart_cache_grant_exempt_capability', 'manage_options', $grant_mode, $request );
