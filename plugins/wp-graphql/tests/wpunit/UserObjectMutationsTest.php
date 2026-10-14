@@ -1219,6 +1219,143 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertTrue( $was_reset_successful );
 	}
 
+	/**
+	 * Counts the emails a callable causes to be sent.
+	 *
+	 * @param callable $callback The code to run.
+	 */
+	protected function countEmailsSentBy( callable $callback ): int {
+		$sent    = 0;
+		$counter = static function () use ( &$sent ) {
+			++$sent;
+			return true; // short-circuit wp_mail so nothing is actually delivered
+		};
+
+		add_filter( 'pre_wp_mail', $counter, 10, 2 );
+		$callback();
+		remove_filter( 'pre_wp_mail', $counter, 10 );
+
+		return $sent;
+	}
+
+	/**
+	 * Hardening for GHSA-f5f8-v768-93c8. One operation can invoke the mutation many
+	 * times with aliases, and the request layer's batch limit counts batch entries
+	 * rather than aliases, so it cannot see them. Without a limit in the resolver,
+	 * a single unauthenticated request sends an email per alias.
+	 */
+	public function testAliasedPasswordResetsSendOneEmailPerRequest() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$query = '
+		mutation {
+			a: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+			b: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+			c: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+		}
+		';
+
+		$actual = null;
+		$sent   = $this->countEmailsSentBy(
+			function () use ( $query, &$actual ) {
+				$actual = $this->graphql( [ 'query' => $query ] );
+			}
+		);
+
+		$this->assertSame( 1, $sent, 'Three aliases must send one email, not three' );
+		$this->assertCount( 2, $actual['errors'], 'The two surplus aliases must be rejected rather than silently dropped' );
+	}
+
+	/**
+	 * The limit must not become the enumeration oracle it is meant to prevent. If
+	 * the count were kept when an email is *sent* rather than when the mutation is
+	 * *invoked*, the surplus aliases would error only for accounts that exist, and
+	 * the error itself would answer "does this account exist".
+	 */
+	public function testAliasLimitBehavesTheSameForAccountsThatDoNotExist() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$aliased = function ( string $who ) {
+			return $this->graphql(
+				[
+					'query' => '
+					mutation {
+						a: sendPasswordResetEmail( input: { username: "' . $who . '" } ) { success }
+						b: sendPasswordResetEmail( input: { username: "' . $who . '" } ) { success }
+					}
+					',
+				]
+			);
+		};
+
+		$exists  = $aliased( $username );
+		$missing = $aliased( 'no-such-user-at-all' );
+
+		$messages = static function ( array $result ): array {
+			return array_map(
+				static function ( $error ) {
+					return $error['message'];
+				},
+				$result['errors'] ?? []
+			);
+		};
+
+		$this->assertSame( $messages( $exists ), $messages( $missing ), 'The alias limit must produce identical errors either way' );
+		$this->assertSame( $exists['data'], $missing['data'], 'The payload must be identical either way' );
+	}
+
+	/**
+	 * The limit is per request, so ordinary use is unaffected: a user who asks for
+	 * a reset twice, or an administrator resending one, still gets an email each
+	 * time. Only piling them into a single request is limited.
+	 */
+	public function testSeparateRequestsEachSendAnEmail() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$sent = $this->countEmailsSentBy(
+			function () use ( $username ) {
+				$this->sendPasswordResetEmailMutation( $username );
+				$this->sendPasswordResetEmailMutation( $username );
+			}
+		);
+
+		$this->assertSame( 2, $sent, 'Separate requests must not be throttled against each other' );
+	}
+
+	/**
+	 * The limit is filterable, so a site that genuinely wants several per request
+	 * can raise it.
+	 */
+	public function testAliasLimitIsFilterable() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter(
+			'graphql_allowed_password_reset_emails_per_request',
+			static function () {
+				return 3;
+			}
+		);
+
+		$sent = $this->countEmailsSentBy(
+			function () use ( $username ) {
+				$this->graphql(
+					[
+						'query' => '
+						mutation {
+							a: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+							b: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+						}
+						',
+					]
+				);
+			}
+		);
+
+		remove_all_filters( 'graphql_allowed_password_reset_emails_per_request' );
+
+		$this->assertSame( 2, $sent, 'Raising the limit must allow more emails in one request' );
+	}
+
 	public function sendPasswordResetEmailMutation( $username ) {
 		$query = '
 		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
