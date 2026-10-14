@@ -484,6 +484,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped.
 
+- [`graphql_query_depth_max`](/filters/graphql_query_depth_max)
+
+  Filters the max query depth allowed for the current request.
+
 - [`graphql_query_id_hash_algorithm`](/filters/graphql_query_id_hash_algorithm)
 
   Filter the hash algorithm to allow different algorithms.
@@ -755,6 +759,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 - [`graphql_setting_field_value`](/filters/graphql_setting_field_value)
 
   Filters the resolved value of a single settings field before it is returned in the Schema.
+
+- [`graphql_settings_review_show_invitation`](/filters/graphql_settings_review_show_invitation)
+
+  Filters whether administrators are invited to the settings review with an admin notice.
 
 - [`graphql_settings_sections`](/filters/graphql_settings_sections)
 

@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.23.1
+Stable tag: 2.24.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -323,6 +323,22 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.24.0 =
+
+**New Features**
+
+* add a settings review for security-related settings ([#4342](https://github.com/wp-graphql/wp-graphql/issues/4342))
+* add publiclyQueryable to Taxonomy, and correct the public description ([#4425](https://github.com/wp-graphql/wp-graphql/issues/4425))
+* turn on query depth limiting for new installs and add a max depth filter ([#4341](https://github.com/wp-graphql/wp-graphql/issues/4341))
+
+**Bug Fixes**
+
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340))
+* report public: false for non-public post types ([#4430](https://github.com/wp-graphql/wp-graphql/issues/4430))
+* report public: false for non-public taxonomies ([#4414](https://github.com/wp-graphql/wp-graphql/issues/4414))
+* show admin notices above the legacy GraphiQL IDE and on the Extensions screen ([#4339](https://github.com/wp-graphql/wp-graphql/issues/4339))
+* stop hiding a taxonomy while serving every term inside it ([#4426](https://github.com/wp-graphql/wp-graphql/issues/4426))
 
 = 2.23.1 =
 
@@ -685,7 +701,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.23.1
+* replace x-release-please-version placeholders with 2.24.0
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =

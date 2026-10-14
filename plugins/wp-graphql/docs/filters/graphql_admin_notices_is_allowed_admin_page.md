@@ -30,7 +30,7 @@ Filter to determine if the current admin page is within the scope of the plugin'
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/AdminNotices.php:399`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L399)
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:416`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L416)
 
 ```php
 apply_filters( 'graphql_admin_notices_is_allowed_admin_page', $is_allowed_admin_page, $current_page_id, $allowed_pages );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_admin_notices_is_allowed_admin_page', $is_allowed_admin_
 
 ## Related
 
-- `AdminNotices::is_plugin_scoped_page()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:399`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L399)
+- `AdminNotices::is_plugin_scoped_page()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:416`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L416)

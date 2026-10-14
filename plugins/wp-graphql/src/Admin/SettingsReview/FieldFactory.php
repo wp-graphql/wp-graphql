@@ -171,7 +171,7 @@ final class FieldFactory {
 					esc_html( $field['name'] ),
 					esc_html( $type )
 				),
-				'x-release-please-version'
+				'2.24.0'
 			);
 			return null;
 		}

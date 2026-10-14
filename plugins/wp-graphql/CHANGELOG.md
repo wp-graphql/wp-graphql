@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.24.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.1...wp-graphql/v2.24.0) (2026-10-14)
+
+
+### New Features
+
+* add a settings review for security-related settings ([#4342](https://github.com/wp-graphql/wp-graphql/issues/4342)) ([5cf9a9d](https://github.com/wp-graphql/wp-graphql/commit/5cf9a9d82fcc781170f12db197505eaf6bce46e0))
+* add publiclyQueryable to Taxonomy, and correct the public description ([#4425](https://github.com/wp-graphql/wp-graphql/issues/4425)) ([0c5f4c4](https://github.com/wp-graphql/wp-graphql/commit/0c5f4c434d9b1bcc1d8401cc269d467224115f7e))
+* turn on query depth limiting for new installs and add a max depth filter ([#4341](https://github.com/wp-graphql/wp-graphql/issues/4341)) ([df8e280](https://github.com/wp-graphql/wp-graphql/commit/df8e280cace3137911f068f64e390839eae33710))
+
+
+### Bug Fixes
+
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340)) ([585ad8a](https://github.com/wp-graphql/wp-graphql/commit/585ad8adc1be848e9adce8a015aea8c4abd81917))
+* report public: false for non-public post types ([#4430](https://github.com/wp-graphql/wp-graphql/issues/4430)) ([62a77a0](https://github.com/wp-graphql/wp-graphql/commit/62a77a0e16882540d0dc423d07c7877b6708218e))
+* report public: false for non-public taxonomies ([#4414](https://github.com/wp-graphql/wp-graphql/issues/4414)) ([319391f](https://github.com/wp-graphql/wp-graphql/commit/319391f06f5edc2fe9df45694f12937f366711e1))
+* show admin notices above the legacy GraphiQL IDE and on the Extensions screen ([#4339](https://github.com/wp-graphql/wp-graphql/issues/4339)) ([95097e0](https://github.com/wp-graphql/wp-graphql/commit/95097e022d1a88c05f78896b45f9c22097e5ade1))
+* stop hiding a taxonomy while serving every term inside it ([#4426](https://github.com/wp-graphql/wp-graphql/issues/4426)) ([8764406](https://github.com/wp-graphql/wp-graphql/commit/8764406c91899ae047b308598b81f831b3d63673))
+
 ## [2.23.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.0...wp-graphql/v2.23.1) (2026-09-22)
 
 

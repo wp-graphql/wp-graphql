@@ -44,7 +44,7 @@ final class StepRegistry {
 		$slug = sanitize_key( $slug );
 
 		if ( '' === $slug || empty( $config['title'] ) || ! is_string( $config['title'] ) ) {
-			_doing_it_wrong( 'register_graphql_settings_review_step', esc_html__( 'A settings review step needs a slug and a title.', 'wp-graphql' ), 'x-release-please-version' );
+			_doing_it_wrong( 'register_graphql_settings_review_step', esc_html__( 'A settings review step needs a slug and a title.', 'wp-graphql' ), '2.24.0' );
 			return;
 		}
 

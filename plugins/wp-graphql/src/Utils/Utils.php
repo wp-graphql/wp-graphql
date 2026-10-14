@@ -469,7 +469,7 @@ class Utils {
 	 * @param \GraphQL\Language\AST\OperationDefinitionNode              $operation The operation to check.
 	 * @param array<string,\GraphQL\Language\AST\FragmentDefinitionNode> $fragments The fragments in the document, keyed by name.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.24.0
 	 */
 	public static function is_introspection_only_operation( \GraphQL\Language\AST\OperationDefinitionNode $operation, array $fragments = [] ): bool {
 		if ( 'query' !== $operation->operation ) {
