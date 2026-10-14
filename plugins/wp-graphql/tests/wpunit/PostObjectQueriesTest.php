@@ -1771,7 +1771,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	public function dataProviderRestrictedPosts() {
 
 		$test_vars = [];
-		$statuses  = [ 'future', 'draft', 'pending' ];
+		$statuses  = [ 'future', 'draft', 'pending', 'trash' ];
 
 		foreach ( $statuses as $status ) {
 			$test_vars[] = [
@@ -1793,6 +1793,17 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'author'     => 'contributor',
 				'user'       => 'contributor',
 				'restricted' => false,
+			];
+
+			/**
+			 * Someone else's content in a non-public status. `edit_posts` is enough to be told
+			 * the node exists, it is not enough to read it. @see GHSA-rq5q-mc8v-w8pq
+			 */
+			$test_vars[] = [
+				'status'     => $status,
+				'author'     => 'admin',
+				'user'       => 'contributor',
+				'restricted' => true,
 			];
 		}
 
