@@ -1187,4 +1187,59 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'errors', $actual, 'A comment must not be movable to a node that does not exist.' );
 		$this->assertEquals( $post_id, (int) get_comment( $comment_id )->comment_post_ID, 'The comment must still be on the post it was left on.' );
 	}
+
+	/**
+	 * WPGraphQL lets a comment's author edit it, which WordPress does not. A site that wants
+	 * WordPress's rule can turn the ownership path off.
+	 */
+	public function testUpdateCommentOwnerEditsCanBeTurnedOffByFilter() {
+		list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+		$deny_owner_edits = static function () {
+			return false;
+		};
+		add_filter( 'graphql_comment_author_can_update_own_comment', $deny_owner_edits );
+
+		$query = '
+		mutation updateComment( $id: ID!, $content: String! ) {
+			updateComment( input: { id: $id, content: $content } ) {
+				success
+			}
+		}
+		';
+
+		try {
+			wp_set_current_user( $this->subscriber );
+
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id'      => $comment_id,
+						'content' => 'An edit the site does not want to allow',
+					],
+				]
+			);
+
+			$this->assertArrayHasKey( 'errors', $actual, 'The filter must be able to deny an owner edit.' );
+			$this->assertEquals( 'Content a moderator approved', get_comment( $comment_id )->comment_content, 'The content must be unchanged.' );
+
+			// A moderator is not affected by the filter.
+			wp_set_current_user( $this->admin );
+
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id'      => $comment_id,
+						'content' => 'An edit by a moderator',
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $actual, 'A moderator must still be able to update the comment.' );
+		} finally {
+			remove_filter( 'graphql_comment_author_can_update_own_comment', $deny_owner_edits );
+		}
+	}
 }

@@ -91,7 +91,25 @@ class CommentUpdate {
 				// If the current user is the comment author, allow (but not for status changes).
 				$current_user_id = absint( get_current_user_id() );
 				if ( 0 !== $current_user_id && absint( $user_id ) === $current_user_id ) {
-					$not_allowed = false;
+					/**
+					 * Filters whether the author of a comment may update it without the
+					 * `moderate_comments` capability.
+					 *
+					 * WPGraphQL lets people edit their own comments. WordPress does not: its
+					 * `edit_comment` capability maps to `edit_post` on the post the comment was
+					 * left on, so editing any comment in the admin or through the REST API
+					 * requires being able to edit that post. Return false to apply WordPress's
+					 * rule here instead, which leaves `updateComment` to callers who can
+					 * moderate comments.
+					 *
+					 * @param bool                $can_update   Whether the comment's author may update it. Default true.
+					 * @param array<string,mixed> $comment_args The comment as it is currently stored.
+					 * @param array<string,mixed> $input        The input for the mutation.
+					 *
+					 * @since x-release-please-version
+					 * @hookGroup authentication
+					 */
+					$not_allowed = ! apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comment_args, $input );
 				}
 			}
 
