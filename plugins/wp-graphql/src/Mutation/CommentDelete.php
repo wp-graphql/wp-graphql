@@ -86,6 +86,18 @@ class CommentDelete {
 	 */
 	public static function mutate_and_get_payload() {
 		return static function ( $input ) {
+			/**
+			 * A caller who is not logged in can neither moderate comments nor own one, so they can
+			 * never pass the check below. Rejecting them before the comment is looked up means they
+			 * get the same answer for every ID and cannot use the mutation to find out which
+			 * comment IDs exist, including unapproved ones.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+			 */
+			if ( ! is_user_logged_in() ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
+			}
+
 			// Get the database ID for the comment.
 			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 
