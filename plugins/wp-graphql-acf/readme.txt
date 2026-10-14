@@ -112,6 +112,14 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
+= 3.0.1 =
+
+**Schema change**: this release fixes ACF location rules that use "is not equal to". Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
+
+This reaches more than just field groups using "Post Type is not equal to". Removals were also cancelled for every field group processed after one that had nothing to remove, so a site with any exclusion rule may see several field groups move.
+
+If a query relies on one of these fields, check that field group's location rules, since the field group is now on exactly the types those rules describe. To keep a field group on types its location rules exclude, enable "Manually Set GraphQL Types for Field Group" on the field group and choose the types directly, which bypasses location rules entirely.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
