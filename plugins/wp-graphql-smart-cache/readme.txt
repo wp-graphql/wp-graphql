@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -77,6 +77,22 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.3.3 =
+
+**Security Fixes**
+
+Two fixes, both of which change behavior that some sites may be relying on.
+
+**Saved query allow and deny rules now apply to authenticated requests.** The "Allow only specific queries" and "Deny some specific queries" modes were previously enforced only for logged out callers, so an authenticated client could run queries the allow list was meant to block, including documents marked Deny. The rules now apply to every request, with one exemption: users who can `manage_options` can still run ad-hoc queries, which is what keeps the IDE working for administrators.
+
+If your application relies on authenticated clients running queries outside the allow list, either add those documents to the allow list, or exempt a capability your clients hold:
+
+`add_filter( 'graphql_smart_cache_grant_exempt_capability', function () { return 'edit_posts'; } );`
+
+If you have granted IDE access to non-administrators, note that WPGraphQL IDE gates on `manage_graphql_ide` rather than `manage_options`, so those users are now subject to the allow list as well. Filter the capability to the one your IDE access uses.
+
+**Automatically saved query documents are now limited.** Automatic Persisted Queries saved a document for every distinct query with nothing bounding the total, and garbage collection is off by default and prunes by age rather than by count, so the posts table could grow without end. A limit now applies, 5000 by default, and the oldest automatically saved documents are removed as new ones arrive. Removing one is safe, because a client that sends an ID the server no longer knows re-sends the full query, which is part of the protocol. Documents you have granted, denied, or placed in a Group are never removed. A new setting also controls who may save documents automatically, and it defaults to anyone, so nothing changes unless you narrow it.
+
 = 2.3.2 =
 
 **Security Fix**
@@ -124,6 +140,17 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.3.3 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4322](https://github.com/wp-graphql/wp-graphql/issues/4322))
+* **smart-cache:** allow filtering the GraphQL query cache key ([#4389](https://github.com/wp-graphql/wp-graphql/issues/4389))
+* **smart-cache:** apply persisted query grants to authenticated users ([GHSA-vcpc-35rg-68xw](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-vcpc-35rg-68xw))
+* **smart-cache:** bound automatically registered query documents ([GHSA-5p5r-f66g-r4vp](https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5p5r-f66g-r4vp))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374))
+* **smart-cache:** never advertise an error response as cacheable ([#4390](https://github.com/wp-graphql/wp-graphql/issues/4390))
 
 = 2.3.2 =
 

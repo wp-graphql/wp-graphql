@@ -104,7 +104,7 @@ class Query {
 		 * @param array<string,mixed>     $parts   The parts that will be hashed into the cache key.
 		 * @param \WPGraphQL\Request|null $request The current GraphQL request, or null when unavailable.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.3.3
 		 *
 		 * @hookGroup caching
 		 */

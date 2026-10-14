@@ -1,0 +1,97 @@
+name: Sync Work Queue From PRs
+
+# Moves an issue on the maintainers' work-queue board to "In Progress" once a
+# pull request that closes it is open.
+#
+# NOTE ON SCOPE: the board is a private org project and is otherwise a
+# maintainer-only process that this repository deliberately does not document.
+# This workflow is a deliberate exception, agreed so the automation can live
+# next to the code it reads. It only ever reads public pull request data and
+# writes a Status field on the project; it changes nothing in this repository.
+#
+# It runs on `pull_request_target`, not `pull_request`, because most pull
+# requests here come from forks and a fork's `pull_request` run gets a
+# read-only token and no secrets, so it could not write to the project.
+# `pull_request_target` is only dangerous when a workflow executes the pull
+# request's code; this one never does. See the three rules under `on:` below,
+# which are what make that true, and keep them.
+
+on:
+  # `pull_request_target` so the job still runs, with secrets, for pull requests
+  # from forks, which is most of them here. A fork's `pull_request` run gets a
+  # read-only token and no secrets, so it could not write to the project.
+  #
+  # THE SAFETY OF THIS TRIGGER RESTS ON THREE RULES. Do not break them:
+  #   1. Never check out the pull request's head. The default checkout is the
+  #      BASE branch, which is why a pull request cannot alter the workflow or
+  #      the script that run here with a token.
+  #   2. Never run code the pull request authored. No `npm ci`, no lockfile
+  #      install, no build step, nothing that executes its package.json.
+  #   3. Never interpolate `github.event.pull_request.*` into a `run:` block.
+  #      The script re-reads what it needs from the API instead.
+  # If you need any of those, split this into a no-secret job plus a
+  # `workflow_run` job rather than relaxing a rule.
+  pull_request_target:
+    # `edited` matters: "Closes #123" is often added after opening, and without
+    # it those pull requests would never register.
+    types: [opened, edited, reopened, ready_for_review]
+  schedule:
+    # Backstop only, not the main path. Catches a dropped webhook or a failed
+    # run. The job is idempotent: it only moves an item not already in target.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report what would move without writing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never let two runs write the project at once. Pull request events can
+  # arrive in bursts, so these queue rather than overlap.
+  group: sync-board-from-prs
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Move issues with an open fixing PR
+    runs-on: ubuntu-latest
+    # Keep forks of this repository from running a job that can only fail for
+    # them: it needs an org-project token they do not have.
+    if: github.repository == 'wp-graphql/wp-graphql'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Sync
+        env:
+          # A token of its own, scoped to read org projects and write their
+          # items, and nothing else. Deliberately NOT the broad REPO_PAT that
+          # release-please uses: if this one ever leaked, the damage stops at a
+          # kanban board. GITHUB_TOKEN cannot write an org project at all.
+          GH_TOKEN: ${{ secrets.BOARD_SYNC_TOKEN }}
+          PROJECT_ID: ${{ vars.BOARD_PROJECT_ID }}
+          STATUS_FIELD_ID: ${{ vars.BOARD_STATUS_FIELD_ID }}
+          IN_PROGRESS_OPTION_ID: ${{ vars.BOARD_IN_PROGRESS_OPTION_ID }}
+        run: |
+          # Skip quiet, deliberately: an unset variable or secret means the board
+          # sync is not configured (or was turned off), and that must not fail a
+          # check on every pull request. Everything that IS configured but wrong,
+          # a bad token or a mistyped option id, fails loudly inside the script.
+          if [ -z "$PROJECT_ID" ] || [ -z "$GH_TOKEN" ]; then
+            echo "Board sync is not configured (BOARD_PROJECT_ID or BOARD_SYNC_TOKEN missing); nothing to do."
+            exit 0
+          fi
+          node scripts/sync-board-from-prs.js \
+            --project="$PROJECT_ID" \
+            --status-field="$STATUS_FIELD_ID" \
+            --target-option="$IN_PROGRESS_OPTION_ID" \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
