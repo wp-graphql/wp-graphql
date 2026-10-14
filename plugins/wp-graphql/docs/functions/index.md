@@ -78,11 +78,15 @@ The functions documented below are provided by WPGraphQL to extend the schema or
 
 - [`register_graphql_settings_field`](/functions/register_graphql_settings_field)
 
-  Registers a GraphQL Settings Field
+  Registers a GraphQL Settings Field Set `depends_on` to the name of a checkbox field in the same section when this field only applies while that checkbox is on.
 
 - [`register_graphql_settings_fields`](/functions/register_graphql_settings_fields)
 
   Registers a series of GraphQL Settings Fields
+
+- [`register_graphql_settings_review_step`](/functions/register_graphql_settings_review_step)
+
+  Registers a step in the WPGraphQL settings review.
 
 - [`register_graphql_settings_section`](/functions/register_graphql_settings_section)
 
