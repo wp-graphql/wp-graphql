@@ -47,3 +47,15 @@ following as you can:
 - Please give us a reasonable amount of time to release a fix before any public
   disclosure. We are happy to credit reporters in the release notes once a fix
   has shipped, unless you prefer to remain anonymous.
+
+## Security acknowledgements
+
+Some reports lead to hardening rather than to a patch, for example a change to a
+default. Those do not get a published advisory, because an advisory tells you that
+updating to a particular version fixes the problem, and a default only applies where
+it is applied. The reporters below changed WPGraphQL without one. Reports that did
+result in an advisory are credited on the advisory itself.
+
+| Release | Reporter | What changed |
+| --- | --- | --- |
+| 2.24.0 | [@EQSTLab](https://github.com/EQSTLab), [@pnn219](https://github.com/pnn219) | Query depth limiting defaults on for new installs, introspection-only operations are exempt from it, and the settings review invites existing sites to turn it on. |
