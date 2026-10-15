@@ -78,6 +78,22 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.24.1 =
+
+**Security release.** Fixes seven issues reported through our security advisory process. Updating is recommended. Five of them change behavior you may be relying on, so they are worth reading before you update.
+
+**`updateComment` is limited to content for non-moderators.** A caller who may update a comment but does not have `moderate_comments`, which in practice means the comment's own author, can change what the comment says and nothing else. Pointing the target, author, email, URL, date, parent or type at anything else, or changing the approval status, now requires `moderate_comments`. Edited content is re-checked against the same moderation rules WordPress applies to a new comment, so an approved comment can go back to pending. Filter `graphql_comment_update_requires_moderation` to control the re-check, and `graphql_comment_author_can_update_own_comment` to turn author edits off entirely. See GHSA-cf67-w9ww-p68v.
+
+**`createComment` now checks the target.** Comments can no longer be created on drafts, pending posts, trashed posts, private posts the caller cannot read, or password-protected posts. Whether comments are open is now decided by WordPress's own `comments_open()`, which also honors the "automatically close comments on posts older than N days" discussion setting, so a site using that option will see comments refused on old posts where they previously succeeded. The `date` and `type` inputs now require `moderate_comments` and are ignored for callers without it. See GHSA-4vgv-vvxr-9fh9.
+
+**`sendPasswordResetEmail` sends one email per request.** A request that invokes the mutation more than once, with aliases or in a batch, is rejected past the first. Filter `graphql_allowed_password_reset_emails_per_request` to raise it. Debug output no longer says whether an account exists unless the caller has `list_users`, filterable with `graphql_password_reset_debug_capability`. See GHSA-f5f8-v768-93c8 and GHSA-6xw5-35v5-2886.
+
+**Trashed content requires `edit_others_posts`.** A trashed post's fields were returned to anyone who could query the node. The post's own author is unaffected. See GHSA-rq5q-mc8v-w8pq.
+
+**Some mutation error messages changed.** `updateMediaItem`, `deleteMediaItem`, `updateComment` and `deleteComment` now refuse a caller who lacks the capability before looking the target up, and no longer report whether the ID exists or what type it was. A client matching on those message strings will need updating. See GHSA-r7m4-3v6c-3435.
+
+Also fixed: `createMediaItem` recognized only one spelling of an internal address, so several IPv6 forms carrying an internal IPv4 address were treated as public (GHSA-3j5r-mp5g-4wrw). A host that reaches a public address through NAT64 or 6to4 is unaffected.
+
 = 2.24.0 =
 
 **New: a settings review.** Administrators see a dismissable notice inviting them to review the WPGraphQL settings that affect who can use the API, how much work one request can ask for, and what debugging information responses include. It changes nothing on its own: every setting starts at your current value, "Skip for now" saves nothing, and only settings you actually change are written. To suppress the invitation, filter `graphql_settings_review_show_invitation` to false. You can also handle the review from the command line, which is easier across many sites: `wp graphql settings-review status` reports what is left, and `wp graphql settings-review skip` records it as skipped without changing any settings.
