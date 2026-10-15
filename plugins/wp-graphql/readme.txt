@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.24.0
+Stable tag: 2.24.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -339,6 +339,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.24.1 =
+
+**Bug Fixes**
+
+* **media:** reject internal IPv6 addresses written with a dotted-quad tail ([#4451](https://github.com/wp-graphql/wp-graphql/issues/4451))
+* **media:** reject IPv6 forms that carry an internal IPv4 address (GHSA-3j5r-mp5g-4wrw) ([#4446](https://github.com/wp-graphql/wp-graphql/issues/4446))
+* **models:** require edit_others_posts to read someone else's trashed content (GHSA-rq5q-mc8v-w8pq) ([#4440](https://github.com/wp-graphql/wp-graphql/issues/4440))
+* **mutations:** check the capability before looking up the target (GHSA-r7m4-3v6c-3435) ([#4443](https://github.com/wp-graphql/wp-graphql/issues/4443))
+* **mutations:** check the target post before creating a comment (GHSA-4vgv-vvxr-9fh9) ([#4441](https://github.com/wp-graphql/wp-graphql/issues/4441))
+* **mutations:** limit password reset emails to one per request (GHSA-f5f8-v768-93c8) ([#4444](https://github.com/wp-graphql/wp-graphql/issues/4444))
+* **mutations:** restrict updateComment to content for non-moderators (GHSA-cf67-w9ww-p68v) ([#4442](https://github.com/wp-graphql/wp-graphql/issues/4442))
+* **mutations:** stop debug output saying whether an account exists (GHSA-6xw5-35v5-2886) ([#4445](https://github.com/wp-graphql/wp-graphql/issues/4445))
 
 = 2.24.0 =
 

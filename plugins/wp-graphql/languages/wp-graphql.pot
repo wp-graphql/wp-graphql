@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.24.0\n"
+"Project-Id-Version: WPGraphQL 2.24.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T03:04:20+00:00\n"
+"POT-Creation-Date: 2026-10-15T06:42:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1421,29 +1421,33 @@ msgstr ""
 msgid "Whether the mutation succeeded. If the comment is not approved, the server will not return the comment to a non authenticated user, but a success message can be returned if the create succeeded, and the client can optimistically add the comment to the client cache"
 msgstr ""
 
-#: src/Mutation/CommentCreate.php:155
-msgid "Mutation not processed. There was no input for the mutation or the comment_object was invalid"
-msgstr ""
-
-#: src/Mutation/CommentCreate.php:161
+#: src/Mutation/CommentCreate.php:169
 msgid "The ID of the node to comment on is invalid"
 msgstr ""
 
-#: src/Mutation/CommentCreate.php:168
+#: src/Mutation/CommentCreate.php:193
+msgid "Sorry, comments are not allowed for this item"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:206
 msgid "Sorry, this post is closed to comments at the moment"
 msgstr ""
 
-#: src/Mutation/CommentCreate.php:172
+#: src/Mutation/CommentCreate.php:222
+msgid "Mutation not processed. There was no input for the mutation or the comment_object was invalid"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:230
 msgid "This site requires you to be logged in to leave a comment"
 msgstr ""
 
-#: src/Mutation/CommentCreate.php:201
+#: src/Mutation/CommentCreate.php:259
 #: src/Mutation/PostObjectCreate.php:343
 #: src/Mutation/UserCreate.php:201
 msgid "The object failed to create but no error was provided"
 msgstr ""
 
-#: src/Mutation/CommentCreate.php:209
+#: src/Mutation/CommentCreate.php:267
 #: src/Mutation/PostObjectCreate.php:326
 #: src/Mutation/TermObjectCreate.php:184
 #: src/Mutation/UserCreate.php:209
@@ -1463,12 +1467,13 @@ msgstr ""
 msgid "The deleted comment object"
 msgstr ""
 
-#: src/Mutation/CommentDelete.php:96
-msgid "The Comment could not be deleted"
+#: src/Mutation/CommentDelete.php:98
+#: src/Mutation/CommentDelete.php:136
+msgid "Sorry, you are not allowed to delete this comment."
 msgstr ""
 
-#: src/Mutation/CommentDelete.php:124
-msgid "Sorry, you are not allowed to delete this comment."
+#: src/Mutation/CommentDelete.php:108
+msgid "The Comment could not be deleted"
 msgstr ""
 
 #: src/Mutation/CommentRestore.php:44
@@ -1492,20 +1497,25 @@ msgstr ""
 msgid "The ID of the comment being updated."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:78
-msgid "The Comment could not be updated"
-msgstr ""
-
-#: src/Mutation/CommentUpdate.php:99
+#: src/Mutation/CommentUpdate.php:80
+#: src/Mutation/CommentUpdate.php:129
 msgid "Sorry, you are not allowed to update this comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:105
+#: src/Mutation/CommentUpdate.php:90
+msgid "The Comment could not be updated"
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:137
 msgid "Sorry, you are not allowed to change the moderation status of this comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:115
+#: src/Mutation/CommentUpdate.php:152
 msgid "No changes have been provided to the comment."
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:260
+msgid "Sorry, you are not allowed to change the target, author, date, parent or type of this comment."
 msgstr ""
 
 #: src/Mutation/MediaItemCreate.php:39
@@ -1614,7 +1624,7 @@ msgid "The web server cannot generate responsive image sizes for this image. Con
 msgstr ""
 
 #: src/Mutation/MediaItemCreate.php:370
-#: src/Mutation/MediaItemUpdate.php:141
+#: src/Mutation/MediaItemUpdate.php:139
 msgid "The parent of the Media Item is of an invalid type"
 msgstr ""
 
@@ -1662,22 +1672,17 @@ msgstr ""
 msgid "The mediaItem before it was deleted"
 msgstr ""
 
-#: src/Mutation/MediaItemDelete.php:101
-msgid "No mediaItem with that ID could be found to delete"
-msgstr ""
-
-#. Translators: the placeholder is the post_type of the object being deleted
-#: src/Mutation/MediaItemDelete.php:107
-#, php-format
-msgid "Sorry, the item you are trying to delete is a %1%s, not a mediaItem"
-msgstr ""
-
-#: src/Mutation/MediaItemDelete.php:116
+#: src/Mutation/MediaItemDelete.php:105
+#: src/Mutation/MediaItemDelete.php:129
 msgid "Sorry, you are not allowed to delete mediaItems"
 msgstr ""
 
+#: src/Mutation/MediaItemDelete.php:122
+msgid "No mediaItem with that ID could be found to delete"
+msgstr ""
+
 #. translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-#: src/Mutation/MediaItemDelete.php:130
+#: src/Mutation/MediaItemDelete.php:143
 #, php-format
 msgid "The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input"
 msgstr ""
@@ -1689,41 +1694,35 @@ msgstr ""
 msgid "The ID of the %1$s object"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:89
-msgid "No mediaItem with that ID could be found to update"
-msgstr ""
-
-#. translators: The placeholder is the ID of the mediaItem being edited
-#: src/Mutation/MediaItemUpdate.php:97
-#, php-format
-msgid "The id %1$d is not of the type mediaItem"
-msgstr ""
-
-#: src/Mutation/MediaItemUpdate.php:104
+#: src/Mutation/MediaItemUpdate.php:83
 msgid "Sorry, you are not allowed to update mediaItems"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:118
+#: src/Mutation/MediaItemUpdate.php:102
+msgid "No mediaItem with that ID could be found to update"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:116
 msgid "Sorry, you are not allowed to update another user's mediaItem"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:126
+#: src/Mutation/MediaItemUpdate.php:124
 msgid "Sorry, you are not allowed to update this mediaItem"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:145
+#: src/Mutation/MediaItemUpdate.php:143
 msgid "Sorry, you are not allowed to assign mediaItems to this parent node"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:169
+#: src/Mutation/MediaItemUpdate.php:167
 msgid "Sorry, you are not allowed to update mediaItems as this user."
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:181
+#: src/Mutation/MediaItemUpdate.php:179
 msgid "The media item failed to update"
 msgstr ""
 
-#: src/Mutation/MediaItemUpdate.php:198
+#: src/Mutation/MediaItemUpdate.php:196
 msgid "The media item failed to update but no error was provided"
 msgstr ""
 
@@ -1960,69 +1959,73 @@ msgstr ""
 msgid "Password reset link is invalid."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:20
+#: src/Mutation/SendPasswordResetEmail.php:50
 msgid "Send password reset email to user"
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:41
+#: src/Mutation/SendPasswordResetEmail.php:71
 msgid "A string that contains the user's username or email address."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:57
+#: src/Mutation/SendPasswordResetEmail.php:87
 msgid "Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:71
+#: src/Mutation/SendPasswordResetEmail.php:139
 msgid "Enter a username or email address."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:91
+#: src/Mutation/SendPasswordResetEmail.php:149
+msgid "Too many password reset requests in one request. Send them separately."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:170
 msgid "Unable to generate a password reset key."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:108
+#: src/Mutation/SendPasswordResetEmail.php:187
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:108
+#: src/Mutation/SendPasswordResetEmail.php:187
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:160
+#: src/Mutation/SendPasswordResetEmail.php:239
 msgid "There is no user registered with that email address."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:163
+#: src/Mutation/SendPasswordResetEmail.php:242
 msgid "Invalid username."
 msgstr ""
 
 #. translators: Password reset email subject. %s: Site name
-#: src/Mutation/SendPasswordResetEmail.php:182
+#: src/Mutation/SendPasswordResetEmail.php:261
 #, php-format
 msgid "[%s] Password Reset"
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:220
+#: src/Mutation/SendPasswordResetEmail.php:299
 msgid "Someone has requested a password reset for the following account:"
 msgstr ""
 
 #. translators: %s: site name
-#: src/Mutation/SendPasswordResetEmail.php:222
+#: src/Mutation/SendPasswordResetEmail.php:301
 #, php-format
 msgid "Site Name: %s"
 msgstr ""
 
 #. translators: %s: user login
-#: src/Mutation/SendPasswordResetEmail.php:224
+#: src/Mutation/SendPasswordResetEmail.php:303
 #, php-format
 msgid "Username: %s"
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:225
+#: src/Mutation/SendPasswordResetEmail.php:304
 msgid "If this was a mistake, just ignore this email and nothing will happen."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:226
+#: src/Mutation/SendPasswordResetEmail.php:305
 msgid "To reset your password, visit the following address:"
 msgstr ""
 
