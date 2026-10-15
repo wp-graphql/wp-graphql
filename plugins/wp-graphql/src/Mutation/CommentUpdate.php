@@ -80,6 +80,8 @@ class CommentUpdate {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
+			$can_moderate = current_user_can( 'moderate_comments' );
+
 			// Get the database ID for the comment.
 			$comment_id = ! empty( $input['id'] ) ? Utils::get_database_id_from_id( $input['id'] ) : null;
 
@@ -87,7 +89,23 @@ class CommentUpdate {
 			$comment_args = ! empty( $comment_id ) ? get_comment( $comment_id, ARRAY_A ) : null;
 
 			if ( empty( $comment_id ) || empty( $comment_args ) ) {
-				throw new UserError( esc_html__( 'The Comment could not be updated', 'wp-graphql' ) );
+				/**
+				 * Someone who may moderate comments is entitled to know that an ID holds nothing,
+				 * and the message is more useful to them than a refusal would be.
+				 *
+				 * Everyone else gets the same answer here as they would for a comment that exists
+				 * but is not theirs. Ownership cannot be checked before the lookup, the way the
+				 * capability can for the media item mutations, so the two outcomes are made
+				 * identical instead. Otherwise the pair of messages tells any logged-in caller
+				 * which comment IDs exist, including unapproved ones.
+				 *
+				 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+				 */
+				throw new UserError(
+					$can_moderate
+						? esc_html__( 'The Comment could not be updated', 'wp-graphql' )
+						: esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' )
+				);
 			}
 
 			$user_id          = $comment_args['user_id'] ?? null;
@@ -97,7 +115,7 @@ class CommentUpdate {
 			$not_allowed = true;
 
 			// If the current user can moderate comments, allow.
-			if ( current_user_can( 'moderate_comments' ) ) {
+			if ( $can_moderate ) {
 				$not_allowed = false;
 			} else {
 				// If the current user is the comment author, allow (but not for status changes).
@@ -110,9 +128,11 @@ class CommentUpdate {
 					 * WPGraphQL lets people edit their own comments. WordPress does not: its
 					 * `edit_comment` capability maps to `edit_post` on the post the comment was
 					 * left on, so editing any comment in the admin or through the REST API
-					 * requires being able to edit that post. Return false to apply WordPress's
-					 * rule here instead, which leaves `updateComment` to callers who can
-					 * moderate comments.
+					 * requires being able to edit that post. Return false to turn that off,
+					 * which leaves `updateComment` to callers who can moderate comments. Note
+					 * that this is stricter than WordPress's own rule rather than the same as
+					 * it: an author who can edit a post can edit comments left on it in the
+					 * admin, but would not be able to here.
 					 *
 					 * @param bool                $can_update   Whether the comment's author may update it. Default true.
 					 * @param array<string,mixed> $comment_args The comment as it is currently stored.
@@ -128,8 +148,6 @@ class CommentUpdate {
 			if ( true === $not_allowed ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
-
-			$can_moderate = current_user_can( 'moderate_comments' );
 
 			// Only users with moderate_comments may change moderation status (status/approved).
 			$attempting_status_change = isset( $input['status'] ) || array_key_exists( 'approved', $input );

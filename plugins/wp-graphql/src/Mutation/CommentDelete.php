@@ -98,6 +98,8 @@ class CommentDelete {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
 			}
 
+			$can_moderate = current_user_can( 'moderate_comments' );
+
 			// Get the database ID for the comment.
 			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 
@@ -105,7 +107,23 @@ class CommentDelete {
 			$comment_before_delete = ! empty( $comment_id ) ? get_comment( $comment_id ) : false;
 
 			if ( empty( $comment_before_delete ) ) {
-				throw new UserError( esc_html__( 'The Comment could not be deleted', 'wp-graphql' ) );
+				/**
+				 * Someone who may moderate comments is entitled to know that an ID holds nothing,
+				 * and the message is more useful to them than a refusal would be.
+				 *
+				 * Everyone else gets the same answer here as they would for a comment that exists
+				 * but is not theirs. Ownership cannot be checked before the lookup, the way the
+				 * capability can for the media item mutations, so the two outcomes are made
+				 * identical instead. Otherwise the pair of messages tells any logged-in caller
+				 * which comment IDs exist, including unapproved ones.
+				 *
+				 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+				 */
+				throw new UserError(
+					$can_moderate
+						? esc_html__( 'The Comment could not be deleted', 'wp-graphql' )
+						: esc_html__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' )
+				);
 			}
 
 			/**
@@ -117,7 +135,7 @@ class CommentDelete {
 			$not_allowed = true;
 
 			// If the current user can moderate comments proceed
-			if ( current_user_can( 'moderate_comments' ) ) {
+			if ( $can_moderate ) {
 				$not_allowed = false;
 			} else {
 				// Get the current user id

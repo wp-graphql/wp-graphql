@@ -1098,6 +1098,111 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Rejecting anonymous callers before the lookup only closed the oracle for them. A logged-in
+	 * caller who can neither moderate a comment nor own one must get the same answer too, or the
+	 * pair of messages still tells them which comment IDs exist.
+	 *
+	 * Ownership cannot be checked before the lookup, so the two outcomes are made identical
+	 * rather than reordered.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+	 *
+	 * @dataProvider dataProviderCommentOracleMutations
+	 *
+	 * @param string $mutation The mutation to exercise, either `delete` or `update`.
+	 */
+	public function testCommentMutationsDoNotDiscloseWhichIdsExistToUnprivilegedUsers( $mutation ) {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_status' => 'publish',
+			]
+		);
+
+		$targets = [
+			'nonexistent'      => 99999999,
+			"someone else's"   => $this->factory()->comment->create(
+				[
+					'comment_post_ID'  => $post_id,
+					'user_id'          => $this->author,
+					'comment_content'  => 'Not the callers comment',
+					'comment_approved' => '1',
+				]
+			),
+			'pending, not own' => $this->factory()->comment->create(
+				[
+					'comment_post_ID'  => $post_id,
+					'user_id'          => $this->author,
+					'comment_content'  => 'Pending and not the callers',
+					'comment_approved' => '0',
+				]
+			),
+		];
+
+		$query = 'delete' === $mutation
+			? 'mutation deleteComment( $id: ID! ) { deleteComment( input: { id: $id } ) { deletedId } }'
+			: 'mutation updateComment( $id: ID! ) { updateComment( input: { id: $id, content: "edited" } ) { success } }';
+
+		// A subscriber holds neither moderate_comments nor ownership of any of the targets.
+		wp_set_current_user( $this->subscriber );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $comment_id ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [ 'id' => $comment_id ],
+				]
+			);
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A subscriber must not %s the comment %s.', $mutation, $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'A caller who can neither moderate nor own the comment must get the same response for every ID: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * The uniform answer above must not cost a moderator the more useful message, since someone
+	 * who may moderate comments is entitled to know that an ID holds nothing.
+	 *
+	 * @dataProvider dataProviderCommentOracleMutations
+	 *
+	 * @param string $mutation The mutation to exercise, either `delete` or `update`.
+	 */
+	public function testModeratorsStillLearnThatACommentIdHoldsNothing( $mutation ) {
+		$query = 'delete' === $mutation
+			? 'mutation deleteComment( $id: ID! ) { deleteComment( input: { id: $id } ) { deletedId } }'
+			: 'mutation updateComment( $id: ID! ) { updateComment( input: { id: $id, content: "edited" } ) { success } }';
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => 99999999 ],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A nonexistent comment must still be an error for a moderator.' );
+
+		$expected = 'delete' === $mutation
+			? 'The Comment could not be deleted'
+			: 'The Comment could not be updated';
+
+		$this->assertSame(
+			$expected,
+			$actual['errors'][0]['message'],
+			'A moderator must be told the ID holds nothing rather than that they are not allowed.'
+		);
+	}
+
+	/**
 	 * @return array<string,array{0:string}>
 	 */
 	public function dataProviderCommentOracleMutations() {
