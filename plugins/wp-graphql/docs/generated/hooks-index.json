@@ -1,10 +1,10 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-10-14T03:04:20.294Z",
+  "generatedAt": "2026-10-15T06:42:37.990Z",
   "stats": {
-    "totalHooks": 282,
+    "totalHooks": 286,
     "actions": 63,
-    "filters": 219,
+    "filters": 223,
     "dynamic": 16,
     "snippets": 0
   },
@@ -317,7 +317,7 @@
     "flaggedHooks": 31,
     "warnings": 31,
     "errors": 0,
-    "wpgraphqlHooks": 262,
+    "wpgraphqlHooks": 266,
     "coreHooks": 20
   },
   "hooks": [
@@ -788,7 +788,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 560,
+      "line": 565,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -812,7 +812,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 560,
+          "line": 565,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -1682,6 +1682,54 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_allowed_password_reset_emails_per_request",
+      "kind": "filter",
+      "group": "authentication",
+      "groupLabel": "Authentication and Authorization",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "SendPasswordResetEmail::get_max_emails_per_request()",
+      "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
+      "line": 126,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters how many password reset emails a single GraphQL request may send. A request can ask for many by aliasing the mutation, and the batch limit counts batch entries rather than aliases, so the limit is applied here. Requests past the limit are rejected with an error rather than silently dropped. The error does not depend on whether the account exists.",
+      "params": [
+        {
+          "type": "int",
+          "name": "$max",
+          "description": "The maximum number of emails per request. Default 1."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.24.1",
+      "hookGroup": "authentication",
+      "isDynamic": false,
+      "rawExpression": "'graphql_allowed_password_reset_emails_per_request'",
+      "sourceCall": "apply_filters( 'graphql_allowed_password_reset_emails_per_request', self::DEFAULT_MAX_EMAILS_PER_REQUEST );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
+          "line": 126,
+          "symbol": "SendPasswordResetEmail::get_max_emails_per_request()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_allowed_post_stati",
       "kind": "filter",
       "group": "connections",
@@ -2380,6 +2428,64 @@
     },
     {
       "pluginSlug": "wp-graphql",
+      "name": "graphql_comment_author_can_update_own_comment",
+      "kind": "filter",
+      "group": "authentication",
+      "groupLabel": "Authentication and Authorization",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "CommentUpdate::mutate_and_get_payload()",
+      "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+      "line": 124,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters whether the author of a comment may update it without the `moderate_comments` capability. WPGraphQL lets people edit their own comments. WordPress does not: its `edit_comment` capability maps to `edit_post` on the post the comment was left on, so editing any comment in the admin or through the REST API requires being able to edit that post. Return false to apply WordPress's rule here instead, which leaves `updateComment` to callers who can moderate comments.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$can_update",
+          "description": "Whether the comment's author may update it. Default true."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$comment_args",
+          "description": "The comment as it is currently stored."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$input",
+          "description": "The input for the mutation."
+        }
+      ],
+      "argumentCount": 3,
+      "docblockParamCount": 3,
+      "since": "2.24.1",
+      "hookGroup": "authentication",
+      "isDynamic": false,
+      "rawExpression": "'graphql_comment_author_can_update_own_comment'",
+      "sourceCall": "apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comment_args, $input );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+          "line": 124,
+          "symbol": "CommentUpdate::mutate_and_get_payload()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
       "name": "graphql_comment_connection_args",
       "kind": "filter",
       "group": "connections",
@@ -2510,7 +2616,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "CommentMutation::prepare_comment_object()",
       "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 113,
+      "line": 125,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $insert_post_args",
@@ -2550,7 +2656,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-          "line": 113,
+          "line": 125,
           "symbol": "CommentMutation::prepare_comment_object()",
           "emitter": "apply_filters"
         }
@@ -2568,7 +2674,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "CommentMutation::update_additional_comment_data()",
       "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-      "line": 151,
+      "line": 163,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after additional comment mutation data has been updated.",
@@ -2628,9 +2734,67 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/CommentMutation.php",
-          "line": 151,
+          "line": 163,
           "symbol": "CommentMutation::update_additional_comment_data()",
           "emitter": "do_action"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_comment_update_requires_moderation",
+      "kind": "filter",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "CommentUpdate::maybe_hold_for_moderation()",
+      "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+      "line": 329,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters whether an edited comment is sent back for moderation. When a caller without the `moderate_comments` capability edits the content of a comment that is already approved, WordPress's moderation checks are run against the new content and the comment is held for review if they do not pass. Return false to let the comment keep its approved status regardless of what the new content says. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and the filter is never reached.",
+      "params": [
+        {
+          "type": "bool",
+          "name": "$requires_moderation",
+          "description": "Whether the comment will be held for review."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$comment_args",
+          "description": "The comment args about to be saved."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$raw_comment_args",
+          "description": "The comment as it is currently stored."
+        }
+      ],
+      "argumentCount": 3,
+      "docblockParamCount": 3,
+      "since": "2.24.1",
+      "hookGroup": "models",
+      "isDynamic": false,
+      "rawExpression": "'graphql_comment_update_requires_moderation'",
+      "sourceCall": "apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+          "line": 329,
+          "symbol": "CommentUpdate::maybe_hold_for_moderation()",
+          "emitter": "apply_filters"
         }
       ],
       "relatedRecipes": []
@@ -8068,6 +8232,54 @@
           "relatedFunctions": []
         }
       ]
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_password_reset_debug_capability",
+      "kind": "filter",
+      "group": "authentication",
+      "groupLabel": "Authentication and Authorization",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "SendPasswordResetEmail::debug_reason()",
+      "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
+      "line": 351,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the capability a caller needs to be told why no password reset email was sent. The default is `list_users` because a caller who holds it can already enumerate accounts through WordPress itself, so the reason tells them nothing they could not look up directly. By default only administrators hold it. Lower it to open the debug output up, for example while developing against the anonymous flow.",
+      "params": [
+        {
+          "type": "string",
+          "name": "$capability",
+          "description": "The capability required to see the reason. Default 'list_users'."
+        }
+      ],
+      "argumentCount": 1,
+      "docblockParamCount": 1,
+      "since": "2.24.1",
+      "hookGroup": "authentication",
+      "isDynamic": false,
+      "rawExpression": "'graphql_password_reset_debug_capability'",
+      "sourceCall": "apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
+          "line": 351,
+          "symbol": "SendPasswordResetEmail::debug_reason()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
     },
     {
       "pluginSlug": "wp-graphql",
@@ -16148,7 +16360,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SendPasswordResetEmail::get_email_message()",
       "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
-      "line": 239,
+      "line": 318,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the message body of the password reset mail. If the filtered message is empty, the password reset email will not be sent.",
@@ -16193,7 +16405,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
-          "line": 239,
+          "line": 318,
           "symbol": "SendPasswordResetEmail::get_email_message()",
           "emitter": "apply_filters"
         }
@@ -16211,7 +16423,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "SendPasswordResetEmail::get_email_subject()",
       "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
-      "line": 191,
+      "line": 270,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the subject of the password reset email.",
@@ -16251,7 +16463,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php",
-          "line": 191,
+          "line": 270,
           "symbol": "SendPasswordResetEmail::get_email_subject()",
           "emitter": "apply_filters"
         }
@@ -16311,7 +16523,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 836,
+      "line": 841,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16335,7 +16547,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 836,
+          "line": 841,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -16353,7 +16565,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 536,
+      "line": 541,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16377,13 +16589,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16437,7 +16649,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 545,
+      "line": 550,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16461,13 +16673,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16545,13 +16757,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16629,13 +16841,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16713,13 +16925,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16797,13 +17009,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16881,13 +17093,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16965,13 +17177,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 536,
+          "line": 541,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 545,
+          "line": 550,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },

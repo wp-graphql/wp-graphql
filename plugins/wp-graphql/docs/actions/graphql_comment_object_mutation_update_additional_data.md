@@ -34,7 +34,7 @@ Fires after additional comment mutation data has been updated.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/CommentMutation.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L151)
+- [`plugins/wp-graphql/src/Data/CommentMutation.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L163)
 
 ```php
 do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
@@ -42,4 +42,4 @@ do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id
 
 ## Related
 
-- `CommentMutation::update_additional_comment_data()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L151)
+- `CommentMutation::update_additional_comment_data()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L163)

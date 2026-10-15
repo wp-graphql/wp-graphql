@@ -118,7 +118,7 @@ class CommentUpdate {
 					 * @param array<string,mixed> $comment_args The comment as it is currently stored.
 					 * @param array<string,mixed> $input        The input for the mutation.
 					 *
-					 * @since x-release-please-version
+					 * @since 2.24.1
 					 * @hookGroup authentication
 					 */
 					$not_allowed = ! apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comment_args, $input );
@@ -323,7 +323,7 @@ class CommentUpdate {
 		 * @param array<string,mixed> $comment_args        The comment args about to be saved.
 		 * @param array<string,mixed> $raw_comment_args    The comment as it is currently stored.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.24.1
 		 * @hookGroup models
 		 */
 		$requires_moderation = (bool) apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );

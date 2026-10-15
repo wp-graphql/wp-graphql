@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.24.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.0...wp-graphql/v2.24.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **media:** reject internal IPv6 addresses written with a dotted-quad tail ([#4451](https://github.com/wp-graphql/wp-graphql/issues/4451)) ([692d43e](https://github.com/wp-graphql/wp-graphql/commit/692d43e7f713542c3b882129ddef23e22e3651eb))
+* **media:** reject IPv6 forms that carry an internal IPv4 address (GHSA-3j5r-mp5g-4wrw) ([#4446](https://github.com/wp-graphql/wp-graphql/issues/4446)) ([65f5324](https://github.com/wp-graphql/wp-graphql/commit/65f5324e2c780b1ed65f779b14e34945241eec76))
+* **models:** require edit_others_posts to read someone else's trashed content (GHSA-rq5q-mc8v-w8pq) ([#4440](https://github.com/wp-graphql/wp-graphql/issues/4440)) ([ba57a6f](https://github.com/wp-graphql/wp-graphql/commit/ba57a6fa266c50d49f836bb7e3a9b3a62ecf5d99))
+* **mutations:** check the capability before looking up the target (GHSA-r7m4-3v6c-3435) ([#4443](https://github.com/wp-graphql/wp-graphql/issues/4443)) ([3fb1904](https://github.com/wp-graphql/wp-graphql/commit/3fb1904acff4df00287ef6278fe40438d276a9f9))
+* **mutations:** check the target post before creating a comment (GHSA-4vgv-vvxr-9fh9) ([#4441](https://github.com/wp-graphql/wp-graphql/issues/4441)) ([b9da32b](https://github.com/wp-graphql/wp-graphql/commit/b9da32bd8e6025e19a9b04acaa129978eba71177))
+* **mutations:** limit password reset emails to one per request (GHSA-f5f8-v768-93c8) ([#4444](https://github.com/wp-graphql/wp-graphql/issues/4444)) ([760db55](https://github.com/wp-graphql/wp-graphql/commit/760db555e3e60fbd86c1d96f1689bacfc9265592))
+* **mutations:** restrict updateComment to content for non-moderators (GHSA-cf67-w9ww-p68v) ([#4442](https://github.com/wp-graphql/wp-graphql/issues/4442)) ([db65bab](https://github.com/wp-graphql/wp-graphql/commit/db65bab7181ea485663bfb76ea41a1fe20f9ffe5))
+* **mutations:** stop debug output saying whether an account exists (GHSA-6xw5-35v5-2886) ([#4445](https://github.com/wp-graphql/wp-graphql/issues/4445)) ([fd3789e](https://github.com/wp-graphql/wp-graphql/commit/fd3789edae3b6a98a795dc91c952a864e2f3b366))
+
 ## [2.24.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.1...wp-graphql/v2.24.0) (2026-10-14)
 
 

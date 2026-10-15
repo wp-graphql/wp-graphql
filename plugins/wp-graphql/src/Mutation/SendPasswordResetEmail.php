@@ -120,7 +120,7 @@ class SendPasswordResetEmail {
 		 *
 		 * @param int $max The maximum number of emails per request. Default 1.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.24.1
 		 * @hookGroup authentication
 		 */
 		$max = (int) apply_filters( 'graphql_allowed_password_reset_emails_per_request', self::DEFAULT_MAX_EMAILS_PER_REQUEST );
@@ -345,7 +345,7 @@ class SendPasswordResetEmail {
 		 *
 		 * @param string $capability The capability required to see the reason. Default 'list_users'.
 		 *
-		 * @since x-release-please-version
+		 * @since 2.24.1
 		 * @hookGroup authentication
 		 */
 		$capability = (string) apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );
