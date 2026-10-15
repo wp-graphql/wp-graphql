@@ -225,9 +225,18 @@ jobs:
           npm run wp-env -- run cli wp core version
 
       - name: Activate test theme
+        env:
+          THEME: ${{ inputs.theme }}
         run: |
-          echo "Activating theme: ${{ inputs.theme }}"
-          npm run wp-env run tests-cli -- wp theme activate ${{ inputs.theme }}
+          echo "Activating theme: $THEME"
+          # Core does not bundle every default theme forever, so the zip for a
+          # given WordPress version may not carry the one this matrix cell asks
+          # for. Twenty Twenty-One is absent from the 7.0 download, which turned
+          # every WP 7.0 classic-theme cell red when 7.0 shipped. Fetch it when
+          # core did not provide it. Best effort: the activate below is the gate,
+          # so a theme that genuinely cannot be installed still fails the step.
+          npm run wp-env run tests-cli -- wp theme install "$THEME" || echo "Theme not installed from wordpress.org; relying on the bundled copy."
+          npm run wp-env run tests-cli -- wp theme activate "$THEME"
           npm run wp-env run tests-cli -- wp theme list
 
       - name: Install ACF plugins (if configured)
