@@ -558,6 +558,23 @@ Variables for moderation:
 > - Create new comments (when allowed)
 > - Edit their own comments
 > - Delete their own comments
+>
+> Editing your own comment means its `content`. The fields that decide which node a comment
+> belongs to, who it appears to have been written by, and when, require `moderate_comments`:
+> `commentOn`, `author`, `authorEmail`, `authorUrl`, `date`, `parent` and `type`. Sending one of
+> those with the value already stored is allowed, so a client that resubmits a whole form keeps
+> working.
+
+> [!NOTE]
+> Letting people edit their own comments is a WPGraphQL behavior, not a WordPress one. WordPress
+> maps its `edit_comment` capability to `edit_post` on the node the comment was left on, so in the
+> admin and through the REST API, editing any comment requires being able to edit that content.
+> To apply WordPress's rule instead, and leave `updateComment` to callers who can moderate
+> comments:
+>
+> ```php
+> add_filter( 'graphql_comment_author_can_update_own_comment', '__return_false' );
+> ```
 
 ## Working with Mutations
 
