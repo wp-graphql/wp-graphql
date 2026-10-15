@@ -580,6 +580,221 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Runs createComment anonymously against a post and returns the error message,
+	 * or null when the comment was accepted.
+	 *
+	 * @param int $post_id The post to comment on.
+	 */
+	protected function anonymousCommentError( int $post_id ): ?string {
+		update_option( 'comment_registration', '0' );
+		wp_set_current_user( 0 );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+				mutation ( $commentOn: Int! ) {
+					createComment( input: {
+						commentOn: $commentOn
+						content: "probe"
+						author: "Probe"
+						authorEmail: "probe@example.com"
+					} ) { success }
+				}
+				',
+				'variables' => [ 'commentOn' => $post_id ],
+			]
+		);
+
+		return $actual['errors'][0]['message'] ?? null;
+	}
+
+	/**
+	 * Hardening for GHSA-2f5m-v898-fmjx and GHSA-4vgv-vvxr-9fh9. createComment
+	 * checked only `comment_status`, so an anonymous caller could comment on a
+	 * draft, a private post, a trashed post or a password-protected one. Each
+	 * comment also triggers wp_notify_moderator(), whose subject carries the post
+	 * title, so a comment on a private post mailed that title to the moderator.
+	 *
+	 * The conditions mirror wp_handle_comment_submission().
+	 *
+	 * @dataProvider dataPostsThatCannotBeCommentedOn
+	 *
+	 * @param string              $status      The post status to create.
+	 * @param array<string,mixed> $extra       Extra arguments for the post.
+	 * @param bool                $trash_first Whether to trash the post before commenting.
+	 */
+	public function testAnonymousCannotCommentOnPostsItCannotRead( string $status, array $extra, bool $trash_first ) {
+		$post_id = $this->factory()->post->create(
+			array_merge(
+				[
+					'post_type'      => 'post',
+					'post_status'    => $status,
+					'post_title'     => 'Title that must not leak',
+					'post_author'    => $this->admin,
+					'comment_status' => 'open',
+				],
+				$extra
+			)
+		);
+
+		if ( $trash_first ) {
+			wp_trash_post( $post_id );
+		}
+
+		$error = $this->anonymousCommentError( $post_id );
+
+		$this->assertSame(
+			'The ID of the node to comment on is invalid',
+			$error,
+			'A post the caller cannot read must give the same answer as one that does not exist'
+		);
+		$comment_count = (int) get_comments(
+			[
+				'post_id' => $post_id,
+				'count'   => true,
+			]
+		);
+
+		$this->assertSame( 0, $comment_count, 'No comment may be created' );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:array<string,mixed>,2:bool}>
+	 */
+	public function dataPostsThatCannotBeCommentedOn(): array {
+		return [
+			'draft'              => [ 'draft', [], false ],
+			'pending'            => [ 'pending', [], false ],
+			'private'            => [ 'private', [], false ],
+			'trashed'            => [ 'publish', [], true ],
+			'password protected' => [ 'publish', [ 'post_password' => 'hunter2' ], false ],
+		];
+	}
+
+	/**
+	 * The refusal must not say which kind of post it was, or the mutation becomes a
+	 * way to map which IDs exist and what state they are in.
+	 */
+	public function testRefusalIsIndistinguishableFromANonexistentPost() {
+		$draft = $this->factory()->post->create(
+			[
+				'post_status'    => 'draft',
+				'post_author'    => $this->admin,
+				'comment_status' => 'open',
+			]
+		);
+
+		$this->assertSame(
+			$this->anonymousCommentError( 999999999 ),
+			$this->anonymousCommentError( $draft ),
+			'A draft and an ID that does not exist must be indistinguishable'
+		);
+	}
+
+	/**
+	 * The guard must not over-block. Someone who can read the post is told why
+	 * comments are refused, and can still comment where WordPress allows it.
+	 */
+	public function testCapableUserIsToldWhyAndCanStillComment() {
+		wp_set_current_user( $this->admin );
+		update_option( 'comment_registration', '0' );
+
+		$draft = $this->factory()->post->create(
+			[
+				'post_status'    => 'draft',
+				'post_author'    => $this->admin,
+				'comment_status' => 'open',
+			]
+		);
+
+		$private = $this->factory()->post->create(
+			[
+				'post_status'    => 'private',
+				'post_author'    => $this->admin,
+				'comment_status' => 'open',
+			]
+		);
+
+		$mutation = '
+		mutation ( $commentOn: Int! ) {
+			createComment( input: { commentOn: $commentOn, content: "probe" } ) { success }
+		}
+		';
+
+		$on_draft = $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [ 'commentOn' => $draft ],
+			]
+		);
+		$this->assertSame(
+			'Sorry, comments are not allowed for this item',
+			$on_draft['errors'][0]['message'] ?? null,
+			'A user who can read the draft is told why, as WordPress does'
+		);
+
+		$on_private = $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [ 'commentOn' => $private ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $on_private, 'A user who can read a private post may comment on it' );
+	}
+
+	/**
+	 * Hardening for GHSA-4vgv-vvxr-9fh9. `date` and `type` were taken from input
+	 * with no capability check, so any caller could backdate a comment or file it
+	 * as another type. Core draws the same line with `moderate_comments`.
+	 */
+	public function testDateAndTypeRequireModerateComments() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'    => 'publish',
+				'post_author'    => $this->admin,
+				'comment_status' => 'open',
+			]
+		);
+
+		$mutation = '
+		mutation ( $commentOn: Int! ) {
+			createComment( input: {
+				commentOn: $commentOn
+				content: "probe"
+				date: "2001-01-01 00:00:00"
+				type: "pingback"
+			} ) { comment { databaseId } }
+		}
+		';
+
+		update_option( 'comment_registration', '0' );
+
+		wp_set_current_user( $this->subscriber );
+		$actual  = $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [ 'commentOn' => $post_id ],
+			]
+		);
+		$comment = get_comment( $actual['data']['createComment']['comment']['databaseId'] );
+
+		$this->assertNotSame( '2001-01-01 00:00:00', $comment->comment_date, 'A subscriber must not be able to backdate a comment' );
+		$this->assertNotSame( 'pingback', $comment->comment_type, 'A subscriber must not be able to choose the comment type' );
+
+		wp_set_current_user( $this->admin );
+		$actual  = $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [ 'commentOn' => $post_id ],
+			]
+		);
+		$comment = get_comment( $actual['data']['createComment']['comment']['databaseId'] );
+
+		$this->assertSame( '2001-01-01 00:00:00', $comment->comment_date, 'A moderator may still set the date' );
+		$this->assertSame( 'pingback', $comment->comment_type, 'A moderator may still set the type' );
+	}
+
+	/**
 	 * Make sure that we can't leave a comment if we are not logged in and the comment registration
 	 * flag is set
 	 */

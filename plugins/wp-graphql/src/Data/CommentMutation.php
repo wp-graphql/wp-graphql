@@ -75,7 +75,19 @@ class CommentMutation {
 			$output_args['comment_post_ID'] = $input['commentOn'];
 		}
 
-		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
+		// Backdating a comment, or choosing what kind of comment it is, are
+		// moderation decisions: a caller who can set `date` can make a comment appear
+		// to predate the conversation, and one who can set `type` can file a comment
+		// as a pingback or any other type, which decides where it is displayed and
+		// which filters apply to it. Core draws the same line with `moderate_comments`
+		// in its REST comments controller.
+		//
+		// A caller without the capability has these dropped rather than rejected, so a
+		// client that sends the whole form keeps working. See the restricted input
+		// policy; this becomes an error in v3.
+		$can_moderate = current_user_can( 'moderate_comments' );
+
+		if ( $can_moderate && ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
 			$output_args['comment_date'] = gmdate( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
@@ -87,7 +99,7 @@ class CommentMutation {
 			$output_args['comment_parent'] = Utils::get_database_id_from_id( $input['parent'] );
 		}
 
-		if ( ! empty( $input['type'] ) ) {
+		if ( $can_moderate && ! empty( $input['type'] ) ) {
 			$output_args['comment_type'] = $input['type'];
 		}
 
