@@ -1379,7 +1379,10 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testSendPasswordResetEmailWithInvalidUsername() {
 		$username = 'userDoesNotExist';
-		// Run the mutation, passing in an invalid username.
+
+		// A caller who can list users can already enumerate accounts, so they are told the reason.
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
 		// This should return successful with a notice in the log.
@@ -1387,6 +1390,67 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
 		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
+	}
+
+	/**
+	 * The mutation returns the same payload whether or not the account exists, so that the
+	 * response cannot be used to discover who has an account. `extensions.debug` is attached to
+	 * every response when debugging is on, anonymous ones included, so the debug output has to be
+	 * the same too.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testSendPasswordResetEmailDebugOutputDoesNotRevealWhetherAnAccountExists() {
+		$subscriber = get_userdata( $this->subscriber );
+
+		$targets = [
+			'an account that does not exist' => 'userDoesNotExist',
+			'an email that does not exist'   => 'nobody@example.test',
+			'an existing username'           => $subscriber->user_login,
+			'an existing email'              => $subscriber->user_email,
+		];
+
+		wp_set_current_user( 0 );
+
+		$debug = [];
+
+		foreach ( $targets as $label => $username ) {
+			$actual = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $actual, sprintf( 'The mutation must succeed for %s.', $label ) );
+			$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'], sprintf( 'The mutation must report success for %s.', $label ) );
+
+			$debug[ $label ] = wp_json_encode( $actual['extensions']['debug'] ?? [] );
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $debug ),
+			'An anonymous caller must get the same debug output whether or not the account exists: ' . wp_json_encode( $debug )
+		);
+	}
+
+	/**
+	 * A site that wants the reason in its public debug output can lower the capability.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testSendPasswordResetEmailDebugCapabilityIsFilterable() {
+		$lower_capability = static function () {
+			return 'read';
+		};
+		add_filter( 'graphql_password_reset_debug_capability', $lower_capability );
+
+		try {
+			wp_set_current_user( $this->subscriber );
+
+			$actual = $this->sendPasswordResetEmailMutation( 'userDoesNotExist' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
+		} finally {
+			remove_filter( 'graphql_password_reset_debug_capability', $lower_capability );
+		}
 	}
 
 	public function testSendPasswordResetEmailWithUsername() {
