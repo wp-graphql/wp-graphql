@@ -594,12 +594,16 @@ class MediaItemCreate {
 	 * IPv4-mapped (::ffff:a.b.c.d), IPv4-compatible (::a.b.c.d), NAT64
 	 * (64:ff9b::/96) and 6to4 (2002::/16).
 	 *
-	 * The unwrapping is done on the packed bytes rather than on the string, and
-	 * the IPv6 ranges below are rejected explicitly, because PHP's
-	 * FILTER_FLAG_NO_RES_RANGE does not treat these forms consistently. On PHP
-	 * 8.3.35 it rejects ::ffff:7f00:1 while allowing ::7f00:1, 64:ff9b::7f00:1
-	 * and 2002:7f00:1::, and the behaviour differs across the PHP versions this
-	 * plugin supports, so it is not relied on for IPv6.
+	 * Everything about IPv6 is decided on the packed bytes, and every IPv6 range
+	 * that is not publicly routable is listed explicitly below, because PHP's
+	 * FILTER_FLAG_NO_PRIV_RANGE and FILTER_FLAG_NO_RES_RANGE read the text rather
+	 * than the address. Two spellings of the same sixteen bytes get opposite
+	 * answers from them, and which spellings differ changes between PHP releases:
+	 * on PHP 8.3 the flags reject ::ffff:7f00:1 while allowing ::7f00:1,
+	 * 64:ff9b::7f00:1 and 2002:7f00:1::, and up to PHP 8.2 they skip their IPv6
+	 * range checks altogether for an address ending in a dotted quad, so
+	 * fd00::0.0.0.1 passed while fd00::1 did not. The flags are therefore not
+	 * trusted for IPv6 at all; they are left in place only for IPv4.
 	 *
 	 * Unwrapping only the dotted IPv4-mapped form previously let an author who
 	 * can upload files point filePath at a host whose AAAA record was one of the
@@ -631,11 +635,21 @@ class MediaItemCreate {
 				$ip     = $embedded;
 				$packed = inet_pton( $embedded );
 			} else {
-				// Ranges PHP's filter flags do not reject. fec0::/10 is the
-				// deprecated site-local range, still routable inside a network;
+				// Every IPv6 range that is not publicly routable, listed here rather
+				// than left to the filter flags below. ::1/128 is loopback;
+				// fe80::/10 is link-local; fc00::/7 is unique-local; fec0::/10 is
+				// the deprecated site-local range, still routable inside a network;
 				// ff00::/8 is multicast; ::/128 is unspecified; 100::/64 is the
 				// discard-only range; 2001:db8::/32 is documentation.
-				foreach ( [ 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32' ] as $cidr ) {
+				//
+				// The first three are also rejected by the filter flags, but only
+				// when the address is written as hex groups. Up to PHP 8.2, and up
+				// to 8.3.20 and 8.4.26, the flags skip their IPv6 range checks
+				// entirely for an address whose text ends in a dotted quad, so
+				// `fd00::0.0.0.1` was judged public while `fd00::1`, the same
+				// sixteen bytes, was not. Matching on the packed bytes is spelling
+				// independent, which is the whole point of this function.
+				foreach ( [ '::1/128', 'fe80::/10', 'fc00::/7', 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32' ] as $cidr ) {
 					if ( self::ip_in_cidr( (string) $packed, $cidr ) ) {
 						return false;
 					}
@@ -663,12 +677,6 @@ class MediaItemCreate {
 		return true;
 	}
 
-	/**
-	 * Determines whether an IPv4 address falls within a CIDR block.
-	 *
-	 * @param string $ip   A validated IPv4 address.
-	 * @param string $cidr A CIDR block in "network/prefix" form.
-	 */
 	/**
 	 * Returns the IPv4 address carried inside an IPv6 address, if there is one.
 	 *
