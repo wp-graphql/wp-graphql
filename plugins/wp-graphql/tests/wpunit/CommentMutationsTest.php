@@ -1017,7 +1017,95 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey('errors', $actual);
 		$this->assertEquals('SPAM', $actual['data']['updateComment']['comment']['status']);
 	}
+	/**
+	 * An anonymous caller can neither moderate a comment nor own one, so they must not be able to
+	 * tell an existing comment ID from a nonexistent one. Every distinct message is a state in a
+	 * comment existence oracle that also covers unapproved comments.
+	 *
+	 * @see GHSA-r7m4-3v6c-3435
+	 *
+	 * @dataProvider dataProviderCommentOracleMutations
+	 *
+	 * @param string $mutation The mutation to exercise, either `delete` or `update`.
+	 */
+	public function testCommentMutationsDoNotDiscloseWhichIdsExistToAnonymousCallers( $mutation ) {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_status' => 'publish',
+				'post_title'  => 'Post for the comment oracle test',
+			]
+		);
 
+		$private_post_id = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_status' => 'private',
+				'post_title'  => 'Private post for the comment oracle test',
+			]
+		);
+
+		$targets = [
+			'nonexistent'               => 99999999,
+			'approved on a public post' => $this->factory()->comment->create(
+				[
+					'comment_post_ID'  => $post_id,
+					'comment_content'  => 'Approved comment',
+					'comment_approved' => '1',
+				]
+			),
+			'pending on a public post'  => $this->factory()->comment->create(
+				[
+					'comment_post_ID'  => $post_id,
+					'comment_content'  => 'Pending comment',
+					'comment_approved' => '0',
+				]
+			),
+			'pending on a private post' => $this->factory()->comment->create(
+				[
+					'comment_post_ID'  => $private_post_id,
+					'comment_content'  => 'Pending comment on private content',
+					'comment_approved' => '0',
+				]
+			),
+		];
+
+		$query = 'delete' === $mutation
+			? 'mutation deleteComment( $id: ID! ) { deleteComment( input: { id: $id } ) { deletedId } }'
+			: 'mutation updateComment( $id: ID! ) { updateComment( input: { id: $id, content: "edited" } ) { success } }';
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $comment_id ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [ 'id' => $comment_id ],
+				]
+			);
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not %s the comment %s.', $mutation, $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every comment ID: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * @return array<string,array{0:string}>
+	 */
+	public function dataProviderCommentOracleMutations() {
+		return [
+			'deleteComment' => [ 'delete' ],
+			'updateComment' => [ 'update' ],
+		];
+	}
 	/**
 	 * Creates a published post owned by $this->author and an approved comment on it owned by
 	 * $this->subscriber, for the updateComment authorization tests.
