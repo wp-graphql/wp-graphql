@@ -81,29 +81,35 @@ class PostObjectUpdate {
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
-			// Get the database ID for the comment.
-			$post_id       = Utils::get_database_id_from_id( $input['id'] );
-			$existing_post = ! empty( $post_id ) ? get_post( $post_id ) : null;
-
 			/**
-			 * If there's no existing post, throw an exception
-			 */
-			if ( null === $existing_post ) {
-				// translators: the placeholder is the name of the type of post being updated
-				throw new UserError( esc_html( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
-			}
-
-			if ( $post_type_object->name !== $existing_post->post_type ) {
-				// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-				throw new UserError( esc_html( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $post_id, $post_type_object->name ) ) );
-			}
-
-			/**
-			 * Stop now if a user isn't allowed to edit posts
+			 * Stop now if a user isn't allowed to edit posts of this type at all.
+			 *
+			 * This runs before the post is looked up so that a caller who fails it gets the
+			 * same answer for every ID. Checking it afterwards meant the errors below told
+			 * an unauthorized caller whether an ID existed, and whether it held a post of
+			 * this type, across every post type and status, including drafts, private posts
+			 * and trashed posts that the `posts` and `contentNodes` connections filter out.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
 			 */
 			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 				// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
 				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to update a %1$s', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
+			}
+
+			// Get the database ID for the post.
+			$post_id       = Utils::get_database_id_from_id( $input['id'] );
+			$existing_post = ! empty( $post_id ) ? get_post( $post_id ) : null;
+
+			/**
+			 * An ID that holds nothing and an ID that holds another post type give the same
+			 * answer, and neither names the ID back. Telling them apart would say which IDs
+			 * exist across every post type, which is information a caller who may edit this
+			 * post type still should not have for the others.
+			 */
+			if ( null === $existing_post || $post_type_object->name !== $existing_post->post_type ) {
+				// translators: the placeholder is the name of the type of post being updated
+				throw new UserError( esc_html( sprintf( __( 'No %1$s could be found to update', 'wp-graphql' ), $post_type_object->graphql_single_name ) ) );
 			}
 
 			/**

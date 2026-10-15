@@ -1646,4 +1646,64 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			WPGraphQL::clear_schema();
 		}
 	}
+
+	/**
+	 * updatePost looked the post up before checking whether the caller may edit this post type
+	 * at all, so the error said whether an ID existed and whether it held a post of this type,
+	 * across every post type and status. Every refusal must now read the same.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+	 */
+	public function testUpdatePostDoesNotDiscloseWhichIdsExist() {
+		$targets = [
+			'nonexistent' => 99999999,
+			'published'   => $this->factory()->post->create( [ 'post_author' => $this->admin, 'post_status' => 'publish' ] ),
+			'draft'       => $this->factory()->post->create( [ 'post_author' => $this->admin, 'post_status' => 'draft' ] ),
+			'trashed'     => $this->factory()->post->create( [ 'post_author' => $this->admin, 'post_status' => 'trash' ] ),
+			'another type' => $this->factory()->post->create( [ 'post_author' => $this->admin, 'post_type' => 'page', 'post_status' => 'publish' ] ),
+		];
+
+		$query = 'mutation updatePost( $id: ID! ) { updatePost( input: { id: $id, title: "edited" } ) { post { databaseId } } }';
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $id ) {
+			$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => (string) $id ] ] );
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not update the %s post.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every ID: ' . wp_json_encode( $messages )
+		);
+
+		// The merged message must not name the ID back either.
+		$this->assertStringNotContainsString(
+			(string) $targets['another type'],
+			$messages['another type'],
+			'The refusal must not echo the database ID.'
+		);
+	}
+
+	/**
+	 * The uniform refusal above must not cost an authorized caller the more useful message.
+	 */
+	public function testUpdatePostStillReportsAMissingPostToAnAuthorizedCaller() {
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'mutation updatePost( $id: ID! ) { updatePost( input: { id: $id, title: "edited" } ) { post { databaseId } } }',
+				'variables' => [ 'id' => '99999999' ],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'No post could be found to update', $actual['errors'][0]['message'] );
+	}
 }

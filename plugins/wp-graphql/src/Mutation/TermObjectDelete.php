@@ -106,6 +106,24 @@ class TermObjectDelete {
 			}
 
 			/**
+			 * Stop now if a user isn't allowed to delete terms in this taxonomy at all.
+			 *
+			 * This runs before the term is looked up so that a caller who fails it gets the
+			 * same answer for every ID. Checking only the per-object capability afterwards
+			 * meant the invalid-ID error below told an unauthorized caller which IDs are
+			 * terms in this taxonomy.
+			 *
+			 * The per-object `delete_term` check stays where it is, below, because it needs
+			 * the loaded term.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+			 */
+			if ( ! isset( $taxonomy->cap->delete_terms ) || ! current_user_can( $taxonomy->cap->delete_terms ) ) {
+				// Translators: The placeholder is the name of the taxonomy for the term being deleted
+				throw new UserError( esc_html( sprintf( __( 'You do not have permission to delete %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) ) );
+			}
+
+			/**
 			 * Get the term before deleting it
 			 */
 			$term_object = get_term( $term_id, $taxonomy->name );
