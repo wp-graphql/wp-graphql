@@ -1311,6 +1311,106 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * prepare_comment_object() fills the author fields from the current user when the input
+	 * leaves them out, so a content-only edit used to reset the byline to the caller's current
+	 * profile, discarding a moderator's correction. Only `moderate_comments` may change who a
+	 * comment appears to have been written by.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-cf67-w9ww-p68v
+	 */
+	public function testUpdateCommentOwnerContentEditKeepsTheStoredByline() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $this->author,
+				'post_status' => 'publish',
+			]
+		);
+
+		// A moderator has already corrected the byline on this comment, so the stored values
+		// deliberately differ from the commenter's profile.
+		$comment_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID'      => $post_id,
+				'user_id'              => $this->subscriber,
+				'comment_approved'     => '1',
+				'comment_content'      => 'original',
+				'comment_author'       => 'Moderator Corrected Name',
+				'comment_author_email' => 'corrected@example.com',
+				'comment_author_url'   => 'https://corrected.example.com',
+			]
+		);
+
+		$before = get_comment( $comment_id );
+
+		wp_set_current_user( $this->subscriber );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+				mutation updateComment( $input: UpdateCommentInput! ) {
+					updateComment( input: $input ) {
+						success
+						comment { databaseId content }
+					}
+				}
+				',
+				'variables' => [
+					'input' => [
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+						'content' => 'edited content only',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'Editing only the content must be allowed.' );
+
+		clean_comment_cache( $comment_id );
+		$after = get_comment( $comment_id );
+
+		$this->assertEquals( 'edited content only', $after->comment_content, 'The content must be updated.' );
+		$this->assertEquals( $before->comment_author, $after->comment_author, 'The stored author name must survive a content edit.' );
+		$this->assertEquals( $before->comment_author_email, $after->comment_author_email, 'The stored author email must survive a content edit.' );
+		$this->assertEquals( $before->comment_author_url, $after->comment_author_url, 'The stored author url must survive a content edit.' );
+	}
+
+	/**
+	 * A moderator may change the byline, so the guard above must not apply to them.
+	 */
+	public function testUpdateCommentModeratorCanStillChangeTheByline() {
+		list( $post_id, $comment_id ) = $this->createApprovedSubscriberComment();
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+				mutation updateComment( $input: UpdateCommentInput! ) {
+					updateComment( input: $input ) {
+						success
+					}
+				}
+				',
+				'variables' => [
+					'input' => [
+						'id'          => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+						'author'      => 'Renamed By Moderator',
+						'authorEmail' => 'renamed@example.com',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'A moderator must be able to change the byline.' );
+
+		clean_comment_cache( $comment_id );
+		$after = get_comment( $comment_id );
+
+		$this->assertEquals( 'Renamed By Moderator', $after->comment_author, 'A moderator must be able to rename the author.' );
+		$this->assertEquals( 'renamed@example.com', $after->comment_author_email, 'A moderator must be able to change the author email.' );
+	}
+
+	/**
 	 * Approval belongs to the content a moderator read, so content edited into something that
 	 * fails the site's moderation checks goes back for review.
 	 */
