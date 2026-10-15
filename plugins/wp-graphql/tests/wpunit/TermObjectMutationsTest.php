@@ -956,4 +956,74 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'Please provide only one of parentId or parentDatabaseId', $actual['errors'][0]['message'] );
 	}
+
+	/**
+	 * The term mutations looked the term up before checking whether the caller may edit or
+	 * delete terms in this taxonomy at all, so the error said whether an ID was a term in it.
+	 *
+	 * @dataProvider dataProviderTermOracleMutations
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+	 *
+	 * @param string $mutation The mutation to exercise, either `update` or `delete`.
+	 */
+	public function testTermMutationsDoNotDiscloseWhichIdsExist( $mutation ) {
+		$targets = [
+			'nonexistent'     => 99999999,
+			'a category'      => $this->factory()->term->create( [ 'taxonomy' => 'category' ] ),
+			'another taxonomy' => $this->factory()->term->create( [ 'taxonomy' => 'post_tag' ] ),
+		];
+
+		$query = 'update' === $mutation
+			? 'mutation updateCategory( $id: ID! ) { updateCategory( input: { id: $id, name: "edited" } ) { category { databaseId } } }'
+			: 'mutation deleteCategory( $id: ID! ) { deleteCategory( input: { id: $id } ) { deletedId } }';
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $id ) {
+			$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => (string) $id ] ] );
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not %s the term %s.', $mutation, $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every ID: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * @return array<string,array{0:string}>
+	 */
+	public function dataProviderTermOracleMutations() {
+		return [
+			'updateCategory' => [ 'update' ],
+			'deleteCategory' => [ 'delete' ],
+		];
+	}
+
+	/**
+	 * An authorized caller keeps the more useful answer.
+	 */
+	public function testTermUpdateStillReportsAMissingTermToAnAuthorizedCaller() {
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'mutation updateCategory( $id: ID! ) { updateCategory( input: { id: $id, name: "edited" } ) { category { databaseId } } }',
+				'variables' => [ 'id' => '99999999' ],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'A missing term must still be an error for an administrator.' );
+		$this->assertStringNotContainsString(
+			'You do not have permission',
+			$actual['errors'][0]['message'],
+			'An administrator must not be told they lack permission for a term that does not exist.'
+		);
+	}
 }

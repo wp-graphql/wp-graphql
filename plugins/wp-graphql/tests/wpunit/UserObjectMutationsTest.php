@@ -1659,4 +1659,53 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 */
 	$this->assertFalse( $was_password_change_email_sent );
 }
+
+	/**
+	 * updateUser looked the account up before checking whether the caller may edit it, so the
+	 * error said whether a user ID existed.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+	 */
+	public function testUpdateUserDoesNotDiscloseWhichIdsExist() {
+		$existing = $this->factory()->user->create( [ 'role' => 'author' ] );
+
+		$query = 'mutation updateUser( $id: ID! ) { updateUser( input: { id: $id, firstName: "edited" } ) { user { databaseId } } }';
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( [ 'nonexistent' => 99999999, 'exists' => $existing ] as $label => $id ) {
+			$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => (string) $id ] ] );
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not update the %s user.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every user ID: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * The `edit_user` capability resolves from the ID alone, so moving it above the lookup must
+	 * not stop someone editing their own account.
+	 */
+	public function testUpdateUserStillLetsSomeoneEditTheirOwnAccount() {
+		$subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
+
+		wp_set_current_user( $subscriber );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'mutation updateUser( $id: ID! ) { updateUser( input: { id: $id, firstName: "Mine" } ) { user { databaseId firstName } } }',
+				'variables' => [ 'id' => (string) $subscriber ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'A user must still be able to edit their own account.' );
+		$this->assertSame( 'Mine', $actual['data']['updateUser']['user']['firstName'] );
+	}
 }

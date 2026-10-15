@@ -96,6 +96,24 @@ class TermObjectUpdate {
 			}
 
 			/**
+			 * Stop now if a user isn't allowed to edit terms in this taxonomy at all.
+			 *
+			 * This runs before the term is looked up so that a caller who fails it gets the
+			 * same answer for every ID. Checking only the per-object capability afterwards
+			 * meant the not-found error below told an unauthorized caller which IDs are
+			 * terms in this taxonomy.
+			 *
+			 * The per-object `edit_term` check stays where it is, below, because it needs
+			 * the loaded term.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+			 */
+			if ( ! isset( $taxonomy->cap->edit_terms ) || ! current_user_can( $taxonomy->cap->edit_terms ) ) {
+				// Translators: The placeholder is the name of the taxonomy for the term being edited
+				throw new UserError( esc_html( sprintf( __( 'You do not have permission to update %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) ) );
+			}
+
+			/**
 			 * Get the existing term
 			 */
 			$existing_term = get_term( $term_id, $taxonomy->name );
