@@ -1101,6 +1101,148 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * Builds one of every target shape the oracle in GHSA-r7m4-3v6c-3435 could distinguish: an ID
+	 * that holds nothing, posts and pages in public and non-public statuses, and a real attachment.
+	 *
+	 * @return array<string,int> Label mapped to the database ID to send.
+	 */
+	public function mediaItemOracleTargets() {
+		$targets = [ 'nonexistent' => 99999999 ];
+
+		foreach (
+			[
+				'published post' => [ 'post', 'publish' ],
+				'draft post'     => [ 'post', 'draft' ],
+				'private post'   => [ 'post', 'private' ],
+				'pending post'   => [ 'post', 'pending' ],
+				'trashed post'   => [ 'post', 'trash' ],
+				'published page' => [ 'page', 'publish' ],
+			] as $label => $args
+		) {
+			list( $post_type, $post_status ) = $args;
+
+			$targets[ $label ] = $this->factory()->post->create(
+				[
+					'post_author' => $this->admin,
+					'post_type'   => $post_type,
+					'post_status' => $post_status,
+					'post_title'  => 'Oracle target: ' . $label,
+				]
+			);
+		}
+
+		$targets['attachment'] = $this->attachment_id;
+
+		return $targets;
+	}
+
+	/**
+	 * An anonymous caller must not be able to tell these targets apart. Every distinct error
+	 * message is a state in a post existence oracle, and the connections deliberately hide the
+	 * non-public ones. @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testDeleteMediaItemDoesNotDiscloseWhichIdsExist() {
+		$targets = $this->mediaItemOracleTargets();
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->delete_variables['input']['id'] = $target_id;
+
+			$actual = $this->deleteMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not delete the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every target: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testUpdateMediaItemDoesNotDiscloseWhichIdsExist() {
+		$targets = $this->mediaItemOracleTargets();
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->update_variables['input']['id'] = $target_id;
+
+			$actual = $this->updateMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not update the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->update_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every target: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * A caller who can edit posts but cannot read someone else's unpublished content must not be
+	 * able to use the shape of the error to find it. @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testDeleteMediaItemDoesNotDiscloseOthersContentToContributors() {
+		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
+		$targets     = $this->mediaItemOracleTargets();
+
+		// The attachment belongs to someone else, so its own error is a capability answer.
+		unset( $targets['attachment'] );
+
+		wp_set_current_user( $contributor );
+		$this->assertTrue( current_user_can( 'delete_posts' ), 'A contributor must hold delete_posts for this test to be meaningful.' );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->delete_variables['input']['id'] = $target_id;
+
+			$actual = $this->deleteMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A contributor must not delete the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'A contributor must get the same response for a nonexistent ID and for content they cannot read: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * Regression guard: an administrator can still delete a mediaItem.
+	 */
+	public function testDeleteMediaItemStillWorksForAdmin() {
+		wp_set_current_user( $this->admin );
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$actual = $this->deleteMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->media_item_id, $actual['data']['deleteMediaItem']['deletedId'] );
+	}
+
+	/**
 	 * Set the mediaItem id to a fake id and the mutation should fail
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
