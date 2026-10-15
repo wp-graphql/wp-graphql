@@ -601,13 +601,25 @@ class MediaItemCreate {
 	 * and 2002:7f00:1::, and the behaviour differs across the PHP versions this
 	 * plugin supports, so it is not relied on for IPv6.
 	 *
+	 * Unwrapping only the dotted IPv4-mapped form previously let an author who
+	 * can upload files point filePath at a host whose AAAA record was one of the
+	 * other forms and have the server fetch an internal URL.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-3j5r-mp5g-4wrw
+	 *
 	 * @param string $ip The IP address to check.
 	 */
 	private static function is_public_ip( string $ip ): bool {
-		$packed = @inet_pton( $ip ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- an unparseable address is rejected below.
+		// Validated before it is unpacked, so inet_pton() is never handed something
+		// it would emit a warning about. Fail closed either way: an address we
+		// cannot parse is not one we can vouch for.
+		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		$packed = inet_pton( $ip );
 
 		if ( false === $packed ) {
-			// Fail closed: an address we cannot parse is not one we can vouch for.
 			return false;
 		}
 
@@ -671,10 +683,11 @@ class MediaItemCreate {
 	 */
 	private static function embedded_ipv4( string $packed ): ?string {
 		$prefixes = [
-			// [ prefix bytes, offset of the embedded IPv4 ]
-			[ "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff", 12 ], // ::ffff:0:0/96, IPv4-mapped
-			[ "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00", 12 ], // 64:ff9b::/96, NAT64
-			[ "\x20\x02", 2 ], // 2002::/16, 6to4
+			// Each entry pairs the prefix bytes that identify the form with the
+			// offset at which its embedded IPv4 address begins.
+			[ "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff", 12 ], // IPv4-mapped.
+			[ "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00", 12 ], // NAT64.
+			[ "\x20\x02", 2 ], // 6to4.
 		];
 
 		foreach ( $prefixes as [ $prefix, $offset ] ) {
@@ -707,7 +720,14 @@ class MediaItemCreate {
 	private static function ip_in_cidr( string $packed, string $cidr ): bool {
 		[ $subnet, $prefix ] = explode( '/', $cidr );
 
-		$subnet_packed = @inet_pton( $subnet ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a malformed range matches nothing.
+		// The ranges are hardcoded above, so this is a guard against a typo rather
+		// than against input. Validated first so inet_pton() cannot warn, and a
+		// range that does not parse matches nothing.
+		if ( false === filter_var( $subnet, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		$subnet_packed = inet_pton( $subnet );
 
 		if ( false === $subnet_packed || strlen( $subnet_packed ) !== strlen( $packed ) ) {
 			return false;
@@ -730,6 +750,15 @@ class MediaItemCreate {
 		return ( ord( $packed[ $whole_bytes ] ) & $mask ) === ( ord( $subnet_packed[ $whole_bytes ] ) & $mask );
 	}
 
+	/**
+	 * Whether a dotted IPv4 address falls inside a CIDR range.
+	 *
+	 * Compares the two addresses as 32-bit integers under the prefix mask. Used
+	 * for the IPv4 ranges PHP's filter flags do not reject on their own.
+	 *
+	 * @param string $ip   The IPv4 address in dotted form.
+	 * @param string $cidr The range, for example `100.64.0.0/10`.
+	 */
 	private static function ipv4_in_cidr( string $ip, string $cidr ): bool {
 		[ $subnet, $prefix ] = explode( '/', $cidr );
 
