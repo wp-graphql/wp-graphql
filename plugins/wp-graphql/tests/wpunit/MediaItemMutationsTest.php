@@ -1868,6 +1868,13 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			'IPv6 unspecified'                 => [ '::', 'The unspecified address must be rejected' ],
 			'IPv6 link-local'                  => [ 'fe80::1', 'Link-local must be rejected' ],
 			'IPv6 unique-local'                => [ 'fd00::1', 'Unique-local must be rejected' ],
+			// The same addresses written with a dotted-quad tail. PHP's filter
+			// flags skip their IPv6 range checks for this spelling up to 8.2, so
+			// these passed as public while the hex spellings above did not.
+			'IPv6 loopback, dotted tail'       => [ '::0.0.0.1', 'The dotted spelling is the same sixteen bytes as ::1' ],
+			'IPv6 link-local, dotted tail'     => [ 'fe80::0.0.0.1', 'The dotted spelling is the same sixteen bytes as fe80::1' ],
+			'IPv6 unique-local, dotted tail'   => [ 'fd00::0.0.0.1', 'The dotted spelling is the same sixteen bytes as fd00::1' ],
+			'IPv6 ULA metadata, dotted tail'   => [ 'fd00:ec2::0.0.2.84', 'The dotted spelling is the same sixteen bytes as fd00:ec2::254' ],
 			'IPv6 site-local, deprecated'      => [ 'fec0::1', 'Site-local is still routable inside a network' ],
 			'IPv6 multicast'                   => [ 'ff02::1', 'Multicast must be rejected' ],
 			'IPv6 discard-only'                => [ '100::1', 'The discard-only range must be rejected' ],
