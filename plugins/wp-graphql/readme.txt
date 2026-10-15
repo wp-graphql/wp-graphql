@@ -78,6 +78,16 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.24.2 =
+
+**Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.
+
+**More mutation error messages changed.** The update mutations for posts, pages and every other content type, `updateUser`, and the update and delete mutations for categories, tags and every other taxonomy now check the capability before looking the target up, so the refusal a caller without it gets no longer reveals whether the ID exists or what type of thing it held. The post update mutations also no longer echo the ID back in that message. See GHSA-5292-vhjr-6cwg. `updateComment` and `deleteComment` now give one answer to every caller who can neither moderate comments nor own the comment named, which 2.24.1 had closed only for anonymous callers (GHSA-r7m4-3v6c-3435). A client matching on any of those message strings will need updating.
+
+**A comment's byline survives a content edit.** When a comment's own author updated only the content, the stored author name, email and URL were rewritten from the editing account rather than left alone. Those three values are now kept as stored for a caller without `moderate_comments`. Moderators can still change them, as before. See GHSA-cf67-w9ww-p68v.
+
+**`createMediaItem` refuses a host whose IPv6 lookup fails.** A URL is accepted only when every address its host resolves to is public, and an AAAA lookup that errors is now treated as a failed check rather than as a host with no IPv6 address. If your resolver blocks or drops AAAA queries, a URL that previously worked will be refused. The local-use NAT64 prefix, 64:ff9b:1::/48, is rejected now as well, because the address it carries is reachable only inside the network that runs the translator. A host that reaches a public address through the well-known NAT64 prefix or 6to4 is unaffected. See GHSA-3j5r-mp5g-4wrw.
+
 = 2.24.1 =
 
 **Security release.** Fixes seven issues reported through our security advisory process. Updating is recommended. Five of them change behavior you may be relying on, so they are worth reading before you update.
