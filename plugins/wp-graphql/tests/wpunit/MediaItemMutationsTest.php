@@ -1229,6 +1229,44 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * `updateMediaItem` carries the same residual `deleteMediaItem` does. A contributor
+	 * holds edit_posts, so the blanket capability check lets them through to the lookup,
+	 * where the answer for an ID that holds nothing and the answer for an ID holding
+	 * someone else's unpublished content have to stay identical.
+	 *
+	 * @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testUpdateMediaItemDoesNotDiscloseOthersContentToContributors() {
+		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
+		$targets     = $this->mediaItemOracleTargets();
+
+		// The attachment belongs to someone else, so its own error is a capability answer.
+		unset( $targets['attachment'] );
+
+		wp_set_current_user( $contributor );
+		$this->assertTrue( current_user_can( 'edit_posts' ), 'A contributor must hold edit_posts for this test to be meaningful.' );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->update_variables['input']['id'] = $target_id;
+
+			$actual = $this->updateMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A contributor must not update the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->update_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'A contributor must get the same response for a nonexistent ID and for content they cannot read: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
 	 * Regression guard: an administrator can still delete a mediaItem.
 	 */
 	public function testDeleteMediaItemStillWorksForAdmin() {
@@ -1671,6 +1709,65 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			'http://[fe80::1]/test.jpg',
 			'IPv6 link-local [fe80::1]'
 		);
+	}
+
+	/**
+	 * Regression for GHSA-3j5r-mp5g-4wrw through the guard itself, driven by URL rather
+	 * than by reflection on is_public_ip(). The advisory is about IPv6 notations that
+	 * carry an IPv4 address: the host text does not look internal, so a check that reads
+	 * the string lets an internal address through.
+	 *
+	 * The redirect guard is the surface where these forms are reachable. A bracketed IPv6
+	 * literal cannot get this far through `filePath`: WordPress's own wp_http_validate_url()
+	 * matches the host against `/^[a-zA-Z0-9-.]+$/`, which no bracketed IPv6 literal can
+	 * satisfy, so it refuses all of them structurally before the mutation's guard runs. A
+	 * public IPv6 address is refused the same way. That is also why testCannotInputIpv6Loopback() and
+	 * testCannotInputIpv6LinkLocal() pass: they pin the user-facing outcome, not this
+	 * logic. A redirect is checked by reject_unsafe_redirect() instead, so a public host
+	 * that answers with a redirect to an internal IPv6 address lands here, with no network
+	 * and no DNS involved.
+	 *
+	 * The dotted-quad row is the one that needs watching: PHP's own
+	 * FILTER_FLAG_NO_PRIV_RANGE check skips the IPv6 ranges entirely when an address ends
+	 * in a dotted quad, up to PHP 8.2. There it is the explicit prefix list that rejects
+	 * it, and filter_var() from 8.3 on, so this has to hold across the whole supported
+	 * matrix.
+	 *
+	 * @dataProvider dataIpv6FormsCarryingAnInternalAddress
+	 *
+	 * @param string $url   The redirect target to check.
+	 * @param string $label What the address is, for the failure message.
+	 */
+	public function testRedirectToAnIpv6FormCarryingAnInternalAddressIsBlocked( string $url, string $label ) {
+		if ( ! class_exists( \WpOrg\Requests\Exception::class ) ) {
+			$this->markTestSkipped( 'Redirect-chain guard requires Requests 2.x (WP 6.2+).' );
+		}
+
+		$threw = false;
+
+		try {
+			\WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( $url );
+		} catch ( \Throwable $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, sprintf( 'A redirect to %s must be blocked', $label ) );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataIpv6FormsCarryingAnInternalAddress(): array {
+		return [
+			'IPv4-mapped cloud metadata'     => [ 'http://[::ffff:169.254.169.254]/latest/meta-data/', 'IPv4-mapped (::ffff:169.254.169.254)' ],
+			'IPv4-mapped loopback'           => [ 'http://[::ffff:127.0.0.1]/x.jpg', 'IPv4-mapped (::ffff:127.0.0.1)' ],
+			'IPv4-compatible cloud metadata' => [ 'http://[::169.254.169.254]/latest/meta-data/', 'IPv4-compatible (::169.254.169.254)' ],
+			'NAT64 cloud metadata'           => [ 'http://[64:ff9b::169.254.169.254]/latest/meta-data/', 'NAT64 (64:ff9b::169.254.169.254)' ],
+			'NAT64 local-use prefix'         => [ 'http://[64:ff9b:1::1]/x.jpg', 'RFC 8215 local-use NAT64 (64:ff9b:1::1)' ],
+			'6to4 cloud metadata'            => [ 'http://[2002:a9fe:a9fe::]/latest/meta-data/', '6to4 (2002:a9fe:a9fe:: carries 169.254.169.254)' ],
+			'unique local address'           => [ 'http://[fd00::1]/x.jpg', 'Unique local address (fd00::1)' ],
+			'unique local, dotted-quad tail' => [ 'http://[fd00::0.0.0.1]/x.jpg', 'Unique local written with a dotted-quad tail (fd00::0.0.0.1)' ],
+		];
 	}
 
 	/**

@@ -1453,6 +1453,92 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 	}
 
+	/**
+	 * The other two debug_reason() call sites are reached only after the account has been
+	 * found, so a message on either proves the account exists. That is the enumeration
+	 * oracle of GHSA-6xw5-35v5-2886 with its polarity reversed: silence would mean no
+	 * account, a message would mean there is one. Each is pinned in both directions, silent
+	 * for a caller who is not entitled to the reason and reported for one who is.
+	 *
+	 * This covers the key-generation branch. get_password_reset_key() returns a WP_Error
+	 * when resets are not allowed for the account.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testPasswordResetKeyFailureIsNotReportedToCallersWhoCannotListUsers() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter( 'allow_password_reset', '__return_false' );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty(
+				$anonymous['extensions']['debug'] ?? [],
+				'A failure that can only happen for an account that exists must not be reported to an anonymous caller.'
+			);
+
+			// A caller who can already enumerate accounts is told what went wrong.
+			wp_set_current_user( $this->admin );
+
+			$entitled = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertSame(
+				'Unable to generate a password reset key.',
+				$entitled['extensions']['debug'][0]['message'] ?? null,
+				'A caller who holds list_users must still be told why no email was sent.'
+			);
+		} finally {
+			remove_filter( 'allow_password_reset', '__return_false' );
+		}
+	}
+
+	/**
+	 * The same for the send branch. wp_mail() is short-circuited with a WP_Error through
+	 * `pre_wp_mail`, which is the reachable shape of this branch: core's wp_mail() returns
+	 * `false` when sending fails, so `is_wp_error()` is true only when something has
+	 * replaced the send, as a mail plugin or a host integration does.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testEmailSendFailureIsNotReportedToCallersWhoCannotListUsers() {
+		$username  = get_userdata( $this->subscriber )->user_login;
+		$fail_mail = static function () {
+			return new \WP_Error( 'wp_mail_failed', 'mail() is disabled on this host' );
+		};
+
+		add_filter( 'pre_wp_mail', $fail_mail );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty(
+				$anonymous['extensions']['debug'] ?? [],
+				'A send failure only happens for an account that exists, so it must not be reported to an anonymous caller.'
+			);
+
+			wp_set_current_user( $this->admin );
+
+			$entitled = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertStringContainsString(
+				'The email could not be sent.',
+				$entitled['extensions']['debug'][0]['message'] ?? '',
+				'A caller who holds list_users must still be told why no email was sent.'
+			);
+		} finally {
+			remove_filter( 'pre_wp_mail', $fail_mail );
+		}
+	}
+
 	public function testSendPasswordResetEmailWithUsername() {
 		$user     = get_userdata( $this->subscriber );
 		$username = $user->user_login;
