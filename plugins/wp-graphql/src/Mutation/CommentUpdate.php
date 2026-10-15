@@ -165,6 +165,19 @@ class CommentUpdate {
 			 */
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
+			// Keep the stored byline. prepare_comment_object() back-fills `author`,
+			// `authorEmail` and `authorUrl` from the caller's own account when they are
+			// left out of the input, and writes those columns either way, so an update
+			// sending only `content` would otherwise rewrite who the comment appears to
+			// have been written by. assert_only_content_changes() cannot catch that,
+			// because it only inspects values the caller actually sent.
+			//
+			// Done before the no-changes check below so that resubmitting nothing but the
+			// stored byline is still correctly reported as no change.
+			if ( ! $can_moderate ) {
+				self::keep_stored_author( $comment_args, $raw_comment_args );
+			}
+
 			// If there are no changes between the existing comment and the incoming comment
 			if ( $comment_args === $raw_comment_args ) {
 				throw new UserError( esc_html__( 'No changes have been provided to the comment.', 'wp-graphql' ) );
@@ -277,6 +290,36 @@ class CommentUpdate {
 			if ( $incoming !== $stored ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to change the target, author, date, parent or type of this comment.', 'wp-graphql' ) );
 			}
+		}
+	}
+
+	/**
+	 * Restores the comment's stored author columns before it is saved.
+	 *
+	 * `CommentMutation::prepare_comment_object()` fills `author`, `authorEmail` and
+	 * `authorUrl` from the current user when the input leaves them out, then writes all
+	 * three columns. For a caller who may only edit content that is a change they are not
+	 * allowed to make: an update sending nothing but `content` would reset the byline to
+	 * whatever is on the caller's profile now, discarding a moderator's correction or a
+	 * redaction. Only the three author columns are restored, so a content edit still
+	 * saves.
+	 *
+	 * A caller who may moderate is left alone, because changing the byline is a decision
+	 * they are allowed to make.
+	 *
+	 * @param array<string,mixed> $comment_args     The comment args about to be saved, by reference.
+	 * @param array<string,mixed> $raw_comment_args The comment as it is currently stored.
+	 */
+	private static function keep_stored_author( array &$comment_args, array $raw_comment_args ): void {
+		$author_columns = [ 'comment_author', 'comment_author_email', 'comment_author_url' ];
+
+		foreach ( $author_columns as $column ) {
+			if ( ! array_key_exists( $column, $raw_comment_args ) ) {
+				// Nothing stored to restore, so leave whatever was prepared in place.
+				continue;
+			}
+
+			$comment_args[ $column ] = $raw_comment_args[ $column ];
 		}
 	}
 
