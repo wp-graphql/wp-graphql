@@ -73,8 +73,32 @@ function stripTrailingCommitHashLink(line) {
 	);
 }
 
+/**
+ * Break release-please's version annotations so they survive in readme.txt.
+ *
+ * readme.txt is one of release-please's `extra-files` with `type: generic`, and
+ * that updater rewrites the version on any line containing one of these
+ * annotations. It cannot tell an annotation from a changelog entry whose own
+ * prose happens to mention one, so such an entry gets rewritten on every
+ * subsequent release: the 2.7.0 entry "replace x-release-please-version
+ * placeholders with 2.7.0" had drifted to 2.24.1 before this was noticed.
+ *
+ * Dropping the final hyphen leaves the line reading the same while making it
+ * invisible to the updater. CHANGELOG.md is not an extra-file, so it keeps the
+ * commit subject verbatim and remains the exact record.
+ *
+ * @param {string} line A changelog line on its way into readme.txt.
+ * @returns {string} The line, with any annotation defused.
+ */
+function neutralizeReleasePleaseAnnotations(line) {
+	return line.replace(
+		/x-release-please-(version|major|minor|patch|date)/g,
+		'x-release-please $1'
+	);
+}
+
 function normalizeMarkdownLine(line) {
-	const trimmed = line.trim();
+	const trimmed = neutralizeReleasePleaseAnnotations(line.trim());
 	if (!trimmed) {
 		return '';
 	}
@@ -278,6 +302,7 @@ if (require.main === module) {
 
 module.exports = {
 	extractVersionSection,
+	neutralizeReleasePleaseAnnotations,
 	normalizeSectionForReadme,
 	buildReadmeVersionBlock,
 	upsertVersionInReadme,
