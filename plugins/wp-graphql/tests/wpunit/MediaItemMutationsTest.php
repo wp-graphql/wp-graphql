@@ -1861,6 +1861,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			'IPv4-compatible metadata, dotted' => [ '::169.254.169.254', 'IPv4-compatible ::/96 routes to the embedded IPv4' ],
 			'NAT64 loopback'                   => [ '64:ff9b::7f00:1', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
 			'NAT64 metadata'                   => [ '64:ff9b::a9fe:a9fe', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
+			// RFC 8215 reserves 64:ff9b:1::/48 for a network's own NAT64 translator.
+			// The embedded IPv4 sits at a different offset for each permitted prefix
+			// length, so the range is rejected rather than decoded.
+			'NAT64 local-use, loopback'        => [ '64:ff9b:1::7f00:1', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
+			'NAT64 local-use, metadata'        => [ '64:ff9b:1::a9fe:a9fe', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
+			'NAT64 local-use, plain'           => [ '64:ff9b:1::1', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
 			'6to4 loopback'                    => [ '2002:7f00:1::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
 			'6to4 metadata'                    => [ '2002:a9fe:a9fe::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
 			// Native IPv6 ranges that are not publicly routable.
@@ -1912,6 +1918,44 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			'IPv4-mapped public' => [ '::ffff:8.8.8.8', 'A mapped public IPv4 is still public' ],
 			'NAT64 public'       => [ '64:ff9b::8.8.8.8', 'NAT64 to a public IPv4 is still public' ],
 			'6to4 public'        => [ '2002:0808:0808::', '6to4 to a public IPv4 is still public' ],
+		];
+	}
+
+	/**
+	 * A failed AAAA lookup must not be mistaken for a host that has no IPv6.
+	 *
+	 * dns_get_record() answers `[]` for a host with no AAAA records and `false` when the
+	 * lookup failed. Reading `false` as "no IPv6" would validate the A records, call the
+	 * host safe, and leave curl free to connect over IPv6 to an address nothing checked.
+	 *
+	 * This covers the decision in isolation rather than through the resolver, because the
+	 * only way to hand resolve_host_addresses() a controlled failure would be a filter
+	 * over the SSRF guard's own resolution, and that is a bypass primitive we will not add
+	 * to a security control. The same reasoning as testHostResolutionIncludesIpv6Addresses.
+	 *
+	 * @dataProvider dataAaaaAnswers
+	 *
+	 * @param array<int,array<string,mixed>>|false $records  The dns_get_record() answer.
+	 * @param string[]|null                        $expected The addresses, or null for a failure.
+	 * @param string                               $message  Why.
+	 */
+	public function testFailedAaaaLookupIsDistinguishedFromNoIpv6( $records, $expected, string $message ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'aaaa_addresses_from_records' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expected, $method->invoke( null, $records ), $message );
+	}
+
+	/**
+	 * @return array<string,array{0:mixed,1:mixed,2:string}>
+	 */
+	public function dataAaaaAnswers(): array {
+		return [
+			'lookup failed'       => [ false, null, 'A failed lookup must be reported as a failure, so the host is refused.' ],
+			'no AAAA records'     => [ [], [], 'A host with no IPv6 is not a failure and must not refuse the host.' ],
+			'one AAAA record'     => [ [ [ 'ipv6' => '2606:4700:4700::1111' ] ], [ '2606:4700:4700::1111' ], 'An IPv6 address must be returned for checking.' ],
+			'internal AAAA'       => [ [ [ 'ipv6' => 'fd00:ec2::254' ] ], [ 'fd00:ec2::254' ], 'An internal address must be returned so is_public_ip() can reject it.' ],
+			'record missing ipv6' => [ [ [ 'type' => 'AAAA' ] ], [], 'A malformed record contributes no address.' ],
 		];
 	}
 

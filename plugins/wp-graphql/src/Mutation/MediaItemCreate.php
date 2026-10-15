@@ -555,9 +555,19 @@ class MediaItemCreate {
 	 *
 	 * The gethostbynamel() built-in returns A (IPv4) records only. AAAA (IPv6)
 	 * records are resolved separately via dns_get_record() so a dual-stack host
-	 * cannot hide an internal IPv6 address behind a public IPv4 address. A failed
-	 * lookup returns no records and yields no addresses, which is fail-closed:
-	 * is_safe_remote_url() rejects a host that resolves to nothing.
+	 * cannot hide an internal IPv6 address behind a public IPv4 address.
+	 *
+	 * Both lookups fail closed. Resolving nothing yields no addresses, and
+	 * is_safe_remote_url() rejects a host that resolves to nothing. An AAAA lookup
+	 * that errors is treated the same way, rather than as a host with no IPv6, so a
+	 * transient resolver failure cannot leave the IPv6 side unchecked while the A
+	 * records vouch for the host.
+	 *
+	 * One limit worth naming: where dns_get_record() is unavailable, usually because
+	 * it is in disable_functions, there is no way to read AAAA records at all, and
+	 * only the A records are checked. Failing closed there would take the feature
+	 * away on those hosts entirely, so it proceeds. A host in that configuration is
+	 * relying on gethostbynamel() alone.
 	 *
 	 * @param string $host The host name to resolve.
 	 *
@@ -572,13 +582,45 @@ class MediaItemCreate {
 		}
 
 		if ( function_exists( 'dns_get_record' ) ) {
-			$records = dns_get_record( $host, DNS_AAAA );
-			if ( is_array( $records ) ) {
-				foreach ( $records as $record ) {
-					if ( isset( $record['ipv6'] ) && is_string( $record['ipv6'] ) ) {
-						$addresses[] = $record['ipv6'];
-					}
-				}
+			$ipv6 = self::aaaa_addresses_from_records( dns_get_record( $host, DNS_AAAA ) );
+
+			// A lookup that failed cannot be treated as a host with no IPv6, so the
+			// whole host is refused. See aaaa_addresses_from_records().
+			if ( null === $ipv6 ) {
+				return [];
+			}
+
+			$addresses = array_merge( $addresses, $ipv6 );
+		}
+
+		return $addresses;
+	}
+
+	/**
+	 * Reads the IPv6 addresses out of a DNS_AAAA answer, telling a failed lookup apart
+	 * from a host that simply has no IPv6.
+	 *
+	 * The dns_get_record() built-in answers an empty array for a host with no AAAA
+	 * records, and false when the lookup itself failed. Those are different facts, and
+	 * only the first is safe to continue on. Treating a failure as "no IPv6 records" would
+	 * validate the A records, report the host as safe, and leave curl free to connect
+	 * over IPv6 to an address nothing looked at, which is the bypass the dual-stack
+	 * resolution exists to prevent.
+	 *
+	 * @param array<int,array<string,mixed>>|false $records The dns_get_record() answer for DNS_AAAA.
+	 *
+	 * @return string[]|null The IPv6 addresses, or null when the lookup failed.
+	 */
+	private static function aaaa_addresses_from_records( $records ): ?array {
+		if ( ! is_array( $records ) ) {
+			return null;
+		}
+
+		$addresses = [];
+
+		foreach ( $records as $record ) {
+			if ( isset( $record['ipv6'] ) && is_string( $record['ipv6'] ) ) {
+				$addresses[] = $record['ipv6'];
 			}
 		}
 
@@ -649,7 +691,18 @@ class MediaItemCreate {
 				// `fd00::0.0.0.1` was judged public while `fd00::1`, the same
 				// sixteen bytes, was not. Matching on the packed bytes is spelling
 				// independent, which is the whole point of this function.
-				foreach ( [ '::1/128', 'fe80::/10', 'fc00::/7', 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32' ] as $cidr ) {
+				//
+				// 64:ff9b::/32 is reached only when the address was not unwrapped
+				// above, which means it is in the NAT64 range but not the
+				// well-known 64:ff9b::/96 translation prefix. That leaves the
+				// RFC 8215 local-use prefix 64:ff9b:1::/48, where the embedded
+				// IPv4 sits at a different offset for every permitted prefix
+				// length. Rather than decode each of those, the range is rejected:
+				// it exists for a network's own NAT64 translator, so a caller
+				// pointing us into it is pointing at that network. A host using
+				// the well-known prefix to reach a public address is unaffected,
+				// because it is unwrapped before this list is consulted.
+				foreach ( [ '::1/128', 'fe80::/10', 'fc00::/7', 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32', '64:ff9b::/32' ] as $cidr ) {
 					if ( self::ip_in_cidr( (string) $packed, $cidr ) ) {
 						return false;
 					}
