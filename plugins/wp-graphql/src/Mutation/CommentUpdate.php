@@ -222,9 +222,14 @@ class CommentUpdate {
 
 		foreach ( $restricted_fields as $field => $column ) {
 			/**
-			 * An empty value is never written by prepare_comment_object(), so it cannot change
-			 * anything. `author` is the exception: when it is empty the caller's own display name
-			 * is written in its place, which is their identity rather than someone else's.
+			 * An empty value cannot name someone else, so there is nothing to refuse.
+			 *
+			 * `author`, `authorEmail` and `authorUrl` are not simply skipped, though:
+			 * prepare_comment_object() back-fills all three from the caller's own account
+			 * when they are left out, and writes those columns. So omitting them resets
+			 * the comment's byline to the caller's current profile, which is their own
+			 * identity rather than someone else's, but is still a change. That predates
+			 * this guard and is tracked separately.
 			 */
 			if ( empty( $input[ $field ] ) ) {
 				continue;
@@ -308,6 +313,11 @@ class CommentUpdate {
 		 * that is already approved, WordPress's moderation checks are run against the new content
 		 * and the comment is held for review if they do not pass. Return false to let the comment
 		 * keep its approved status regardless of what the new content says.
+		 *
+		 * This does not run for every edit. A comment that is not already approved keeps the
+		 * status it has, unchanged content is not re-checked, and the author of the node the
+		 * comment was left on is exempt, the same exemption WordPress applies. In those cases
+		 * no decision is made and the filter is never reached.
 		 *
 		 * @param bool                $requires_moderation Whether the comment will be held for review.
 		 * @param array<string,mixed> $comment_args        The comment args about to be saved.
