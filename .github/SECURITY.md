@@ -41,12 +41,52 @@ following as you can:
 
 ## Response Process
 
-- We aim to acknowledge new reports within **5 business days**.
-- We will work with you to understand and validate the issue, keep you updated
-  on our progress, and let you know when a fix is released.
-- Please give us a reasonable amount of time to release a fix before any public
-  disclosure. We are happy to credit reporters in the release notes once a fix
-  has shipped, unless you prefer to remain anonymous.
+WPGraphQL is maintained by a very small team, and security reports are triaged in
+batches rather than continuously. We would rather tell you what to expect than
+promise a turnaround we cannot keep, so:
+
+- **We do not commit to a fixed time for the first reply.** In practice it has
+  ranged from the same day to a few months, depending on what else is in flight
+  and how much of a backlog has built up.
+- **We try to answer any open question before an advisory is published**, because
+  publishing closes the thread for good. If you want something answered, it is
+  worth asking before then rather than after.
+- **We add you as a credit on the advisory** unless you ask us not to. GitHub
+  then asks you to accept it, and your name appears on the published advisory
+  only once you do, so it is worth accepting the invitation when it arrives.
+- **If a report has gone quiet, nudge us.** Comment on the advisory thread, or
+  email [info@wpgraphql.com](mailto:info@wpgraphql.com). That is genuinely
+  useful rather than a nuisance, and it is the fastest way to move a report that
+  has stalled.
+- **If you are working to a disclosure deadline, tell us the date when you
+  report.** We will tell you whether we can meet it rather than letting it pass
+  quietly. Short of that, please give us a reasonable amount of time to release a
+  fix before any public disclosure.
+
+## What happens after you report
+
+1. **Triage.** We reproduce the issue and tell you what we found, including the
+   parts where we disagree with the report. The severity and CVSS score on the
+   advisory are our assessment and may differ from the one you submitted.
+2. **Fix.** The patch is developed in a temporary private fork attached to the
+   advisory. You have access to that fork, so you are welcome to review the fix
+   before it ships, and we would rather hear that we got it wrong before release
+   than after.
+3. **Release.** The fix ships in a normal release to WordPress.org. If it changes
+   behavior that existing code might rely on, the release notes and the plugin's
+   upgrade notice say so.
+4. **Publication.** The advisory is published once there is a version to update
+   to, so at or shortly after the release. **Publishing closes the advisory's
+   comment thread permanently**, and we have no way to reply after that point, so
+   please ask anything you want answered before publication.
+5. **CVE.** Identifiers reach WPGraphQL advisories from two directions. GitHub is
+   a CNA for its own advisory database, so a CVE can be requested through the
+   advisory itself, and WordPress ecosystem databases such as WPScan and
+   Patchstack pick up published advisories independently and sometimes assign
+   their own. Either way the assignment is not ours to make, the timing has
+   ranged from a few days to indefinitely, and plenty of advisories never receive
+   one. When an ID is issued it is added to the advisory, so the advisory page is
+   the place to check rather than asking us.
 
 ## Security acknowledgements
 
