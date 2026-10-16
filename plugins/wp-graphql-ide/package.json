@@ -100,7 +100,7 @@
 		"@wordpress/env": "^11.13.0",
 		"@wordpress/prettier-config": "^4.54.0",
 		"@wordpress/scripts": "^27.9.0",
-		"adm-zip": "^0.6.0",
+		"adm-zip": "^0.6.1",
 		"babel-jest": "^30.5.1",
 		"chalk": "^6.0.0",
 		"clsx": "^2.1.1",
