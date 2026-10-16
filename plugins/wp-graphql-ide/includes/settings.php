@@ -146,6 +146,8 @@ function provided_variant( array $value_input ) {
  *
  * @param array<string,mixed>      $value_input  The OneOf value — exactly one variant set.
  * @param array<string,mixed>|null $field_config The captured field config, when available.
+ *
+ * @return string|int|float|array<int,string>|null
  */
 function coerce_value( array $value_input, $field_config ) {
 	$type = is_array( $field_config ) && isset( $field_config['type'] ) ? (string) $field_config['type'] : '';
@@ -159,7 +161,7 @@ function coerce_value( array $value_input, $field_config ) {
 		$num = $value_input['number'];
 
 		// Integer-y values store as ints to match historical WPGraphQL behavior.
-		if ( 'number' === $type && (float) $num === floor( (float) $num ) ) {
+		if ( 'number' === $type && floor( (float) $num ) === (float) $num ) {
 			return (int) $num;
 		}
 
@@ -233,6 +235,8 @@ function build_value_output( $stored_value, $field_config ): array {
  *
  * @param mixed                    $value
  * @param array<string,mixed>|null $field_config
+ *
+ * @return mixed
  */
 function sanitize_value( $value, $field_config ) {
 	if ( is_array( $field_config ) && isset( $field_config['sanitize_callback'] ) && is_callable( $field_config['sanitize_callback'] ) ) {
@@ -435,50 +439,50 @@ add_action(
 		$value_fields = [
 			'text'           => [
 				'type'        => 'String',
-				'description' => __( 'Plain text value.', 'wp-graphql-ide' ),
+				'description' => __( 'Plain text value.', 'wpgraphql-ide' ),
 			],
 			'url'            => [
 				'type'        => 'String',
-				'description' => __( 'URL value.', 'wp-graphql-ide' ),
+				'description' => __( 'URL value.', 'wpgraphql-ide' ),
 			],
 			'textarea'       => [
 				'type'        => 'String',
-				'description' => __( 'Multi-line text value.', 'wp-graphql-ide' ),
+				'description' => __( 'Multi-line text value.', 'wpgraphql-ide' ),
 			],
 			'number'         => [
 				'type'        => 'Float',
-				'description' => __( 'Numeric value.', 'wp-graphql-ide' ),
+				'description' => __( 'Numeric value.', 'wpgraphql-ide' ),
 			],
 			'checkbox'       => [
 				'type'        => 'Boolean',
-				'description' => __( 'Boolean value (checkbox-typed setting).', 'wp-graphql-ide' ),
+				'description' => __( 'Boolean value (checkbox-typed setting).', 'wpgraphql-ide' ),
 			],
 			'select'         => [
 				'type'        => 'String',
-				'description' => __( 'String value matching one of the registered select options.', 'wp-graphql-ide' ),
+				'description' => __( 'String value matching one of the registered select options.', 'wpgraphql-ide' ),
 			],
 			'radio'          => [
 				'type'        => 'String',
-				'description' => __( 'String value matching one of the registered radio options.', 'wp-graphql-ide' ),
+				'description' => __( 'String value matching one of the registered radio options.', 'wpgraphql-ide' ),
 			],
 			'multicheck'     => [
 				'type'        => [ 'list_of' => 'String' ],
-				'description' => __( 'Array of string values matching the registered multicheck options.', 'wp-graphql-ide' ),
+				'description' => __( 'Array of string values matching the registered multicheck options.', 'wpgraphql-ide' ),
 			],
 			'color'          => [
 				'type'        => 'String',
-				'description' => __( 'CSS color value.', 'wp-graphql-ide' ),
+				'description' => __( 'CSS color value.', 'wpgraphql-ide' ),
 			],
 			'userRoleSelect' => [
 				'type'        => 'String',
-				'description' => __( 'WordPress user role slug.', 'wp-graphql-ide' ),
+				'description' => __( 'WordPress user role slug.', 'wpgraphql-ide' ),
 			],
 		];
 
 		register_graphql_input_type(
 			'UpdateGraphqlSettingValueInput',
 			[
-				'description' => __( 'Value to set for a WPGraphQL setting. Exactly one variant must be provided, matching the registered field type.', 'wp-graphql-ide' ),
+				'description' => __( 'Value to set for a WPGraphQL setting. Exactly one variant must be provided, matching the registered field type.', 'wpgraphql-ide' ),
 				'isOneOf'     => true,
 				'fields'      => $value_fields,
 			]
@@ -487,7 +491,7 @@ add_action(
 		register_graphql_object_type(
 			'UpdateGraphqlSettingValue',
 			[
-				'description' => __( 'The current value of a WPGraphQL setting, surfaced in the variant that matches the registered field type. Other variants are null.', 'wp-graphql-ide' ),
+				'description' => __( 'The current value of a WPGraphQL setting, surfaced in the variant that matches the registered field type. Other variants are null.', 'wpgraphql-ide' ),
 				'fields'      => $value_fields,
 			]
 		);
@@ -495,51 +499,51 @@ add_action(
 		register_graphql_mutation(
 			'updateGraphqlSetting',
 			[
-				'description'         => __( 'Updates a single WPGraphQL setting field. Requires the manage-settings capability.', 'wp-graphql-ide' ),
+				'description'         => __( 'Updates a single WPGraphQL setting field. Requires the manage-settings capability.', 'wpgraphql-ide' ),
 				'inputFields'         => [
 					'section' => [
 						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The settings section slug (e.g. "graphql_general_settings").', 'wp-graphql-ide' ),
+						'description' => __( 'The settings section slug (e.g. "graphql_general_settings").', 'wpgraphql-ide' ),
 					],
 					'field'   => [
 						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The field name within the section.', 'wp-graphql-ide' ),
+						'description' => __( 'The field name within the section.', 'wpgraphql-ide' ),
 					],
 					'value'   => [
 						'type'        => [ 'non_null' => 'UpdateGraphqlSettingValueInput' ],
-						'description' => __( 'The new value. The variant key must match the field\'s registered type (text → text, checkbox → checkbox, etc).', 'wp-graphql-ide' ),
+						'description' => __( 'The new value. The variant key must match the field\'s registered type (text → text, checkbox → checkbox, etc).', 'wpgraphql-ide' ),
 					],
 				],
 				'outputFields'        => [
 					'success'   => [
 						'type'        => [ 'non_null' => 'Boolean' ],
-						'description' => __( 'Whether the setting was persisted.', 'wp-graphql-ide' ),
+						'description' => __( 'Whether the setting was persisted.', 'wpgraphql-ide' ),
 					],
 					'section'   => [
 						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The section slug that was updated.', 'wp-graphql-ide' ),
+						'description' => __( 'The section slug that was updated.', 'wpgraphql-ide' ),
 					],
 					'field'     => [
 						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The field name that was updated.', 'wp-graphql-ide' ),
+						'description' => __( 'The field name that was updated.', 'wpgraphql-ide' ),
 					],
 					'fieldType' => [
 						'type'        => [ 'non_null' => 'String' ],
-						'description' => __( 'The registered type of the field, so the client knows which `value` variant to read.', 'wp-graphql-ide' ),
+						'description' => __( 'The registered type of the field, so the client knows which `value` variant to read.', 'wpgraphql-ide' ),
 					],
 					'value'     => [
 						'type'        => [ 'non_null' => 'UpdateGraphqlSettingValue' ],
-						'description' => __( 'The persisted value, in the variant matching the field type.', 'wp-graphql-ide' ),
+						'description' => __( 'The persisted value, in the variant matching the field type.', 'wpgraphql-ide' ),
 					],
 					'message'   => [
 						'type'        => 'String',
-						'description' => __( 'Optional human-readable status message.', 'wp-graphql-ide' ),
+						'description' => __( 'Optional human-readable status message.', 'wpgraphql-ide' ),
 					],
 				],
 				'mutateAndGetPayload' => static function ( $input ) {
 					if ( ! current_user_can_manage() ) {
 						throw new \GraphQL\Error\UserError(
-							esc_html__( 'You do not have permission to manage WPGraphQL settings.', 'wp-graphql-ide' )
+							esc_html__( 'You do not have permission to manage WPGraphQL settings.', 'wpgraphql-ide' )
 						);
 					}
 
@@ -549,7 +553,7 @@ add_action(
 
 					if ( '' === $section_slug || '' === $field_name ) {
 						throw new \GraphQL\Error\UserError(
-							esc_html__( 'Both `section` and `field` are required.', 'wp-graphql-ide' )
+							esc_html__( 'Both `section` and `field` are required.', 'wpgraphql-ide' )
 						);
 					}
 
@@ -558,7 +562,7 @@ add_action(
 						throw new \GraphQL\Error\UserError(
 							sprintf(
 								/* translators: %s: settings section slug */
-								esc_html__( 'Unknown WPGraphQL settings section: %s', 'wp-graphql-ide' ),
+								esc_html__( 'Unknown WPGraphQL settings section: %s', 'wpgraphql-ide' ),
 								esc_html( $section_slug )
 							)
 						);
@@ -569,7 +573,7 @@ add_action(
 						throw new \GraphQL\Error\UserError(
 							sprintf(
 								/* translators: 1: field name, 2: section slug */
-								esc_html__( 'Unknown field "%1$s" in section "%2$s".', 'wp-graphql-ide' ),
+								esc_html__( 'Unknown field "%1$s" in section "%2$s".', 'wpgraphql-ide' ),
 								esc_html( $field_name ),
 								esc_html( $section_slug )
 							)
@@ -580,7 +584,7 @@ add_action(
 						throw new \GraphQL\Error\UserError(
 							sprintf(
 								/* translators: %s: field name */
-								esc_html__( 'The "%s" field is disabled and cannot be updated.', 'wp-graphql-ide' ),
+								esc_html__( 'The "%s" field is disabled and cannot be updated.', 'wpgraphql-ide' ),
 								esc_html( $field_name )
 							)
 						);
@@ -599,7 +603,7 @@ add_action(
 						throw new \GraphQL\Error\UserError(
 							sprintf(
 								/* translators: 1: field name, 2: field type */
-								esc_html__( 'Field "%1$s" uses type "%2$s" which is not editable through this mutation.', 'wp-graphql-ide' ),
+								esc_html__( 'Field "%1$s" uses type "%2$s" which is not editable through this mutation.', 'wpgraphql-ide' ),
 								esc_html( $field_name ),
 								esc_html( $field_type )
 							)
@@ -610,7 +614,7 @@ add_action(
 						throw new \GraphQL\Error\UserError(
 							sprintf(
 								/* translators: 1: field name, 2: expected variant, 3: actual variant */
-								esc_html__( 'Field "%1$s" expects the "%2$s" value variant, but got "%3$s".', 'wp-graphql-ide' ),
+								esc_html__( 'Field "%1$s" expects the "%2$s" value variant, but got "%3$s".', 'wpgraphql-ide' ),
 								esc_html( $field_name ),
 								esc_html( $expected_variant ),
 								esc_html( $actual_variant ?? 'none' )

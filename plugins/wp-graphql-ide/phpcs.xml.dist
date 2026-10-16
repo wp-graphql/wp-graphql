@@ -2,8 +2,9 @@
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<!-- What to scan: include any root-level PHP files, and the /src folder -->
+	<!-- What to scan: include any root-level PHP files, and the /includes folder -->
 	<file>./wpgraphql-ide.php</file>
+	<file>./includes</file>
 	<exclude-pattern>./phpstan/*</exclude-pattern>
 	<exclude-pattern>*/**/tests/</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>

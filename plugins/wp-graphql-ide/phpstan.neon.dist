@@ -35,6 +35,7 @@ parameters:
         - includes/access-functions.php
     paths:
         - wpgraphql-ide.php
+        - includes/
     excludePaths:
       analyse:
         - vendor/
