@@ -265,28 +265,6 @@ mutation DeletePost($id: ID!) {
 > [!NOTE]
 > By default, deleting a post moves it to the trash. Use `forceDelete: true` to permanently delete.
 
-#### Managing Post Meta
-```graphql
-mutation UpdatePostMeta($id: ID!) {
-  updatePost(input: {
-    id: $id
-    # Update custom fields
-    customFields: [
-      { key: "my_field", value: "new value" }
-    ]
-  }) {
-    post {
-      id
-      # Query the updated meta
-      customFields {
-        key
-        value
-      }
-    }
-  }
-}
-```
-
 ### Media Operations
 
 #### Creating Media Items
@@ -437,27 +415,6 @@ mutation DeleteUser($id: ID!) {
 > - Use `reassignPosts` to transfer content to another user
 > - Ensure proper user capabilities (`delete_users`)
 > - Cannot delete your own user account
-
-#### Managing User Meta
-```graphql
-mutation UpdateUserMeta($id: ID!, $input: UpdateUserInput!) {
-  updateUser(input: {
-    id: $id
-    # Update custom fields
-    customFields: [
-      { key: "user_preference", value: "dark_mode" }
-    ]
-  }) {
-    user {
-      id
-      customFields {
-        key
-        value
-      }
-    }
-  }
-}
-```
 
 ### Comment Operations
 
@@ -811,35 +768,28 @@ mutation CreatePost($input: CreatePostInput!) {
 1. **Batch Related Changes**
 ```graphql
 # ❌ Avoid: Multiple separate mutations
-mutation UpdatePost($id: ID!) {
-  updatePost(input: { id: $id, title: "New Title" }) {
+mutation UpdatePostTitle($id: ID!, $title: String!) {
+  updatePost(input: { id: $id, title: $title }) {
     post { id }
   }
 }
-mutation UpdateMeta($id: ID!) {
-  updatePost(input: { id: $id, customFields: [{ key: "meta", value: "value" }] }) {
+mutation UpdatePostContent($id: ID!, $content: String!) {
+  updatePost(input: { id: $id, content: $content }) {
     post { id }
   }
 }
 
 # ✅ Better: Single mutation with all changes
-mutation UpdatePost($id: ID!) {
+mutation UpdatePost($id: ID!, $title: String!, $content: String!) {
   updatePost(input: {
     id: $id
-    title: "New Title"
-
-    # NOTE: This is a made up field for the sake of example
-    customFields: [{ key: "meta", value: "value" }]
+    title: $title
+    content: $content
   }) {
     post {
       id
       title
-
-      # NOTE: This is a made up field for the sake of example
-      customFields {
-        key
-        value
-      }
+      content
     }
   }
 }

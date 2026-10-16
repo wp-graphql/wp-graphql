@@ -411,7 +411,7 @@ function Faq() {
     {
       question: "Are GraphQL mutations supported?",
       answer:
-        "Not yet. We're waiting for the GraphQL '@oneOf' directive to land in the spec before adding mutation support for ACF fields.",
+        "Not yet — ACF mutations are not built yet. WPGraphQL for ACF exposes ACF fields to GraphQL for reading today; creating and updating field values through mutations is still to come.",
     },
     {
       question: "Do I have to use Faust.js?",
