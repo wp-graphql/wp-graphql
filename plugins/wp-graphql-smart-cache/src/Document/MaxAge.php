@@ -86,7 +86,14 @@ class MaxAge {
 				register_graphql_field( 'Update' . $register_type_name . 'Input', 'max_age_header', $config );
 
 				$config['resolve'] = function ( \WPGraphQL\Model\Post $post, $args, $context, $info ) {
-					$term = get_the_terms( $post->ID, self::TAXONOMY_NAME );
+					// A document the viewer may only see in restricted form withholds its ID, and
+					// its max-age with it. Passing the null on would look up the global post instead.
+					$post_id = $post->ID;
+					if ( null === $post_id ) {
+						return null;
+					}
+
+					$term = get_the_terms( $post_id, self::TAXONOMY_NAME );
 
 					return is_array( $term ) && $term[0] instanceof \WP_Term ? $term[0]->name : null;
 				};
