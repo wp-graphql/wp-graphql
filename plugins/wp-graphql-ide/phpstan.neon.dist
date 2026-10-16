@@ -37,6 +37,7 @@ parameters:
         - includes/access-functions.php
     paths:
         - wpgraphql-ide.php
+        - includes/
     excludePaths:
       analyse:
         - vendor/
@@ -47,4 +48,7 @@ parameters:
     # These files are gitignored and only generated via `npm run build`.
     # The code validates with file_exists() before including, so this is safe.
     ignoreErrors:
-        - '#Path in include\(\) ".*build/.*\.asset\.php" is not a file or it does not exist#'
+        # Only matches when build/ has not been generated (as in CI), so don't fail when it has.
+        -
+            message: '#Path in include\(\) ".*build/.*\.asset\.php" is not a file or it does not exist#'
+            reportUnmatched: false
