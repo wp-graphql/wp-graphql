@@ -215,3 +215,7 @@ Actions let your code run at specific points in the WPGraphQL request lifecycle 
 - [`graphql_settings_form_top`](/actions/graphql_settings_form_top)
 
   Fires before rendering a WPGraphQL settings form section.
+
+- [`graphql_settings_review_init`](/actions/graphql_settings_review_init)
+
+  Fires when the settings review registers its steps.

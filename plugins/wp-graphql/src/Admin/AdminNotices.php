@@ -282,17 +282,37 @@ class AdminNotices {
 		}
 		?>
 		<style>
-			/* Only display the ACF notice */
-			body.toplevel_page_graphiql-ide #wpbody .wpgraphql-admin-notice {
-				display: block;
-				position: absolute;
-				top: 0;
-				right: 0;
-				z-index: 1;
-				min-width: 40%;
+			/*
+			 * On the GraphiQL IDE page, show notices above the IDE and give the IDE the remaining height,
+			 * however tall the notices are.
+			 */
+			body.toplevel_page_graphiql-ide:not(.graphiql-fullscreen) #wpbody-content {
+				display: flex;
+				flex-direction: column;
+				height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+				/* Some GraphiQL elements (like the docs explorer resize handle) size themselves to this element, don't let them scroll the page. */
+				overflow: hidden;
 			}
-			body.toplevel_page_graphiql-ide #wpbody #wp-graphiql-wrapper {
-				margin-top: <?php echo count( $notices ) * 45; ?>px;
+			body.toplevel_page_graphiql-ide #wpbody #wpbody-content > .wpgraphql-admin-notice {
+				display: block;
+				flex: none;
+			}
+			body.toplevel_page_graphiql-ide:not(.graphiql-fullscreen) #wpbody-content > .wrap {
+				display: flex;
+				flex: 1;
+				flex-direction: column;
+				min-height: 0;
+			}
+			body.toplevel_page_graphiql-ide:not(.graphiql-fullscreen) #wpbody-content > .wrap > #graphiql {
+				flex: 1;
+				min-height: 0;
+			}
+			body.toplevel_page_graphiql-ide:not(.graphiql-fullscreen) #graphiql [data-testid="graphiql-router"] {
+				width: 100%;
+				height: 100%;
+			}
+			body.toplevel_page_graphiql-ide:not(.graphiql-fullscreen) #graphiql [data-testid="graphiql-router"] > .ant-layout {
+				height: 100% !important;
 			}
 			.wpgraphql-admin-notice {
 				position: relative;
@@ -302,7 +322,6 @@ class AdminNotices {
 			.wpgraphql-admin-notice .notice-dismiss {
 				text-decoration: none;
 			}
-
 		</style>
 		<?php
 		$count = 0;
@@ -320,11 +339,6 @@ class AdminNotices {
 		foreach ( $notices as $notice_slug => $notice ) {
 			$type = $notice['type'] ?? 'info';
 			?>
-			<style>
-				body.toplevel_page_graphiql-ide #wpbody #wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?> {
-					top: <?php echo esc_attr( ( $count * 45 ) . 'px' ); ?>
-				}
-			</style>
 			<div id="wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?>" class="wpgraphql-admin-notice notice notice-<?php echo esc_attr( $type ); ?> <?php echo $this->is_notice_dismissable( $notice ) ? 'is-dismissable' : ''; ?>">
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
@@ -378,6 +392,9 @@ class AdminNotices {
 			'plugins-network',
 			'toplevel_page_graphiql-ide',
 			'graphql_page_graphql-settings',
+			// The settings page is the top-level GraphQL page when the GraphiQL IDE is disabled.
+			'toplevel_page_graphql-settings',
+			'graphql_page_wpgraphql-extensions',
 		];
 
 		$current_page_id = $screen->id;

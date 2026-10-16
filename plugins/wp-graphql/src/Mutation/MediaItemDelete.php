@@ -88,6 +88,23 @@ class MediaItemDelete {
 	 */
 	public static function mutate_and_get_payload() {
 		return static function ( $input ) {
+			$post_type_object = get_post_type_object( 'attachment' );
+
+			if ( empty( $post_type_object ) ) {
+				return [];
+			}
+
+			/**
+			 * Stop now if a user cannot delete mediaItems at all. This runs before the target is
+			 * looked up, so a caller who fails it gets the same answer for every ID and cannot use
+			 * the mutation to find out which IDs exist.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+			 */
+			if ( ! isset( $post_type_object->cap->delete_posts ) || ! current_user_can( $post_type_object->cap->delete_posts ) ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
+			}
+
 			// Get the database ID for the comment.
 			$media_item_id = Utils::get_database_id_from_id( $input['id'] );
 
@@ -96,22 +113,18 @@ class MediaItemDelete {
 			 */
 			$existing_media_item = ! empty( $media_item_id ) ? get_post( $media_item_id ) : null;
 
-			// If there's no existing mediaItem, throw an exception.
-			if ( null === $existing_media_item ) {
+			/**
+			 * An ID that holds nothing and an ID that holds something other than a mediaItem are
+			 * reported the same way. Telling them apart would say which IDs exist across every post
+			 * type and status, which this mutation has no reason to answer.
+			 */
+			if ( null === $existing_media_item || 'attachment' !== $existing_media_item->post_type ) {
 				throw new UserError( esc_html__( 'No mediaItem with that ID could be found to delete', 'wp-graphql' ) );
 			}
 
-			// Stop now if the post isn't a mediaItem.
-			if ( 'attachment' !== $existing_media_item->post_type ) {
-				// Translators: the placeholder is the post_type of the object being deleted
-				throw new UserError( esc_html( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $existing_media_item->post_type ) ) );
-			}
-
 			/**
-			 * Stop now if a user isn't allowed to delete a mediaItem
+			 * Stop now if a user isn't allowed to delete this particular mediaItem
 			 */
-			$post_type_object = get_post_type_object( 'attachment' );
-
 			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, $media_item_id ) ) {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 			}

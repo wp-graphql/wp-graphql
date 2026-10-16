@@ -9,7 +9,7 @@ This guide outlines compatibility requirements and considerations when using WPG
 
 ## WordPress Compatibility
 
-WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.com/wp-graphql/wp-graphql/blob/main/.github/workflows/testing-integration.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
+WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.com/wp-graphql/wp-graphql/blob/main/.github/workflows/integration-tests.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
 
 ### Version Requirements
 
@@ -22,7 +22,7 @@ WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.co
 
 WPGraphQL works with both Classic Editor and Block Editor (Gutenberg) installations. Some considerations:
 
-- **Block Editor Content**: Block content is exposed in the GraphQL Schema as HTML returned as a String when querying the `content` field. It is the rendered version of the content and not the raw JSON data. Some plugins such as [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks) provide support for returning Block content in more structured format.
+- **Block Editor Content**: Block content is exposed in the GraphQL Schema as HTML returned as a String when querying the `content` field. It is the rendered version of the content and not the raw JSON data. Some plugins such as [WPGraphQL Content Blocks](https://github.com/wpengine/wp-graphql-content-blocks) provide support for returning Block content in more structured format.
 - **Classic Editor Content**: Content is exposed as HTML returned as a String when querying the `content` field.
 - **Custom Fields**: Custom Fields can be added to the schema using the `register_graphql_field` function. Advanced Custom Fields users can use the [WPGraphQL for ACF](https://www.wpgraphql.com/docs/acf) extension to manage how their ACF fields relate to the GraphQL Schema.
 - **Post Types**: Built-in post types (posts, pages, media) are supported out of the box. Custom Post Types can be added to the schema by registering or filtering them to show in graphql. See the [Custom Post Types](/docs/custom-post-types/) documentation for more information.
@@ -143,7 +143,7 @@ WPGraphQL is compatible with many WordPress plugins through official and communi
    - [WPGraphQL for Advanced Custom Fields](https://www.wpgraphql.com/docs/acf)
    - [WPGraphQL for WooCommerce](https://github.com/wp-graphql/wp-graphql-woocommerce)
    - [WPGraphQL JWT Authentication](https://github.com/wp-graphql/wp-graphql-jwt-authentication)
-   - [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks)
+   - [WPGraphQL Content Blocks](https://github.com/wpengine/wp-graphql-content-blocks)
 
 2. **Common Plugin Types**
    - **Custom Field Plugins**:
@@ -157,7 +157,7 @@ WPGraphQL is compatible with many WordPress plugins through official and communi
      - WooCommerce (via WPGraphQL for WooCommerce)
      - Easy Digital Downloads (via community extensions)
    - **Form Plugins**:
-     - Gravity Forms (via [wp-graphql-gravity-forms](https://github.com/harness-software/wp-graphql-gravity-forms))
+     - Gravity Forms (via [wp-graphql-gravity-forms](https://github.com/AxeWP/wp-graphql-gravity-forms))
      - Contact Form 7 (via community extensions)
 
 3. **Plugin Development**

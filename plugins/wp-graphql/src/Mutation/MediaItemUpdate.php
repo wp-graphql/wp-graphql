@@ -72,6 +72,17 @@ class MediaItemUpdate {
 				return [];
 			}
 
+			/**
+			 * Stop now if a user cannot edit mediaItems at all. This runs before the target is
+			 * looked up, so a caller who fails it gets the same answer for every ID and cannot use
+			 * the mutation to find out which IDs exist.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-r7m4-3v6c-3435
+			 */
+			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
+			}
+
 			// Get the database ID for the comment.
 			$media_item_id = Utils::get_database_id_from_id( $input['id'] );
 
@@ -83,25 +94,12 @@ class MediaItemUpdate {
 			$mutation_name = 'updateMediaItem';
 
 			/**
-			 * If there's no existing mediaItem, throw an exception
+			 * An ID that holds nothing and an ID that holds something other than a mediaItem are
+			 * reported the same way. Telling them apart would say which IDs exist across every post
+			 * type and status, which this mutation has no reason to answer.
 			 */
-			if ( null === $existing_media_item ) {
+			if ( null === $existing_media_item || $post_type_object->name !== $existing_media_item->post_type ) {
 				throw new UserError( esc_html__( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
-			}
-
-			/**
-			 * Stop now if the post isn't a mediaItem
-			 */
-			if ( $post_type_object->name !== $existing_media_item->post_type ) {
-				// translators: The placeholder is the ID of the mediaItem being edited
-				throw new UserError( esc_html( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $input['id'] ) ) );
-			}
-
-			/**
-			 * Stop now if a user isn't allowed to edit mediaItems
-			 */
-			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
-				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
 			/**

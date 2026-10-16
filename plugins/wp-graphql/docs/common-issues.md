@@ -668,7 +668,7 @@ For more detailed debugging information, see:
    - Incorrect language context in resolvers
 
    **Solutions:**
-   - Use the [WPGraphQL WPML](https://github.com/valu-digital/wp-graphql-wpml) extension
+   - Use the [WPGraphQL WPML](https://github.com/rburgst/wp-graphql-wpml) extension
    - Ensure proper language parameter passing in queries
    - Consider implementing custom resolvers for specific translation needs
    - Browse past issues and see if there are any solutions for your specific problem.
@@ -703,7 +703,7 @@ For more detailed debugging information, see:
 4. **SEO Plugins**
    For proper SEO data integration, use recommended extensions:
    - [WPGraphQL for Yoast SEO](https://github.com/ashhitch/wp-graphql-yoast-seo)
-   - [WPGraphQL for RankMath](https://github.com/harness-software/wp-graphql-rank-math)
+   - [WPGraphQL for RankMath](https://github.com/AxeWP/wp-graphql-rank-math)
 
 ### Troubleshooting Steps
 

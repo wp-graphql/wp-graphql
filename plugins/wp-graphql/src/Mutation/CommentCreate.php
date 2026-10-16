@@ -141,6 +141,73 @@ class CommentCreate {
 	}
 
 	/**
+	 * Stops the mutation unless the current user may comment on the target.
+	 *
+	 * Mirrors the conditions WordPress applies in
+	 * `wp_handle_comment_submission()`: a trashed post, a status that is neither
+	 * public nor private, a private post the user cannot read, and a
+	 * password-protected post all refuse the comment, as does a post with comments
+	 * closed.
+	 *
+	 * It also mirrors how core reports them. Core returns a `WP_Error` carrying no
+	 * message for the cases the caller is not entitled to tell apart, and a real
+	 * message only where the caller can already read the post. Doing otherwise
+	 * turns the mutation into a way to discover which IDs exist and what state
+	 * they are in, which is the point of this guard as much as refusing the write
+	 * is.
+	 *
+	 * @param \WP_Post|null $commented_on The post being commented on.
+	 * @param int           $post_id      The ID that was asked for.
+	 *
+	 * @throws \GraphQL\Error\UserError If the comment must not be created.
+	 */
+	protected static function assert_can_comment_on( ?\WP_Post $commented_on, int $post_id ): void {
+		// One message for everything the caller must not be able to tell apart: a
+		// post that does not exist, one in the trash, one they cannot read, and one
+		// behind a password all look the same from outside.
+		$not_available = static function (): void {
+			throw new UserError( esc_html__( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
+		};
+
+		if ( ! $commented_on instanceof \WP_Post || empty( $commented_on->comment_status ) ) {
+			$not_available();
+		}
+
+		// get_post_status() resolves an attachment to its parent's status, the same
+		// as core does here.
+		$status     = get_post_status( $commented_on );
+		$status_obj = get_post_status_object( (string) $status );
+
+		if ( 'private' === $status && ! current_user_can( 'read_post', $post_id ) ) {
+			$not_available();
+		}
+
+		if ( 'trash' === $status ) {
+			$not_available();
+		}
+
+		if ( null === $status_obj || ( ! $status_obj->public && ! $status_obj->private ) ) {
+			// A draft or pending post. Someone who can already read it is told why;
+			// everyone else cannot learn that it exists.
+			if ( current_user_can( 'read_post', $post_id ) ) {
+				throw new UserError( esc_html__( 'Sorry, comments are not allowed for this item', 'wp-graphql' ) );
+			}
+
+			$not_available();
+		}
+
+		if ( post_password_required( $post_id ) ) {
+			$not_available();
+		}
+
+		// Reached only for a post the caller can read, so saying comments are closed
+		// discloses nothing they could not already see.
+		if ( ! comments_open( $post_id ) ) {
+			throw new UserError( esc_html__( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
+		}
+	}
+
+	/**
 	 * Defines the mutation data modification closure.
 	 *
 	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
@@ -157,16 +224,7 @@ class CommentCreate {
 
 			$commented_on = get_post( absint( $input['commentOn'] ) );
 
-			if ( empty( $commented_on ) ) {
-				throw new UserError( esc_html__( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
-			}
-
-			/**
-			 * Stop if post not open to comments
-			 */
-			if ( empty( $input['commentOn'] ) || 'closed' === $commented_on->comment_status ) {
-				throw new UserError( esc_html__( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
-			}
+			self::assert_can_comment_on( $commented_on, absint( $input['commentOn'] ) );
 
 			if ( '1' === get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 				throw new UserError( esc_html__( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );

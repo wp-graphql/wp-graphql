@@ -69,17 +69,33 @@ class UserUpdate {
 			if ( empty( $user_id ) ) {
 				throw new UserError( esc_html__( 'The user ID passed is invalid', 'wp-graphql' ) );
 			}
+
+			/**
+			 * Stop now if a user isn't allowed to edit the account this ID names.
+			 *
+			 * This runs before the account is looked up so that a caller who fails it gets
+			 * the same answer for every ID. Checking it afterwards meant the not-found error
+			 * below told an unauthorized caller which user IDs exist.
+			 *
+			 * The `edit_user` meta capability resolves from the ID alone, so moving it here
+			 * costs nothing and still lets someone edit their own account: WordPress allows
+			 * `edit_user` against your own ID, and falls back to requiring `edit_users` for
+			 * anyone else's, including an ID that names nobody.
+			 *
+			 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+			 */
+			if ( ! current_user_can( 'edit_user', $user_id ) ) {
+				throw new UserError( esc_html__( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
+			}
+
 			$existing_user = get_user_by( 'ID', $user_id );
 
 			/**
-			 * If there's no existing user, throw an exception
+			 * If there's no existing user, throw an exception. Only reached by a caller who
+			 * may already edit accounts, so naming the outcome discloses nothing to them.
 			 */
 			if ( false === $existing_user ) {
 				throw new UserError( esc_html__( 'A user could not be updated with the provided ID', 'wp-graphql' ) );
-			}
-
-			if ( ! current_user_can( 'edit_user', $existing_user->ID ) ) {
-				throw new UserError( esc_html__( 'You do not have the appropriate capabilities to perform this action', 'wp-graphql' ) );
 			}
 
 			if ( isset( $input['roles'] ) && ! current_user_can( 'edit_users' ) ) {

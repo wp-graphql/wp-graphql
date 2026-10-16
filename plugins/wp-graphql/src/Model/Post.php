@@ -267,12 +267,17 @@ class Post extends Model {
 		}
 
 		switch ( $this->data->post_status ) {
-			case 'trash':
-				$cap = isset( $this->post_type_object->cap->edit_posts ) ? $this->post_type_object->cap->edit_posts : 'edit_posts';
-				break;
+			/**
+			 * Content in a status the site does not publish belongs to whoever wrote it. Being
+			 * able to edit posts is enough to be told the node exists, it is not enough to read
+			 * someone else's. The owner is exempt from this before the capability is consulted.
+			 *
+			 * @see \WPGraphQL\Model\Model::get_visibility()
+			 */
 			case 'draft':
 			case 'future':
 			case 'pending':
+			case 'trash':
 				$cap = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
 				break;
 			default:
