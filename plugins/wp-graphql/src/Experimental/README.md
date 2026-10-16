@@ -13,7 +13,8 @@ WPGraphQL Experiments API is an API that allows us to experiment with bleeding-e
 
 These are working examples for developers, not shipped features: they live under
 `Experiment/` but are commented out in `ExperimentRegistry.php`, so they never
-register on a site unless someone uncomments them or adds them back.
+register on a site unless someone uncomments them or registers them through the
+`graphql_experiments_registered_classes` filter.
 
 | Name | Slug | Description | Docs |
 |------|------|-------------|------|
