@@ -131,6 +131,36 @@ If this query is executed now, an error will be returned.
 
 ![Screenshot showing the error when a query marked as "Deny" is executed](./images/denied-query-error.png)
 
+##### Who the allow/deny rules apply to
+
+The rules apply to **every request**, whether the caller is logged in or not, with one
+exception: users who can `manage_options`, normally administrators, are exempt so they
+can still run ad-hoc queries in the IDE.
+
+If you have granted IDE access to non-administrators, those users are subject to the
+allow list too, and ad-hoc queries in the IDE will be blocked for them. Exempt them by
+filtering the capability to the one your IDE access is gated on.
+
+Change which capability exempts a user with the
+`graphql_smart_cache_grant_exempt_capability` filter:
+
+```php
+add_filter( 'graphql_smart_cache_grant_exempt_capability', function ( $capability, $grant_mode, $request ) {
+    // Let anyone who can edit posts run queries outside the allow list.
+    return 'edit_posts';
+}, 10, 3 );
+```
+
+> **Changed in 2.3.3**: the rules previously applied only to logged-out requests, so an
+> authenticated caller could execute queries the allow list was meant to block, including
+> documents marked Deny. You were affected if your clients authenticate with an
+> `Authorization` header, such as a JWT or an application password, or send an
+> `X-WP-Nonce` header alongside a cookie. Requests carrying only a cookie have been
+> treated as logged out since WPGraphQL 2.5.4, so those were already covered. If your
+> application relies on authenticated clients running queries outside the allow list,
+> either add those documents to the allow list, or use the filter above to exempt a
+> capability those clients hold.
+
 #### Custom Max Age / Expiration Per Query
 
 When creating / editing GraphQL Documents, you can set a custom max-age per document.
@@ -150,6 +180,57 @@ For example, currently queries for "Settings" are not invalidating when settings
 - [Network Cache](./network-cache.md)
 - [Object Cache](./object-cache.md)
 - [Cache Invalidation](./cache-invalidation.md)
+
+### Who can register documents automatically, and how many are kept
+
+Automatic Persisted Queries are reachable by whoever can reach the endpoint, which
+is how the protocol is meant to work: a client sends a query once and uses its ID
+afterwards. Two settings on the "Saved Queries" tab control it.
+
+**Who can save a new query automatically** defaults to anyone, including logged out
+visitors, which is how this has always behaved. The alternatives are logged in users
+only, or nobody. Reading an already saved document is never affected, only saving a
+new one.
+
+On WPGraphQL core 2.5.4 and later, a request carrying only a login cookie is treated
+as logged out unless it also sends a nonce, so "logged in users only" in practice
+means clients authenticating with a token, such as a JWT or an application password,
+or sending an `X-WP-Nonce` header. A browser session on its own will not save
+documents.
+
+For anything the setting cannot express, such as an API key belonging to a known
+first-party client, use the filter:
+
+```php
+add_filter( 'graphql_smart_cache_can_auto_persist_document', function ( $allowed, $mode ) {
+    // Let a trusted client through whatever the setting says.
+    if ( isset( $_SERVER['HTTP_X_MY_APP_KEY'] ) && hash_equals( MY_APP_KEY, $_SERVER['HTTP_X_MY_APP_KEY'] ) ) {
+        return true;
+    }
+    return $allowed;
+}, 10, 2 );
+```
+
+**Limit on automatically saved queries** bounds how many are kept. Past the limit the
+oldest are removed as new ones arrive, so the table cannot grow without end. This
+applies whatever the mode is, because the default mode allows anyone to save.
+
+Removing one is safe: a client that sends an ID the server no longer knows re-sends
+the full query, and it is registered again under its verified hash. That fallback is
+part of the protocol. Documents you have granted, denied, or placed in a Group are
+curated rather than automatic, and are never removed by the limit.
+
+Change the limit with the filter:
+
+```php
+add_filter( 'graphql_smart_cache_automatic_document_limit', function ( $limit ) {
+    return 20000;
+} );
+```
+
+> **Changed in 2.3.3**: previously nothing bounded automatically saved documents.
+> Garbage collection is opt-in, defaults to off and prunes by age only, so on a
+> default install anonymous traffic could grow the table indefinitely.
 
 ### Auditing automatically registered documents
 

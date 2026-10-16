@@ -12,6 +12,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
 ## Authentication and Authorization
 
+- [`graphql_allowed_password_reset_emails_per_request`](/filters/graphql_allowed_password_reset_emails_per_request)
+
+  Filters how many password reset emails a single GraphQL request may send.
+
 - [`graphql_authentication_error_status_code`](/filters/graphql_authentication_error_status_code)
 
   Filter the HTTP status code returned for authentication errors.
@@ -24,6 +28,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.
 
+- [`graphql_comment_author_can_update_own_comment`](/filters/graphql_comment_author_can_update_own_comment)
+
+  Filters whether the author of a comment may update it without the `moderate_comments` capability.
+
 - [`graphql_cookie_auth_require_nonce`](/filters/graphql_cookie_auth_require_nonce)
 
   Filter whether to require a nonce for cookie-based authentication.
@@ -31,6 +39,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 - [`graphql_field_resolver_auth_error_message`](/filters/graphql_field_resolver_auth_error_message)
 
   Filters the default authorization error message for field resolvers.
+
+- [`graphql_password_reset_debug_capability`](/filters/graphql_password_reset_debug_capability)
+
+  Filters the capability a caller needs to be told why no password reset email was sent.
 
 - [`graphql_pre_restrict_endpoint`](/filters/graphql_pre_restrict_endpoint)
 
@@ -326,6 +338,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Filter the $insert_post_args
 
+- [`graphql_comment_update_requires_moderation`](/filters/graphql_comment_update_requires_moderation)
+
+  Filters whether an edited comment is sent back for moderation.
+
 - [`graphql_data_is_private`](/filters/graphql_data_is_private)
 
   Filter to determine if the data should be considered private or not
@@ -483,6 +499,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 - [`graphql_pre_resolve_uri`](/filters/graphql_pre_resolve_uri)
 
   When this filter return anything other than null, it will be used as a resolved node and the execution will be skipped.
+
+- [`graphql_query_depth_max`](/filters/graphql_query_depth_max)
+
+  Filters the max query depth allowed for the current request.
 
 - [`graphql_query_id_hash_algorithm`](/filters/graphql_query_id_hash_algorithm)
 
@@ -755,6 +775,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 - [`graphql_setting_field_value`](/filters/graphql_setting_field_value)
 
   Filters the resolved value of a single settings field before it is returned in the Schema.
+
+- [`graphql_settings_review_show_invitation`](/filters/graphql_settings_review_show_invitation)
+
+  Filters whether administrators are invited to the settings review with an admin notice.
 
 - [`graphql_settings_sections`](/filters/graphql_settings_sections)
 

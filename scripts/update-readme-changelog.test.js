@@ -392,6 +392,51 @@ Stable tag: 5.0.0
 				'should not leave triple blank lines'
 			);
 		}),
+
+	() =>
+		test('defuses release-please annotations mentioned in changelog prose', () => {
+			// readme.txt is a release-please `extra-file`, and its generic updater
+			// rewrites the version on any line carrying one of these annotations. An
+			// entry that only talks about them must not end up looking like one, or
+			// every later release rewrites this historical line.
+			createChangelog(`# Changelog
+
+## 6.0.0
+
+### Bug Fixes
+
+* replace x-release-please-version placeholders with 6.0.0 ([abcdef1](https://example.com/commit/abcdef1))
+* stop x-release-please-date and x-release-please-major drifting
+`);
+			createReadme(`=== Plugin ===
+
+== Changelog ==
+
+= 5.0.0 =
+
+* old
+`);
+
+			const result = runScript('6.0.0');
+			assert(result.success, 'script should succeed');
+			const readme = readReadme();
+
+			assert(
+				!readme.includes('x-release-please-version'),
+				'should not leave the version annotation intact in readme.txt'
+			);
+			assert(
+				!readme.includes('x-release-please-date') &&
+					!readme.includes('x-release-please-major'),
+				'should defuse every annotation the generic updater recognizes'
+			);
+			assert(
+				readme.includes(
+					'* replace x-release-please version placeholders with 6.0.0'
+				),
+				'should keep the entry readable, only breaking the annotation'
+			);
+		}),
 ];
 
 console.log('\n🧪 Running update-readme-changelog.js tests...\n');

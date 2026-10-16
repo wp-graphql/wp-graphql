@@ -28,11 +28,6 @@
 	<arg name="severity" value="1" />
 
 	<!-- Includes -->
-	<!--
-	<file>./access-functions.php</file>
-	<file>./activation.php</file>
-	<file>./deactivation.php</file>
-	-->
 	<file>./wp-graphql-smart-cache.php</file>
 	<file>./src</file>
 
@@ -42,6 +37,15 @@
 	<exclude-pattern>*/**/tests/</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="graphql" />
+				<element value="WPGraphQL" />
+			</property>
+		</properties>
+	</rule>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>

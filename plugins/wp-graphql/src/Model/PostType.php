@@ -20,7 +20,7 @@ use GraphQLRelay\Relay;
  * @property ?string       $menuIcon
  * @property ?int          $menuPosition
  * @property ?string       $name
- * @property ?bool         $public
+ * @property bool          $public
  * @property bool          $publiclyQueryable
  * @property ?string       $restBase
  * @property ?string       $restControllerClass
@@ -151,7 +151,7 @@ class PostType extends Model {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
 				'public'              => function () {
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : null;
+					return (bool) $this->data->public;
 				},
 				'publiclyQueryable'   => function () {
 					return true === $this->data->publicly_queryable;

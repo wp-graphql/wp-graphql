@@ -33,7 +33,7 @@ Fires an action when a term is updated via a GraphQL Mutation
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:168`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L168)
+- [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:186`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L186)
 
 ```php
 do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
@@ -41,4 +41,4 @@ do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mu
 
 ## Related
 
-- `TermObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:168`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L168)
+- `TermObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/TermObjectUpdate.php:186`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/TermObjectUpdate.php#L186)

@@ -149,7 +149,7 @@ Some functionality requires additional plugins:
    - Provides access to products, orders, and other WooCommerce data
 
 3. **Block Editor / Full Site Editing**
-   - Advanced block data requires [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks)
+   - Advanced block data requires [WPGraphQL Content Blocks](https://github.com/wpengine/wp-graphql-content-blocks)
    - FSE features need custom code or extensions
    - Basic block content available as rendered HTML by default
 
