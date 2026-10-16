@@ -187,6 +187,9 @@
 		<!-- Should probably be added back. -->
 		<exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing" />
 		<exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
+
+		<!-- Native constant type hints are PHP 8.3 syntax, and the plugin supports PHP 7.4. -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
 	</rule>
 
 	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
