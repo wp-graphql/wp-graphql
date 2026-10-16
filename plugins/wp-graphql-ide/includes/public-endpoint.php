@@ -152,6 +152,7 @@ function render_public_ide_shell(): void {
 
 	// No admin bar — the page IS the IDE. The admin-bar trigger would
 	// also try to mount its own IDE instance into a sibling div.
+	// phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected -- Hidden on this page only, which renders the IDE in place of the site.
 	add_filter( 'show_admin_bar', '__return_false' );
 
 	// Reuse the dedicated-page enqueue path so script handles, dependency
@@ -250,7 +251,9 @@ function inject_public_endpoint_data( array $data ): array {
 function current_request_url(): string {
 	$scheme = is_ssl() ? 'https://' : 'http://';
 	$host   = sanitize_text_field( wp_unslash( (string) ( $_SERVER['HTTP_HOST'] ?? '' ) ) );
-	$path   = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REQUEST_URI'] ?? '' ) ) );
+	// esc_url_raw(), not sanitize_text_field(): the latter strips percent-encoded
+	// octets, which would break the redirect for any URL that contains them.
+	$path = esc_url_raw( wp_unslash( (string) ( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 	return $scheme . $host . $path;
 }
 

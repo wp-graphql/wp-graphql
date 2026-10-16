@@ -90,6 +90,7 @@ class Storage {
 		switch ( $kind ) {
 			case 'post_field':
 				$update = wp_update_post(
+					// @phpstan-ignore-next-line -- `$key` is the post field a registered setting stores in, which wp_update_post()'s array shape can't express.
 					[
 						'ID' => $post_id,
 						$key => is_string( $value ) ? $value : '',

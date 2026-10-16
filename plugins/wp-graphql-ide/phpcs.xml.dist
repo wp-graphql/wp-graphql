@@ -84,11 +84,12 @@
 			`manage_graphql_ide`) — caching nuance on a couple of
 			get_posts/term_exists/tax_query calls per click doesn't
 			move the needle on any real workload, and `post__not_in`
-			via `exclude` is the natural way to dedupe in a small
+			(directly or via `exclude`) is the natural way to dedupe in a small
 			user-scoped set. Suppress the sniffs here so reviewers
 			aren't drowning in irrelevant warnings on every PR.
 		-->
 		<exclude name="WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude" />
+		<exclude name="WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn" />
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.term_exists_term_exists" />
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts" />
 		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_tax_query" />
