@@ -129,7 +129,7 @@ jobs:
       - name: Cache PHP Static Analysis scan cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.3
         with:
-          path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
+          path: ${{ inputs.plugin_path }}/tests/_output # Holds tmpDir (tests/_output/phpstan) from each plugin's phpstan.neon.dist.
           key: 'phpstan-result-cache-${{ inputs.plugin_name }}-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
           restore-keys: |
             phpstan-result-cache-${{ inputs.plugin_name }}-${{ runner.os }}-
