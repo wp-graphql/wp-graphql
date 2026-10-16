@@ -743,6 +743,96 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Saying comments are closed is correct here rather than a disclosure, because the
+	 * branch is reached only for a post the caller can already read, which is why it has
+	 * its own message instead of the shared "invalid" one.
+	 */
+	public function testCannotCommentOnAReadablePostWithCommentsClosed() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'      => 'post',
+				'post_status'    => 'publish',
+				'post_author'    => $this->admin,
+				'comment_status' => 'closed',
+			]
+		);
+
+		$this->assertSame(
+			'Sorry, this post is closed to comments at the moment',
+			$this->anonymousCommentError( $post_id ),
+			'A readable post with comments closed must be refused, and told why'
+		);
+
+		$this->assertSame(
+			0,
+			(int) get_comments(
+				[
+					'post_id' => $post_id,
+					'count'   => true,
+				]
+			),
+			'No comment may be created'
+		);
+	}
+
+	/**
+	 * Whether comments are open is decided by WordPress's own comments_open() rather than
+	 * by reading `comment_status` directly, which is what GHSA-4vgv-vvxr-9fh9 changed. That
+	 * widened the branch, because comments_open() also honors the "automatically close
+	 * comments on posts older than N days" discussion setting. A site using that option sees
+	 * comments refused on old posts whose `comment_status` still says open, so it is worth
+	 * pinning in both directions: the old post is refused, a recent one is not.
+	 */
+	public function testCannotCommentOnAPostClosedByTheOldPostsSetting() {
+		$previous = [
+			'close_comments_for_old_posts' => get_option( 'close_comments_for_old_posts' ),
+			'close_comments_days_old'      => get_option( 'close_comments_days_old' ),
+		];
+
+		update_option( 'close_comments_for_old_posts', '1' );
+		update_option( 'close_comments_days_old', '14' );
+
+		try {
+			$old = $this->factory()->post->create(
+				[
+					'post_type'      => 'post',
+					'post_status'    => 'publish',
+					'post_author'    => $this->admin,
+					'comment_status' => 'open',
+					'post_date'      => gmdate( 'Y-m-d H:i:s', strtotime( '-30 days' ) ),
+					'post_date_gmt'  => gmdate( 'Y-m-d H:i:s', strtotime( '-30 days' ) ),
+				]
+			);
+
+			$recent = $this->factory()->post->create(
+				[
+					'post_type'      => 'post',
+					'post_status'    => 'publish',
+					'post_author'    => $this->admin,
+					'comment_status' => 'open',
+				]
+			);
+
+			$this->assertFalse( comments_open( $old ), 'The setting must actually close the old post, or the test proves nothing' );
+
+			$this->assertSame(
+				'Sorry, this post is closed to comments at the moment',
+				$this->anonymousCommentError( $old ),
+				'A post closed by the age setting must be refused even though its comment_status says open'
+			);
+
+			$this->assertNull(
+				$this->anonymousCommentError( $recent ),
+				'The guard must not over-block: a recent post with comments open still accepts them'
+			);
+		} finally {
+			foreach ( $previous as $option => $value ) {
+				update_option( $option, $value );
+			}
+		}
+	}
+
+	/**
 	 * Hardening for GHSA-4vgv-vvxr-9fh9. `date` and `type` were taken from input
 	 * with no capability check, so any caller could backdate a comment or file it
 	 * as another type. Core draws the same line with `moderate_comments`.
@@ -1219,7 +1309,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 *
 	 * @return array{0:int,1:int} The post ID and the comment ID.
 	 */
-	public function createApprovedSubscriberComment( $post_args = [] ) {
+	public function createApprovedSubscriberComment( $post_args = [], $comment_args = [] ) {
 		$post_id = $this->factory()->post->create(
 			array_merge(
 				[
@@ -1237,15 +1327,18 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$subscriber_user = get_user_by( 'id', $this->subscriber );
 
 		$comment_id = $this->factory()->comment->create(
-			[
-				'user_id'              => $this->subscriber,
-				'comment_author'       => $subscriber_user->display_name,
-				'comment_author_email' => $subscriber_user->user_email,
-				'comment_author_url'   => $subscriber_user->user_url,
-				'comment_post_ID'      => $post_id,
-				'comment_content'      => 'Content a moderator approved',
-				'comment_approved'     => '1',
-			]
+			array_merge(
+				[
+					'user_id'              => $this->subscriber,
+					'comment_author'       => $subscriber_user->display_name,
+					'comment_author_email' => $subscriber_user->user_email,
+					'comment_author_url'   => $subscriber_user->user_url,
+					'comment_post_ID'      => $post_id,
+					'comment_content'      => 'Content a moderator approved',
+					'comment_approved'     => '1',
+				],
+				$comment_args
+			)
 		);
 
 		return [ $post_id, $comment_id ];
@@ -1622,6 +1715,232 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		} finally {
 			remove_filter( 'graphql_comment_update_requires_moderation', $keep_approval );
 			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * Watches `graphql_comment_update_requires_moderation` so a test can tell the three
+	 * branches that return before any decision apart from a decision that came out as
+	 * "keep it approved". The filter is applied last in maybe_hold_for_moderation(), so
+	 * it running at all means none of the early returns fired.
+	 *
+	 * @param bool $filter_ran Set to true when a moderation decision was reached.
+	 *
+	 * @return callable The filter callback, to remove when the test is done.
+	 */
+	protected function watchModerationDecision( &$filter_ran ): callable {
+		$filter_ran = false;
+
+		$watch = static function ( $requires_moderation ) use ( &$filter_ran ) {
+			$filter_ran = true;
+
+			return $requires_moderation;
+		};
+
+		add_filter( 'graphql_comment_update_requires_moderation', $watch );
+
+		return $watch;
+	}
+
+	/**
+	 * @param int    $comment_id The comment to edit.
+	 * @param string $content    The new content.
+	 *
+	 * @return array<string,mixed> The GraphQL response.
+	 */
+	protected function updateOwnCommentContent( int $comment_id, string $content ): array {
+		wp_set_current_user( $this->subscriber );
+
+		return $this->graphql(
+			[
+				'query'     => '
+				mutation updateComment( $id: ID!, $content: String! ) {
+					updateComment( input: { id: $id, content: $content } ) {
+						success
+					}
+				}
+				',
+				'variables' => [
+					'id'      => $comment_id,
+					'content' => $content,
+				],
+			]
+		);
+	}
+
+	/**
+	 * WordPress approves a comment left by the author of the node it is on without checking
+	 * it, and maybe_hold_for_moderation() mirrors that exemption. This is the branch that
+	 * *keeps* approval, so a regression here means a site author editing their own approved
+	 * comment on their own content has it pulled down for review, which is the opposite of
+	 * what the exemption is for.
+	 *
+	 * testUpdateCommentOwnerContentEditIsHeldWhenItFailsModeration() cannot cover this: its
+	 * post belongs to one user and its comment to another, so the exemption never fires.
+	 *
+	 * @see wp_check_comment_data()
+	 */
+	public function testUpdateCommentByTheNodeAuthorKeepsApprovalWithoutAModerationDecision() {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$watch = $this->watchModerationDecision( $filter_ran );
+
+		try {
+			// The subscriber owns the post as well as the comment on it.
+			list( , $comment_id ) = $this->createApprovedSubscriberComment( [ 'post_author' => $this->subscriber ] );
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$after = get_comment( $comment_id );
+			$this->assertEquals( 'An edit containing a forbiddenword', $after->comment_content, 'The edit must be saved.' );
+			$this->assertEquals( '1', $after->comment_approved, 'The author of the node is exempt, so the comment stays approved.' );
+			$this->assertFalse( $filter_ran, 'The exemption must return before any moderation decision is made.' );
+		} finally {
+			remove_filter( 'graphql_comment_update_requires_moderation', $watch );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * Only an edit to an already-approved comment needs a new decision. A comment that is
+	 * waiting for review keeps the status it has.
+	 *
+	 * The status assertion alone would pass either way, since the comment would be held at
+	 * `0` anyway. What pins this branch is that no decision was reached at all, so the
+	 * filter a site uses to override one is never applied to a comment that was not
+	 * approved to begin with.
+	 */
+	public function testUpdateCommentThatIsNotApprovedReachesNoModerationDecision() {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$watch = $this->watchModerationDecision( $filter_ran );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment( [], [ 'comment_approved' => '0' ] );
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$after = get_comment( $comment_id );
+			$this->assertEquals( 'An edit containing a forbiddenword', $after->comment_content, 'The edit must be saved.' );
+			$this->assertEquals( '0', $after->comment_approved, 'A comment awaiting review keeps the status it has.' );
+			$this->assertFalse( $filter_ran, 'A comment that is not already approved needs no new decision.' );
+		} finally {
+			remove_filter( 'graphql_comment_update_requires_moderation', $watch );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * Unchanged content is not re-checked. A site that adds a word to its moderation list
+	 * today must not have every no-op update pull down the approved comments that already
+	 * contain it, and re-running the checks on content a moderator has already seen would
+	 * do exactly that.
+	 */
+	public function testUpdateCommentWithUnchangedContentReachesNoModerationDecision() {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$watch = $this->watchModerationDecision( $filter_ran );
+
+		try {
+			// Approved while the word was not on the list, which is the situation this guards.
+			$stored = 'Content a moderator approved, containing a forbiddenword';
+
+			list( , $comment_id ) = $this->createApprovedSubscriberComment( [], [ 'comment_content' => $stored ] );
+
+			$actual = $this->updateOwnCommentContent( $comment_id, $stored );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$after = get_comment( $comment_id );
+			$this->assertEquals( $stored, $after->comment_content, 'The content must be left as it was.' );
+			$this->assertEquals( '1', $after->comment_approved, 'Content a moderator already approved must stay approved.' );
+			$this->assertFalse( $filter_ran, 'Unchanged content must not be re-checked.' );
+		} finally {
+			remove_filter( 'graphql_comment_update_requires_moderation', $watch );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * assert_only_content_changes() names the columns a caller without `moderate_comments`
+	 * may not change, which makes it a denylist: a new writable column is permitted by
+	 * default, and whoever adds one has to remember this guard exists on their own.
+	 *
+	 * This test makes that coupling announce itself. It drives prepare_comment_object() with
+	 * every input field populated and asserts the columns it writes stay within the set that
+	 * has been reviewed. A new column trips it, and the fix is either to add the field to the
+	 * guard's list or to record here why it is safe to leave out.
+	 *
+	 * @see \WPGraphQL\Mutation\CommentUpdate::assert_only_content_changes()
+	 */
+	public function testPrepareCommentObjectWritesNoColumnOutsideTheReviewedSet() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author'    => $this->author,
+				'post_status'    => 'publish',
+				'comment_status' => 'open',
+			]
+		);
+
+		$input = [
+			'commentOn'   => $post_id,
+			'author'      => 'Someone Else',
+			'authorEmail' => 'someone.else@example.com',
+			'authorUrl'   => 'https://example.com/someone-else',
+			'date'        => '2020-01-01 00:00:00',
+			'parent'      => 0,
+			'type'        => 'pingback',
+			'content'     => 'Content',
+			'status'      => 'APPROVE',
+			'approved'    => true,
+		];
+
+		// The columns assert_only_content_changes() refuses to let a non-moderator change.
+		$restricted = [
+			'comment_post_ID',
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'comment_date',
+			'comment_parent',
+			'comment_type',
+		];
+
+		/**
+		 * Reviewed as safe to write without being on that list:
+		 *
+		 * - `comment_content` is the one thing the caller is allowed to change.
+		 * - `comment_approved` is gated separately, in CommentUpdate, which refuses a status
+		 *    change outright rather than comparing it against what is stored.
+		 * - `user_id` is set from get_comment_author(), which returns the caller's own account
+		 *    for anyone without `moderate_comments`, and ownership is already established
+		 *    before this runs.
+		 */
+		$reviewed = array_merge( $restricted, [ 'comment_content', 'comment_approved', 'user_id' ] );
+
+		foreach ( [ 'subscriber' => $this->subscriber, 'administrator' => $this->admin ] as $role => $user_id ) {
+			wp_set_current_user( $user_id );
+
+			$output_args = [];
+			\WPGraphQL\Data\CommentMutation::prepare_comment_object( $input, $output_args, 'updateComment', true );
+
+			$unreviewed = array_diff( array_keys( $output_args ), $reviewed );
+
+			$this->assertEmpty(
+				$unreviewed,
+				sprintf(
+					'prepare_comment_object() writes %s for a %s, which assert_only_content_changes() does not account for. Add the input field to its list, or record here why the column is safe to leave out.',
+					implode( ', ', $unreviewed ),
+					$role
+				)
+			);
 		}
 	}
 
