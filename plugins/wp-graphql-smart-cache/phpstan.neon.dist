@@ -1,4 +1,6 @@
 parameters:
+    # Keep the result cache inside the plugin, where the lint workflow caches it between runs.
+    tmpDir: tests/_output/phpstan
     level: 8
     inferPrivatePropertyTypeFromConstructor: true
     stubFiles:
