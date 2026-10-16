@@ -30,7 +30,7 @@ Filters whether an edited comment is sent back for moderation. When a caller wit
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L329)
+- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L390)
 
 ```php
 apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderatio
 
 ## Related
 
-- `CommentUpdate::maybe_hold_for_moderation()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:329`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L329)
+- `CommentUpdate::maybe_hold_for_moderation()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L390)

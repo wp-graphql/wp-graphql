@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-10-15T06:42:37.990Z",
+  "generatedAt": "2026-10-16T04:11:33.955Z",
   "stats": {
     "totalHooks": 286,
     "actions": 63,
@@ -2437,10 +2437,10 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "CommentUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-      "line": 124,
+      "line": 144,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
-      "description": "Filters whether the author of a comment may update it without the `moderate_comments` capability. WPGraphQL lets people edit their own comments. WordPress does not: its `edit_comment` capability maps to `edit_post` on the post the comment was left on, so editing any comment in the admin or through the REST API requires being able to edit that post. Return false to apply WordPress's rule here instead, which leaves `updateComment` to callers who can moderate comments.",
+      "description": "Filters whether the author of a comment may update it without the `moderate_comments` capability. WPGraphQL lets people edit their own comments. WordPress does not: its `edit_comment` capability maps to `edit_post` on the post the comment was left on, so editing any comment in the admin or through the REST API requires being able to edit that post. Return false to turn that off, which leaves `updateComment` to callers who can moderate comments. Note that this is stricter than WordPress's own rule rather than the same as it: an author who can edit a post can edit comments left on it in the admin, but would not be able to here.",
       "params": [
         {
           "type": "bool",
@@ -2477,7 +2477,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-          "line": 124,
+          "line": 144,
           "symbol": "CommentUpdate::mutate_and_get_payload()",
           "emitter": "apply_filters"
         }
@@ -2752,7 +2752,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "CommentUpdate::maybe_hold_for_moderation()",
       "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-      "line": 329,
+      "line": 390,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether an edited comment is sent back for moderation. When a caller without the `moderate_comments` capability edits the content of a comment that is already approved, WordPress's moderation checks are run against the new content and the comment is held for review if they do not pass. Return false to let the comment keep its approved status regardless of what the new content says. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and the filter is never reached.",
@@ -2792,7 +2792,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-          "line": 329,
+          "line": 390,
           "symbol": "CommentUpdate::maybe_hold_for_moderation()",
           "emitter": "apply_filters"
         }
@@ -6380,7 +6380,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "PostObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-      "line": 241,
+      "line": 247,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated",
@@ -6492,7 +6492,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "PostObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-      "line": 227,
+      "line": 233,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires after a single term is created or updated via a GraphQL mutation The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated",
@@ -6537,7 +6537,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/PostObjectUpdate.php",
-          "line": 227,
+          "line": 233,
           "symbol": "PostObjectUpdate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
@@ -14833,7 +14833,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TermObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/TermObjectUpdate.php",
-      "line": 182,
+      "line": 200,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires an action when a term is updated via a GraphQL Mutation",
@@ -14894,7 +14894,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "TermObjectUpdate::mutate_and_get_payload()",
       "file": "plugins/wp-graphql/src/Mutation/TermObjectUpdate.php",
-      "line": 168,
+      "line": 186,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fires an action when a term is updated via a GraphQL Mutation",
@@ -14949,7 +14949,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/TermObjectUpdate.php",
-          "line": 168,
+          "line": 186,
           "symbol": "TermObjectUpdate::mutate_and_get_payload()",
           "emitter": "do_action"
         }
