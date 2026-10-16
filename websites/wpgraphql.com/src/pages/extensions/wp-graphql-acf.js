@@ -411,7 +411,7 @@ function Faq() {
     {
       question: "Are GraphQL mutations supported?",
       answer:
-        "Not yet — ACF mutations are not built yet. WPGraphQL for ACF exposes ACF fields to GraphQL for reading today; creating and updating field values through mutations is still to come.",
+        "Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet.",
     },
     {
       question: "Do I have to use Faust.js?",
