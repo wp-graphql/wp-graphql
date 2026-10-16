@@ -130,9 +130,10 @@ function extractBreakingChanges(changelogPath, version) {
  * @param {string} readmePath Path to readme.txt
  * @param {string} version Version number
  * @param {Array} breakingChanges Array of breaking change descriptions
- * @returns {string} `changed` when the file was modified, `skipped` when no
- *   change was made (an existing hand-written notice was left untouched, or
- *   there was nothing to add), or `error` when the notice could not be written.
+ * @returns {string} `changed` when the file was modified, `hand-written` when
+ *   an existing hand-written notice for the version was left untouched,
+ *   `nothing-to-add` when there were no breaking changes to write, or `error`
+ *   when the notice could not be written.
  */
 function updateUpgradeNotice(readmePath, version, breakingChanges) {
 	if (!fs.existsSync(readmePath)) {
@@ -142,7 +143,7 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 
 	if (breakingChanges.length === 0) {
 		console.log('No breaking changes to add to upgrade notice.');
-		return 'skipped';
+		return 'nothing-to-add';
 	}
 
 	let content = fs.readFileSync(readmePath, 'utf8');
@@ -197,7 +198,7 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 				console.log(
 					`Existing upgrade notice for version ${version} appears hand-written; leaving it untouched.`
 				);
-				return 'skipped';
+				return 'hand-written';
 			}
 
 			sectionBody = sectionBody.replace(
@@ -282,10 +283,12 @@ function main() {
 		);
 		if (result === 'changed') {
 			console.log('✅ Upgrade notice updated successfully!');
-		} else if (result === 'skipped') {
+		} else if (result === 'hand-written') {
 			console.log(
 				'ℹ️ Left the existing hand-written upgrade notice untouched.'
 			);
+		} else if (result === 'nothing-to-add') {
+			console.log('ℹ️ No breaking changes to add - upgrade notice unchanged.');
 		} else {
 			console.log('⚠️ Failed to update upgrade notice.');
 			process.exit(1);
