@@ -16,6 +16,9 @@ vendor
 # PHPCS cached files.
 /tests/_output/*.json
 
+# PHPStan result cache.
+/tests/_output/phpstan/
+
 # Directory used to generate the .zip for deploying to WordPress.org
 plugin-build
 
