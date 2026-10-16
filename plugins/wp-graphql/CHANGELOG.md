@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.24.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.1...wp-graphql/v2.24.2) (2026-10-16)
+
+
+### Bug Fixes
+
+* **media:** reject the local-use NAT64 prefix, and fail closed on a failed AAAA lookup ([#4460](https://github.com/wp-graphql/wp-graphql/issues/4460)) ([c4d1226](https://github.com/wp-graphql/wp-graphql/commit/c4d1226b1a47bc85d5ffe400c625838707f578a3))
+* **mutations:** check the capability before looking up the target, in four more mutations ([#4461](https://github.com/wp-graphql/wp-graphql/issues/4461)) ([70dbdc3](https://github.com/wp-graphql/wp-graphql/commit/70dbdc31d16e44d87b465fb47f1f3401247676b8))
+* **mutations:** keep a comment's stored byline when only its content is edited ([#4458](https://github.com/wp-graphql/wp-graphql/issues/4458)) ([974abe9](https://github.com/wp-graphql/wp-graphql/commit/974abe98be8325891f7761221af31f39b39ebde9))
+* **mutations:** stop comment mutations telling logged-in callers which comment IDs exist ([#4459](https://github.com/wp-graphql/wp-graphql/issues/4459)) ([bb4f778](https://github.com/wp-graphql/wp-graphql/commit/bb4f778cae04f60c40bbcb1c80bed4faf91ad836))
+* **release:** stop release-please rewriting changelog entries that name its annotations ([#4450](https://github.com/wp-graphql/wp-graphql/issues/4450)) ([eec042b](https://github.com/wp-graphql/wp-graphql/commit/eec042b714db16e6f6800b7cedbd4b25651219de))
+
 ## [2.24.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.0...wp-graphql/v2.24.1) (2026-10-15)
 
 

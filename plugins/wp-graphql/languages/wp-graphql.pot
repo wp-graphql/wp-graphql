@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.24.1\n"
+"Project-Id-Version: WPGraphQL 2.24.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-15T06:42:38+00:00\n"
+"POT-Creation-Date: 2026-10-16T04:17:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -1468,11 +1468,12 @@ msgid "The deleted comment object"
 msgstr ""
 
 #: src/Mutation/CommentDelete.php:98
-#: src/Mutation/CommentDelete.php:136
+#: src/Mutation/CommentDelete.php:125
+#: src/Mutation/CommentDelete.php:154
 msgid "Sorry, you are not allowed to delete this comment."
 msgstr ""
 
-#: src/Mutation/CommentDelete.php:108
+#: src/Mutation/CommentDelete.php:124
 msgid "The Comment could not be deleted"
 msgstr ""
 
@@ -1498,23 +1499,24 @@ msgid "The ID of the comment being updated."
 msgstr ""
 
 #: src/Mutation/CommentUpdate.php:80
-#: src/Mutation/CommentUpdate.php:129
+#: src/Mutation/CommentUpdate.php:107
+#: src/Mutation/CommentUpdate.php:149
 msgid "Sorry, you are not allowed to update this comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:90
+#: src/Mutation/CommentUpdate.php:106
 msgid "The Comment could not be updated"
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:137
+#: src/Mutation/CommentUpdate.php:155
 msgid "Sorry, you are not allowed to change the moderation status of this comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:152
+#: src/Mutation/CommentUpdate.php:183
 msgid "No changes have been provided to the comment."
 msgstr ""
 
-#: src/Mutation/CommentUpdate.php:260
+#: src/Mutation/CommentUpdate.php:291
 msgid "Sorry, you are not allowed to change the target, author, date, parent or type of this comment."
 msgstr ""
 
@@ -1869,60 +1871,53 @@ msgstr ""
 msgid "You cannot delete this item. %s is currently editing."
 msgstr ""
 
-#. translators: the placeholder is the name of the type of post being updated
-#: src/Mutation/PostObjectUpdate.php:93
-#, php-format
-msgid "No %1$s could be found to update"
-msgstr ""
-
-#. translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-#: src/Mutation/PostObjectUpdate.php:98
-#: src/Mutation/TermObjectUpdate.php:123
-#, php-format
-msgid "The id %1$d is not of the type \"%2$s\""
-msgstr ""
-
 #. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-#: src/Mutation/PostObjectUpdate.php:106
+#: src/Mutation/PostObjectUpdate.php:97
 #, php-format
 msgid "Sorry, you are not allowed to update a %1$s"
 msgstr ""
 
+#. translators: the placeholder is the name of the type of post being updated
+#: src/Mutation/PostObjectUpdate.php:112
+#, php-format
+msgid "No %1$s could be found to update"
+msgstr ""
+
 #. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-#: src/Mutation/PostObjectUpdate.php:114
+#: src/Mutation/PostObjectUpdate.php:120
 #, php-format
 msgid "Sorry, you are not allowed to update another author's %1$s"
 msgstr ""
 
 #. translators: the placeholder is the singular name of the post type being mutated
-#: src/Mutation/PostObjectUpdate.php:126
+#: src/Mutation/PostObjectUpdate.php:132
 #, php-format
 msgid "Sorry, you are not allowed to update this %1$s"
 msgstr ""
 
 #. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
-#: src/Mutation/PostObjectUpdate.php:148
+#: src/Mutation/PostObjectUpdate.php:154
 #, php-format
 msgid "Sorry, you are not allowed to update %1$s as this user."
 msgstr ""
 
 #. translators: %s: User's display name.
-#: src/Mutation/PostObjectUpdate.php:157
+#: src/Mutation/PostObjectUpdate.php:163
 #, php-format
 msgid "You cannot update this item. %s is currently editing."
 msgstr ""
 
 #. translators: the placeholder is the singular name of the post type being mutated
-#: src/Mutation/PostObjectUpdate.php:188
+#: src/Mutation/PostObjectUpdate.php:194
 #, php-format
 msgid "Sorry, you are not allowed to publish this %1$s"
 msgstr ""
 
-#: src/Mutation/PostObjectUpdate.php:194
+#: src/Mutation/PostObjectUpdate.php:200
 msgid "The object failed to update."
 msgstr ""
 
-#: src/Mutation/PostObjectUpdate.php:211
+#: src/Mutation/PostObjectUpdate.php:217
 #: src/Mutation/TermObjectCreate.php:176
 msgid "The object failed to update but no error was provided"
 msgstr ""
@@ -2094,26 +2089,27 @@ msgstr ""
 msgid "The ID for the %1$s was not valid"
 msgstr ""
 
-#: src/Mutation/TermObjectDelete.php:114
-#: src/Mutation/TermObjectDelete.php:141
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectDelete.php:123
+#: src/Mutation/TermObjectDelete.php:148
+#, php-format
+msgid "You do not have permission to delete %1$s"
+msgstr ""
+
+#: src/Mutation/TermObjectDelete.php:132
+#: src/Mutation/TermObjectDelete.php:159
 msgid "The ID passed is invalid"
 msgstr ""
 
 #. Translators: The placeholder is the name of the taxonomy for the term being edited
-#: src/Mutation/TermObjectDelete.php:122
+#: src/Mutation/TermObjectDelete.php:140
 #: src/Mutation/TermObjectUpdate.php:95
 #, php-format
 msgid "The ID passed is not for a %1$s object"
 msgstr ""
 
 #. Translators: The placeholder is the name of the taxonomy for the term being deleted
-#: src/Mutation/TermObjectDelete.php:130
-#, php-format
-msgid "You do not have permission to delete %1$s"
-msgstr ""
-
-#. Translators: The placeholder is the name of the taxonomy for the term being deleted
-#: src/Mutation/TermObjectDelete.php:155
+#: src/Mutation/TermObjectDelete.php:173
 #, php-format
 msgid "The %1$s failed to delete but no error was provided"
 msgstr ""
@@ -2124,21 +2120,29 @@ msgstr ""
 msgid "The ID of the %1$s object to update"
 msgstr ""
 
+#. Translators: The placeholder is the name of the taxonomy for the term being edited
 #. Translators: The placeholder is the name of the taxonomy for the term being deleted
 #: src/Mutation/TermObjectUpdate.php:113
-#: src/Mutation/TermObjectUpdate.php:118
-#, php-format
-msgid "The %1$s node failed to update"
-msgstr ""
-
-#. Translators: The placeholder is the name of the taxonomy for the term being deleted
-#: src/Mutation/TermObjectUpdate.php:131
+#: src/Mutation/TermObjectUpdate.php:149
 #, php-format
 msgid "You do not have permission to update %1$s"
 msgstr ""
 
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectUpdate.php:131
+#: src/Mutation/TermObjectUpdate.php:136
+#, php-format
+msgid "The %1$s node failed to update"
+msgstr ""
+
+#. translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
+#: src/Mutation/TermObjectUpdate.php:141
+#, php-format
+msgid "The id %1$d is not of the type \"%2$s\""
+msgstr ""
+
 #. Translators: the placeholder is the name of the taxonomy
-#: src/Mutation/TermObjectUpdate.php:151
+#: src/Mutation/TermObjectUpdate.php:169
 #, php-format
 msgid "The %1$s failed to update"
 msgstr ""
@@ -2244,20 +2248,20 @@ msgstr ""
 msgid "The ID of the user"
 msgstr ""
 
-#: src/Mutation/UserUpdate.php:78
-msgid "A user could not be updated with the provided ID"
-msgstr ""
-
-#: src/Mutation/UserUpdate.php:82
-#: src/Mutation/UserUpdate.php:87
+#: src/Mutation/UserUpdate.php:88
+#: src/Mutation/UserUpdate.php:103
 msgid "You do not have the appropriate capabilities to perform this action"
 msgstr ""
 
-#: src/Mutation/UserUpdate.php:106
+#: src/Mutation/UserUpdate.php:98
+msgid "A user could not be updated with the provided ID"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:122
 msgid "The user failed to update but no error was provided"
 msgstr ""
 
-#: src/Mutation/UserUpdate.php:114
+#: src/Mutation/UserUpdate.php:130
 msgid "The user failed to update"
 msgstr ""
 

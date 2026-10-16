@@ -15,7 +15,7 @@ plugin: wp-graphql
 apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comment_args, $input );
 ```
 
-Filters whether the author of a comment may update it without the `moderate_comments` capability. WPGraphQL lets people edit their own comments. WordPress does not: its `edit_comment` capability maps to `edit_post` on the post the comment was left on, so editing any comment in the admin or through the REST API requires being able to edit that post. Return false to apply WordPress's rule here instead, which leaves `updateComment` to callers who can moderate comments.
+Filters whether the author of a comment may update it without the `moderate_comments` capability. WPGraphQL lets people edit their own comments. WordPress does not: its `edit_comment` capability maps to `edit_post` on the post the comment was left on, so editing any comment in the admin or through the REST API requires being able to edit that post. Return false to turn that off, which leaves `updateComment` to callers who can moderate comments. Note that this is stricter than WordPress's own rule rather than the same as it: an author who can edit a post can edit comments left on it in the admin, but would not be able to here.
 
 - **Type:** filter
 - **Group:** Authentication and Authorization
@@ -30,7 +30,7 @@ Filters whether the author of a comment may update it without the `moderate_comm
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:124`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L124)
+- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L144)
 
 ```php
 apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comment_args, $input );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_comment_author_can_update_own_comment', true, $raw_comme
 
 ## Related
 
-- `CommentUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:124`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L124)
+- `CommentUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:144`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L144)

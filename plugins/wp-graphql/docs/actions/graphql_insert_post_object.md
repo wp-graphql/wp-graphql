@@ -31,7 +31,7 @@ Fires after a single term is created or updated via a GraphQL mutation The dynam
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:227`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L227)
+- [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:233`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L233)
 
 ```php
 do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
@@ -39,4 +39,4 @@ do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, 
 
 ## Related
 
-- `PostObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:227`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L227)
+- `PostObjectUpdate::mutate_and_get_payload()` in [`plugins/wp-graphql/src/Mutation/PostObjectUpdate.php:233`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/PostObjectUpdate.php#L233)
