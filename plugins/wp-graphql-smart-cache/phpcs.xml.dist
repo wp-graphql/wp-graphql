@@ -28,11 +28,6 @@
 	<arg name="severity" value="1" />
 
 	<!-- Includes -->
-	<!--
-	<file>./access-functions.php</file>
-	<file>./activation.php</file>
-	<file>./deactivation.php</file>
-	-->
 	<file>./wp-graphql-smart-cache.php</file>
 	<file>./src</file>
 
