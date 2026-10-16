@@ -151,6 +151,10 @@
 			"href": "/docs/debugging"
 		},
 		{
+			"title": "WP-CLI Commands",
+			"href": "/docs/wp-cli"
+		},
+		{
 			"title": "Using data from Custom Database Tables",
 			"href": "/docs/using-data-from-custom-database-tables"
 		},

@@ -20,6 +20,7 @@ class AllowDenyQueryRulesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function _after() {
 		delete_option( 'graphql_persisted_queries_section' );
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -155,4 +156,71 @@ class AllowDenyQueryRulesTest extends \Codeception\TestCase\WPTestCase {
 		$result = graphql( [ 'query' => $non_persisted_query ] );
 		$this->assertEquals( 'RootQuery', $result['data']['__typename'] );
 	}
+	/**
+	 * A Subscriber is subject to "only allowed" mode.
+	 *
+	 * The rule used to be added only for logged-out requests, so any account at
+	 * all, including one created by open registration, could run arbitrary
+	 * queries against an endpoint the site had locked down.
+	 */
+	public function testSubscriberIsSubjectToOnlyAllowedMode() {
+		add_option( 'graphql_persisted_queries_section', [ 'grant_mode' => Grant::GLOBAL_ALLOWED ] );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$result = graphql( [ 'query' => 'query notPersistedForSubscriber { __typename }' ] );
+		$this->_assertError( $result, 'Not Found. Only pre-defined queries are allowed.' );
+	}
+
+	/**
+	 * A Subscriber may not execute a document explicitly marked deny.
+	 */
+	public function testSubscriberCannotExecuteDeniedDocument() {
+		add_option( 'graphql_persisted_queries_section', [ 'grant_mode' => Grant::GLOBAL_DENIED ] );
+
+		$query_string = 'query deniedForSubscriber { __typename }';
+		$this->_createAPersistedQuery( $query_string, Grant::DENY );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$result = graphql( [ 'query' => $query_string ] );
+		$this->_assertError( $result, 'This query document has been blocked.' );
+	}
+
+	/**
+	 * An administrator stays exempt, so ad-hoc queries in the IDE keep working.
+	 * This is the behavior the logged-in check was presumably protecting.
+	 */
+	public function testAdministratorIsExemptFromGrantRules() {
+		add_option( 'graphql_persisted_queries_section', [ 'grant_mode' => Grant::GLOBAL_ALLOWED ] );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$result = graphql( [ 'query' => 'query notPersistedForAdmin { __typename }' ] );
+		$this->assertArrayNotHasKey( 'errors', $result );
+		$this->assertSame( 'RootQuery', $result['data']['__typename'] );
+	}
+
+	/**
+	 * The exempting capability is filterable, so a site can widen or narrow who
+	 * bypasses the grants without having to replace the rule.
+	 */
+	public function testGrantExemptionCapabilityIsFilterable() {
+		add_option( 'graphql_persisted_queries_section', [ 'grant_mode' => Grant::GLOBAL_ALLOWED ] );
+
+		$filter = static function () {
+			return 'read';
+		};
+		add_filter( 'graphql_smart_cache_grant_exempt_capability', $filter );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$result = graphql( [ 'query' => 'query notPersistedForFilteredCap { __typename }' ] );
+
+		remove_filter( 'graphql_smart_cache_grant_exempt_capability', $filter );
+
+		$this->assertArrayNotHasKey( 'errors', $result );
+		$this->assertSame( 'RootQuery', $result['data']['__typename'] );
+	}
+
 }

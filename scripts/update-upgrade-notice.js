@@ -19,6 +19,16 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * The sentence every notice this script generates contains.
+ *
+ * It doubles as a provenance marker: a `= X.Y.Z =` block that includes it is
+ * one we wrote and may safely regenerate, while a block without it was
+ * written by hand and must be left alone (#4464).
+ */
+const GENERATED_NOTICE_MARKER =
+	'**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.';
+
+/**
  * Parse command line arguments
  * @returns {Object} Parsed arguments
  */
@@ -120,25 +130,28 @@ function extractBreakingChanges(changelogPath, version) {
  * @param {string} readmePath Path to readme.txt
  * @param {string} version Version number
  * @param {Array} breakingChanges Array of breaking change descriptions
- * @returns {boolean} Whether changes were made
+ * @returns {string} `changed` when the file was modified, `hand-written` when
+ *   an existing hand-written notice for the version was left untouched,
+ *   `nothing-to-add` when there were no breaking changes to write, or `error`
+ *   when the notice could not be written.
  */
 function updateUpgradeNotice(readmePath, version, breakingChanges) {
 	if (!fs.existsSync(readmePath)) {
 		console.error('readme.txt not found:', readmePath);
-		return false;
+		return 'error';
 	}
 
 	if (breakingChanges.length === 0) {
 		console.log('No breaking changes to add to upgrade notice.');
-		return false;
+		return 'nothing-to-add';
 	}
 
 	let content = fs.readFileSync(readmePath, 'utf8');
 
-	// Format the upgrade notice
+	// Format the upgrade notice. The marker sentence is what identifies a
+	// notice as ours on the next run.
 	let upgradeNotice = `= ${version} =\n\n`;
-	upgradeNotice +=
-		'**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.\n\n';
+	upgradeNotice += `${GENERATED_NOTICE_MARKER}\n\n`;
 
 	breakingChanges.forEach((change) => {
 		upgradeNotice += `* ${change}\n`;
@@ -171,6 +184,23 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 			const existingNoticeRegex = new RegExp(
 				`(^|\\n)= ${escapedVersion} =[\\s\\S]*?(?=\\n= \\d|$)`
 			);
+
+			// Only regenerate a notice this script produced. A `= X.Y.Z =`
+			// block that does not carry our marker was written by hand, and
+			// overwriting it would silently discard the author's prose
+			// (#4464). Leaving it untouched also keeps regeneration
+			// idempotent: generated blocks still round-trip.
+			const existingNotice = sectionBody.match(existingNoticeRegex);
+			if (
+				existingNotice &&
+				! existingNotice[0].includes(GENERATED_NOTICE_MARKER)
+			) {
+				console.log(
+					`Existing upgrade notice for version ${version} appears hand-written; leaving it untouched.`
+				);
+				return 'hand-written';
+			}
+
 			sectionBody = sectionBody.replace(
 				existingNoticeRegex,
 				(match) => {
@@ -212,12 +242,12 @@ function updateUpgradeNotice(readmePath, version, breakingChanges) {
 			console.error(
 				'Could not find Changelog section to insert Upgrade Notice before.'
 			);
-			return false;
+			return 'error';
 		}
 	}
 
 	fs.writeFileSync(readmePath, content);
-	return true;
+	return 'changed';
 }
 
 /**
@@ -246,13 +276,19 @@ function main() {
 
 	// Update upgrade notice if there are breaking changes
 	if (breakingChanges.length > 0) {
-		const updated = updateUpgradeNotice(
+		const result = updateUpgradeNotice(
 			readmePath,
 			args.version,
 			breakingChanges
 		);
-		if (updated) {
+		if (result === 'changed') {
 			console.log('✅ Upgrade notice updated successfully!');
+		} else if (result === 'hand-written') {
+			console.log(
+				'ℹ️ Left the existing hand-written upgrade notice untouched.'
+			);
+		} else if (result === 'nothing-to-add') {
+			console.log('ℹ️ No breaking changes to add - upgrade notice unchanged.');
 		} else {
 			console.log('⚠️ Failed to update upgrade notice.');
 			process.exit(1);

@@ -28,7 +28,7 @@ Filters whether WPGraphQL admin pages should be visible.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Admin.php:56`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L56)
+- [`plugins/wp-graphql/src/Admin/Admin.php:62`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L62)
 
 ```php
 apply_filters( 'graphql_show_admin', true );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_show_admin', true );
 
 ## Related
 
-- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:56`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L56)
+- `Admin::init()` in [`plugins/wp-graphql/src/Admin/Admin.php:62`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Admin.php#L62)

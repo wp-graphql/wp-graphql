@@ -1280,6 +1280,64 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * @throws Exception
 	 */
+	/**
+	 * `publiclyQueryable` mirrors the registered value, as it already does on
+	 * ContentType. It is the flag that actually governs whether terms are
+	 * reachable from the front end, so a client deciding whether to build archive
+	 * routes needs it, and it was the one member of the visibility set missing
+	 * from Taxonomy.
+	 *
+	 * Queried as an administrator because the Taxonomy model restricts fields
+	 * outside its allow list for viewers without `edit_terms`.
+	 *
+	 * @dataProvider dataProviderPubliclyQueryable
+	 */
+	public function testTaxonomyReportsPubliclyQueryable( bool $registered, bool $expected ) {
+		register_taxonomy(
+			'pq_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'publicly_queryable'  => $registered,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'PqTerm',
+				'graphql_plural_name' => 'PqTerms',
+			]
+		);
+
+		$this->clearSchema();
+		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+					query PubliclyQueryable( $id: ID! ) {
+						taxonomy( id: $id, idType: NAME ) {
+							publiclyQueryable
+						}
+					}
+				',
+				'variables' => [ 'id' => 'pq_tax' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['taxonomy']['publiclyQueryable'] );
+
+		unregister_taxonomy( 'pq_tax' );
+	}
+
+	/**
+	 * @return array<string,array{bool,bool}>
+	 */
+	public function dataProviderPubliclyQueryable(): array {
+		return [
+			// Registered explicitly, so it does not inherit the `public => false` above.
+			'publicly queryable'     => [ true, true ],
+			'not publicly queryable' => [ false, false ],
+		];
+	}
+
 	public function testRegisterTaxonomyWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
 		register_taxonomy(
@@ -1306,5 +1364,121 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 
 
+	}
+
+	/**
+	 * A taxonomy registered with `public => false` must report `public: false`,
+	 * not fall back to `true`.
+	 */
+	public function testNonPublicTaxonomyReportsPublicFalse() {
+		register_taxonomy(
+			'non_public_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NonPublicTax',
+				'graphql_plural_name' => 'NonPublicTaxes',
+			]
+		);
+
+		$this->clearSchema();
+
+		try {
+			wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+			$query = '
+			query GetTaxonomy( $id: ID! ) {
+				taxonomy( id: $id, idType: NAME ) {
+					name
+					public
+				}
+			}
+			';
+
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'id' => 'non_public_tax',
+					],
+				]
+			);
+
+			$this->assertQuerySuccessful(
+				$actual,
+				[
+					$this->expectedField( 'taxonomy.name', 'non_public_tax' ),
+					$this->expectedField( 'taxonomy.public', false ),
+				]
+			);
+
+			// Strict check: a null response must not pass as false.
+			$this->assertFalse( $actual['data']['taxonomy']['public'] );
+		} finally {
+			unregister_taxonomy( 'non_public_tax' );
+			$this->clearSchema();
+		}
+	}
+
+	/**
+	 * A non-public taxonomy's own node must resolve for anonymous viewers.
+	 *
+	 * `Taxonomy::is_private()` treated `public => false` as a reason to hide the
+	 * taxonomy from anyone without `edit_terms`, while the terms inside it were
+	 * served to everyone, because the Term model has no privacy rule at all. So
+	 * the contents were public and the label on them was not.
+	 *
+	 * Field-level restriction still applies: a viewer without `edit_terms` sees
+	 * the model's allowed fields and null for the rest, which is already how a
+	 * `public => true` taxonomy behaves. This only stops the node itself
+	 * disappearing.
+	 */
+	public function testNonPublicTaxonomyNodeResolvesForAnonymousViewers() {
+		register_taxonomy(
+			'np_node_tax',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => false,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NpNodeTerm',
+				'graphql_plural_name' => 'NpNodeTerms',
+			]
+		);
+		$term = self::factory()->term->create( [ 'taxonomy' => 'np_node_tax', 'name' => 'A term' ] );
+
+		$this->clearSchema();
+		wp_set_current_user( 0 );
+
+		$actual = $this->graphql(
+			[
+				'query'     => '
+					query NonPublicTaxonomyNode( $id: ID! ) {
+						taxonomy( id: $id, idType: NAME ) {
+							name
+							graphqlSingleName
+						}
+						npNodeTerms {
+							nodes { name }
+						}
+					}
+				',
+				'variables' => [ 'id' => 'np_node_tax' ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// The terms were always visible. Assert it, so the premise of this fix
+		// is pinned and not quietly changed later.
+		$this->assertSame( 'A term', $actual['data']['npNodeTerms']['nodes'][0]['name'] );
+
+		// The taxonomy describing them must be visible too.
+		$this->assertNotNull( $actual['data']['taxonomy'] );
+		$this->assertSame( 'np_node_tax', $actual['data']['taxonomy']['name'] );
+		$this->assertSame( 'NpNodeTerm', $actual['data']['taxonomy']['graphqlSingleName'] );
+
+		wp_delete_term( $term, 'np_node_tax' );
+		unregister_taxonomy( 'np_node_tax' );
 	}
 }

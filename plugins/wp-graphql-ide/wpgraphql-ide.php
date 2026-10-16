@@ -122,7 +122,6 @@ function initialize_plugin() {
 
 	add_action( 'graphql_register_settings', [ \WPGraphQLIDE\SettingsPage::class, 'register' ] );
 	add_action( 'graphql_admin_notices_render_notices', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_render_notices' ], 10, 1 );
-	add_action( 'graphql_admin_notices_render_notice', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_render_notice' ], 10, 4 );
 
 	add_filter( 'graphql_admin_notices_is_allowed_admin_page', [ \WPGraphQLIDE\AdminUI::class, 'graphql_admin_notices_is_allowed_admin_page' ], 10, 3 );
 	add_filter( 'script_loader_tag', [ \WPGraphQLIDE\AssetEnqueue::class, 'defer_script_attribute' ], 10, 2 );
@@ -147,6 +146,14 @@ function initialize_plugin() {
 	// and updates, the import/upsert flow, and any future direct
 	// `wp_insert_post` callers.
 	add_filter( 'wp_insert_post_data', [ \WPGraphQLIDE\Access::class, 'cap_document_title_length' ], 10, 2 );
+
+	// Run requests the IDE flags as public as a guest.
+	add_action( 'graphql_process_http_request', [ \WPGraphQLIDE\Access::class, 'force_public_request' ] );
+
+	// Let cross-origin clients send the public-request header, and tell caches
+	// the response depends on it.
+	add_filter( 'graphql_access_control_allow_headers', [ \WPGraphQLIDE\Access::class, 'allow_public_request_header' ] );
+	add_filter( 'graphql_response_headers_to_send', [ \WPGraphQLIDE\Access::class, 'vary_on_public_request_header' ] );
 
 	// Custom REST routes.
 	add_action( 'rest_api_init', [ \WPGraphQLIDE\Rest::class, 'register' ] );
