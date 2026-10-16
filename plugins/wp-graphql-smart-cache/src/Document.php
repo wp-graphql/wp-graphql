@@ -152,7 +152,14 @@ class Document {
 				register_graphql_field( 'Update' . $register_type_name . 'Input', 'alias', $config );
 
 				$config['resolve'] = function ( \WPGraphQL\Model\Post $post, $args, $context, $info ) {
-					$terms = get_the_terms( $post->ID, self::ALIAS_TAXONOMY_NAME );
+					// A document the viewer may only see in restricted form withholds its ID, and
+					// its aliases with it. Passing the null on would look up the global post instead.
+					$post_id = $post->ID;
+					if ( null === $post_id ) {
+						return null;
+					}
+
+					$terms = get_the_terms( $post_id, self::ALIAS_TAXONOMY_NAME );
 					if ( ! is_array( $terms ) ) {
 						return [];
 					}

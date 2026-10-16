@@ -87,7 +87,7 @@ WPGraphQL for ACF is a FREE open-source plugin. The development is sponsored by 
 
 **Does WPGraphQL for ACF support GraphQL Mutations?**
 
-GraphQL Mutations are not yet supported. We are working on adding support for Mutations in the future. We are waiting for the GraphQL "@oneOf" directive to be merged into the GraphQL spec before we add support for Mutations.
+Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wpgraphql-acf/issues/109) for progress.
 
 **Does this work with Field Groups registered in PHP or JSON?**
 

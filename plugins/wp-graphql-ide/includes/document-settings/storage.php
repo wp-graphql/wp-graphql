@@ -18,6 +18,7 @@ class Storage {
 	 * Read a field's current value from the post.
 	 *
 	 * @param array<string,mixed> $field
+	 * @param int                 $post_id
 	 *
 	 * @return mixed
 	 */
@@ -68,6 +69,7 @@ class Storage {
 	 * Write a field's value to the post.
 	 *
 	 * @param array<string,mixed> $field
+	 * @param int                 $post_id
 	 * @param mixed               $value
 	 *
 	 * @return true|\WP_Error
@@ -88,6 +90,7 @@ class Storage {
 		switch ( $kind ) {
 			case 'post_field':
 				$update = wp_update_post(
+					// @phpstan-ignore-next-line -- `$key` is the post field a registered setting stores in, which wp_update_post()'s array shape can't express.
 					[
 						'ID' => $post_id,
 						$key => is_string( $value ) ? $value : '',
@@ -109,6 +112,7 @@ class Storage {
 
 	/**
 	 * @param array<string,mixed> $field
+	 * @param int                 $post_id
 	 * @param mixed               $value
 	 *
 	 * @return true|\WP_Error
@@ -120,10 +124,10 @@ class Storage {
 
 		if ( $multi ) {
 			$terms = is_array( $value ) ? $value : [];
-			$terms = array_values( array_unique( array_filter( array_map( 'trim', array_map( 'strval', $terms ) ), 'strlen' ) ) );
+			$terms = array_values( array_unique( array_filter( array_map( 'trim', array_map( 'strval', $terms ) ), static fn( string $term ): bool => '' !== $term ) ) );
 		} else {
 			$terms = is_string( $value ) || is_numeric( $value ) ? [ trim( (string) $value ) ] : [];
-			$terms = array_values( array_filter( $terms, 'strlen' ) );
+			$terms = array_values( array_filter( $terms, static fn( string $term ): bool => '' !== $term ) );
 		}
 
 		if ( $unique && ! empty( $terms ) ) {
@@ -155,7 +159,9 @@ class Storage {
 	 * different post in the same taxonomy. Returns the conflicting term name
 	 * or null.
 	 *
+	 * @param string            $taxonomy
 	 * @param array<int,string> $terms
+	 * @param int               $post_id
 	 */
 	private static function find_alias_conflict( string $taxonomy, array $terms, int $post_id ): ?string {
 		foreach ( $terms as $term_name ) {

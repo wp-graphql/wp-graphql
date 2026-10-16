@@ -13,6 +13,9 @@ namespace WPGraphQLIDE\DocumentSettings;
 
 add_action( 'init', __NAMESPACE__ . '\\register_built_in_fields', 11 );
 
+/**
+ * Register the built-in Document Settings fields.
+ */
 function register_built_in_fields(): void {
 	register_graphql_document_setting_field(
 		'description',

@@ -73,7 +73,7 @@ class Results extends Query {
 	/**
 	 * Unique identifier for this request is normalized query string, operation and variables
 	 *
-	 * @param string $query_id queryId from the graphql query request
+	 * @param string|null $query_id queryId from the graphql query request
 	 * @param string $query query string
 	 * @param array $variables Variables sent with request or null
 	 * @param string $operation_name Name of operation if specified on the request or null
