@@ -1719,6 +1719,68 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * WordPress ends its own moderation check by applying `pre_comment_approved`, and a
+	 * site's moderation plugin, auto-approve rule, or similar integration hooks it. WPGraphQL
+	 * re-runs those checks for an edited comment rather than delegating to
+	 * `wp_check_comment_data()`, which is `@since 6.7.0` and newer than the plugin's WordPress
+	 * 6.0 floor, so it has to fire the filter itself or those integrations go silently inert
+	 * on an edit.
+	 *
+	 * This is the bug the reimplementation introduced: the checks run, but core's hook never
+	 * does, so an integration that approves through it cannot.
+	 *
+	 * @see wp_check_comment_data()
+	 */
+	public function testUpdateCommentOwnerContentEditFiresWordPressPreCommentApprovedFilter() {
+		$previous = [
+			'comment_moderation'          => get_option( 'comment_moderation' ),
+			'comment_previously_approved' => get_option( 'comment_previously_approved' ),
+			'moderation_keys'             => get_option( 'moderation_keys' ),
+		];
+
+		update_option( 'comment_moderation', '0' );
+		update_option( 'comment_previously_approved', '1' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$observed     = [];
+		$auto_approve = static function ( $approved, $comment_data ) use ( &$observed ) {
+			$observed[] = [ $approved, $comment_data ];
+
+			// A site's own rule: trust this author and approve.
+			return 1;
+		};
+		add_filter( 'pre_comment_approved', $auto_approve, 10, 2 );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+
+			$this->assertNotEmpty(
+				$observed,
+				'WordPress\'s pre_comment_approved filter must run when an edited comment is re-moderated.'
+			);
+
+			// It receives WordPress's own verdict for the content, which here is "hold".
+			$this->assertEquals( 0, $observed[0][0], 'The filter must receive the default moderation verdict.' );
+			$this->assertIsArray( $observed[0][1], 'The filter must receive the comment data.' );
+
+			$this->assertEquals(
+				'1',
+				get_comment( $comment_id )->comment_approved,
+				'An integration that approves through pre_comment_approved must be honored.'
+			);
+		} finally {
+			remove_filter( 'pre_comment_approved', $auto_approve );
+			foreach ( $previous as $option => $value ) {
+				update_option( $option, $value );
+			}
+		}
+	}
+
+	/**
 	 * Watches `graphql_comment_update_requires_moderation` so a test can tell the three
 	 * branches that return before any decision apart from a decision that came out as
 	 * "keep it approved". The filter is applied last in maybe_hold_for_moderation(), so
@@ -1728,6 +1790,131 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 *
 	 * @return callable The filter callback, to remove when the test is done.
 	 */
+
+	/**
+	 * A `pre_comment_approved` verdict of `spam` holds the edited comment for review
+	 * rather than moving it to spam.
+	 */
+	/**
+	 * A disallowed-list hit reaches `pre_comment_approved` as `trash` or `spam`,
+	 * matching core's `wp_check_comment_data()`, rather than `0`.
+	 */
+	public function testUpdateCommentOwnerContentEditPassesTrashOrSpamForDisallowedListHit() {
+		$previous = [
+			'comment_moderation'          => get_option( 'comment_moderation' ),
+			'comment_previously_approved' => get_option( 'comment_previously_approved' ),
+			'disallowed_keys'             => get_option( 'disallowed_keys' ),
+		];
+
+		update_option( 'comment_moderation', '0' );
+		update_option( 'comment_previously_approved', '1' );
+		update_option( 'disallowed_keys', 'forbiddenword' );
+
+		$observed = [];
+		$approve  = static function ( $approved, $comment_data ) use ( &$observed ) {
+			$observed[] = $approved;
+
+			return 1;
+		};
+		add_filter( 'pre_comment_approved', $approve, 10, 2 );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$expected = EMPTY_TRASH_DAYS ? 'trash' : 'spam';
+			$this->assertNotEmpty( $observed, 'The filter must run for a disallowed-list hit.' );
+			$this->assertSame( $expected, $observed[0], 'A disallowed-list hit must reach the filter as trash or spam.' );
+			$this->assertSame( '1', get_comment( $comment_id )->comment_approved, 'An integration that approves through the filter must be honored.' );
+		} finally {
+			remove_filter( 'pre_comment_approved', $approve );
+			foreach ( $previous as $option => $value ) {
+				update_option( $option, $value );
+			}
+		}
+	}
+
+	public function testUpdateCommentOwnerContentEditHoldsCommentWhenPreCommentApprovedReturnsSpam() {
+		$this->assertEditedCommentIsHeldWhenPreCommentApprovedReturns( 'spam' );
+	}
+
+	/**
+	 * A `pre_comment_approved` verdict of `trash` holds the edited comment for review
+	 * rather than moving it to trash.
+	 */
+	public function testUpdateCommentOwnerContentEditHoldsCommentWhenPreCommentApprovedReturnsTrash() {
+		$this->assertEditedCommentIsHeldWhenPreCommentApprovedReturns( 'trash' );
+	}
+
+	/**
+	 * A `WP_Error` from `pre_comment_approved` holds the edited comment for review.
+	 */
+	public function testUpdateCommentOwnerContentEditHoldsCommentWhenPreCommentApprovedReturnsWPError() {
+		$this->assertEditedCommentIsHeldWhenPreCommentApprovedReturns( new \WP_Error( 'test', 'Blocked.' ) );
+	}
+
+	/**
+	 * `graphql_comment_update_requires_moderation` returning false overrides a hold coming
+	 * from WordPress's own filter, even when that filter returns a non-zero verdict.
+	 */
+	public function testUpdateCommentOwnerContentEditGraphQLFilterOverridesHoldFromCoreFilter() {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$core_verdict = static function () {
+			return 'spam';
+		};
+		add_filter( 'pre_comment_approved', $core_verdict );
+
+		$keep_approval = static function ( $requires_moderation ) {
+			\PHPUnit\Framework\Assert::assertTrue( $requires_moderation );
+
+			return false;
+		};
+		add_filter( 'graphql_comment_update_requires_moderation', $keep_approval );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertEquals( '1', get_comment( $comment_id )->comment_approved, 'The WPGraphQL filter must be able to keep the comment approved.' );
+		} finally {
+			remove_filter( 'pre_comment_approved', $core_verdict );
+			remove_filter( 'graphql_comment_update_requires_moderation', $keep_approval );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
+	/**
+	 * Helper for the hold-case tests above.
+	 */
+	protected function assertEditedCommentIsHeldWhenPreCommentApprovedReturns( $verdict ) {
+		$previous_keys = get_option( 'moderation_keys' );
+		update_option( 'moderation_keys', 'forbiddenword' );
+
+		$filter = static function () use ( $verdict ) {
+			return $verdict;
+		};
+		add_filter( 'pre_comment_approved', $filter );
+
+		try {
+			list( , $comment_id ) = $this->createApprovedSubscriberComment();
+
+			$actual = $this->updateOwnCommentContent( $comment_id, 'An edit containing a forbiddenword' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual, 'The edit itself is allowed; only approval is withdrawn.' );
+			$this->assertEquals( '0', get_comment( $comment_id )->comment_approved, 'A non-approval verdict must hold the comment for review.' );
+			$this->assertEquals( 'An edit containing a forbiddenword', get_comment( $comment_id )->comment_content, 'The edited content must be saved.' );
+		} finally {
+			remove_filter( 'pre_comment_approved', $filter );
+			update_option( 'moderation_keys', $previous_keys );
+		}
+	}
+
 	protected function watchModerationDecision( &$filter_ran ): callable {
 		$filter_ran = false;
 
