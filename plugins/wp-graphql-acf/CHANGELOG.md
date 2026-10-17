@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.0.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **acf:** exclude types matched by "not equal to" location rules ([#4431](https://github.com/wp-graphql/wp-graphql/issues/4431)) ([f113c00](https://github.com/wp-graphql/wp-graphql/commit/f113c0077d6233b0c085fa89ca74fa3e665439e5))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4324](https://github.com/wp-graphql/wp-graphql/issues/4324)) ([fb6de5c](https://github.com/wp-graphql/wp-graphql/commit/fb6de5caff22ed7ea3f4828e5a34228b247c7643))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4349](https://github.com/wp-graphql/wp-graphql/issues/4349)) ([9b0e15a](https://github.com/wp-graphql/wp-graphql/commit/9b0e15a59595d916062810028ca9bbe5781e8f53))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281)) ([cae29d0](https://github.com/wp-graphql/wp-graphql/commit/cae29d0f0cec12ae3e2a522ce17d46fe46db8712))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.8.0...wp-graphql-acf/v3.0.0) (2026-09-08)
 
 
