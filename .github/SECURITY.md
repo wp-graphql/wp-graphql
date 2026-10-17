@@ -48,9 +48,6 @@ promise a turnaround we cannot keep, so:
 - **We do not commit to a fixed time for the first reply.** In practice it has
   ranged from the same day to a few months, depending on what else is in flight
   and how much of a backlog has built up.
-- **We try to answer any open question before an advisory is published**, because
-  publishing closes the thread for good. If you want something answered, it is
-  worth asking before then rather than after.
 - **We add you as a credit on the advisory** unless you ask us not to. GitHub
   then asks you to accept it, and your name appears on the published advisory
   only once you do, so it is worth accepting the invitation when it arrives.
@@ -69,7 +66,8 @@ promise a turnaround we cannot keep, so:
    parts where we disagree with the report. The severity and CVSS score on the
    advisory are our assessment and may differ from the one you submitted.
 2. **Fix.** The patch is developed in a temporary private fork attached to the
-   advisory. You have access to that fork, so you are welcome to review the fix
+   advisory. If you reported through GitHub, or we have added you to the
+   advisory, you have access to that fork, so you are welcome to review the fix
    before it ships, and we would rather hear that we got it wrong before release
    than after.
 3. **Release.** The fix ships in a normal release to WordPress.org. If it changes
@@ -77,8 +75,9 @@ promise a turnaround we cannot keep, so:
    upgrade notice say so.
 4. **Publication.** The advisory is published once there is a version to update
    to, so at or shortly after the release. **Publishing closes the advisory's
-   comment thread permanently**, and we have no way to reply after that point, so
-   please ask anything you want answered before publication.
+   comment thread permanently**, and we have no way to reply after that point. We
+   try to answer every open question before then, so please ask anything you want
+   answered before publication.
 5. **CVE.** Identifiers reach WPGraphQL advisories from two directions. GitHub is
    a CNA for its own advisory database, so a CVE can be requested through the
    advisory itself, and WordPress ecosystem databases such as WPScan and
