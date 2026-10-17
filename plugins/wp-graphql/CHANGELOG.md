@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.25.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.2...wp-graphql/v2.25.0) (2026-10-17)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 13 updates ([#4490](https://github.com/wp-graphql/wp-graphql/issues/4490)) ([1e1e053](https://github.com/wp-graphql/wp-graphql/commit/1e1e053ff4812f26382302f2e1216a7bebfcb920))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group across 1 directory with 2 updates ([#4392](https://github.com/wp-graphql/wp-graphql/issues/4392)) ([d212c8e](https://github.com/wp-graphql/wp-graphql/commit/d212c8ee9f5a9cdaebd18e9fdcf450b053e1cb10))
+* **deps:** bump webonyx/graphql-php from 15.37.2 to 15.37.3 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4432](https://github.com/wp-graphql/wp-graphql/issues/4432)) ([a008844](https://github.com/wp-graphql/wp-graphql/commit/a008844138f74a5ccd97c84bf65ba1a0b22a4ad5))
+
 ## [2.24.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.1...wp-graphql/v2.24.2) (2026-10-16)
 
 
