@@ -365,10 +365,15 @@ class CommentUpdate {
 		$type       = (string) ( $comment_args['comment_type'] ?? '' );
 
 		// WordPress's own default verdict for the content, before any integration weighs in.
-		$approved = ( ! check_comment( $author, $email, $url, $content, $ip, $user_agent, $type )
-			|| wp_check_comment_disallowed_list( $author, $email, $url, $content, $ip, $user_agent ) )
-			? 0
-			: 1;
+		// Mirrors wp_check_comment_data(): a disallowed-list hit is `trash` or `spam`
+		// (depending on EMPTY_TRASH_DAYS), and only a plain check_comment() failure is `0`.
+		if ( wp_check_comment_disallowed_list( $author, $email, $url, $content, $ip, $user_agent ) ) {
+			$approved = EMPTY_TRASH_DAYS ? 'trash' : 'spam';
+		} elseif ( ! check_comment( $author, $email, $url, $content, $ip, $user_agent, $type ) ) {
+			$approved = 0;
+		} else {
+			$approved = 1;
+		}
 
 		/**
 		 * Filters the approval status of a comment whose content was edited.
@@ -385,11 +390,15 @@ class CommentUpdate {
 		 * `'trash'`, or a `WP_Error` — holds it for review. An edit puts an approved comment
 		 * back in the queue rather than moving it to spam or trash.
 		 *
-		 * @param int|string|\WP_Error $approved     The default verdict for the edited content: `1` when WordPress's checks pass, `0` when they do not.
-		 * @param array<string,mixed>  $comment_data The comment args about to be saved.
+		 * This mirrors core's `wp_check_comment_data()`, which ends by applying the same
+		 * filter, so an integration written against core behaves the same way here.
 		 *
-		 * @since x-release-please-version
-		 * @hookGroup uncategorized
+		 * Because of the post-author exemption above, this filter is not reached when a
+		 * post's author edits their own comment on that post; core fires it with `1` for
+		 * new comments, so integration authors should not assume it runs for every edit.
+		 *
+		 * @param int|string|\WP_Error $approved     The default verdict for the edited content: `1` when WordPress's checks pass, `0` when they do not, or `spam`/`trash` for a disallowed-list hit.
+		 * @param array<string,mixed>  $comment_data The comment args about to be saved.
 		 */
 		$approved = apply_filters( 'pre_comment_approved', $approved, $comment_args );
 
