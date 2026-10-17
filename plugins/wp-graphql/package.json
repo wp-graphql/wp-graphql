@@ -64,7 +64,7 @@
 		"graphql": "16.14.2",
 		"lz-string": "1.5.0",
 		"query-string": "7.1.3",
-		"sanitize-html": "^2.17.7",
+		"sanitize-html": "^2.18.0",
 		"styled-components": "6.5.3",
 		"use-error-boundary": "2.0.6",
 		"use-query-params": "1.2.3"
