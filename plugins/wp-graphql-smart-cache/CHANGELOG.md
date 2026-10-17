@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.3...wp-graphql-smart-cache/v2.3.4) (2026-10-17)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group across 1 directory ([#4348](https://github.com/wp-graphql/wp-graphql/issues/4348)) ([6ea8166](https://github.com/wp-graphql/wp-graphql/commit/6ea816659e54c43946e7c832bced71e6c6f855bc))
+* **smart-cache:** withhold saved-document settings from restricted views ([#4479](https://github.com/wp-graphql/wp-graphql/issues/4479)) ([6caeed3](https://github.com/wp-graphql/wp-graphql/commit/6caeed3068b593df5572d2cafd82e48cc671c7fd))
+
 ## [2.3.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.2...wp-graphql-smart-cache/v2.3.3) (2026-10-13)
 
 
