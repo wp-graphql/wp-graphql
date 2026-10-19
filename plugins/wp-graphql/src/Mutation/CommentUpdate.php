@@ -364,21 +364,59 @@ class CommentUpdate {
 		$user_agent = (string) ( $comment_args['comment_agent'] ?? '' );
 		$type       = (string) ( $comment_args['comment_type'] ?? '' );
 
-		$requires_moderation = ! check_comment( $author, $email, $url, $content, $ip, $user_agent, $type )
-			|| wp_check_comment_disallowed_list( $author, $email, $url, $content, $ip, $user_agent );
+		// WordPress's own default verdict for the content, before any integration weighs in.
+		// Mirrors wp_check_comment_data(): a disallowed-list hit is `trash` or `spam`
+		// (depending on EMPTY_TRASH_DAYS), and only a plain check_comment() failure is `0`.
+		if ( wp_check_comment_disallowed_list( $author, $email, $url, $content, $ip, $user_agent ) ) {
+			$approved = EMPTY_TRASH_DAYS ? 'trash' : 'spam';
+		} elseif ( ! check_comment( $author, $email, $url, $content, $ip, $user_agent, $type ) ) {
+			$approved = 0;
+		} else {
+			$approved = 1;
+		}
+
+		/**
+		 * Filters the approval status of a comment whose content was edited.
+		 *
+		 * WordPress does not re-moderate an edited comment, so when a caller without the
+		 * `moderate_comments` capability edits the content of an approved comment WPGraphQL
+		 * re-runs the checks core applies to a new comment. This is core's own filter:
+		 * `wp_check_comment_data()` ends by applying it, and a site's moderation plugin,
+		 * role-based auto-approve rule, or similar integration hooks it to have its say about
+		 * a comment. Firing it here gives those integrations the same say about an edit that
+		 * they already have about a new comment.
+		 *
+		 * Return `1` (or `true`) to keep the comment approved. Anything else — `0`, `'spam'`,
+		 * `'trash'`, or a `WP_Error` — holds it for review. An edit puts an approved comment
+		 * back in the queue rather than moving it to spam or trash.
+		 *
+		 * This mirrors core's `wp_check_comment_data()`, which ends by applying the same
+		 * filter, so an integration written against core behaves the same way here.
+		 *
+		 * Because of the post-author exemption above, this filter is not reached when a
+		 * post's author edits their own comment on that post; core fires it with `1` for
+		 * new comments, so integration authors should not assume it runs for every edit.
+		 *
+		 * @param int|string|\WP_Error $approved     The default verdict for the edited content: `1` when WordPress's checks pass, `0` when they do not, or `spam`/`trash` for a disallowed-list hit.
+		 * @param array<string,mixed>  $comment_data The comment args about to be saved.
+		 */
+		$approved = apply_filters( 'pre_comment_approved', $approved, $comment_args );
+
+		// Only an explicit approval keeps the comment approved: `spam`, `trash`, `0` and a
+		// `WP_Error` all hold it for review instead.
+		$requires_moderation = is_wp_error( $approved ) || '1' !== (string) $approved;
 
 		/**
 		 * Filters whether an edited comment is sent back for moderation.
 		 *
-		 * When a caller without the `moderate_comments` capability edits the content of a comment
-		 * that is already approved, WordPress's moderation checks are run against the new content
-		 * and the comment is held for review if they do not pass. Return false to let the comment
-		 * keep its approved status regardless of what the new content says.
+		 * Applied after WordPress's own `pre_comment_approved` filter, which has already
+		 * decided the default outcome. Return false to let the comment keep its approved status
+		 * whatever that decision was.
 		 *
 		 * This does not run for every edit. A comment that is not already approved keeps the
 		 * status it has, unchanged content is not re-checked, and the author of the node the
 		 * comment was left on is exempt, the same exemption WordPress applies. In those cases
-		 * no decision is made and the filter is never reached.
+		 * no decision is made and neither filter is reached.
 		 *
 		 * @param bool                $requires_moderation Whether the comment will be held for review.
 		 * @param array<string,mixed> $comment_args        The comment args about to be saved.
