@@ -152,7 +152,7 @@ class NestedConnectionFieldsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAc
 					'return_format'      => 'id',
 				],
 				[
-					'key'                => 'field_nested_text',
+					'key'                => 'field_nested_row_text',
 					'name'               => 'text',
 					'type'               => 'text',
 					'show_in_graphql'    => 1,
@@ -166,7 +166,7 @@ class NestedConnectionFieldsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAc
 			[
 				[
 					'field_nested_id_image' => $this->imageId,
-					'field_nested_text'     => 'row text',
+					'field_nested_row_text'     => 'row text',
 				],
 			],
 			$this->published_post->ID
