@@ -64,7 +64,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.4.0",
+    "@next/eslint-plugin-next": "^16.2.10",
     "@playwright/test": "^1.64.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
@@ -75,7 +75,7 @@
     "postcss": "^8.5.29",
     "postcss-focus-visible": "^11.0.0",
     "postcss-import": "^17.0.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3"
   },
