@@ -93,7 +93,7 @@
 		"@playwright/test": "^1.64.0",
 		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/react": "^16.3.3",
-		"@types/node": "^26.6.4",
+		"@types/node": "^26.6.5",
 		"@typescript-eslint/eslint-plugin": "^8.71.1",
 		"@typescript-eslint/parser": "^8.66.0",
 		"@wordpress/e2e-test-utils-playwright": "^1.54.0",
