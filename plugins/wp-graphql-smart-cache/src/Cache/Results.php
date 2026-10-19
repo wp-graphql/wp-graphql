@@ -316,6 +316,30 @@ class Results extends Query {
 	}
 
 	/**
+	 * Remove the debug log from a response before it is stored in the object cache.
+	 *
+	 * Debug entries can hold closures, which cannot be serialized, and they describe a single
+	 * execution anyway. A result object is converted with toArray(), as the storage adapters do.
+	 *
+	 * @since x-release-please-version
+	 *
+	 * @param mixed $response The result of a single operation.
+	 *
+	 * @return mixed The result without `extensions.debug`.
+	 */
+	public static function strip_debug_extensions( $response ) {
+		if ( is_object( $response ) && method_exists( $response, 'toArray' ) ) {
+			$response = $response->toArray();
+		}
+
+		if ( is_array( $response ) && isset( $response['extensions'] ) && is_array( $response['extensions'] ) ) {
+			unset( $response['extensions']['debug'] );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * When a query response is being returned to the client, build map for each item and this query/queryId
 	 * That way we will know what to invalidate on data change.
 	 *
@@ -381,7 +405,7 @@ class Results extends Query {
 		if ( false === $cached_result ) {
 			$expiration = \get_graphql_setting( 'global_ttl', self::GLOBAL_DEFAULT_TTL, 'graphql_cache_section' );
 
-			$this->save( $key, $filtered_response, $expiration );
+			$this->save( $key, self::strip_debug_extensions( $filtered_response ), $expiration );
 		}
 	}
 
