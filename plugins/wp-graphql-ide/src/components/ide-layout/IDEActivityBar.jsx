@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Tooltip } from '@wordpress/components';
-import { Icon, backup, edit, file, help, search } from '@wordpress/icons';
+import { Icon, backup, file, help, pencil, search } from '@wordpress/icons';
 
 const PANEL_ICONS = {
 	'saved-queries': file,
@@ -57,7 +57,7 @@ export function IDEActivityBar({
 						{panel.icon ? (
 							<panel.icon />
 						) : (
-							<Icon icon={PANEL_ICONS[panel.name] ?? edit} />
+							<Icon icon={PANEL_ICONS[panel.name] ?? pencil} />
 						)}
 					</Button>
 				</Tooltip>

@@ -1,5 +1,7 @@
 parameters:
-    level: 7
+    # Keep the result cache inside the plugin, where the lint workflow caches it between runs.
+    tmpDir: tests/_output/phpstan
+    level: 8
     inferPrivatePropertyTypeFromConstructor: true
     stubFiles:
         # Simulate added properties
@@ -11,14 +13,8 @@ parameters:
     bootstrapFiles:
         - phpstan/constants.php
         - wp-graphql-smart-cache.php
-        # - access-functions.php
-        # - activation.php
-        # - deactivation.php
     paths:
         - wp-graphql-smart-cache.php
-        # - access-functions.php
-        # - activation.php
-        # - deactivation.php
         - src/
     scanFiles:
         - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php

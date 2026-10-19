@@ -2,7 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { Icon, close, edit, sidebar } from '@wordpress/icons';
+import { Icon, close, pencil, sidebar } from '@wordpress/icons';
 import { endpointMode } from '../../bootstrap';
 
 /**
@@ -102,7 +102,7 @@ export function IDETopbar({
 								{action.icon ? (
 									<action.icon />
 								) : (
-									<Icon icon={edit} />
+									<Icon icon={pencil} />
 								)}
 							</Button>
 						</Tooltip>

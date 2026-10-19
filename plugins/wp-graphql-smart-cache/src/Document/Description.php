@@ -29,7 +29,14 @@ class Description {
 				register_graphql_field( 'Update' . $register_type_name . 'Input', 'description', $config );
 
 				$config['resolve'] = function ( \WPGraphQL\Model\Post $post, $args, $context, $info ) {
-					return get_the_excerpt( $post->ID );
+					// A document the viewer may only see in restricted form withholds its ID, and
+					// its description with it. Passing the null on would look up the global post instead.
+					$post_id = $post->ID;
+					if ( null === $post_id ) {
+						return null;
+					}
+
+					return get_the_excerpt( $post_id );
 				};
 				register_graphql_field( $register_type_name, 'description', $config );
 			}

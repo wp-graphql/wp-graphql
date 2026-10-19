@@ -23,10 +23,10 @@
 
 namespace WPGraphQLIDE;
 
-const SETTINGS_SECTION       = 'graphql_ide_settings';
-const SETTING_NAME           = 'graphql_ide_public_endpoint';
-const SETTING_ALLOW_SIGN_IN  = 'graphql_ide_public_endpoint_allow_sign_in';
-const BODY_CLASS             = 'wpgraphql-ide-public-endpoint';
+const SETTINGS_SECTION      = 'graphql_ide_settings';
+const SETTING_NAME          = 'graphql_ide_public_endpoint';
+const SETTING_ALLOW_SIGN_IN = 'graphql_ide_public_endpoint_allow_sign_in';
+const BODY_CLASS            = 'wpgraphql-ide-public-endpoint';
 
 /**
  * Whether a `graphql_ide_settings` checkbox is checked.
@@ -90,7 +90,7 @@ function public_endpoint_allow_sign_in(): bool {
  * occasional "this URL needs to be visited in a browser" edge case.
  */
 function is_browser_html_request_to_endpoint(): bool {
-	if ( 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+	if ( 'GET' !== sanitize_text_field( wp_unslash( (string) ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
 		return false;
 	}
 	if ( ! \WPGraphQL\Router::is_graphql_http_request() ) {
@@ -109,7 +109,7 @@ function is_browser_html_request_to_endpoint(): bool {
 		}
 	}
 
-	$accept = (string) ( $_SERVER['HTTP_ACCEPT'] ?? '' );
+	$accept = sanitize_text_field( wp_unslash( (string) ( $_SERVER['HTTP_ACCEPT'] ?? '' ) ) );
 
 	// Any GraphQL client that explicitly asks for JSON — even alongside
 	// other types — wants JSON. Don't intercept.
@@ -152,6 +152,7 @@ function render_public_ide_shell(): void {
 
 	// No admin bar — the page IS the IDE. The admin-bar trigger would
 	// also try to mount its own IDE instance into a sibling div.
+	// phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected -- Hidden on this page only, which renders the IDE in place of the site.
 	add_filter( 'show_admin_bar', '__return_false' );
 
 	// Reuse the dedicated-page enqueue path so script handles, dependency
@@ -230,8 +231,8 @@ function inject_public_endpoint_data( array $data ): array {
 	// topbar actions / persistent docs + history). Capable visitors at this
 	// URL get the full IDE — same surface as the dedicated admin page — so
 	// only flip the flag on for visitors who can't manage IDE assets anyway.
-	$data['endpointMode']        = ! wpgraphql_ide_user_can();
-	$data['isUserLoggedIn']      = is_user_logged_in();
+	$data['endpointMode']   = ! wpgraphql_ide_user_can();
+	$data['isUserLoggedIn'] = is_user_logged_in();
 	// Gates the sign-in handoff on the endpoint IDE. When off, the auth
 	// avatar acts as a static public-state indicator and the Saved Queries
 	// / History panels are hidden from anonymous visitors entirely.
@@ -249,8 +250,10 @@ function inject_public_endpoint_data( array $data ): array {
  */
 function current_request_url(): string {
 	$scheme = is_ssl() ? 'https://' : 'http://';
-	$host   = (string) ( $_SERVER['HTTP_HOST'] ?? '' );
-	$path   = (string) ( $_SERVER['REQUEST_URI'] ?? '' );
+	$host   = sanitize_text_field( wp_unslash( (string) ( $_SERVER['HTTP_HOST'] ?? '' ) ) );
+	// esc_url_raw(), not sanitize_text_field(): the latter strips percent-encoded
+	// octets, which would break the redirect for any URL that contains them.
+	$path = esc_url_raw( wp_unslash( (string) ( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 	return $scheme . $host . $path;
 }
 

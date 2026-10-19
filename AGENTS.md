@@ -56,6 +56,30 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 | Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
 | ACF | `@wpgraphql/wp-graphql-acf` |
 
+### Bumping `@wordpress/env` means regenerating its patch
+
+`patches/@wordpress+env+<version>.patch` is applied by `patch-package` from the root
+`postinstall`, and **the version in its filename must match the installed version**.
+Bump `@wordpress/env` without regenerating the patch and `npm ci` exits 1 before any
+job gets started, which looks like the whole matrix breaking for no reason: the only
+clue in the log is `npm error command sh -c patch-package`.
+
+So the bump and the regenerated patch go in the same commit, never separately, or
+whichever lands first breaks `main`. To regenerate, install the new version, reapply
+the patch's changes to `node_modules/@wordpress/env`, and run
+`npx patch-package @wordpress/env`, then delete the patch named for the old version.
+
+The patch currently removes the container's global `composer require phpunit`
+install, because each plugin's tests run their own `vendor/bin/codecept` and the
+zipball download was a recurring CI flake (#4268). Check whether what it carries has
+landed upstream before reapplying it: the Debian bullseye apt-source rewrite it used
+to also carry is in `@wordpress/env` 11.16.0 itself, so it no longer belongs in the
+patch.
+
+This bites the grouped dev-dependency PR every time `@wordpress/env` moves, which is
+often (11.14.0, 11.16.0 and 11.17.0 all within a week), so the whole group arrives
+red until the patch is redone.
+
 ### Workflow logic lives in `scripts/`, not inlined in YAML
 
 Non-trivial logic a GitHub Actions workflow needs belongs in a committed script (`scripts/*.js`) that the workflow *calls*, not in an inline `run:` block or a `node - <<'NODE'` heredoc. A one-line `sed`/`grep` or a straight tool invocation is fine inline; anything with branching, parsing, or JSON manipulation goes in a script. This keeps the logic testable, reviewable, and runnable locally.
