@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.23.1
+Stable tag: 2.24.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -77,6 +77,42 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 2.24.2 =
+
+**Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.
+
+**More mutation error messages changed.** The update mutations for posts, pages and every other content type, `updateUser`, and the update and delete mutations for categories, tags and every other taxonomy now check the capability before looking the target up, so the refusal a caller without it gets no longer reveals whether the ID exists or what type of thing it held. The post update mutations also no longer echo the ID back in that message. See GHSA-5292-vhjr-6cwg. `updateComment` and `deleteComment` now give one answer to every caller who can neither moderate comments nor own the comment named, which 2.24.1 had closed only for anonymous callers (GHSA-r7m4-3v6c-3435). A client matching on any of those message strings will need updating.
+
+**A comment's byline survives a content edit.** When a comment's own author updated only the content, the stored author name, email and URL were rewritten from the editing account rather than left alone. Those three values are now kept as stored for a caller without `moderate_comments`. Moderators can still change them, as before. See GHSA-cf67-w9ww-p68v.
+
+**`createMediaItem` refuses a host whose IPv6 lookup fails.** A URL is accepted only when every address its host resolves to is public, and an AAAA lookup that errors is now treated as a failed check rather than as a host with no IPv6 address. If your resolver blocks or drops AAAA queries, a URL that previously worked will be refused. The local-use NAT64 prefix, 64:ff9b:1::/48, is rejected now as well, because the address it carries is reachable only inside the network that runs the translator. A host that reaches a public address through the well-known NAT64 prefix or 6to4 is unaffected. See GHSA-3j5r-mp5g-4wrw.
+
+= 2.24.1 =
+
+**Security release.** Fixes seven issues reported through our security advisory process. Updating is recommended. Five of them change behavior you may be relying on, so they are worth reading before you update.
+
+**`updateComment` is limited to content for non-moderators.** A caller who may update a comment but does not have `moderate_comments`, which in practice means the comment's own author, can change what the comment says and nothing else. Pointing the target, author, email, URL, date, parent or type at anything else, or changing the approval status, now requires `moderate_comments`. Edited content is re-checked against the same moderation rules WordPress applies to a new comment, so an approved comment can go back to pending. Filter `graphql_comment_update_requires_moderation` to control the re-check, and `graphql_comment_author_can_update_own_comment` to turn author edits off entirely. See GHSA-cf67-w9ww-p68v.
+
+**`createComment` now checks the target.** Comments can no longer be created on drafts, pending posts, trashed posts, private posts the caller cannot read, or password-protected posts. Whether comments are open is now decided by WordPress's own `comments_open()`, which also honors the "automatically close comments on posts older than N days" discussion setting, so a site using that option will see comments refused on old posts where they previously succeeded. The `date` and `type` inputs now require `moderate_comments` and are ignored for callers without it. See GHSA-4vgv-vvxr-9fh9.
+
+**`sendPasswordResetEmail` sends one email per request.** A request that invokes the mutation more than once, with aliases or in a batch, is rejected past the first. Filter `graphql_allowed_password_reset_emails_per_request` to raise it. Debug output no longer says whether an account exists unless the caller has `list_users`, filterable with `graphql_password_reset_debug_capability`. See GHSA-f5f8-v768-93c8 and GHSA-6xw5-35v5-2886.
+
+**Trashed content requires `edit_others_posts`.** A trashed post's fields were returned to anyone who could query the node. The post's own author is unaffected. See GHSA-rq5q-mc8v-w8pq.
+
+**Some mutation error messages changed.** `updateMediaItem`, `deleteMediaItem`, `updateComment` and `deleteComment` now refuse a caller who lacks the capability before looking the target up, and no longer report whether the ID exists or what type it was. A client matching on those message strings will need updating. See GHSA-r7m4-3v6c-3435.
+
+Also fixed: `createMediaItem` recognized only one spelling of an internal address, so several IPv6 forms carrying an internal IPv4 address were treated as public (GHSA-3j5r-mp5g-4wrw). A host that reaches a public address through NAT64 or 6to4 is unaffected.
+
+= 2.24.0 =
+
+**New: a settings review.** Administrators see a dismissable notice inviting them to review the WPGraphQL settings that affect who can use the API, how much work one request can ask for, and what debugging information responses include. It changes nothing on its own: every setting starts at your current value, "Skip for now" saves nothing, and only settings you actually change are written. To suppress the invitation, filter `graphql_settings_review_show_invitation` to false. You can also handle the review from the command line, which is easier across many sites: `wp graphql settings-review status` reports what is left, and `wp graphql settings-review skip` records it as skipped without changing any settings.
+
+**Query depth limiting is now on for new installs.** Existing sites are unchanged. A new install starts with the limit enabled and a maximum depth of 15, and operations that only request introspection are exempt. Change the effective maximum with the `graphql_query_depth_max` filter, or the setting under GraphQL > Settings.
+
+**Non-public taxonomies are now described in the Schema.** A taxonomy registered `public => false` with `show_in_graphql => true` previously returned null from the `taxonomy` field, while the terms inside it were served to everyone. The taxonomy is now returned, so the Schema describes what it already serves. Its configuration fields still require `edit_terms`, so an anonymous caller sees a limited set and null for the rest. To hide a taxonomy again, filter `graphql_data_is_private`.
+
+**`public` reports false instead of null.** Content types and taxonomies registered `public => false` previously reported `public: null` and now report `public: false`. If a client treats null as "unknown" and false as "not public", that branch now behaves differently.
 
 = 2.23.1 =
 
@@ -313,6 +349,45 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.24.2 =
+
+**Bug Fixes**
+
+* **media:** reject the local-use NAT64 prefix, and fail closed on a failed AAAA lookup ([#4460](https://github.com/wp-graphql/wp-graphql/issues/4460))
+* **mutations:** check the capability before looking up the target, in four more mutations ([#4461](https://github.com/wp-graphql/wp-graphql/issues/4461))
+* **mutations:** keep a comment's stored byline when only its content is edited ([#4458](https://github.com/wp-graphql/wp-graphql/issues/4458))
+* **mutations:** stop comment mutations telling logged-in callers which comment IDs exist ([#4459](https://github.com/wp-graphql/wp-graphql/issues/4459))
+* **release:** stop release-please rewriting changelog entries that name its annotations ([#4450](https://github.com/wp-graphql/wp-graphql/issues/4450))
+
+= 2.24.1 =
+
+**Bug Fixes**
+
+* **media:** reject internal IPv6 addresses written with a dotted-quad tail ([#4451](https://github.com/wp-graphql/wp-graphql/issues/4451))
+* **media:** reject IPv6 forms that carry an internal IPv4 address (GHSA-3j5r-mp5g-4wrw) ([#4446](https://github.com/wp-graphql/wp-graphql/issues/4446))
+* **models:** require edit_others_posts to read someone else's trashed content (GHSA-rq5q-mc8v-w8pq) ([#4440](https://github.com/wp-graphql/wp-graphql/issues/4440))
+* **mutations:** check the capability before looking up the target (GHSA-r7m4-3v6c-3435) ([#4443](https://github.com/wp-graphql/wp-graphql/issues/4443))
+* **mutations:** check the target post before creating a comment (GHSA-4vgv-vvxr-9fh9) ([#4441](https://github.com/wp-graphql/wp-graphql/issues/4441))
+* **mutations:** limit password reset emails to one per request (GHSA-f5f8-v768-93c8) ([#4444](https://github.com/wp-graphql/wp-graphql/issues/4444))
+* **mutations:** restrict updateComment to content for non-moderators (GHSA-cf67-w9ww-p68v) ([#4442](https://github.com/wp-graphql/wp-graphql/issues/4442))
+* **mutations:** stop debug output saying whether an account exists (GHSA-6xw5-35v5-2886) ([#4445](https://github.com/wp-graphql/wp-graphql/issues/4445))
+
+= 2.24.0 =
+
+**New Features**
+
+* add a settings review for security-related settings ([#4342](https://github.com/wp-graphql/wp-graphql/issues/4342))
+* add publiclyQueryable to Taxonomy, and correct the public description ([#4425](https://github.com/wp-graphql/wp-graphql/issues/4425))
+* turn on query depth limiting for new installs and add a max depth filter ([#4341](https://github.com/wp-graphql/wp-graphql/issues/4341))
+
+**Bug Fixes**
+
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340))
+* report public: false for non-public post types ([#4430](https://github.com/wp-graphql/wp-graphql/issues/4430))
+* report public: false for non-public taxonomies ([#4414](https://github.com/wp-graphql/wp-graphql/issues/4414))
+* show admin notices above the legacy GraphiQL IDE and on the Extensions screen ([#4339](https://github.com/wp-graphql/wp-graphql/issues/4339))
+* stop hiding a taxonomy while serving every term inside it ([#4426](https://github.com/wp-graphql/wp-graphql/issues/4426))
 
 = 2.23.1 =
 
@@ -671,11 +746,11 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **Bug Fixes**
 
-* add step to replace x-release-please-version placeholders during deployment
+* add step to replace x-release-please version placeholders during deployment
 * **deps:** bump webonyx/graphql-php from 15.29.4 to 15.30.0 in /plugins/wp-graphql in the composer-minor-patch group across 1 directory ([#3521](https://github.com/wp-graphql/wp-graphql/issues/3521))
 * nodeByUri returns null for REST API endpoints and static file paths ([#3530](https://github.com/wp-graphql/wp-graphql/issues/3530))
 * Prevent password from being changed when updating user without password field ([#3532](https://github.com/wp-graphql/wp-graphql/issues/3532))
-* replace x-release-please-version placeholders with 2.23.1
+* replace x-release-please version placeholders with 2.7.0
 * use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502))
 
 = 2.7.0 =

@@ -71,7 +71,14 @@ class Grant {
 				register_graphql_field( 'Update' . $register_type_name . 'Input', 'grant', $config );
 
 				$config['resolve'] = function ( \WPGraphQL\Model\Post $post, $args, $context, $info ) {
-					return self::getQueryGrantSetting( $post->ID );
+					// A document the viewer may only see in restricted form withholds its ID, and
+					// its access grant with it. Passing the null on would look up the global post instead.
+					$post_id = $post->ID;
+					if ( null === $post_id ) {
+						return null;
+					}
+
+					return self::getQueryGrantSetting( $post_id );
 				};
 				register_graphql_field( $register_type_name, 'grant', $config );
 			}
@@ -212,9 +219,30 @@ class Grant {
 	 */
 	public function add_validation_rules_cb( $validation_rules, $request ) {
 		// Check the grant mode. If public for all, don't add this rule.
-		$setting = get_graphql_setting( self::GLOBAL_SETTING_NAME, self::GLOBAL_DEFAULT, 'graphql_persisted_queries_section' );
-		if ( self::GLOBAL_PUBLIC !== $setting && ! is_user_logged_in() ) {
-			$validation_rules['allow_deny_query_document'] = new AllowDenyQueryDocument( $setting );
+		$grant_mode = get_graphql_setting( self::GLOBAL_SETTING_NAME, self::GLOBAL_DEFAULT, 'graphql_persisted_queries_section' );
+
+		if ( self::GLOBAL_PUBLIC === $grant_mode ) {
+			return $validation_rules;
+		}
+
+		/**
+		 * Filters the capability that exempts a user from persisted query allow/deny
+		 * grant enforcement. Users with this capability may execute any query
+		 * regardless of the global grant mode, so an administrator can still run
+		 * ad-hoc queries in the IDE. Everyone else, authenticated or not, is subject
+		 * to the allow/deny rules.
+		 *
+		 * @param string                  $capability Capability that bypasses grant enforcement. Default 'manage_options'.
+		 * @param string                  $grant_mode The current global grant mode ('only_allowed' or 'some_denied').
+		 * @param \WPGraphQL\Request|null $request    The current GraphQL request.
+		 *
+		 * @since 2.3.3
+		 * @hookGroup authentication
+		 */
+		$exempt_capability = apply_filters( 'graphql_smart_cache_grant_exempt_capability', 'manage_options', $grant_mode, $request );
+
+		if ( ! current_user_can( $exempt_capability ) ) {
+			$validation_rules['allow_deny_query_document'] = new AllowDenyQueryDocument( $grant_mode );
 		}
 
 		return $validation_rules;

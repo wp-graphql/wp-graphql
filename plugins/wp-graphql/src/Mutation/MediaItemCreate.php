@@ -555,9 +555,19 @@ class MediaItemCreate {
 	 *
 	 * The gethostbynamel() built-in returns A (IPv4) records only. AAAA (IPv6)
 	 * records are resolved separately via dns_get_record() so a dual-stack host
-	 * cannot hide an internal IPv6 address behind a public IPv4 address. A failed
-	 * lookup returns no records and yields no addresses, which is fail-closed:
-	 * is_safe_remote_url() rejects a host that resolves to nothing.
+	 * cannot hide an internal IPv6 address behind a public IPv4 address.
+	 *
+	 * Both lookups fail closed. Resolving nothing yields no addresses, and
+	 * is_safe_remote_url() rejects a host that resolves to nothing. An AAAA lookup
+	 * that errors is treated the same way, rather than as a host with no IPv6, so a
+	 * transient resolver failure cannot leave the IPv6 side unchecked while the A
+	 * records vouch for the host.
+	 *
+	 * One limit worth naming: where dns_get_record() is unavailable, usually because
+	 * it is in disable_functions, there is no way to read AAAA records at all, and
+	 * only the A records are checked. Failing closed there would take the feature
+	 * away on those hosts entirely, so it proceeds. A host in that configuration is
+	 * relying on gethostbynamel() alone.
 	 *
 	 * @param string $host The host name to resolve.
 	 *
@@ -572,13 +582,45 @@ class MediaItemCreate {
 		}
 
 		if ( function_exists( 'dns_get_record' ) ) {
-			$records = dns_get_record( $host, DNS_AAAA );
-			if ( is_array( $records ) ) {
-				foreach ( $records as $record ) {
-					if ( isset( $record['ipv6'] ) && is_string( $record['ipv6'] ) ) {
-						$addresses[] = $record['ipv6'];
-					}
-				}
+			$ipv6 = self::aaaa_addresses_from_records( dns_get_record( $host, DNS_AAAA ) );
+
+			// A lookup that failed cannot be treated as a host with no IPv6, so the
+			// whole host is refused. See aaaa_addresses_from_records().
+			if ( null === $ipv6 ) {
+				return [];
+			}
+
+			$addresses = array_merge( $addresses, $ipv6 );
+		}
+
+		return $addresses;
+	}
+
+	/**
+	 * Reads the IPv6 addresses out of a DNS_AAAA answer, telling a failed lookup apart
+	 * from a host that simply has no IPv6.
+	 *
+	 * The dns_get_record() built-in answers an empty array for a host with no AAAA
+	 * records, and false when the lookup itself failed. Those are different facts, and
+	 * only the first is safe to continue on. Treating a failure as "no IPv6 records" would
+	 * validate the A records, report the host as safe, and leave curl free to connect
+	 * over IPv6 to an address nothing looked at, which is the bypass the dual-stack
+	 * resolution exists to prevent.
+	 *
+	 * @param array<int,array<string,mixed>>|false $records The dns_get_record() answer for DNS_AAAA.
+	 *
+	 * @return string[]|null The IPv6 addresses, or null when the lookup failed.
+	 */
+	private static function aaaa_addresses_from_records( $records ): ?array {
+		if ( ! is_array( $records ) ) {
+			return null;
+		}
+
+		$addresses = [];
+
+		foreach ( $records as $record ) {
+			if ( isset( $record['ipv6'] ) && is_string( $record['ipv6'] ) ) {
+				$addresses[] = $record['ipv6'];
 			}
 		}
 
@@ -589,18 +631,82 @@ class MediaItemCreate {
 	 * Determines whether an IP address is publicly routable.
 	 *
 	 * Rejects private, reserved, loopback, and link-local ranges for both IPv4
-	 * and IPv6. IPv4-mapped IPv6 addresses (::ffff:a.b.c.d) are unwrapped so the
-	 * embedded IPv4 range is evaluated rather than trusted.
+	 * and IPv6. Several IPv6 forms carry an IPv4 address inside them, and those
+	 * are unwrapped so the embedded IPv4 range is evaluated rather than trusted:
+	 * IPv4-mapped (::ffff:a.b.c.d), IPv4-compatible (::a.b.c.d), NAT64
+	 * (64:ff9b::/96) and 6to4 (2002::/16).
+	 *
+	 * Everything about IPv6 is decided on the packed bytes, and every IPv6 range
+	 * that is not publicly routable is listed explicitly below, because PHP's
+	 * FILTER_FLAG_NO_PRIV_RANGE and FILTER_FLAG_NO_RES_RANGE read the text rather
+	 * than the address. Two spellings of the same sixteen bytes get opposite
+	 * answers from them, and which spellings differ changes between PHP releases:
+	 * on PHP 8.3 the flags reject ::ffff:7f00:1 while allowing ::7f00:1,
+	 * 64:ff9b::7f00:1 and 2002:7f00:1::, and up to PHP 8.2 they skip their IPv6
+	 * range checks altogether for an address ending in a dotted quad, so
+	 * fd00::0.0.0.1 passed while fd00::1 did not. The flags are therefore not
+	 * trusted for IPv6 at all; they are left in place only for IPv4.
+	 *
+	 * Unwrapping only the dotted IPv4-mapped form previously let an author who
+	 * can upload files point filePath at a host whose AAAA record was one of the
+	 * other forms and have the server fetch an internal URL.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-3j5r-mp5g-4wrw
 	 *
 	 * @param string $ip The IP address to check.
 	 */
 	private static function is_public_ip( string $ip ): bool {
-		// Unwrap an IPv4-mapped IPv6 address so ::ffff:169.254.169.254 is judged
-		// as the link-local 169.254/16 range it actually targets.
-		if ( 0 === stripos( $ip, '::ffff:' ) ) {
-			$mapped = substr( $ip, strlen( '::ffff:' ) );
-			if ( filter_var( $mapped, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-				$ip = $mapped;
+		// Validated before it is unpacked, so inet_pton() is never handed something
+		// it would emit a warning about. Fail closed either way: an address we
+		// cannot parse is not one we can vouch for.
+		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		$packed = inet_pton( $ip );
+
+		if ( false === $packed ) {
+			return false;
+		}
+
+		if ( 16 === strlen( $packed ) ) {
+			$embedded = self::embedded_ipv4( $packed );
+
+			// An IPv6 form carrying an IPv4 address is judged on that address.
+			if ( null !== $embedded ) {
+				$ip     = $embedded;
+				$packed = inet_pton( $embedded );
+			} else {
+				// Every IPv6 range that is not publicly routable, listed here rather
+				// than left to the filter flags below. ::1/128 is loopback;
+				// fe80::/10 is link-local; fc00::/7 is unique-local; fec0::/10 is
+				// the deprecated site-local range, still routable inside a network;
+				// ff00::/8 is multicast; ::/128 is unspecified; 100::/64 is the
+				// discard-only range; 2001:db8::/32 is documentation.
+				//
+				// The first three are also rejected by the filter flags, but only
+				// when the address is written as hex groups. Up to PHP 8.2, and up
+				// to 8.3.20 and 8.4.26, the flags skip their IPv6 range checks
+				// entirely for an address whose text ends in a dotted quad, so
+				// `fd00::0.0.0.1` was judged public while `fd00::1`, the same
+				// sixteen bytes, was not. Matching on the packed bytes is spelling
+				// independent, which is the whole point of this function.
+				//
+				// 64:ff9b::/32 is reached only when the address was not unwrapped
+				// above, which means it is in the NAT64 range but not the
+				// well-known 64:ff9b::/96 translation prefix. That leaves the
+				// RFC 8215 local-use prefix 64:ff9b:1::/48, where the embedded
+				// IPv4 sits at a different offset for every permitted prefix
+				// length. Rather than decode each of those, the range is rejected:
+				// it exists for a network's own NAT64 translator, so a caller
+				// pointing us into it is pointing at that network. A host using
+				// the well-known prefix to reach a public address is unaffected,
+				// because it is unwrapped before this list is consulted.
+				foreach ( [ '::1/128', 'fe80::/10', 'fc00::/7', 'fec0::/10', 'ff00::/8', '::/128', '100::/64', '2001:db8::/32', '64:ff9b::/32' ] as $cidr ) {
+					if ( self::ip_in_cidr( (string) $packed, $cidr ) ) {
+						return false;
+					}
+				}
 			}
 		}
 
@@ -625,10 +731,94 @@ class MediaItemCreate {
 	}
 
 	/**
-	 * Determines whether an IPv4 address falls within a CIDR block.
+	 * Returns the IPv4 address carried inside an IPv6 address, if there is one.
 	 *
-	 * @param string $ip   A validated IPv4 address.
-	 * @param string $cidr A CIDR block in "network/prefix" form.
+	 * Four IPv6 forms embed an IPv4 address and route to it: IPv4-mapped
+	 * (::ffff:0:0/96), IPv4-compatible (::/96, deprecated but still resolvable),
+	 * NAT64 (64:ff9b::/96) and 6to4 (2002::/16, where the address sits in the
+	 * second through fifth bytes). Each is judged on the IPv4 address it targets.
+	 *
+	 * @param string $packed The address in its packed 16-byte form.
+	 *
+	 * @return string|null The embedded IPv4 address in dotted form, or null if there is none.
+	 */
+	private static function embedded_ipv4( string $packed ): ?string {
+		$prefixes = [
+			// Each entry pairs the prefix bytes that identify the form with the
+			// offset at which its embedded IPv4 address begins.
+			[ "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff", 12 ], // IPv4-mapped.
+			[ "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00", 12 ], // NAT64.
+			[ "\x20\x02", 2 ], // 6to4.
+		];
+
+		foreach ( $prefixes as [ $prefix, $offset ] ) {
+			if ( 0 === strncmp( $packed, $prefix, strlen( $prefix ) ) ) {
+				return inet_ntop( substr( $packed, $offset, 4 ) ) ?: null;
+			}
+		}
+
+		// ::/96 IPv4-compatible. The all-zero prefix also covers :: and ::1, so
+		// only treat it as an embedded address when the low 32 bits are not 0 or 1.
+		if ( 0 === strncmp( $packed, str_repeat( "\x00", 12 ), 12 ) ) {
+			$low = substr( $packed, 12, 4 );
+			if ( "\x00\x00\x00\x00" !== $low && "\x00\x00\x00\x01" !== $low ) {
+				return inet_ntop( $low ) ?: null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether a packed IP address falls inside a CIDR range.
+	 *
+	 * Works on the packed form so it handles IPv6 as well as IPv4, comparing
+	 * whole bytes and then the remaining bits of the final partial byte.
+	 *
+	 * @param string $packed The address in its packed form.
+	 * @param string $cidr   The range, for example `fec0::/10`.
+	 */
+	private static function ip_in_cidr( string $packed, string $cidr ): bool {
+		[ $subnet, $prefix ] = explode( '/', $cidr );
+
+		// The ranges are hardcoded above, so this is a guard against a typo rather
+		// than against input. Validated first so inet_pton() cannot warn, and a
+		// range that does not parse matches nothing.
+		if ( false === filter_var( $subnet, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		$subnet_packed = inet_pton( $subnet );
+
+		if ( false === $subnet_packed || strlen( $subnet_packed ) !== strlen( $packed ) ) {
+			return false;
+		}
+
+		$bits        = (int) $prefix;
+		$whole_bytes = intdiv( $bits, 8 );
+		$spare_bits  = $bits % 8;
+
+		if ( $whole_bytes > 0 && 0 !== strncmp( $packed, $subnet_packed, $whole_bytes ) ) {
+			return false;
+		}
+
+		if ( 0 === $spare_bits ) {
+			return true;
+		}
+
+		$mask = ~( ( 1 << ( 8 - $spare_bits ) ) - 1 ) & 0xff;
+
+		return ( ord( $packed[ $whole_bytes ] ) & $mask ) === ( ord( $subnet_packed[ $whole_bytes ] ) & $mask );
+	}
+
+	/**
+	 * Whether a dotted IPv4 address falls inside a CIDR range.
+	 *
+	 * Compares the two addresses as 32-bit integers under the prefix mask. Used
+	 * for the IPv4 ranges PHP's filter flags do not reject on their own.
+	 *
+	 * @param string $ip   The IPv4 address in dotted form.
+	 * @param string $cidr The range, for example `100.64.0.0/10`.
 	 */
 	private static function ipv4_in_cidr( string $ip, string $cidr ): bool {
 		[ $subnet, $prefix ] = explode( '/', $cidr );

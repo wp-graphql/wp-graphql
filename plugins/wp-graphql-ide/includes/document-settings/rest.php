@@ -16,6 +16,9 @@ namespace WPGraphQLIDE\DocumentSettings;
 
 add_action( 'rest_api_init', __NAMESPACE__ . '\\register_rest_field', 20 );
 
+/**
+ * Register the `documentSettings` REST field on saved documents.
+ */
 function register_rest_field(): void {
 	\register_rest_field(
 		'graphql_document',
@@ -103,6 +106,7 @@ function rest_update( $value, $post ) {
 
 /**
  * @param array<string,mixed> $field
+ * @param int                 $post_id
  */
 function current_user_can_field( array $field, int $post_id ): bool {
 	$capability = $field['capability'] ?? 'edit_posts';

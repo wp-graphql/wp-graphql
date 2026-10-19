@@ -218,7 +218,8 @@ body {
 }
 
 .wpgraphql-ide-save-dialog-row-scope svg {
-	fill: var(--wpgraphql-ide-text-muted, #646970);
+	/* Icons draw with currentColor (and stroke-only ones set fill: none inline), so color, not fill. */
+	color: var(--wpgraphql-ide-text-muted, #646970);
 }
 
 .wpgraphql-ide-save-dialog-empty {
@@ -2541,7 +2542,7 @@ input.wpgraphql-ide-tab-input:focus {
 
 .wpgraphql-ide-share-collection-result-add {
 	margin-left: auto;
-	fill: var(--wpgraphql-ide-accent);
+	color: var(--wpgraphql-ide-accent);
 }
 
 /* Shared-with section — chips for users who currently have access. */

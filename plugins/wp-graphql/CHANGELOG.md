@@ -1,5 +1,48 @@
 # Changelog
 
+## [2.24.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.1...wp-graphql/v2.24.2) (2026-10-16)
+
+
+### Bug Fixes
+
+* **media:** reject the local-use NAT64 prefix, and fail closed on a failed AAAA lookup ([#4460](https://github.com/wp-graphql/wp-graphql/issues/4460)) ([c4d1226](https://github.com/wp-graphql/wp-graphql/commit/c4d1226b1a47bc85d5ffe400c625838707f578a3))
+* **mutations:** check the capability before looking up the target, in four more mutations ([#4461](https://github.com/wp-graphql/wp-graphql/issues/4461)) ([70dbdc3](https://github.com/wp-graphql/wp-graphql/commit/70dbdc31d16e44d87b465fb47f1f3401247676b8))
+* **mutations:** keep a comment's stored byline when only its content is edited ([#4458](https://github.com/wp-graphql/wp-graphql/issues/4458)) ([974abe9](https://github.com/wp-graphql/wp-graphql/commit/974abe98be8325891f7761221af31f39b39ebde9))
+* **mutations:** stop comment mutations telling logged-in callers which comment IDs exist ([#4459](https://github.com/wp-graphql/wp-graphql/issues/4459)) ([bb4f778](https://github.com/wp-graphql/wp-graphql/commit/bb4f778cae04f60c40bbcb1c80bed4faf91ad836))
+* **release:** stop release-please rewriting changelog entries that name its annotations ([#4450](https://github.com/wp-graphql/wp-graphql/issues/4450)) ([eec042b](https://github.com/wp-graphql/wp-graphql/commit/eec042b714db16e6f6800b7cedbd4b25651219de))
+
+## [2.24.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.0...wp-graphql/v2.24.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **media:** reject internal IPv6 addresses written with a dotted-quad tail ([#4451](https://github.com/wp-graphql/wp-graphql/issues/4451)) ([692d43e](https://github.com/wp-graphql/wp-graphql/commit/692d43e7f713542c3b882129ddef23e22e3651eb))
+* **media:** reject IPv6 forms that carry an internal IPv4 address (GHSA-3j5r-mp5g-4wrw) ([#4446](https://github.com/wp-graphql/wp-graphql/issues/4446)) ([65f5324](https://github.com/wp-graphql/wp-graphql/commit/65f5324e2c780b1ed65f779b14e34945241eec76))
+* **models:** require edit_others_posts to read someone else's trashed content (GHSA-rq5q-mc8v-w8pq) ([#4440](https://github.com/wp-graphql/wp-graphql/issues/4440)) ([ba57a6f](https://github.com/wp-graphql/wp-graphql/commit/ba57a6fa266c50d49f836bb7e3a9b3a62ecf5d99))
+* **mutations:** check the capability before looking up the target (GHSA-r7m4-3v6c-3435) ([#4443](https://github.com/wp-graphql/wp-graphql/issues/4443)) ([3fb1904](https://github.com/wp-graphql/wp-graphql/commit/3fb1904acff4df00287ef6278fe40438d276a9f9))
+* **mutations:** check the target post before creating a comment (GHSA-4vgv-vvxr-9fh9) ([#4441](https://github.com/wp-graphql/wp-graphql/issues/4441)) ([b9da32b](https://github.com/wp-graphql/wp-graphql/commit/b9da32bd8e6025e19a9b04acaa129978eba71177))
+* **mutations:** limit password reset emails to one per request (GHSA-f5f8-v768-93c8) ([#4444](https://github.com/wp-graphql/wp-graphql/issues/4444)) ([760db55](https://github.com/wp-graphql/wp-graphql/commit/760db555e3e60fbd86c1d96f1689bacfc9265592))
+* **mutations:** restrict updateComment to content for non-moderators (GHSA-cf67-w9ww-p68v) ([#4442](https://github.com/wp-graphql/wp-graphql/issues/4442)) ([db65bab](https://github.com/wp-graphql/wp-graphql/commit/db65bab7181ea485663bfb76ea41a1fe20f9ffe5))
+* **mutations:** stop debug output saying whether an account exists (GHSA-6xw5-35v5-2886) ([#4445](https://github.com/wp-graphql/wp-graphql/issues/4445)) ([fd3789e](https://github.com/wp-graphql/wp-graphql/commit/fd3789edae3b6a98a795dc91c952a864e2f3b366))
+
+## [2.24.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.1...wp-graphql/v2.24.0) (2026-10-14)
+
+
+### New Features
+
+* add a settings review for security-related settings ([#4342](https://github.com/wp-graphql/wp-graphql/issues/4342)) ([5cf9a9d](https://github.com/wp-graphql/wp-graphql/commit/5cf9a9d82fcc781170f12db197505eaf6bce46e0))
+* add publiclyQueryable to Taxonomy, and correct the public description ([#4425](https://github.com/wp-graphql/wp-graphql/issues/4425)) ([0c5f4c4](https://github.com/wp-graphql/wp-graphql/commit/0c5f4c434d9b1bcc1d8401cc269d467224115f7e))
+* turn on query depth limiting for new installs and add a max depth filter ([#4341](https://github.com/wp-graphql/wp-graphql/issues/4341)) ([df8e280](https://github.com/wp-graphql/wp-graphql/commit/df8e280cace3137911f068f64e390839eae33710))
+
+
+### Bug Fixes
+
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340)) ([585ad8a](https://github.com/wp-graphql/wp-graphql/commit/585ad8adc1be848e9adce8a015aea8c4abd81917))
+* report public: false for non-public post types ([#4430](https://github.com/wp-graphql/wp-graphql/issues/4430)) ([62a77a0](https://github.com/wp-graphql/wp-graphql/commit/62a77a0e16882540d0dc423d07c7877b6708218e))
+* report public: false for non-public taxonomies ([#4414](https://github.com/wp-graphql/wp-graphql/issues/4414)) ([319391f](https://github.com/wp-graphql/wp-graphql/commit/319391f06f5edc2fe9df45694f12937f366711e1))
+* show admin notices above the legacy GraphiQL IDE and on the Extensions screen ([#4339](https://github.com/wp-graphql/wp-graphql/issues/4339)) ([95097e0](https://github.com/wp-graphql/wp-graphql/commit/95097e022d1a88c05f78896b45f9c22097e5ade1))
+* stop hiding a taxonomy while serving every term inside it ([#4426](https://github.com/wp-graphql/wp-graphql/issues/4426)) ([8764406](https://github.com/wp-graphql/wp-graphql/commit/8764406c91899ae047b308598b81f831b3d63673))
+
 ## [2.23.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.23.0...wp-graphql/v2.23.1) (2026-09-22)
 
 

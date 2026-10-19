@@ -14,7 +14,7 @@ namespace WPGraphQLIDE\DocumentSettings;
 class Registry {
 
 	/**
-	 * @var Registry|null
+	 * @var \WPGraphQLIDE\DocumentSettings\Registry|null
 	 */
 	private static $instance = null;
 
@@ -23,6 +23,9 @@ class Registry {
 	 */
 	private $fields = [];
 
+	/**
+	 * Get the shared registry instance.
+	 */
 	public static function instance(): self {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -64,6 +67,8 @@ class Registry {
 	}
 
 	/**
+	 * @param string $field_name
+	 *
 	 * @return array<string,mixed>|null
 	 */
 	public function get_field( string $field_name ): ?array {

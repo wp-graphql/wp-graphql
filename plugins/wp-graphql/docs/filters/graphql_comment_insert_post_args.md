@@ -30,7 +30,7 @@ Filter the $insert_post_args
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/CommentMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L113)
+- [`plugins/wp-graphql/src/Data/CommentMutation.php:125`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L125)
 
 ```php
 apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutati
 
 ## Related
 
-- `CommentMutation::prepare_comment_object()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L113)
+- `CommentMutation::prepare_comment_object()` in [`plugins/wp-graphql/src/Data/CommentMutation.php:125`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/CommentMutation.php#L125)

@@ -31,7 +31,7 @@ Fires for each admin notice that is rendered.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/AdminNotices.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L358)
+- [`plugins/wp-graphql/src/Admin/AdminNotices.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L372)
 
 ```php
 do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
@@ -39,4 +39,4 @@ do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dis
 
 ## Related
 
-- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:358`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L358)
+- `AdminNotices::render_notices()` in [`plugins/wp-graphql/src/Admin/AdminNotices.php:372`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/AdminNotices.php#L372)

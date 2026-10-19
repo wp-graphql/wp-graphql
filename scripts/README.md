@@ -201,6 +201,7 @@ node scripts/update-upgrade-notice.js --version=X.Y.Z --plugin-dir=plugins/wp-gr
 2. Extracts breaking changes for the specified version (looks for `### ⚠ BREAKING CHANGES` section)
 3. If breaking changes exist, updates the `== Upgrade Notice ==` section in `readme.txt`
 4. Preserves PR links and scope prefixes (e.g., `**resolver:**`)
+5. Leaves a hand-written notice alone: an existing `= X.Y.Z =` notice is regenerated only when it carries the script's generated marker sentence. Any other notice for that version is kept as written and the skip is logged.
 
 **Example output in readme.txt**:
 ```
@@ -297,6 +298,8 @@ Script tests include:
 | Version formats | Handles both `## [1.0.0]` and `## 1.0.0` formats |
 | Multiple versions | Extracts changes for correct version only |
 | Scope prefixes | Preserves `**scope:**` prefixes in changes |
+| Hand-written notice, breaking release | Keeps a hand-written `= X.Y.Z =` notice instead of overwriting it |
+| Hand-written notice, no breaking changes | Leaves a hand-written notice untouched when there is nothing to add |
 
 ### CI Testing
 

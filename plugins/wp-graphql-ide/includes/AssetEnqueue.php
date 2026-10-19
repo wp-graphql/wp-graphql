@@ -80,6 +80,7 @@ class AssetEnqueue {
 
 		wp_register_script(
 			'graphql',
+			// @phpstan-ignore-next-line -- The stubs type plugins_url() as string, but it never returns an empty one.
 			plugins_url( 'build/graphql.js', WPGRAPHQL_IDE_PLUGIN_FILE ),
 			$graphql_asset_file['dependencies'],
 			$graphql_asset_file['version'],

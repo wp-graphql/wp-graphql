@@ -265,28 +265,6 @@ mutation DeletePost($id: ID!) {
 > [!NOTE]
 > By default, deleting a post moves it to the trash. Use `forceDelete: true` to permanently delete.
 
-#### Managing Post Meta
-```graphql
-mutation UpdatePostMeta($id: ID!) {
-  updatePost(input: {
-    id: $id
-    # Update custom fields
-    customFields: [
-      { key: "my_field", value: "new value" }
-    ]
-  }) {
-    post {
-      id
-      # Query the updated meta
-      customFields {
-        key
-        value
-      }
-    }
-  }
-}
-```
-
 ### Media Operations
 
 #### Creating Media Items
@@ -438,27 +416,6 @@ mutation DeleteUser($id: ID!) {
 > - Ensure proper user capabilities (`delete_users`)
 > - Cannot delete your own user account
 
-#### Managing User Meta
-```graphql
-mutation UpdateUserMeta($id: ID!, $input: UpdateUserInput!) {
-  updateUser(input: {
-    id: $id
-    # Update custom fields
-    customFields: [
-      { key: "user_preference", value: "dark_mode" }
-    ]
-  }) {
-    user {
-      id
-      customFields {
-        key
-        value
-      }
-    }
-  }
-}
-```
-
 ### Comment Operations
 
 #### Creating Comments
@@ -558,6 +515,28 @@ Variables for moderation:
 > - Create new comments (when allowed)
 > - Edit their own comments
 > - Delete their own comments
+>
+> Editing your own comment means its `content`. The fields that decide which node a comment
+> belongs to, who it appears to have been written by, and when, cannot be pointed at anything
+> else without `moderate_comments`: `commentOn`, `author`, `authorEmail`, `authorUrl`, `date`,
+> `parent` and `type`. Sending one of those with the value already stored is allowed, so a client
+> that resubmits a whole form keeps working.
+>
+> One exception worth knowing: leaving `author`, `authorEmail` or `authorUrl` out of the input
+> does not leave them alone. They are filled in from the caller's own account, so an update that
+> sends only `content` also resets the comment's byline to that account's current profile values.
+> This behavior predates the capability rules above and is tracked for a fix.
+
+> [!NOTE]
+> Letting people edit their own comments is a WPGraphQL behavior, not a WordPress one. WordPress
+> maps its `edit_comment` capability to `edit_post` on the node the comment was left on, so in the
+> admin and through the REST API, editing any comment requires being able to edit that content.
+> To turn that off and leave `updateComment` to callers who can moderate comments, which is
+> stricter than WordPress's own rule rather than the same as it:
+>
+> ```php
+> add_filter( 'graphql_comment_author_can_update_own_comment', '__return_false' );
+> ```
 
 ## Working with Mutations
 
@@ -789,35 +768,28 @@ mutation CreatePost($input: CreatePostInput!) {
 1. **Batch Related Changes**
 ```graphql
 # ❌ Avoid: Multiple separate mutations
-mutation UpdatePost($id: ID!) {
-  updatePost(input: { id: $id, title: "New Title" }) {
+mutation UpdatePostTitle($id: ID!, $title: String!) {
+  updatePost(input: { id: $id, title: $title }) {
     post { id }
   }
 }
-mutation UpdateMeta($id: ID!) {
-  updatePost(input: { id: $id, customFields: [{ key: "meta", value: "value" }] }) {
+mutation UpdatePostContent($id: ID!, $content: String!) {
+  updatePost(input: { id: $id, content: $content }) {
     post { id }
   }
 }
 
 # ✅ Better: Single mutation with all changes
-mutation UpdatePost($id: ID!) {
+mutation UpdatePost($id: ID!, $title: String!, $content: String!) {
   updatePost(input: {
     id: $id
-    title: "New Title"
-
-    # NOTE: This is a made up field for the sake of example
-    customFields: [{ key: "meta", value: "value" }]
+    title: $title
+    content: $content
   }) {
     post {
       id
       title
-
-      # NOTE: This is a made up field for the sake of example
-      customFields {
-        key
-        value
-      }
+      content
     }
   }
 }

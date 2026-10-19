@@ -798,6 +798,79 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 	}
 
 	/**
+	 * A field group with the location rule "Post Type is not equal to Post" should show
+	 * on other post types, but not on Post.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4398
+	 */
+	public function testFieldGroupWithPostTypeNotEqualToPostDoesNotShowOnPost() {
+
+		$this->register_acf_field_group([
+			'key'                => 'notOnPostTest',
+			'title'              => 'Not On Post Test',
+			'location'           => [
+				[
+					[
+						'param'    => 'post_type',
+						'operator' => '!=',
+						'value'    => 'post',
+					],
+				],
+			],
+			'show_in_graphql'    => 1,
+			'graphql_field_name' => 'notOnPostTest',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			query GetPage($id:ID!) {
+			  page(id:$id idType:DATABASE_ID) {
+			    databaseId
+			    notOnPostTest {
+			      __typename
+			    }
+			  }
+			}
+			',
+			'variables' => [
+				'id' => $this->published_page->ID,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		// The field group should still show on the other post types
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->published_page->ID, $actual['data']['page']['databaseId'] );
+		$this->assertSame( 'NotOnPostTest', $actual['data']['page']['notOnPostTest']['__typename'] );
+
+		$actual = graphql([
+			'query' => '
+			query GetPost($id:ID!) {
+			  post(id:$id idType:DATABASE_ID) {
+			    databaseId
+			    notOnPostTest {
+			      __typename
+			    }
+			  }
+			}
+			',
+			'variables' => [
+				'id' => $this->published_post->ID,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		// The field group should not be in the Schema for Post, so this should be an error
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Cannot query field "notOnPostTest" on type "Post"', $actual['errors'][0]['message'] );
+
+		acf_remove_local_field_group( 'notOnPostTest' );
+
+	}
+
+	/**
 	 * Test LocationRules::get_rules() returns empty when no mapped field groups.
 	 */
 	public function testGetRulesReturnsEmptyWhenNoMappedFieldGroups(): void {
@@ -900,8 +973,33 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$rules->determine_post_type_rules( 'MyGroup', 'post_type', '!=', 'post' );
 		$result = $rules->get_rules();
 		$this->assertArrayHasKey( 'mygroup', $result );
-		// Adds all show_in_graphql types then unsets Post (unset key format may differ so Post may remain).
 		$this->assertContains( 'Page', $result['mygroup'] );
+		$this->assertNotContains( 'Post', $result['mygroup'] );
+	}
+
+	public function testDeterminePostTypeRulesNotEqualsPostWithMultiWordGroupName(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_post_type_rules( 'My Field Group', 'post_type', '!=', 'post' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'myfieldgroup', $result );
+		$this->assertContains( 'Page', $result['myfieldgroup'] );
+		$this->assertNotContains( 'Post', $result['myfieldgroup'] );
+	}
+
+	/**
+	 * A field group whose removal has nothing to remove from must not stop
+	 * removals for the field groups processed after it.
+	 */
+	public function testGetRulesUnsetForUnmappedGroupDoesNotSkipOtherGroups(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		// "Attachment != all" only removes, so groupa has a removal but no mapped types.
+		// Lowercase names keep this independent of the add/remove key casing.
+		$rules->determine_attachment_rules( 'groupa', 'attachment', '!=', 'all' );
+		$rules->determine_post_type_rules( 'groupb', 'post_type', '!=', 'post' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'groupb', $result );
+		$this->assertContains( 'Page', $result['groupb'] );
+		$this->assertNotContains( 'Post', $result['groupb'] );
 	}
 
 	// --- determine_post_template_rules ---
@@ -917,7 +1015,7 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$rules->determine_post_template_rules( 'MyGroup', 'page_template', '!=', 'default' );
 		$result = $rules->get_rules();
 		$this->assertArrayHasKey( 'mygroup', $result );
-		$this->assertContains( 'DefaultTemplate', $result['mygroup'] );
+		$this->assertNotContains( 'DefaultTemplate', $result['mygroup'] );
 	}
 
 	// --- determine_page_type_rules ---
@@ -948,8 +1046,7 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$rules->determine_attachment_rules( 'MyGroup', 'attachment', '!=', 'all' );
 		$result = $rules->get_rules();
 		$this->assertArrayHasKey( 'mygroup', $result );
-		// unset_graphql_type is called; key format may not match so MediaItem may remain.
-		$this->assertIsArray( $result['mygroup'] );
+		$this->assertNotContains( 'MediaItem', $result['mygroup'] );
 	}
 
 	// --- determine_comment_rules ---
@@ -966,8 +1063,7 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$rules->determine_comment_rules( 'MyGroup', 'comment', '!=', 'all' );
 		$result = $rules->get_rules();
 		$this->assertArrayHasKey( 'mygroup', $result );
-		// unset_graphql_type is called; key format may not match so Comment may remain.
-		$this->assertIsArray( $result['mygroup'] );
+		$this->assertNotContains( 'Comment', $result['mygroup'] );
 	}
 
 	public function testDetermineCommentRulesNotEqualsOther(): void {
@@ -990,6 +1086,15 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$this->assertSame( [ 'mygroup' => [ 'Menu' ] ], $rules->get_rules() );
 	}
 
+	public function testDetermineNavMenuRulesNotEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'MyGroup', 'Menu' );
+		$rules->determine_nav_menu_rules( 'MyGroup', 'nav_menu', '!=', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertNotContains( 'Menu', $result['mygroup'] );
+	}
+
 	// --- determine_nav_menu_item_item_rules ---
 
 	public function testDetermineNavMenuItemRulesEquals(): void {
@@ -1002,6 +1107,15 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
 		$rules->determine_nav_menu_item_item_rules( 'MyGroup', 'nav_menu_item', '!=', '123' );
 		$this->assertSame( [ 'mygroup' => [ 'MenuItem' ] ], $rules->get_rules() );
+	}
+
+	public function testDetermineNavMenuItemRulesNotEqualsAll(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->set_graphql_type( 'MyGroup', 'MenuItem' );
+		$rules->determine_nav_menu_item_item_rules( 'MyGroup', 'nav_menu_item', '!=', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertNotContains( 'MenuItem', $result['mygroup'] );
 	}
 
 	// --- determine_taxonomy_rules ---
@@ -1025,6 +1139,66 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$this->assertArrayHasKey( 'mygroup', $result );
 		$this->assertContains( 'Tag', $result['mygroup'] );
 		$this->assertContains( 'Category', $result['mygroup'] );
+	}
+
+	public function testDetermineTaxonomyRulesNotEqualsCategory(): void {
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_taxonomy_rules( 'MyGroup', 'taxonomy', '!=', 'category' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'Tag', $result['mygroup'] );
+		$this->assertNotContains( 'Category', $result['mygroup'] );
+	}
+
+	// --- determine_block_rules ---
+
+	public function testDetermineBlockRulesNotEqualsBlock(): void {
+		if ( ! function_exists( 'acf_register_block_type' ) ) {
+			$this->markTestSkipped( 'ACF Blocks are not available in this test environment' );
+		}
+
+		foreach ( [ 'not-equal-block-one' => 'NotEqualBlockOne', 'not-equal-block-two' => 'NotEqualBlockTwo' ] as $name => $graphql_name ) {
+			// The block registry persists across tests, so only register once
+			if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'acf/' . $name ) ) {
+				acf_register_block_type( [
+					'name'               => $name,
+					'title'              => $graphql_name,
+					'show_in_graphql'    => true,
+					'graphql_field_name' => $graphql_name,
+				] );
+			}
+		}
+
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_block_rules( 'MyGroup', 'block', '!=', 'acf/not-equal-block-one' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'NotEqualBlockTwo', $result['mygroup'] );
+		$this->assertNotContains( 'NotEqualBlockOne', $result['mygroup'] );
+	}
+
+	// --- determine_options_rules ---
+
+	public function testDetermineOptionsRulesNotEqualsOptionsPage(): void {
+		if ( ! function_exists( 'acf_add_options_page' ) ) {
+			$this->markTestSkipped( 'ACF Options Pages are not available in this test environment' );
+		}
+
+		foreach ( [ 'not-equal-options-one' => 'NotEqualOptionsOne', 'not-equal-options-two' => 'NotEqualOptionsTwo' ] as $slug => $graphql_name ) {
+			acf_add_options_page( [
+				'page_title'        => $graphql_name,
+				'menu_slug'         => $slug,
+				'show_in_graphql'   => true,
+				'graphql_type_name' => $graphql_name,
+			] );
+		}
+
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_options_rules( 'MyGroup', 'options_page', '!=', 'not-equal-options-one' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'NotEqualOptionsTwo', $result['mygroup'] );
+		$this->assertNotContains( 'NotEqualOptionsOne', $result['mygroup'] );
 	}
 
 	// --- determine_post_rules ---

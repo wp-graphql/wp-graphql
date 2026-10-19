@@ -234,7 +234,7 @@ Stable tag: 2.0.0
 
 = 3.0.0 =
 
-**⚠️ BREAKING CHANGES**: Old notice content.
+**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
 
 * Old breaking change
 
@@ -273,6 +273,113 @@ Please review these changes before upgrading.
 			assert(
 				readme.includes('= 2.0.0 ='),
 				'Should preserve the existing 2.0.0 changelog entry'
+			);
+		}),
+
+	// Test 4b: Regression — a hand-written upgrade notice must survive a
+	// release that carries breaking changes (#4464). The script rewrites the
+	// Upgrade Notice section on every breaking release; before the fix it
+	// replaced any `= X.Y.Z =` block it found, silently discarding prose an
+	// author wrote by hand in the feature PR.
+	() =>
+		test('preserves a hand-written upgrade notice when the changelog has breaking changes', () => {
+			createChangelog(`# Changelog
+
+## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v3.0.0) (2026-01-20)
+
+### ⚠ BREAKING CHANGES
+
+* New breaking change ([#127](https://github.com/wp-graphql/wp-graphql/pull/127))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 2.0.0
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+This notice was written by hand in the feature PR. Do not lose it.
+
+== Changelog ==
+
+= 2.0.0 =
+* Initial release
+`);
+
+			const result = runScript('3.0.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+			assert(
+				result.output.includes('appears hand-written'),
+				'Should report that the notice was treated as hand-written'
+			);
+
+			const readme = readReadme();
+			assert(
+				readme.includes(
+					'This notice was written by hand in the feature PR. Do not lose it.'
+				),
+				'Must preserve the hand-written notice prose'
+			);
+			assert(
+				!readme.includes('New breaking change'),
+				'Must NOT overwrite the hand-written notice with generated content'
+			);
+			assert(
+				!readme.includes(
+					'This release contains breaking changes that may require updates to your code.'
+				),
+				'Must NOT inject generated boilerplate into a hand-written notice'
+			);
+			assert(
+				readme.includes('== Changelog =='),
+				'Must preserve the Changelog section'
+			);
+		}),
+
+	// Test 4c: The early return for a release with no breaking changes must
+	// also leave a hand-written notice untouched — nothing may be rewritten.
+	() =>
+		test('leaves a hand-written upgrade notice alone when there are no breaking changes', () => {
+			createChangelog(`# Changelog
+
+## [2.1.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v2.1.0) (2026-01-20)
+
+### Features
+
+* Add new feature ([#125](https://github.com/wp-graphql/wp-graphql/pull/125))
+`);
+
+			createReadme(`=== Test Plugin ===
+Stable tag: 2.0.0
+
+== Upgrade Notice ==
+
+= 2.1.0 =
+Hand-written note for the upcoming 2.1.0 release.
+
+== Changelog ==
+
+= 2.0.0 =
+* Initial release
+`);
+
+			const result = runScript('2.1.0');
+			assert(result.success, `Script should succeed. Output: ${result.output}`);
+			assert(
+				result.output.includes('No breaking changes'),
+				'Should report no breaking changes'
+			);
+
+			const readme = readReadme();
+			assert(
+				readme.includes('Hand-written note for the upcoming 2.1.0 release.'),
+				'Must leave the hand-written notice untouched'
+			);
+			assert(
+				!readme.includes(
+					'This release contains breaking changes that may require updates to your code.'
+				),
+				'Must NOT inject generated boilerplate'
 			);
 		}),
 
@@ -405,9 +512,12 @@ Stable tag: 4.5.0
 == Upgrade Notice ==
 
 = 5.0.0 =
-Hand-written upgrade-notice paragraph from the feature PR.
 
-WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
+**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
+
+* Old generated notice entry.
+
+Please review these changes before upgrading.
 
 == Changelog ==
 
@@ -474,7 +584,12 @@ Stable tag: 2.0.0
 == Upgrade Notice ==
 
 = 3.0.0 =
-Old hand-written notice for 3.0.0.
+
+**⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
+
+* Old generated notice entry.
+
+Please review these changes before upgrading.
 
 ==Changelog==
 

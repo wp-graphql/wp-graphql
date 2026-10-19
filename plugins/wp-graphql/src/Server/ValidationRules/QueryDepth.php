@@ -199,7 +199,7 @@ class QueryDepth extends QuerySecurityRule {
 		 * @param int $max_depth The max query depth. 0 means no limit.
 		 *
 		 * @hookGroup request-lifecycle
-		 * @since x-release-please-version
+		 * @since 2.24.0
 		 */
 		$filtered_max_depth = apply_filters( 'graphql_query_depth_max', $max_depth );
 
