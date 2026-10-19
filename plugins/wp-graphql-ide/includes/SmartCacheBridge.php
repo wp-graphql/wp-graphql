@@ -109,7 +109,7 @@ class SmartCacheBridge {
 		$existing_supports = isset( $args['supports'] ) && is_array( $args['supports'] )
 			? $args['supports']
 			: [ 'title', 'editor', 'author' ];
-		$args['supports'] = array_values(
+		$args['supports']  = array_values(
 			array_unique(
 				array_merge(
 					$existing_supports,

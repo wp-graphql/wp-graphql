@@ -56,6 +56,30 @@ Tests and PHP linting run inside the wp-env Docker containers and are invoked pe
 | Smart Cache | `@wpgraphql/wp-graphql-smart-cache` |
 | ACF | `@wpgraphql/wp-graphql-acf` |
 
+### Bumping `@wordpress/env` means regenerating its patch
+
+`patches/@wordpress+env+<version>.patch` is applied by `patch-package` from the root
+`postinstall`, and **the version in its filename must match the installed version**.
+Bump `@wordpress/env` without regenerating the patch and `npm ci` exits 1 before any
+job gets started, which looks like the whole matrix breaking for no reason: the only
+clue in the log is `npm error command sh -c patch-package`.
+
+So the bump and the regenerated patch go in the same commit, never separately, or
+whichever lands first breaks `main`. To regenerate, install the new version, reapply
+the patch's changes to `node_modules/@wordpress/env`, and run
+`npx patch-package @wordpress/env`, then delete the patch named for the old version.
+
+The patch currently removes the container's global `composer require phpunit`
+install, because each plugin's tests run their own `vendor/bin/codecept` and the
+zipball download was a recurring CI flake (#4268). Check whether what it carries has
+landed upstream before reapplying it: the Debian bullseye apt-source rewrite it used
+to also carry is in `@wordpress/env` 11.16.0 itself, so it no longer belongs in the
+patch.
+
+This bites the grouped dev-dependency PR every time `@wordpress/env` moves, which is
+often (11.14.0, 11.16.0 and 11.17.0 all within a week), so the whole group arrives
+red until the patch is redone.
+
 ### Workflow logic lives in `scripts/`, not inlined in YAML
 
 Non-trivial logic a GitHub Actions workflow needs belongs in a committed script (`scripts/*.js`) that the workflow *calls*, not in an inline `run:` block or a `node - <<'NODE'` heredoc. A one-line `sed`/`grep` or a straight tool invocation is fine inline; anything with branching, parsing, or JSON manipulation goes in a script. This keeps the logic testable, reviewable, and runnable locally.
@@ -89,6 +113,24 @@ The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcil
 - You don't regenerate or commit the generated hook docs yourself — the release-please flow (`update-release-pr.yml`) regenerates them when a release PR is cut, which is also when `x-release-please-version` placeholders resolve. Your job is a complete, correct docblock at the call site.
 
 ## Development Workflow
+
+- **Branch from an up-to-date `origin/main`, never from whatever happens to be checked out.**
+
+  ```bash
+  git fetch origin main
+  git switch -c <type>/<short-name> origin/main
+  ```
+
+  PRs are squash-merged, so a branch cut from another branch folds that branch's **entire** diff into one commit under your subject. Three things go wrong at once: the other work reaches `main` without being reviewed on its own PR, that PR is left with an empty diff, and release-please attributes everything to your commit type, so a `ci:`, `docs:` or `chore:` subject means the folded-in work gets no changelog entry and ships unannounced.
+
+  Before opening a PR, confirm the diff is only yours:
+
+  ```bash
+  git fetch -q origin main
+  git diff --stat origin/main...HEAD
+  ```
+
+  If that lists files you did not touch, you branched from the wrong place. Re-create the branch from `origin/main` and move only your own commits onto it. Deliberately stacking a PR on another is fine when it is intentional, but say so in the PR description and target the parent branch, not `main`.
 
 - **Every bug fix ships with a regression test.** A fix is not done until a test that fails before the fix and passes after it is committed alongside the change. No fix-only commits for reproducible bugs.
 - **Test the widest user-facing surface first.** Prefer the test that exercises the software the way a user does — e2e (Playwright) and integration/functional/acceptance (Codeception) — over a narrow unit test. Reach for the broadest layer that can reproduce the bug; reproduce it there first. Unit tests are valuable and we want them, but the core priority is proving the software works as a whole, not that one function does. When a unit test is faster or more precise for the specific logic, add it _in addition to_ — not _instead of_ — the surface-level test.

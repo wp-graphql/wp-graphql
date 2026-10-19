@@ -1219,6 +1219,143 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertTrue( $was_reset_successful );
 	}
 
+	/**
+	 * Counts the emails a callable causes to be sent.
+	 *
+	 * @param callable $callback The code to run.
+	 */
+	protected function countEmailsSentBy( callable $callback ): int {
+		$sent    = 0;
+		$counter = static function () use ( &$sent ) {
+			++$sent;
+			return true; // short-circuit wp_mail so nothing is actually delivered
+		};
+
+		add_filter( 'pre_wp_mail', $counter, 10, 2 );
+		$callback();
+		remove_filter( 'pre_wp_mail', $counter, 10 );
+
+		return $sent;
+	}
+
+	/**
+	 * Hardening for GHSA-f5f8-v768-93c8. One operation can invoke the mutation many
+	 * times with aliases, and the request layer's batch limit counts batch entries
+	 * rather than aliases, so it cannot see them. Without a limit in the resolver,
+	 * a single unauthenticated request sends an email per alias.
+	 */
+	public function testAliasedPasswordResetsSendOneEmailPerRequest() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$query = '
+		mutation {
+			a: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+			b: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+			c: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+		}
+		';
+
+		$actual = null;
+		$sent   = $this->countEmailsSentBy(
+			function () use ( $query, &$actual ) {
+				$actual = $this->graphql( [ 'query' => $query ] );
+			}
+		);
+
+		$this->assertSame( 1, $sent, 'Three aliases must send one email, not three' );
+		$this->assertCount( 2, $actual['errors'], 'The two surplus aliases must be rejected rather than silently dropped' );
+	}
+
+	/**
+	 * The limit must not become the enumeration oracle it is meant to prevent. If
+	 * the count were kept when an email is *sent* rather than when the mutation is
+	 * *invoked*, the surplus aliases would error only for accounts that exist, and
+	 * the error itself would answer "does this account exist".
+	 */
+	public function testAliasLimitBehavesTheSameForAccountsThatDoNotExist() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$aliased = function ( string $who ) {
+			return $this->graphql(
+				[
+					'query' => '
+					mutation {
+						a: sendPasswordResetEmail( input: { username: "' . $who . '" } ) { success }
+						b: sendPasswordResetEmail( input: { username: "' . $who . '" } ) { success }
+					}
+					',
+				]
+			);
+		};
+
+		$exists  = $aliased( $username );
+		$missing = $aliased( 'no-such-user-at-all' );
+
+		$messages = static function ( array $result ): array {
+			return array_map(
+				static function ( $error ) {
+					return $error['message'];
+				},
+				$result['errors'] ?? []
+			);
+		};
+
+		$this->assertSame( $messages( $exists ), $messages( $missing ), 'The alias limit must produce identical errors either way' );
+		$this->assertSame( $exists['data'], $missing['data'], 'The payload must be identical either way' );
+	}
+
+	/**
+	 * The limit is per request, so ordinary use is unaffected: a user who asks for
+	 * a reset twice, or an administrator resending one, still gets an email each
+	 * time. Only piling them into a single request is limited.
+	 */
+	public function testSeparateRequestsEachSendAnEmail() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		$sent = $this->countEmailsSentBy(
+			function () use ( $username ) {
+				$this->sendPasswordResetEmailMutation( $username );
+				$this->sendPasswordResetEmailMutation( $username );
+			}
+		);
+
+		$this->assertSame( 2, $sent, 'Separate requests must not be throttled against each other' );
+	}
+
+	/**
+	 * The limit is filterable, so a site that genuinely wants several per request
+	 * can raise it.
+	 */
+	public function testAliasLimitIsFilterable() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter(
+			'graphql_allowed_password_reset_emails_per_request',
+			static function () {
+				return 3;
+			}
+		);
+
+		$sent = $this->countEmailsSentBy(
+			function () use ( $username ) {
+				$this->graphql(
+					[
+						'query' => '
+						mutation {
+							a: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+							b: sendPasswordResetEmail( input: { username: "' . $username . '" } ) { success }
+						}
+						',
+					]
+				);
+			}
+		);
+
+		remove_all_filters( 'graphql_allowed_password_reset_emails_per_request' );
+
+		$this->assertSame( 2, $sent, 'Raising the limit must allow more emails in one request' );
+	}
+
 	public function sendPasswordResetEmailMutation( $username ) {
 		$query = '
 		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
@@ -1242,7 +1379,10 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testSendPasswordResetEmailWithInvalidUsername() {
 		$username = 'userDoesNotExist';
-		// Run the mutation, passing in an invalid username.
+
+		// A caller who can list users can already enumerate accounts, so they are told the reason.
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
 		// This should return successful with a notice in the log.
@@ -1250,6 +1390,153 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
 		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
+	}
+
+	/**
+	 * The mutation returns the same payload whether or not the account exists, so that the
+	 * response cannot be used to discover who has an account. `extensions.debug` is attached to
+	 * every response when debugging is on, anonymous ones included, so the debug output has to be
+	 * the same too.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testSendPasswordResetEmailDebugOutputDoesNotRevealWhetherAnAccountExists() {
+		$subscriber = get_userdata( $this->subscriber );
+
+		$targets = [
+			'an account that does not exist' => 'userDoesNotExist',
+			'an email that does not exist'   => 'nobody@example.test',
+			'an existing username'           => $subscriber->user_login,
+			'an existing email'              => $subscriber->user_email,
+		];
+
+		wp_set_current_user( 0 );
+
+		$debug = [];
+
+		foreach ( $targets as $label => $username ) {
+			$actual = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $actual, sprintf( 'The mutation must succeed for %s.', $label ) );
+			$this->assertTrue( $actual['data']['sendPasswordResetEmail']['success'], sprintf( 'The mutation must report success for %s.', $label ) );
+
+			$debug[ $label ] = wp_json_encode( $actual['extensions']['debug'] ?? [] );
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $debug ),
+			'An anonymous caller must get the same debug output whether or not the account exists: ' . wp_json_encode( $debug )
+		);
+	}
+
+	/**
+	 * A site that wants the reason in its public debug output can lower the capability.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testSendPasswordResetEmailDebugCapabilityIsFilterable() {
+		$lower_capability = static function () {
+			return 'read';
+		};
+		add_filter( 'graphql_password_reset_debug_capability', $lower_capability );
+
+		try {
+			wp_set_current_user( $this->subscriber );
+
+			$actual = $this->sendPasswordResetEmailMutation( 'userDoesNotExist' );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
+		} finally {
+			remove_filter( 'graphql_password_reset_debug_capability', $lower_capability );
+		}
+	}
+
+	/**
+	 * The other two debug_reason() call sites are reached only after the account has been
+	 * found, so a message on either proves the account exists. That is the enumeration
+	 * oracle of GHSA-6xw5-35v5-2886 with its polarity reversed: silence would mean no
+	 * account, a message would mean there is one. Each is pinned in both directions, silent
+	 * for a caller who is not entitled to the reason and reported for one who is.
+	 *
+	 * This covers the key-generation branch. get_password_reset_key() returns a WP_Error
+	 * when resets are not allowed for the account.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testPasswordResetKeyFailureIsNotReportedToCallersWhoCannotListUsers() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter( 'allow_password_reset', '__return_false' );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty(
+				$anonymous['extensions']['debug'] ?? [],
+				'A failure that can only happen for an account that exists must not be reported to an anonymous caller.'
+			);
+
+			// A caller who can already enumerate accounts is told what went wrong.
+			wp_set_current_user( $this->admin );
+
+			$entitled = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertSame(
+				'Unable to generate a password reset key.',
+				$entitled['extensions']['debug'][0]['message'] ?? null,
+				'A caller who holds list_users must still be told why no email was sent.'
+			);
+		} finally {
+			remove_filter( 'allow_password_reset', '__return_false' );
+		}
+	}
+
+	/**
+	 * The same for the send branch. wp_mail() is short-circuited with a WP_Error through
+	 * `pre_wp_mail`, which is the reachable shape of this branch: core's wp_mail() returns
+	 * `false` when sending fails, so `is_wp_error()` is true only when something has
+	 * replaced the send, as a mail plugin or a host integration does.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testEmailSendFailureIsNotReportedToCallersWhoCannotListUsers() {
+		$username  = get_userdata( $this->subscriber )->user_login;
+		$fail_mail = static function () {
+			return new \WP_Error( 'wp_mail_failed', 'mail() is disabled on this host' );
+		};
+
+		add_filter( 'pre_wp_mail', $fail_mail );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty(
+				$anonymous['extensions']['debug'] ?? [],
+				'A send failure only happens for an account that exists, so it must not be reported to an anonymous caller.'
+			);
+
+			wp_set_current_user( $this->admin );
+
+			$entitled = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertStringContainsString(
+				'The email could not be sent.',
+				$entitled['extensions']['debug'][0]['message'] ?? '',
+				'A caller who holds list_users must still be told why no email was sent.'
+			);
+		} finally {
+			remove_filter( 'pre_wp_mail', $fail_mail );
+		}
 	}
 
 	public function testSendPasswordResetEmailWithUsername() {
@@ -1458,4 +1745,53 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 */
 	$this->assertFalse( $was_password_change_email_sent );
 }
+
+	/**
+	 * updateUser looked the account up before checking whether the caller may edit it, so the
+	 * error said whether a user ID existed.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/security/advisories/GHSA-5292-vhjr-6cwg
+	 */
+	public function testUpdateUserDoesNotDiscloseWhichIdsExist() {
+		$existing = $this->factory()->user->create( [ 'role' => 'author' ] );
+
+		$query = 'mutation updateUser( $id: ID! ) { updateUser( input: { id: $id, firstName: "edited" } ) { user { databaseId } } }';
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( [ 'nonexistent' => 99999999, 'exists' => $existing ] as $label => $id ) {
+			$actual = $this->graphql( [ 'query' => $query, 'variables' => [ 'id' => (string) $id ] ] );
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not update the %s user.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every user ID: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * The `edit_user` capability resolves from the ID alone, so moving it above the lookup must
+	 * not stop someone editing their own account.
+	 */
+	public function testUpdateUserStillLetsSomeoneEditTheirOwnAccount() {
+		$subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
+
+		wp_set_current_user( $subscriber );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'mutation updateUser( $id: ID! ) { updateUser( input: { id: $id, firstName: "Mine" } ) { user { databaseId firstName } } }',
+				'variables' => [ 'id' => (string) $subscriber ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'A user must still be able to edit their own account.' );
+		$this->assertSame( 'Mine', $actual['data']['updateUser']['user']['firstName'] );
+	}
 }

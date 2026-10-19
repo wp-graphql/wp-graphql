@@ -7,6 +7,36 @@ use GraphQL\Error\UserError;
 class SendPasswordResetEmail {
 
 	/**
+	 * The most password reset emails one GraphQL request may send.
+	 *
+	 * A single operation can invoke this mutation many times with aliases, and a
+	 * batch can carry many operations, so the request layer's batch limit cannot
+	 * see them. This is counted in the resolver instead.
+	 */
+	public const DEFAULT_MAX_EMAILS_PER_REQUEST = 1;
+
+	/**
+	 * How many times the current request has invoked the mutation.
+	 *
+	 * Attempts are counted, not emails, so the limit behaves the same way whether
+	 * or not the account exists.
+	 *
+	 * @var int
+	 */
+	private static $attempts_this_request = 0;
+
+	/**
+	 * The request the count above belongs to.
+	 *
+	 * Identified by the AppContext, which `Request` constructs once per request and
+	 * passes to every resolver, so a batch of operations shares one. Keying on it
+	 * avoids depending on when an action fires relative to schema building.
+	 *
+	 * @var int|null
+	 */
+	private static $counted_request = null;
+
+	/**
 	 * Registers the sendPasswordResetEmail Mutation
 	 *
 	 * @return void
@@ -61,17 +91,66 @@ class SendPasswordResetEmail {
 	}
 
 	/**
+	 * Records an invocation against the current request and returns the running total.
+	 *
+	 * @param \WPGraphQL\AppContext $context The request's app context.
+	 */
+	private static function count_attempt( $context ): int {
+		$request = is_object( $context ) ? spl_object_id( $context ) : 0;
+
+		if ( self::$counted_request !== $request ) {
+			self::$counted_request       = $request;
+			self::$attempts_this_request = 0;
+		}
+
+		return ++self::$attempts_this_request;
+	}
+
+	/**
+	 * The most password reset emails this request may send.
+	 */
+	private static function get_max_emails_per_request(): int {
+		/**
+		 * Filters how many password reset emails a single GraphQL request may send.
+		 *
+		 * A request can ask for many by aliasing the mutation, and the batch limit
+		 * counts batch entries rather than aliases, so the limit is applied here.
+		 * Requests past the limit are rejected with an error rather than silently
+		 * dropped. The error does not depend on whether the account exists.
+		 *
+		 * @param int $max The maximum number of emails per request. Default 1.
+		 *
+		 * @since 2.24.1
+		 * @hookGroup authentication
+		 */
+		$max = (int) apply_filters( 'graphql_allowed_password_reset_emails_per_request', self::DEFAULT_MAX_EMAILS_PER_REQUEST );
+
+		return max( 1, $max );
+	}
+
+	/**
 	 * Defines the mutation data modification closure.
 	 *
 	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload(): callable {
-		return static function ( $input ) {
+		return static function ( $input, $context ) {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( esc_html__( 'Enter a username or email address.', 'wp-graphql' ) );
 			}
 
-			// We obsfucate the actual success of this mutation to prevent user enumeration.
+			// Counted before the account is resolved, so the error cannot depend on
+			// whether the account exists. Surplus aliases are rejected rather than
+			// silently dropped, so a legitimate client is told what happened.
+			// Counted here rather than where the email is sent. Counting sends would
+			// make the limit bite only for accounts that exist, turning this error
+			// into the enumeration oracle it is meant to avoid.
+			if ( self::count_attempt( $context ) > self::get_max_emails_per_request() ) {
+				throw new UserError( esc_html__( 'Too many password reset requests in one request. Send them separately.', 'wp-graphql' ) );
+			}
+
+			// The result of this mutation is deliberately the same whether or not the
+			// account exists, so it cannot be used to discover who has an account.
 			$payload = [
 				'success' => true,
 				'id'      => null,
@@ -80,7 +159,7 @@ class SendPasswordResetEmail {
 			$user_data = self::get_user_data( $input['username'] );
 
 			if ( ! $user_data ) {
-				graphql_debug( self::get_user_not_found_error_message( $input['username'] ) );
+				self::debug_reason( self::get_user_not_found_error_message( $input['username'] ) );
 
 				return $payload;
 			}
@@ -88,7 +167,7 @@ class SendPasswordResetEmail {
 			// Get the password reset key.
 			$key = get_password_reset_key( $user_data );
 			if ( is_wp_error( $key ) ) {
-				graphql_debug( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
+				self::debug_reason( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
 
 				return $payload;
 			}
@@ -105,7 +184,7 @@ class SendPasswordResetEmail {
 
 			// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
 			if ( is_wp_error( $email_sent ) ) {
-				graphql_debug( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
+				self::debug_reason( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
 
 				return $payload;
 			}
@@ -237,5 +316,44 @@ class SendPasswordResetEmail {
 		 * @param \WP_User $user_data WP_User object.
 		 */
 		return (string) apply_filters( 'retrieve_password_message', $message, $key, $user_data->user_login, $user_data );
+	}
+
+	/**
+	 * Surfaces why no password reset email was sent, to callers entitled to know.
+	 *
+	 * Every reason this mutation can give is specific to one account: that no such account
+	 * exists, that a reset key could not be generated for it, or that mail to it failed. The
+	 * mutation deliberately returns the same payload either way so it cannot be used to discover
+	 * who has an account, but `extensions.debug` is attached to the response of every caller when
+	 * debugging is enabled, anonymous ones included, so a reason that varies with the account puts
+	 * the answer back in the response.
+	 *
+	 * Callers who are not entitled to the reason get no message at all. A generic message would
+	 * read better but would only be emitted on the branches that fail, which leaves the same
+	 * oracle: a message means no email went out, silence means one did.
+	 *
+	 * @param string $message The reason to surface.
+	 */
+	private static function debug_reason( string $message ): void {
+		/**
+		 * Filters the capability a caller needs to be told why no password reset email was sent.
+		 *
+		 * The default is `list_users` because a caller who holds it can already enumerate accounts
+		 * through WordPress itself, so the reason tells them nothing they could not look up
+		 * directly. By default only administrators hold it. Lower it to open the debug output up,
+		 * for example while developing against the anonymous flow.
+		 *
+		 * @param string $capability The capability required to see the reason. Default 'list_users'.
+		 *
+		 * @since 2.24.1
+		 * @hookGroup authentication
+		 */
+		$capability = (string) apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );
+
+		if ( ! current_user_can( $capability ) ) {
+			return;
+		}
+
+		graphql_debug( $message );
 	}
 }

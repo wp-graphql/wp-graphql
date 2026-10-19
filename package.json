@@ -20,7 +20,7 @@
 		"format": "wp-scripts format",
 		"start": "turbo run start",
 		"test": "turbo run test",
-		"test:scripts": "node scripts/extract-release-version-info.test.js && node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/reconcile-release-manifest.test.js && node scripts/hooks/generate-hook-docs.test.js && node scripts/hooks/replace-legacy-hook-versions.test.js && node scripts/functions/generate-function-docs.test.js && node scripts/recipes/recipe-relations.test.js && node scripts/recipes/generate-recipe-docs.test.js",
+		"test:scripts": "node scripts/extract-release-version-info.test.js && node scripts/update-upgrade-notice.test.js && node scripts/update-version-constants.test.js && node scripts/update-readme-changelog.test.js && node scripts/reconcile-release-manifest.test.js && node scripts/sync-board-from-prs.test.js && node scripts/hooks/generate-hook-docs.test.js && node scripts/hooks/replace-legacy-hook-versions.test.js && node scripts/functions/generate-function-docs.test.js && node scripts/recipes/recipe-relations.test.js && node scripts/recipes/generate-recipe-docs.test.js",
 		"hooks:generate": "node scripts/hooks/generate-hook-docs.js",
 		"hooks:check-legacy": "node scripts/hooks/check-legacy-coverage.js",
 		"functions:generate": "node scripts/functions/generate-function-docs.js",
@@ -37,13 +37,13 @@
 		"prepare": "husky install"
 	},
 	"devDependencies": {
-		"@wordpress/env": "11.14.0",
-		"@wordpress/prettier-config": "^4.54.0",
+		"@wordpress/env": "11.17.0",
+		"@wordpress/prettier-config": "^4.57.0",
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.5.0",
+		"lint-staged": "^17.6.0",
 		"patch-package": "8.0.1",
-		"turbo": "^2.10.12",
+		"turbo": "^2.11.7",
 		"turndown": "^7.2.4"
 	}
 }

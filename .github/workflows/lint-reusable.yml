@@ -45,7 +45,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
         with:
           php-version: '8.3'
           coverage: none
@@ -60,7 +60,11 @@ jobs:
       - name: Cache PHPCS scan cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.3
         with:
-          path: ./tests/_output/phpcs-cache.json
+          # `actions/cache` resolves a relative path against the repository
+          # root, not this job's working-directory, so the path must be
+          # explicit. The filename must match the `cache` arg in
+          # phpcs.xml.dist (tests/_output/cache.json), or nothing is stored.
+          path: ${{ inputs.plugin_path }}/tests/_output/cache.json
           # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
           key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path), 'phpcs/WPGraphQL/PHPCS/**') }}
 
@@ -110,7 +114,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
         with:
           php-version: '8.3'
           coverage: none
@@ -125,10 +129,10 @@ jobs:
       - name: Cache PHP Static Analysis scan cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.3
         with:
-          path: ${{ inputs.plugin_path }}/tests/_output # This is defined in the base.neon file.
-          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+          path: ${{ inputs.plugin_path }}/tests/_output # Holds tmpDir (tests/_output/phpstan) from each plugin's phpstan.neon.dist.
+          key: 'phpstan-result-cache-${{ inputs.plugin_name }}-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
           restore-keys: |
-            phpstan-result-cache-
+            phpstan-result-cache-${{ inputs.plugin_name }}-${{ runner.os }}-
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6 # v3.1.1
@@ -150,7 +154,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           path: ${{ inputs.plugin_path }}/tests/_output
-          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+          key: 'phpstan-result-cache-${{ inputs.plugin_name }}-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
 
   # Runs JavaScript linting checks.
   #
@@ -175,7 +179,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'

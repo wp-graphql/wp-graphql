@@ -26,7 +26,7 @@ Given a message and an optional config array
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:803`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L803)
+- [`plugins/wp-graphql/access-functions.php:847`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L847)
 
 ```php
 function graphql_debug( $message, $config = [] ): void {
