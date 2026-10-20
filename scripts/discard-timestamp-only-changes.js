@@ -85,7 +85,9 @@ function stripTimestamps(content) {
  *                   timestamps are blanked.
  */
 function isTimestampOnlyChange(before, after) {
-	return before !== after && stripTimestamps(before) === stripTimestamps(after);
+	return (
+		before !== after && stripTimestamps(before) === stripTimestamps(after)
+	);
 }
 
 function git(args, cwd) {
@@ -124,7 +126,9 @@ function discardTimestampOnlyChanges({ paths, cwd, log = console.log }) {
 			before = git(['show', `HEAD:${file}`], cwd);
 			after = fs.readFileSync(path.join(cwd, file), 'utf8');
 		} catch (error) {
-			log(`Could not compare ${file}, leaving it changed: ${error.message}`);
+			log(
+				`Could not compare ${file}, leaving it changed: ${error.message}`
+			);
 			result.skipped.push(file);
 			return;
 		}
@@ -139,7 +143,9 @@ function discardTimestampOnlyChanges({ paths, cwd, log = console.log }) {
 			log(`Restored ${file}: only its generation timestamp changed.`);
 			result.restored.push(file);
 		} catch (error) {
-			log(`Could not restore ${file}, leaving it changed: ${error.message}`);
+			log(
+				`Could not restore ${file}, leaving it changed: ${error.message}`
+			);
 			result.skipped.push(file);
 		}
 	});
@@ -190,4 +196,8 @@ if (require.main === module) {
 	main();
 }
 
-module.exports = { stripTimestamps, isTimestampOnlyChange, discardTimestampOnlyChanges };
+module.exports = {
+	stripTimestamps,
+	isTimestampOnlyChange,
+	discardTimestampOnlyChanges,
+};

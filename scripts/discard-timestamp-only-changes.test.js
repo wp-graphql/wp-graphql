@@ -79,23 +79,35 @@ test('stripTimestamps blanks generatedAt and POT-Creation-Date', () => {
 	);
 	assert.strictEqual(
 		stripTimestamps(pot('2026-10-20T22:56:59+00:00', 'Hello')),
-		pot('', 'Hello').replace('"POT-Creation-Date: \\n"', '"POT-Creation-Date: "')
+		pot('', 'Hello').replace(
+			'"POT-Creation-Date: \\n"',
+			'"POT-Creation-Date: "'
+		)
 	);
 });
 
 test('isTimestampOnlyChange is true only for a timestamp-only difference', () => {
 	const before = indexJson('2026-10-20T22:56:59.265Z', ['a']);
 	assert.strictEqual(
-		isTimestampOnlyChange(before, indexJson('2026-10-20T23:00:58.356Z', ['a'])),
+		isTimestampOnlyChange(
+			before,
+			indexJson('2026-10-20T23:00:58.356Z', ['a'])
+		),
 		true
 	);
 	// A real change, with or without a new timestamp.
 	assert.strictEqual(
-		isTimestampOnlyChange(before, indexJson('2026-10-20T23:00:58.356Z', ['a', 'b'])),
+		isTimestampOnlyChange(
+			before,
+			indexJson('2026-10-20T23:00:58.356Z', ['a', 'b'])
+		),
 		false
 	);
 	assert.strictEqual(
-		isTimestampOnlyChange(before, indexJson('2026-10-20T22:56:59.265Z', ['b'])),
+		isTimestampOnlyChange(
+			before,
+			indexJson('2026-10-20T22:56:59.265Z', ['b'])
+		),
 		false
 	);
 	// Identical content is not a change at all.
@@ -127,18 +139,43 @@ test('a "generatedAt" key that is not the timestamp shape still counts as conten
 
 test('restores timestamp-only files and keeps real changes', () => {
 	const dir = makeRepo({
-		'plugin/docs/generated/hooks-index.json': indexJson('2026-10-20T22:56:59.136Z', ['a']),
-		'plugin/docs/generated/functions-index.json': indexJson('2026-10-20T22:56:59.265Z', ['f']),
-		'plugin/languages/plugin.pot': pot('2026-10-20T22:56:59+00:00', 'Hello'),
+		'plugin/docs/generated/hooks-index.json': indexJson(
+			'2026-10-20T22:56:59.136Z',
+			['a']
+		),
+		'plugin/docs/generated/functions-index.json': indexJson(
+			'2026-10-20T22:56:59.265Z',
+			['f']
+		),
+		'plugin/languages/plugin.pot': pot(
+			'2026-10-20T22:56:59+00:00',
+			'Hello'
+		),
 		'plugin/readme.txt': 'Stable tag: 2.24.2\n',
 		'site/recipes-index.json': indexJson('2026-10-20T22:56:59.351Z', ['r']),
 	});
 	try {
-		write(dir, 'plugin/docs/generated/hooks-index.json', indexJson('2026-10-20T23:00:58.131Z', ['a']));
-		write(dir, 'plugin/docs/generated/functions-index.json', indexJson('2026-10-20T23:00:58.356Z', ['f', 'g']));
-		write(dir, 'plugin/languages/plugin.pot', pot('2026-10-20T23:00:59+00:00', 'Hello'));
+		write(
+			dir,
+			'plugin/docs/generated/hooks-index.json',
+			indexJson('2026-10-20T23:00:58.131Z', ['a'])
+		);
+		write(
+			dir,
+			'plugin/docs/generated/functions-index.json',
+			indexJson('2026-10-20T23:00:58.356Z', ['f', 'g'])
+		);
+		write(
+			dir,
+			'plugin/languages/plugin.pot',
+			pot('2026-10-20T23:00:59+00:00', 'Hello')
+		);
 		write(dir, 'plugin/readme.txt', 'Stable tag: 2.25.0\n');
-		write(dir, 'site/recipes-index.json', indexJson('2026-10-20T23:00:58.525Z', ['r']));
+		write(
+			dir,
+			'site/recipes-index.json',
+			indexJson('2026-10-20T23:00:58.525Z', ['r'])
+		);
 
 		const logs = [];
 		const result = discardTimestampOnlyChanges({
@@ -159,13 +196,20 @@ test('restores timestamp-only files and keeps real changes', () => {
 		assert.deepStrictEqual(result.skipped, []);
 
 		// The restored files are back to HEAD, the kept ones still changed.
-		const stillChanged = git(['diff', 'HEAD', '--name-only'], dir).trim().split('\n').sort();
+		const stillChanged = git(['diff', 'HEAD', '--name-only'], dir)
+			.trim()
+			.split('\n')
+			.sort();
 		assert.deepStrictEqual(stillChanged, [
 			'plugin/docs/generated/functions-index.json',
 			'plugin/readme.txt',
 		]);
 		// A real change keeps its new timestamp.
-		assert.ok(read(dir, 'plugin/docs/generated/functions-index.json').includes('2026-10-20T23:00:58.356Z'));
+		assert.ok(
+			read(dir, 'plugin/docs/generated/functions-index.json').includes(
+				'2026-10-20T23:00:58.356Z'
+			)
+		);
 		assert.strictEqual(logs.length, 3);
 	} finally {
 		fs.rmSync(dir, { recursive: true, force: true });
@@ -178,13 +222,29 @@ test('only looks under the given paths', () => {
 		'other/hooks-index.json': indexJson('2026-10-20T22:56:59.136Z', []),
 	});
 	try {
-		write(dir, 'plugin/hooks-index.json', indexJson('2026-10-20T23:00:58.131Z', []));
-		write(dir, 'other/hooks-index.json', indexJson('2026-10-20T23:00:58.131Z', []));
+		write(
+			dir,
+			'plugin/hooks-index.json',
+			indexJson('2026-10-20T23:00:58.131Z', [])
+		);
+		write(
+			dir,
+			'other/hooks-index.json',
+			indexJson('2026-10-20T23:00:58.131Z', [])
+		);
 
-		const result = discardTimestampOnlyChanges({ paths: ['plugin'], cwd: dir, log: () => {} });
+		const result = discardTimestampOnlyChanges({
+			paths: ['plugin'],
+			cwd: dir,
+			log: () => {},
+		});
 
 		assert.deepStrictEqual(result.restored, ['plugin/hooks-index.json']);
-		assert.ok(read(dir, 'other/hooks-index.json').includes('2026-10-20T23:00:58.131Z'));
+		assert.ok(
+			read(dir, 'other/hooks-index.json').includes(
+				'2026-10-20T23:00:58.131Z'
+			)
+		);
 	} finally {
 		fs.rmSync(dir, { recursive: true, force: true });
 	}
@@ -196,10 +256,18 @@ test('ignores new and deleted files', () => {
 	});
 	try {
 		fs.rmSync(path.join(dir, 'plugin/old-index.json'));
-		write(dir, 'plugin/new-index.json', indexJson('2026-10-20T23:00:58.131Z', []));
+		write(
+			dir,
+			'plugin/new-index.json',
+			indexJson('2026-10-20T23:00:58.131Z', [])
+		);
 		git(['add', '-N', 'plugin/new-index.json'], dir);
 
-		const result = discardTimestampOnlyChanges({ paths: ['plugin'], cwd: dir, log: () => {} });
+		const result = discardTimestampOnlyChanges({
+			paths: ['plugin'],
+			cwd: dir,
+			log: () => {},
+		});
 
 		assert.deepStrictEqual(result, { restored: [], kept: [], skipped: [] });
 		assert.ok(!fs.existsSync(path.join(dir, 'plugin/old-index.json')));
@@ -214,15 +282,26 @@ test('CLI restores timestamp-only files and exits 0', () => {
 		'plugin/hooks-index.json': indexJson('2026-10-20T22:56:59.136Z', []),
 	});
 	try {
-		write(dir, 'plugin/hooks-index.json', indexJson('2026-10-20T23:00:58.131Z', []));
+		write(
+			dir,
+			'plugin/hooks-index.json',
+			indexJson('2026-10-20T23:00:58.131Z', [])
+		);
 
-		const output = execFileSync('node', [SCRIPT_PATH, '--paths=plugin', `--cwd=${dir}`], {
-			encoding: 'utf8',
-		});
+		const output = execFileSync(
+			'node',
+			[SCRIPT_PATH, '--paths=plugin', `--cwd=${dir}`],
+			{
+				encoding: 'utf8',
+			}
+		);
 
 		assert.ok(output.includes('Restored plugin/hooks-index.json'));
 		assert.ok(output.includes('Restored 1 timestamp-only file(s), kept 0'));
-		assert.strictEqual(git(['diff', 'HEAD', '--name-only'], dir).trim(), '');
+		assert.strictEqual(
+			git(['diff', 'HEAD', '--name-only'], dir).trim(),
+			''
+		);
 	} finally {
 		fs.rmSync(dir, { recursive: true, force: true });
 	}
@@ -233,18 +312,28 @@ test('CLI distinguishes no paths, nothing modified, and an unreadable repository
 	assert.ok(noPaths.includes('No --paths given'));
 
 	const dir = makeRepo({ 'plugin/hooks-index.json': indexJson('x', []) });
-	const notRepo = fs.mkdtempSync(path.join(os.tmpdir(), 'discard-timestamps-norepo-'));
+	const notRepo = fs.mkdtempSync(
+		path.join(os.tmpdir(), 'discard-timestamps-norepo-')
+	);
 	try {
-		const clean = execFileSync('node', [SCRIPT_PATH, '--paths=plugin', `--cwd=${dir}`], {
-			encoding: 'utf8',
-		});
+		const clean = execFileSync(
+			'node',
+			[SCRIPT_PATH, '--paths=plugin', `--cwd=${dir}`],
+			{
+				encoding: 'utf8',
+			}
+		);
 		assert.ok(clean.includes('No modified files under the given paths.'));
 
 		// Best-effort: a failure to list changes is logged and still exits 0.
-		const failed = execFileSync('node', [SCRIPT_PATH, '--paths=plugin', `--cwd=${notRepo}`], {
-			encoding: 'utf8',
-			stdio: ['ignore', 'pipe', 'pipe'],
-		});
+		const failed = execFileSync(
+			'node',
+			[SCRIPT_PATH, '--paths=plugin', `--cwd=${notRepo}`],
+			{
+				encoding: 'utf8',
+				stdio: ['ignore', 'pipe', 'pipe'],
+			}
+		);
 		assert.ok(failed.includes('Could not list changed files'));
 	} finally {
 		fs.rmSync(dir, { recursive: true, force: true });
