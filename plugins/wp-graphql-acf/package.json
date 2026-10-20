@@ -10,7 +10,7 @@
 	},
 	"license": "GPL-3.0-or-later",
 	"engines": {
-		"node": ">=22",
+		"node": ">=22.22.1",
 		"npm": ">=10"
 	},
 	"devDependencies": {

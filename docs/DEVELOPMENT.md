@@ -4,7 +4,7 @@ This guide covers setting up the WPGraphQL monorepo for local development.
 
 ## Prerequisites
 
-- **Node.js 22+** and npm 10+ ([nvm](https://github.com/nvm-sh/nvm) recommended)
+- **Node.js 22.22.1+** and npm 10+ ([nvm](https://github.com/nvm-sh/nvm) recommended)
 - **Docker** (for wp-env)
 - **Git**
 - **PHP 7.4+** and Composer (optional, for local PHP tooling)
