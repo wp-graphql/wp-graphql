@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3346f2fa7ebe71768417cf6a634f679",
+    "content-hash": "1917247e92e82c15bafab4c261365fa5",
     "packages": [
         {
             "name": "appsero/client",
@@ -107,16 +107,16 @@
         },
         {
             "name": "webonyx/graphql-php",
-            "version": "v15.37.3",
+            "version": "v15.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webonyx/graphql-php.git",
-                "reference": "5b07b6fccc6f5f34c250136dfbbaabac5a69ec29"
+                "reference": "47e6ba3f27d6e0e9da4c6ae4b6c8875921409e10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/5b07b6fccc6f5f34c250136dfbbaabac5a69ec29",
-                "reference": "5b07b6fccc6f5f34c250136dfbbaabac5a69ec29",
+                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/47e6ba3f27d6e0e9da4c6ae4b6c8875921409e10",
+                "reference": "47e6ba3f27d6e0e9da4c6ae4b6c8875921409e10",
                 "shasum": ""
             },
             "require": {
@@ -134,8 +134,8 @@
                 "nyholm/psr7": "^1.5",
                 "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan": "2.2.16",
-                "phpstan/phpstan-phpunit": "2.0.19",
+                "phpstan/phpstan": "2.2.17",
+                "phpstan/phpstan-phpunit": "2.0.21",
                 "phpstan/phpstan-strict-rules": "2.0.12",
                 "phpunit/phpunit": "^9.5 || ^10.5.21 || ^11",
                 "psr/http-message": "^1 || ^2",
@@ -171,7 +171,7 @@
             ],
             "support": {
                 "issues": "https://github.com/webonyx/graphql-php/issues",
-                "source": "https://github.com/webonyx/graphql-php/tree/v15.37.3"
+                "source": "https://github.com/webonyx/graphql-php/tree/v15.38.0"
             },
             "funding": [
                 {
@@ -183,7 +183,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2026-10-03T16:44:55+00:00"
+            "time": "2026-10-06T18:57:32+00:00"
         }
     ],
     "packages-dev": [
