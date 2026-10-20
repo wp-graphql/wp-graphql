@@ -7,7 +7,9 @@ WPGraphQL has been developed with security in mind. Below, are details on some o
 
 ## Reporting a Vulnerability
 
-If you believe you've discovered a security vulnerability, please email info@wpgraphql.com with details and steps to reproduce.
+If you believe you've discovered a security vulnerability, please report it privately, either by emailing info@wpgraphql.com or by opening a private advisory on the [Security Advisories](https://github.com/wp-graphql/wp-graphql/security/advisories/new) page. Please don't report it through a public issue, discussion or pull request.
+
+The [security policy](https://github.com/wp-graphql/wp-graphql/security/policy) covers what to include in a report, how we respond, and what happens after you report, including how fixes are released and how advisories and CVE identifiers are handled.
 
 ## Settings Review
 

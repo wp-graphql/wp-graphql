@@ -3,6 +3,7 @@
 namespace WPGraphQL\SmartCache\Admin;
 
 use WPGraphQL\SmartCache\Cache\Results;
+use WPGraphQL\SmartCache\Document;
 use WPGraphQL\SmartCache\Document\Grant;
 
 class Settings {
@@ -129,6 +130,39 @@ class Settings {
 								}
 							}
 							return $value;
+						},
+					]
+				);
+
+				register_graphql_settings_field(
+					'graphql_persisted_queries_section',
+					[
+						'name'    => 'apq_auto_persist_mode',
+						'label'   => __( 'Who can save new queries automatically', 'wp-graphql-smart-cache' ),
+						'desc'    => __( 'Automatic Persisted Queries let a client send a query once and reuse its ID afterwards. Choose who is allowed to save a new query this way. "Anyone" matches how this has always worked. Saving is always bounded by the limit below.', 'wp-graphql-smart-cache' ),
+						'type'    => 'radio',
+						'default' => Document::AUTO_PERSIST_PUBLIC,
+						'options' => [
+							Document::AUTO_PERSIST_PUBLIC => 'Anyone, including logged out visitors',
+							Document::AUTO_PERSIST_AUTHENTICATED => 'Logged in users only',
+							Document::AUTO_PERSIST_OFF    => 'Nobody, saved queries must be created deliberately',
+						],
+					]
+				);
+
+				register_graphql_settings_field(
+					'graphql_persisted_queries_section',
+					[
+						'name'              => 'apq_automatic_document_limit',
+						'label'             => __( 'Limit on automatically saved queries', 'wp-graphql-smart-cache' ),
+						'desc'              => __( 'The most automatically saved queries to keep. Past this, the oldest are removed as new ones arrive, so the table cannot grow without limit. Clients re-send the full query when an ID is no longer known, so removing one is safe. Queries you have granted, denied, or placed in a Group are never removed by this limit.', 'wp-graphql-smart-cache' ),
+						'type'              => 'number',
+						'default'           => (string) Document::AUTO_PERSIST_DEFAULT_LIMIT,
+						'sanitize_callback' => function ( $value ) {
+							if ( ! is_numeric( $value ) || 1 > (int) $value ) {
+								return (string) Document::AUTO_PERSIST_DEFAULT_LIMIT;
+							}
+							return (int) $value;
 						},
 					]
 				);

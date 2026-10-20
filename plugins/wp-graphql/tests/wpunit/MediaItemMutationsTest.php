@@ -1101,6 +1101,186 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * Builds one of every target shape the oracle in GHSA-r7m4-3v6c-3435 could distinguish: an ID
+	 * that holds nothing, posts and pages in public and non-public statuses, and a real attachment.
+	 *
+	 * @return array<string,int> Label mapped to the database ID to send.
+	 */
+	public function mediaItemOracleTargets() {
+		$targets = [ 'nonexistent' => 99999999 ];
+
+		foreach (
+			[
+				'published post' => [ 'post', 'publish' ],
+				'draft post'     => [ 'post', 'draft' ],
+				'private post'   => [ 'post', 'private' ],
+				'pending post'   => [ 'post', 'pending' ],
+				'trashed post'   => [ 'post', 'trash' ],
+				'published page' => [ 'page', 'publish' ],
+			] as $label => $args
+		) {
+			list( $post_type, $post_status ) = $args;
+
+			$targets[ $label ] = $this->factory()->post->create(
+				[
+					'post_author' => $this->admin,
+					'post_type'   => $post_type,
+					'post_status' => $post_status,
+					'post_title'  => 'Oracle target: ' . $label,
+				]
+			);
+		}
+
+		$targets['attachment'] = $this->attachment_id;
+
+		return $targets;
+	}
+
+	/**
+	 * An anonymous caller must not be able to tell these targets apart. Every distinct error
+	 * message is a state in a post existence oracle, and the connections deliberately hide the
+	 * non-public ones. @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testDeleteMediaItemDoesNotDiscloseWhichIdsExist() {
+		$targets = $this->mediaItemOracleTargets();
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->delete_variables['input']['id'] = $target_id;
+
+			$actual = $this->deleteMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not delete the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every target: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testUpdateMediaItemDoesNotDiscloseWhichIdsExist() {
+		$targets = $this->mediaItemOracleTargets();
+
+		wp_set_current_user( 0 );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->update_variables['input']['id'] = $target_id;
+
+			$actual = $this->updateMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'An anonymous caller must not update the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->update_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'An anonymous caller must get the same response for every target: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * A caller who can edit posts but cannot read someone else's unpublished content must not be
+	 * able to use the shape of the error to find it. @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testDeleteMediaItemDoesNotDiscloseOthersContentToContributors() {
+		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
+		$targets     = $this->mediaItemOracleTargets();
+
+		// The attachment belongs to someone else, so its own error is a capability answer.
+		unset( $targets['attachment'] );
+
+		wp_set_current_user( $contributor );
+		$this->assertTrue( current_user_can( 'delete_posts' ), 'A contributor must hold delete_posts for this test to be meaningful.' );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->delete_variables['input']['id'] = $target_id;
+
+			$actual = $this->deleteMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A contributor must not delete the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'A contributor must get the same response for a nonexistent ID and for content they cannot read: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * `updateMediaItem` carries the same residual `deleteMediaItem` does. A contributor
+	 * holds edit_posts, so the blanket capability check lets them through to the lookup,
+	 * where the answer for an ID that holds nothing and the answer for an ID holding
+	 * someone else's unpublished content have to stay identical.
+	 *
+	 * @see GHSA-r7m4-3v6c-3435
+	 */
+	public function testUpdateMediaItemDoesNotDiscloseOthersContentToContributors() {
+		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
+		$targets     = $this->mediaItemOracleTargets();
+
+		// The attachment belongs to someone else, so its own error is a capability answer.
+		unset( $targets['attachment'] );
+
+		wp_set_current_user( $contributor );
+		$this->assertTrue( current_user_can( 'edit_posts' ), 'A contributor must hold edit_posts for this test to be meaningful.' );
+
+		$messages = [];
+
+		foreach ( $targets as $label => $target_id ) {
+			$this->update_variables['input']['id'] = $target_id;
+
+			$actual = $this->updateMediaItemMutation();
+
+			$this->assertArrayHasKey( 'errors', $actual, sprintf( 'A contributor must not update the %s.', $label ) );
+			$messages[ $label ] = $actual['errors'][0]['message'];
+		}
+
+		$this->update_variables['input']['id'] = $this->media_item_id;
+
+		$this->assertCount(
+			1,
+			array_unique( $messages ),
+			'A contributor must get the same response for a nonexistent ID and for content they cannot read: ' . wp_json_encode( $messages )
+		);
+	}
+
+	/**
+	 * Regression guard: an administrator can still delete a mediaItem.
+	 */
+	public function testDeleteMediaItemStillWorksForAdmin() {
+		wp_set_current_user( $this->admin );
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
+
+		$actual = $this->deleteMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->media_item_id, $actual['data']['deleteMediaItem']['deletedId'] );
+	}
+
+	/**
 	 * Set the mediaItem id to a fake id and the mutation should fail
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemDelete.php:79
@@ -1532,6 +1712,65 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * Regression for GHSA-3j5r-mp5g-4wrw through the guard itself, driven by URL rather
+	 * than by reflection on is_public_ip(). The advisory is about IPv6 notations that
+	 * carry an IPv4 address: the host text does not look internal, so a check that reads
+	 * the string lets an internal address through.
+	 *
+	 * The redirect guard is the surface where these forms are reachable. A bracketed IPv6
+	 * literal cannot get this far through `filePath`: WordPress's own wp_http_validate_url()
+	 * matches the host against `/^[a-zA-Z0-9-.]+$/`, which no bracketed IPv6 literal can
+	 * satisfy, so it refuses all of them structurally before the mutation's guard runs. A
+	 * public IPv6 address is refused the same way. That is also why testCannotInputIpv6Loopback() and
+	 * testCannotInputIpv6LinkLocal() pass: they pin the user-facing outcome, not this
+	 * logic. A redirect is checked by reject_unsafe_redirect() instead, so a public host
+	 * that answers with a redirect to an internal IPv6 address lands here, with no network
+	 * and no DNS involved.
+	 *
+	 * The dotted-quad row is the one that needs watching: PHP's own
+	 * FILTER_FLAG_NO_PRIV_RANGE check skips the IPv6 ranges entirely when an address ends
+	 * in a dotted quad, up to PHP 8.2. There it is the explicit prefix list that rejects
+	 * it, and filter_var() from 8.3 on, so this has to hold across the whole supported
+	 * matrix.
+	 *
+	 * @dataProvider dataIpv6FormsCarryingAnInternalAddress
+	 *
+	 * @param string $url   The redirect target to check.
+	 * @param string $label What the address is, for the failure message.
+	 */
+	public function testRedirectToAnIpv6FormCarryingAnInternalAddressIsBlocked( string $url, string $label ) {
+		if ( ! class_exists( \WpOrg\Requests\Exception::class ) ) {
+			$this->markTestSkipped( 'Redirect-chain guard requires Requests 2.x (WP 6.2+).' );
+		}
+
+		$threw = false;
+
+		try {
+			\WPGraphQL\Mutation\MediaItemCreate::reject_unsafe_redirect( $url );
+		} catch ( \Throwable $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, sprintf( 'A redirect to %s must be blocked', $label ) );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataIpv6FormsCarryingAnInternalAddress(): array {
+		return [
+			'IPv4-mapped cloud metadata'     => [ 'http://[::ffff:169.254.169.254]/latest/meta-data/', 'IPv4-mapped (::ffff:169.254.169.254)' ],
+			'IPv4-mapped loopback'           => [ 'http://[::ffff:127.0.0.1]/x.jpg', 'IPv4-mapped (::ffff:127.0.0.1)' ],
+			'IPv4-compatible cloud metadata' => [ 'http://[::169.254.169.254]/latest/meta-data/', 'IPv4-compatible (::169.254.169.254)' ],
+			'NAT64 cloud metadata'           => [ 'http://[64:ff9b::169.254.169.254]/latest/meta-data/', 'NAT64 (64:ff9b::169.254.169.254)' ],
+			'NAT64 local-use prefix'         => [ 'http://[64:ff9b:1::1]/x.jpg', 'RFC 8215 local-use NAT64 (64:ff9b:1::1)' ],
+			'6to4 cloud metadata'            => [ 'http://[2002:a9fe:a9fe::]/latest/meta-data/', '6to4 (2002:a9fe:a9fe:: carries 169.254.169.254)' ],
+			'unique local address'           => [ 'http://[fd00::1]/x.jpg', 'Unique local address (fd00::1)' ],
+			'unique local, dotted-quad tail' => [ 'http://[fd00::0.0.0.1]/x.jpg', 'Unique local written with a dotted-quad tail (fd00::0.0.0.1)' ],
+		];
+	}
+
+	/**
 	 * Regression for GHSA-p8rh-c2gc-j42m. The cloud-metadata address
 	 * 169.254.169.254 can be written as its 32-bit decimal integer
 	 * (2852039166); the host text does not begin with "169.254." but the
@@ -1683,6 +1922,138 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 
 		$this->assertTrue( $threw, 'Redirect to an internal IPv6 (unique-local) target should be blocked' );
+	}
+
+	/**
+	 * Hardening for GHSA-3j5r-mp5g-4wrw. Several IPv6 forms carry an IPv4 address
+	 * and route to it, and PHP's FILTER_FLAG_NO_RES_RANGE does not treat them
+	 * consistently: on PHP 8.3.35 it rejects ::ffff:7f00:1 while allowing
+	 * ::7f00:1, 64:ff9b::7f00:1 and 2002:7f00:1::, and the behaviour differs
+	 * across the PHP versions this plugin supports. is_public_ip() therefore
+	 * unwraps the embedded IPv4 itself and rejects the IPv6 ranges the filter
+	 * misses, rather than trusting the filter for IPv6.
+	 *
+	 * @param string $address The address to classify.
+	 * @param string $why     The message shown when the assertion fails.
+	 *
+	 * @dataProvider dataInternalAddressesAreNotPublic
+	 */
+	public function testInternalAddressesAreNotPublic( string $address, string $why ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'is_public_ip' );
+		$method->setAccessible( true );
+
+		$this->assertFalse( $method->invoke( null, $address ), $why );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataInternalAddressesAreNotPublic(): array {
+		return [
+			// Forms that embed an IPv4 address and route to it.
+			'IPv4-mapped loopback, dotted'     => [ '::ffff:127.0.0.1', 'IPv4-mapped loopback must be rejected' ],
+			'IPv4-mapped loopback, hex'        => [ '::ffff:7f00:1', 'The hex spelling targets the same loopback address' ],
+			'IPv4-mapped metadata, hex'        => [ '::ffff:a9fe:a9fe', 'The hex spelling targets 169.254.169.254' ],
+			'IPv4-compatible loopback, hex'    => [ '::7f00:1', 'IPv4-compatible ::/96 routes to the embedded IPv4' ],
+			'IPv4-compatible metadata, dotted' => [ '::169.254.169.254', 'IPv4-compatible ::/96 routes to the embedded IPv4' ],
+			'NAT64 loopback'                   => [ '64:ff9b::7f00:1', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
+			'NAT64 metadata'                   => [ '64:ff9b::a9fe:a9fe', 'NAT64 64:ff9b::/96 routes to the embedded IPv4' ],
+			// RFC 8215 reserves 64:ff9b:1::/48 for a network's own NAT64 translator.
+			// The embedded IPv4 sits at a different offset for each permitted prefix
+			// length, so the range is rejected rather than decoded.
+			'NAT64 local-use, loopback'        => [ '64:ff9b:1::7f00:1', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
+			'NAT64 local-use, metadata'        => [ '64:ff9b:1::a9fe:a9fe', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
+			'NAT64 local-use, plain'           => [ '64:ff9b:1::1', 'The RFC 8215 local-use NAT64 prefix is not publicly routable' ],
+			'6to4 loopback'                    => [ '2002:7f00:1::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
+			'6to4 metadata'                    => [ '2002:a9fe:a9fe::', '6to4 2002::/16 carries the IPv4 in bytes 2-5' ],
+			// Native IPv6 ranges that are not publicly routable.
+			'IPv6 loopback'                    => [ '::1', 'Loopback must be rejected' ],
+			'IPv6 unspecified'                 => [ '::', 'The unspecified address must be rejected' ],
+			'IPv6 link-local'                  => [ 'fe80::1', 'Link-local must be rejected' ],
+			'IPv6 unique-local'                => [ 'fd00::1', 'Unique-local must be rejected' ],
+			// The same addresses written with a dotted-quad tail. PHP's filter
+			// flags skip their IPv6 range checks for this spelling up to 8.2, so
+			// these passed as public while the hex spellings above did not.
+			'IPv6 loopback, dotted tail'       => [ '::0.0.0.1', 'The dotted spelling is the same sixteen bytes as ::1' ],
+			'IPv6 link-local, dotted tail'     => [ 'fe80::0.0.0.1', 'The dotted spelling is the same sixteen bytes as fe80::1' ],
+			'IPv6 unique-local, dotted tail'   => [ 'fd00::0.0.0.1', 'The dotted spelling is the same sixteen bytes as fd00::1' ],
+			'IPv6 ULA metadata, dotted tail'   => [ 'fd00:ec2::0.0.2.84', 'The dotted spelling is the same sixteen bytes as fd00:ec2::254' ],
+			'IPv6 site-local, deprecated'      => [ 'fec0::1', 'Site-local is still routable inside a network' ],
+			'IPv6 multicast'                   => [ 'ff02::1', 'Multicast must be rejected' ],
+			'IPv6 discard-only'                => [ '100::1', 'The discard-only range must be rejected' ],
+			'IPv6 documentation'               => [ '2001:db8::1', 'The documentation range must be rejected' ],
+			// Nothing we cannot parse is vouched for.
+			'not an address'                   => [ 'not-an-ip', 'An unparseable address must fail closed' ],
+			'empty string'                     => [ '', 'An empty address must fail closed' ],
+		];
+	}
+
+	/**
+	 * The counterpart to testInternalAddressesAreNotPublic: an IPv6 form that
+	 * embeds a *public* IPv4 address is still reachable and must keep working, so
+	 * the hardening above does not cut off legitimate dual-stack hosts.
+	 *
+	 * @param string $address The address to classify.
+	 * @param string $why     The message shown when the assertion fails.
+	 *
+	 * @dataProvider dataPublicAddressesStayPublic
+	 */
+	public function testPublicAddressesStayPublic( string $address, string $why ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'is_public_ip' );
+		$method->setAccessible( true );
+
+		$this->assertTrue( $method->invoke( null, $address ), $why );
+	}
+
+	/**
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public function dataPublicAddressesStayPublic(): array {
+		return [
+			'public IPv4'        => [ '8.8.8.8', 'A public IPv4 address must stay allowed' ],
+			'public IPv6'        => [ '2606:4700:4700::1111', 'A public IPv6 address must stay allowed' ],
+			'IPv4-mapped public' => [ '::ffff:8.8.8.8', 'A mapped public IPv4 is still public' ],
+			'NAT64 public'       => [ '64:ff9b::8.8.8.8', 'NAT64 to a public IPv4 is still public' ],
+			'6to4 public'        => [ '2002:0808:0808::', '6to4 to a public IPv4 is still public' ],
+		];
+	}
+
+	/**
+	 * A failed AAAA lookup must not be mistaken for a host that has no IPv6.
+	 *
+	 * dns_get_record() answers `[]` for a host with no AAAA records and `false` when the
+	 * lookup failed. Reading `false` as "no IPv6" would validate the A records, call the
+	 * host safe, and leave curl free to connect over IPv6 to an address nothing checked.
+	 *
+	 * This covers the decision in isolation rather than through the resolver, because the
+	 * only way to hand resolve_host_addresses() a controlled failure would be a filter
+	 * over the SSRF guard's own resolution, and that is a bypass primitive we will not add
+	 * to a security control. The same reasoning as testHostResolutionIncludesIpv6Addresses.
+	 *
+	 * @dataProvider dataAaaaAnswers
+	 *
+	 * @param array<int,array<string,mixed>>|false $records  The dns_get_record() answer.
+	 * @param string[]|null                        $expected The addresses, or null for a failure.
+	 * @param string                               $message  Why.
+	 */
+	public function testFailedAaaaLookupIsDistinguishedFromNoIpv6( $records, $expected, string $message ) {
+		$method = new \ReflectionMethod( \WPGraphQL\Mutation\MediaItemCreate::class, 'aaaa_addresses_from_records' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expected, $method->invoke( null, $records ), $message );
+	}
+
+	/**
+	 * @return array<string,array{0:mixed,1:mixed,2:string}>
+	 */
+	public function dataAaaaAnswers(): array {
+		return [
+			'lookup failed'       => [ false, null, 'A failed lookup must be reported as a failure, so the host is refused.' ],
+			'no AAAA records'     => [ [], [], 'A host with no IPv6 is not a failure and must not refuse the host.' ],
+			'one AAAA record'     => [ [ [ 'ipv6' => '2606:4700:4700::1111' ] ], [ '2606:4700:4700::1111' ], 'An IPv6 address must be returned for checking.' ],
+			'internal AAAA'       => [ [ [ 'ipv6' => 'fd00:ec2::254' ] ], [ 'fd00:ec2::254' ], 'An internal address must be returned so is_public_ip() can reject it.' ],
+			'record missing ipv6' => [ [ [ 'type' => 'AAAA' ] ], [], 'A malformed record contributes no address.' ],
+		];
 	}
 
 	/**
@@ -1926,7 +2297,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public function testUpdateMediaItemCannotTakeOverAnotherUsersMediaItem() {
 		$contributor = $this->factory()->user->create( [ 'role' => 'contributor' ] );
 
-		foreach ( [ 'author' => $this->author, 'contributor' => $contributor ] as $role => $user_id ) {
+		foreach ( [
+			'author'      => $this->author,
+			'contributor' => $contributor,
+		] as $role => $user_id ) {
 			wp_set_current_user( $user_id );
 
 			$this->update_variables['input']['authorId'] = $user_id;
