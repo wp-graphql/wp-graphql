@@ -15,7 +15,7 @@ The easiest way to run tests is to use the included `wp-env` setup. This uses Do
 
 ### Prerequesites
 
-- Node.js 22+ and npm >= 10 (NVM recommended)
+- Node.js 22.22.1+ and npm >= 10 (NVM recommended)
 - Docker
 - Git
 

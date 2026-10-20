@@ -42,7 +42,7 @@ In order to continue, you should follow steps to setup your local development en
 ### Prerequisites
 
 Ensure you have the following installed on your local machine:
-- Node.js 22+ and npm >= 10 (NVM recommended)
+- Node.js 22.22.1+ and npm >= 10 (NVM recommended)
 - Docker
 - Git
 - PHP 7.4+ and Composer (if you prefer to run the Composer tools locally)
