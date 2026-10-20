@@ -230,6 +230,14 @@ jobs:
             "websites/wpgraphql.com/src/generated/recipes-index.json"
           )
 
+          # The generators stamp every run with the time, so restore files
+          # whose only change is that timestamp. Otherwise every run commits,
+          # the push triggers this workflow again, and the new commit cancels
+          # the CI running on the release PR.
+          # Best-effort: if it fails, fall back to committing whatever changed.
+          node scripts/discard-timestamp-only-changes.js --paths="$(IFS=,; echo "${PATHS[*]}")" \
+            || echo "::warning::Could not discard timestamp-only changes; committing every change."
+
           # Check if any files changed
           if ! git diff --quiet -- "${PATHS[@]}"; then
             CHANGED_FILES=$(git diff --name-only -- "${PATHS[@]}")
