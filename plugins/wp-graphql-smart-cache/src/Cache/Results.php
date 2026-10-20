@@ -316,24 +316,26 @@ class Results extends Query {
 	}
 
 	/**
-	 * Remove the debug log from a response before it is stored in the object cache.
+	 * Remove the extensions from a response before it is stored in the object cache.
 	 *
-	 * Debug entries can hold closures, which cannot be serialized, and they describe a single
-	 * execution anyway. A result object is converted with toArray(), as the storage adapters do.
+	 * Extensions are rebuilt for every request, a cache hit included, so a stored copy is never
+	 * needed: it would keep serving an extension after it is turned off, and can hold values
+	 * that cannot be serialized, such as closures in debug entries. A result object is converted
+	 * with toArray(), as the storage adapters do.
 	 *
 	 * @since x-release-please-version
 	 *
 	 * @param mixed $response The result of a single operation.
 	 *
-	 * @return mixed The result without `extensions.debug`.
+	 * @return mixed The result without extensions.
 	 */
-	public static function strip_debug_extensions( $response ) {
+	public static function strip_extensions( $response ) {
 		if ( is_object( $response ) && method_exists( $response, 'toArray' ) ) {
 			$response = $response->toArray();
 		}
 
-		if ( is_array( $response ) && isset( $response['extensions'] ) && is_array( $response['extensions'] ) ) {
-			unset( $response['extensions']['debug'] );
+		if ( is_array( $response ) ) {
+			unset( $response['extensions'] );
 		}
 
 		return $response;
@@ -405,7 +407,7 @@ class Results extends Query {
 		if ( false === $cached_result ) {
 			$expiration = \get_graphql_setting( 'global_ttl', self::GLOBAL_DEFAULT_TTL, 'graphql_cache_section' );
 
-			$this->save( $key, self::strip_debug_extensions( $filtered_response ), $expiration );
+			$this->save( $key, self::strip_extensions( $filtered_response ), $expiration );
 		}
 	}
 

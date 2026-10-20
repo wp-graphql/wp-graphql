@@ -55,11 +55,11 @@ class DebugModeCacheTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Assert a response was served from the object cache and the stored entry has no debug log.
+	 * Assert a response was served from the object cache and the stored entry has no extensions.
 	 *
 	 * @param array $response The response of the request served from cache.
 	 */
-	protected function assertServedFromCacheWithoutStoredDebug( array $response ): void {
+	protected function assertServedFromCacheWithoutStoredExtensions( array $response ): void {
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertNotEmpty( $response['data']['posts']['nodes'] );
 		$this->assertNotEmpty( $response['extensions']['graphqlSmartCache']['graphqlObjectCache'] );
@@ -67,7 +67,7 @@ class DebugModeCacheTest extends \Codeception\TestCase\WPTestCase {
 		$cached = Cache\Query::$storage->get( $response['extensions']['graphqlSmartCache']['graphqlObjectCache']['cacheKey'] );
 		$this->assertIsArray( $cached );
 		$this->assertSame( $cached['data'], $response['data'] );
-		$this->assertArrayNotHasKey( 'debug', $cached['extensions'] ?? [] );
+		$this->assertArrayNotHasKey( 'extensions', $cached );
 	}
 
 	public function testDebugEntryWithClosureDoesNotBreakCachedQuery() {
@@ -89,10 +89,10 @@ class DebugModeCacheTest extends \Codeception\TestCase\WPTestCase {
 		$response = do_graphql_request( $query );
 		codecept_debug( $response );
 
-		$this->assertServedFromCacheWithoutStoredDebug( $response );
+		$this->assertServedFromCacheWithoutStoredExtensions( $response );
 	}
 
-	public function testDebugEntryWithoutClosureIsCachedWithoutDebug() {
+	public function testDebugEntryWithoutClosureIsCachedWithoutExtensions() {
 		$this->log_debug_entry( 'scalar context', [ 'value' => 'foo' ] );
 
 		// A query not used by the other tests, so no earlier cache hit is reported for it.
@@ -104,7 +104,7 @@ class DebugModeCacheTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = do_graphql_request( $query );
 
-		$this->assertServedFromCacheWithoutStoredDebug( $response );
+		$this->assertServedFromCacheWithoutStoredExtensions( $response );
 	}
 
 	public function testMultipleOperationsWithClosureDebugEntryAreCached() {
@@ -131,21 +131,21 @@ class DebugModeCacheTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertCount( 2, $response );
 		foreach ( $response as $operation_response ) {
-			$this->assertServedFromCacheWithoutStoredDebug( $operation_response );
+			$this->assertServedFromCacheWithoutStoredExtensions( $operation_response );
 		}
 	}
 
-	public function testStripDebugExtensionsConvertsResultObjects() {
+	public function testStripExtensionsConvertsResultObjects() {
 		$object             = new \GraphQL\Executor\ExecutionResult( [ 'posts' => [] ] );
 		$object->extensions = [
 			'debug' => [ [ 'callback' => static function () {} ] ],
-			'other' => 'kept',
+			'other' => 'value',
 		];
 
 		// A result object is stored the way the storage adapters store it, as an array.
-		$stripped = Cache\Results::strip_debug_extensions( $object );
+		$stripped = Cache\Results::strip_extensions( $object );
 		$this->assertSame( $object->toArray()['data'], $stripped['data'] );
-		$this->assertSame( [ 'other' => 'kept' ], $stripped['extensions'] );
+		$this->assertArrayNotHasKey( 'extensions', $stripped );
 		$this->assertIsString( serialize( $stripped ) );
 
 		// The response returned to the client is left untouched.
