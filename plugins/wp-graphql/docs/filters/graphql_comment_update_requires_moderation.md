@@ -15,7 +15,7 @@ plugin: wp-graphql
 apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );
 ```
 
-Filters whether an edited comment is sent back for moderation. When a caller without the `moderate_comments` capability edits the content of a comment that is already approved, WordPress's moderation checks are run against the new content and the comment is held for review if they do not pass. Return false to let the comment keep its approved status regardless of what the new content says. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and the filter is never reached.
+Filters whether an edited comment is sent back for moderation. Applied after WordPress's own `pre_comment_approved` filter, which has already decided the default outcome. Return false to let the comment keep its approved status whatever that decision was. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and neither filter is reached.
 
 - **Type:** filter
 - **Group:** Model Layer
@@ -30,7 +30,7 @@ Filters whether an edited comment is sent back for moderation. When a caller wit
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L390)
+- [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:428`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L428)
 
 ```php
 apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderation, $comment_args, $raw_comment_args );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_comment_update_requires_moderation', $requires_moderatio
 
 ## Related
 
-- `CommentUpdate::maybe_hold_for_moderation()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:390`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L390)
+- `CommentUpdate::maybe_hold_for_moderation()` in [`plugins/wp-graphql/src/Mutation/CommentUpdate.php:428`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/CommentUpdate.php#L428)

@@ -1,10 +1,10 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-10-16T04:17:16.163Z",
+  "generatedAt": "2026-10-20T21:10:55.363Z",
   "stats": {
-    "totalHooks": 286,
+    "totalHooks": 287,
     "actions": 63,
-    "filters": 223,
+    "filters": 224,
     "dynamic": 16,
     "snippets": 0
   },
@@ -318,7 +318,7 @@
     "warnings": 31,
     "errors": 0,
     "wpgraphqlHooks": 266,
-    "coreHooks": 20
+    "coreHooks": 21
   },
   "hooks": [
     {
@@ -2752,10 +2752,10 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "CommentUpdate::maybe_hold_for_moderation()",
       "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-      "line": 390,
+      "line": 428,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
-      "description": "Filters whether an edited comment is sent back for moderation. When a caller without the `moderate_comments` capability edits the content of a comment that is already approved, WordPress's moderation checks are run against the new content and the comment is held for review if they do not pass. Return false to let the comment keep its approved status regardless of what the new content says. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and the filter is never reached.",
+      "description": "Filters whether an edited comment is sent back for moderation. Applied after WordPress's own `pre_comment_approved` filter, which has already decided the default outcome. Return false to let the comment keep its approved status whatever that decision was. This does not run for every edit. A comment that is not already approved keeps the status it has, unchanged content is not re-checked, and the author of the node the comment was left on is exempt, the same exemption WordPress applies. In those cases no decision is made and neither filter is reached.",
       "params": [
         {
           "type": "bool",
@@ -2792,7 +2792,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
-          "line": 390,
+          "line": 428,
           "symbol": "CommentUpdate::maybe_hold_for_moderation()",
           "emitter": "apply_filters"
         }
@@ -15937,6 +15937,59 @@
           "line": 291,
           "symbol": "TypeRegistry::init()",
           "emitter": "do_action"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "pre_comment_approved",
+      "kind": "filter",
+      "group": "uncategorized",
+      "groupLabel": "Uncategorized",
+      "groupSource": "fallback",
+      "sourceType": "core",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "CommentUpdate::maybe_hold_for_moderation()",
+      "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+      "line": 403,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the approval status of a comment whose content was edited. WordPress does not re-moderate an edited comment, so when a caller without the `moderate_comments` capability edits the content of an approved comment WPGraphQL re-runs the checks core applies to a new comment. This is core's own filter: `wp_check_comment_data()` ends by applying it, and a site's moderation plugin, role-based auto-approve rule, or similar integration hooks it to have its say about a comment. Firing it here gives those integrations the same say about an edit that they already have about a new comment. Return `1` (or `true`) to keep the comment approved. Anything else — `0`, `'spam'`, `'trash'`, or a `WP_Error` — holds it for review. An edit puts an approved comment back in the queue rather than moving it to spam or trash. This mirrors core's `wp_check_comment_data()`, which ends by applying the same filter, so an integration written against core behaves the same way here. Because of the post-author exemption above, this filter is not reached when a post's author edits their own comment on that post; core fires it with `1` for new comments, so integration authors should not assume it runs for every edit.",
+      "params": [
+        {
+          "type": "int|string|\\WP_Error",
+          "name": "$approved",
+          "description": "The default verdict for the edited content: `1` when WordPress's checks pass, `0` when they do not, or `spam`/`trash` for a disallowed-list hit."
+        },
+        {
+          "type": "array<string,mixed>",
+          "name": "$comment_data",
+          "description": "The comment args about to be saved."
+        }
+      ],
+      "argumentCount": 2,
+      "docblockParamCount": 2,
+      "since": null,
+      "hookGroup": null,
+      "isDynamic": false,
+      "rawExpression": "'pre_comment_approved'",
+      "sourceCall": "apply_filters( 'pre_comment_approved', $approved, $comment_args );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Mutation/CommentUpdate.php",
+          "line": 403,
+          "symbol": "CommentUpdate::maybe_hold_for_moderation()",
+          "emitter": "apply_filters"
         }
       ],
       "relatedRecipes": []
