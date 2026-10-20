@@ -90,7 +90,7 @@
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"engines": {
-		"node": ">=22",
+		"node": ">=22.22.1",
 		"npm": ">=10"
 	}
 }
