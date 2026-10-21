@@ -312,6 +312,7 @@ if [ "$ACF_PRO" == "true" ]; then
     # See: https://gist.github.com/acf-extended/b65882979cdf7c4f5e6a0e5ed733aca7#file-acfe-pro-api-download-postman_collection-json
     # Do everything in one command inside the container to avoid variable expansion issues
     # Use PHP to parse JSON (PHP is available in WordPress containers, similar to jq in the old script)
+    INSTALL_STATUS=0
     INSTALL_RESULT=$(npm run --prefix ../.. wp-env run tests-cli -- bash -c "
       download_link=\$(curl -s --location --request GET 'https://acf-extended.com?edd_action=get_version&license=${ACF_EXTENDED_LICENSE_KEY}&item_name=ACF%20Extended%20Pro&url=https://acf.wpgraphql.com' | php -r 'echo json_decode(file_get_contents(\"php://stdin\"), true)[\"download_link\"] ?? \"\";');
       download_link=\${download_link%\\\"};
@@ -322,23 +323,16 @@ if [ "$ACF_PRO" == "true" ]; then
       fi;
       wp plugin install \"\$download_link\" --activate --quiet --allow-root;
       echo 'SUCCESS'
-    " 2>&1) || true  # Under `set -e`, a failed install would exit here and skip the fallback below.
+    " 2>&1) || INSTALL_STATUS=$?  # Under `set -e`, a bare failure here would end the step before the fallback.
     
-    # Check if installation succeeded
-    if echo "$INSTALL_RESULT" | grep -q "SUCCESS"; then
+    # wp-env prints the command it runs, which contains both SUCCESS and ERROR, so check the
+    # exit status and the plugin itself instead of the output.
+    if [ "$INSTALL_STATUS" -eq 0 ] && npm run --prefix ../.. --silent wp-env run tests-cli -- wp plugin is-active acf-extended-pro --allow-root >/dev/null 2>&1; then
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
       echo "  ✅ ACF Extended Pro license key is set and was used for installation."
-    elif echo "$INSTALL_RESULT" | grep -q "ERROR: Invalid license key"; then
-      echo "⚠️  Warning: ACF Extended Pro license key appears invalid or expired"
-      echo "   Falling back to ACF Extended Free..."
-      echo ""
-      npm run --prefix ../.. wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
-      ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
     else
-      echo "⚠️  Warning: ACF Extended Pro installation failed"
-      echo "   Output: $INSTALL_RESULT"
-      echo "   Falling back to ACF Extended Free..."
-      echo ""
+      echo "⚠️  Warning: ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY license."
+      echo "$INSTALL_RESULT"
       npm run --prefix ../.. wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
     fi
