@@ -26,6 +26,13 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	private $requests = [];
 
+	/**
+	 * Bodies of the outgoing HTTP requests made during the test, keyed like $requests.
+	 *
+	 * @var array<int,mixed>
+	 */
+	private $request_bodies = [];
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -69,7 +76,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @return array<string,mixed>
 	 */
 	public function record_request( $preempt, $args, $url ) {
-		$this->requests[] = $url;
+		$this->requests[]       = $url;
+		$this->request_bodies[] = $args['body'] ?? null;
 
 		return [
 			'headers'  => [],
@@ -198,6 +206,18 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		do_action( $this->slug . '_tracker_send_event' );
 
 		$this->assertSame( [], $this->requests );
+	}
+
+	public function testTheOptOutRequestCarriesNoSiteData(): void {
+		$this->opt_in_via_notice();
+		$this->requests       = [];
+		$this->request_bodies = [];
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertStringEndsWith( '/tracking-skipped', $this->requests[0] );
+		$this->assertEqualsCanonicalizing( [ 'hash', 'previously_skipped', 'client' ], array_keys( $this->request_bodies[0] ) );
 	}
 
 	public function testPluginRegistersTheToggleOnTheGeneralSettings(): void {

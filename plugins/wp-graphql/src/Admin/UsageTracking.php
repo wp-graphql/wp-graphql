@@ -96,7 +96,7 @@ class UsageTracking {
 				'label'   => __( 'Share Usage Data', 'wp-graphql' ),
 				'desc'    => sprintf(
 					// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-					__( 'Once a week, send details about this site to help guide %1$s development: server environment and WordPress version, site name and URL, site language, active plugins, number of users, and the admin name and email address. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+					__( 'Send details about this site to help guide %1$s development, once when checked and then weekly: server environment and WordPress version, site name and URL, site language, active plugins, number of users, and the admin name and email address. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
 					esc_html( $this->product_name ),
 					'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
 				),
