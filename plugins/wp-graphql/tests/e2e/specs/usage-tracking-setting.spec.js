@@ -57,8 +57,11 @@ async function setTrackingState(page, state) {
  * @return {Promise<string>} The real opt-in state, `yes` or `no`.
  */
 async function saveAndReadTrackingState(page) {
-	await page.getByRole('button', { name: 'Save Changes' }).click();
-	await page.waitForLoadState('networkidle');
+	// Wait for the redirect back from options.php, or the old page's state would be read.
+	await Promise.all([
+		page.waitForURL(/settings-updated=true/),
+		page.getByRole('button', { name: 'Save Changes' }).click(),
+	]);
 
 	return (
 		await page.locator('#wpgraphql-e2e-tracking-state').textContent()
