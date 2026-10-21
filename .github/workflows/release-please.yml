@@ -257,7 +257,7 @@ jobs:
         (github.event_name == 'workflow_dispatch' && github.event.inputs.redeploy_tag != '')
       )
     runs-on: ubuntu-latest
-    # Uploads the schema/build assets to the GitHub release (softprops/action-gh-release).
+    # Uploads the build zip to the GitHub release (gh release upload).
     permissions:
       contents: write
     strategy:
@@ -633,15 +633,20 @@ jobs:
           path: plugin-build/${{ matrix.component }}.zip
 
       - name: Upload artifact to release
-        # Upload for both new releases and re-deployments
-        # For re-deployments, this updates the existing release asset with the corrected version
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
-        with:
-          tag_name: ${{ steps.plugin_info.outputs.tag_name }}
-          files: plugin-build/${{ matrix.component }}.zip
-          # Note: The action will replace existing assets with the same name
+        # Upload for both new releases and re-deployments. --clobber replaces an
+        # existing asset with the same name, so a re-deployment updates the zip.
+        #
+        # This uploads with `gh release upload` rather than
+        # softprops/action-gh-release on purpose. That action always updates the
+        # release first and resends its target_commitish, and GitHub refuses that
+        # from GITHUB_TOKEN once the release commit's .github/workflows differs
+        # from the default branch (e.g. a workflow change merged while the release
+        # was running). Uploading an asset never touches target_commitish.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.plugin_info.outputs.tag_name }}
+          ZIP_PATH: plugin-build/${{ matrix.component }}.zip
+        run: gh release upload "$TAG_NAME" "$ZIP_PATH" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Release Summary
         env:
