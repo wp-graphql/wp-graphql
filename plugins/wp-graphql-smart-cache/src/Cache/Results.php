@@ -323,7 +323,7 @@ class Results extends Query {
 	 * that cannot be serialized, such as closures in debug entries. A result object is converted
 	 * with toArray(), as the storage adapters do.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.3.4
 	 *
 	 * @param mixed $response The result of a single operation.
 	 *
