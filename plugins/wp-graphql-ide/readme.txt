@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.6.0
+Stable tag: 5.7.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,26 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.7.0 =
+
+**New Features**
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 13 updates ([#4490](https://github.com/wp-graphql/wp-graphql/issues/4490))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/e2e-test-utils-playwright from 1.54.0 to 2.0.0 ([#4498](https://github.com/wp-graphql/wp-graphql/issues/4498))
+* **deps-dev:** bump dotenv from 17.4.2 to 18.0.1 ([#4499](https://github.com/wp-graphql/wp-graphql/issues/4499))
+* **deps-dev:** bump phpstan/phpstan from 2.2.17 to 2.3.1 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#4493](https://github.com/wp-graphql/wp-graphql/issues/4493))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#4496](https://github.com/wp-graphql/wp-graphql/issues/4496))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 2 updates ([#4346](https://github.com/wp-graphql/wp-graphql/issues/4346))
+* **deps:** bump appsero/client from 2.0.6 to 2.0.7 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-patch group across 1 directory ([#4494](https://github.com/wp-graphql/wp-graphql/issues/4494))
+* **ide:** keep public requests working behind HTTP Basic Auth ([#4396](https://github.com/wp-graphql/wp-graphql/issues/4396))
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340))
+* **ide:** use the plugin's text domain in includes/, and analyze includes/ with PHPCS and PHPStan ([#4474](https://github.com/wp-graphql/wp-graphql/issues/4474))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374))
 
 = 5.6.0 =
 
