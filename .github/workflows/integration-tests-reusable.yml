@@ -305,7 +305,7 @@ jobs:
               if [ "$INSTALL_STATUS" -eq 0 ] && npm run --silent wp-env run tests-cli -- wp plugin is-active acf-extended-pro --allow-root >/dev/null 2>&1; then
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
               else
-                echo "::warning::ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY license."
+                echo "::warning::ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY secret and whether the ACF Extended download is available."
                 echo "$INSTALL_RESULT"
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
@@ -332,7 +332,7 @@ jobs:
               if [ "$INSTALL_STATUS" -eq 0 ] && npm run --silent wp-env run tests-cli -- wp plugin is-active acf-extended-pro --allow-root >/dev/null 2>&1; then
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
               else
-                echo "::warning::ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY license."
+                echo "::warning::ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY secret and whether the ACF Extended download is available."
                 echo "$INSTALL_RESULT"
                 npm run wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"

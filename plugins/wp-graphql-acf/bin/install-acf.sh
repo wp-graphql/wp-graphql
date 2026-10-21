@@ -331,7 +331,7 @@ if [ "$ACF_PRO" == "true" ]; then
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
       echo "  ✅ ACF Extended Pro license key is set and was used for installation."
     else
-      echo "⚠️  Warning: ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY license."
+      echo "⚠️  Warning: ACF Extended Pro could not be installed (exit $INSTALL_STATUS), falling back to ACF Extended Free. Check the ACF_EXTENDED_LICENSE_KEY secret and whether the ACF Extended download is available."
       echo "$INSTALL_RESULT"
       npm run --prefix ../.. wp-env run tests-cli -- wp plugin install acf-extended --activate --allow-root
       ACF_EXTENDED_PLUGIN_SLUG="acf-extended/acf-extended.php"
