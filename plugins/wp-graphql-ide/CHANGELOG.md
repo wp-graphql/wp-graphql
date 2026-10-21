@@ -170,6 +170,28 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.6.0...wp-graphql-ide/v5.7.0) (2026-10-21)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 13 updates ([#4490](https://github.com/wp-graphql/wp-graphql/issues/4490)) ([1e1e053](https://github.com/wp-graphql/wp-graphql/commit/1e1e053ff4812f26382302f2e1216a7bebfcb920))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/e2e-test-utils-playwright from 1.54.0 to 2.0.0 ([#4498](https://github.com/wp-graphql/wp-graphql/issues/4498)) ([d282737](https://github.com/wp-graphql/wp-graphql/commit/d28273741f88eb0011d4be651e30e427b68fb15b))
+* **deps-dev:** bump dotenv from 17.4.2 to 18.0.1 ([#4499](https://github.com/wp-graphql/wp-graphql/issues/4499)) ([8afea87](https://github.com/wp-graphql/wp-graphql/commit/8afea87b4c1f3d557a9eefb63be7662d6f71165a))
+* **deps-dev:** bump phpstan/phpstan from 2.2.17 to 2.3.1 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#4493](https://github.com/wp-graphql/wp-graphql/issues/4493)) ([392dcb3](https://github.com/wp-graphql/wp-graphql/commit/392dcb3db6789d2a693add06994e6334361a5225))
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#4496](https://github.com/wp-graphql/wp-graphql/issues/4496)) ([e40129a](https://github.com/wp-graphql/wp-graphql/commit/e40129a59b66663fb68ef3eb4073e65131043f89))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 2 updates ([#4346](https://github.com/wp-graphql/wp-graphql/issues/4346)) ([8287bda](https://github.com/wp-graphql/wp-graphql/commit/8287bda71d05b1846ce494041493b2f59171387e))
+* **deps:** bump appsero/client from 2.0.6 to 2.0.7 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-patch group across 1 directory ([#4494](https://github.com/wp-graphql/wp-graphql/issues/4494)) ([3600c60](https://github.com/wp-graphql/wp-graphql/commit/3600c600c3b0a350da0516705abc6bdf9a2a6741))
+* **ide:** keep public requests working behind HTTP Basic Auth ([#4396](https://github.com/wp-graphql/wp-graphql/issues/4396)) ([07089cc](https://github.com/wp-graphql/wp-graphql/commit/07089ccb89eeb2f77b9394fcd00b81d380673393))
+* **ide:** show WPGraphQL admin notices above the IDE instead of over it ([#4340](https://github.com/wp-graphql/wp-graphql/issues/4340)) ([585ad8a](https://github.com/wp-graphql/wp-graphql/commit/585ad8adc1be848e9adce8a015aea8c4abd81917))
+* **ide:** use the plugin's text domain in includes/, and analyze includes/ with PHPCS and PHPStan ([#4474](https://github.com/wp-graphql/wp-graphql/issues/4474)) ([34f8a30](https://github.com/wp-graphql/wp-graphql/commit/34f8a3075c8bd18ab50e06af124d6b06a03ef642))
+* **smart-cache:** identify saved documents by the query they hold, not their slug ([#4374](https://github.com/wp-graphql/wp-graphql/issues/4374)) ([2e47c4d](https://github.com/wp-graphql/wp-graphql/commit/2e47c4d7dc7c57a39ade8280c6735b290883283b))
+
 ## [5.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.5.0...wp-graphql-ide/v5.6.0) (2026-09-15)
 
 
