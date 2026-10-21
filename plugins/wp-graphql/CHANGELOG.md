@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.25.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.2...wp-graphql/v2.25.0) (2026-10-20)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 13 updates ([#4490](https://github.com/wp-graphql/wp-graphql/issues/4490)) ([1e1e053](https://github.com/wp-graphql/wp-graphql/commit/1e1e053ff4812f26382302f2e1216a7bebfcb920))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the npm-dev-minor-patch group with 3 updates ([#4496](https://github.com/wp-graphql/wp-graphql/issues/4496)) ([e40129a](https://github.com/wp-graphql/wp-graphql/commit/e40129a59b66663fb68ef3eb4073e65131043f89))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group across 1 directory with 2 updates ([#4392](https://github.com/wp-graphql/wp-graphql/issues/4392)) ([d212c8e](https://github.com/wp-graphql/wp-graphql/commit/d212c8ee9f5a9cdaebd18e9fdcf450b053e1cb10))
+* **deps:** bump the wp-graphql-composer-patch group across 1 directory with 2 updates ([#4502](https://github.com/wp-graphql/wp-graphql/issues/4502)) ([fa8239b](https://github.com/wp-graphql/wp-graphql/commit/fa8239bc4bfdd5048fd2c222f5fd8043e95716b3))
+* **deps:** bump webonyx/graphql-php from 15.37.2 to 15.37.3 in /plugins/wp-graphql in the wp-graphql-composer-patch group ([#4432](https://github.com/wp-graphql/wp-graphql/issues/4432)) ([a008844](https://github.com/wp-graphql/wp-graphql/commit/a008844138f74a5ccd97c84bf65ba1a0b22a4ad5))
+* **deps:** bump webonyx/graphql-php from 15.37.3 to 15.38.0 in /plugins/wp-graphql ([#4492](https://github.com/wp-graphql/wp-graphql/issues/4492)) ([79a0f78](https://github.com/wp-graphql/wp-graphql/commit/79a0f78924b5c2d285748a8ca33554df59e8473c))
+* **graphql:** run WordPress' moderation filter on edited comments ([#4476](https://github.com/wp-graphql/wp-graphql/issues/4476)) ([9dee309](https://github.com/wp-graphql/wp-graphql/commit/9dee3092ff530815b1a8ab0b276e87e0ff9a81b0))
+
 ## [2.24.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.1...wp-graphql/v2.24.2) (2026-10-16)
 
 

@@ -6,9 +6,9 @@ Do not edit manually.
 
 ## Summary
 
-- Total hooks: 286
+- Total hooks: 287
 - WPGraphQL hooks audited: 266
-- Core hooks excluded from audit: 20
+- Core hooks excluded from audit: 21
 - Static hooks: 249
 - Dynamic hooks: 13
 - Flagged hooks: 31

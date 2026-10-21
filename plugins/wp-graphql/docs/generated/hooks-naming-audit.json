@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-10-16T04:17:16.163Z",
+  "generatedAt": "2026-10-20T23:00:58.131Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,10 +31,10 @@
       ]
     },
     "summary": {
-      "totalHooks": 286,
+      "totalHooks": 287,
       "wpgraphqlHooks": 266,
       "activeWpgraphqlHooks": 262,
-      "coreHooks": 20,
+      "coreHooks": 21,
       "staticHooks": 249,
       "dynamicHooks": 13,
       "flaggedHooks": 31,
