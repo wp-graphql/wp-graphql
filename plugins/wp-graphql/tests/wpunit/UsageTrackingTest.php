@@ -53,8 +53,7 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function tearDown(): void {
 		remove_filter( 'pre_http_request', [ $this, 'record_request' ], 1 );
-		remove_action( 'add_option_' . self::SECTION, [ $this->tracker, 'on_option_added' ] );
-		remove_action( 'update_option_' . self::SECTION, [ $this->tracker, 'on_option_updated' ] );
+		remove_filter( 'pre_update_option_' . self::SECTION, [ $this->tracker, 'on_pre_update_option' ] );
 		remove_action( $this->slug . '_tracker_optin', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( $this->slug . '_tracker_optout', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( 'graphql_register_settings', [ $this->tracker, 'register_field' ] );
@@ -187,6 +186,18 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+	}
+
+	public function testUncheckingOptsOutWhenTheStoredValueIsAlreadyOff(): void {
+		// Stored "off", then opted in by a path that didn't update the stored copy.
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+		$this->opt_in_via_notice();
+
+		// Saving the form posts the same value that's stored, so WordPress skips the update.
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+		$this->assertFalse( $this->is_scheduled() );
 	}
 
 	public function testSavingWithoutTheToggleLeavesTrackingAlone(): void {

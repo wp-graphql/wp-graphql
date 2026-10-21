@@ -69,9 +69,9 @@ class UsageTracking {
 	public function init(): void {
 		add_action( 'graphql_register_settings', [ $this, 'register_field' ] );
 
-		// `update_option()` falls through to `add_option()` when the option doesn't exist yet.
-		add_action( 'add_option_' . $this->section, [ $this, 'on_option_added' ], 10, 2 );
-		add_action( 'update_option_' . $this->section, [ $this, 'on_option_updated' ], 10, 2 );
+		// Runs before `update_option()` skips a write that matches the stored value, and before it
+		// falls through to `add_option()` for a new option, so every save of the section is seen.
+		add_filter( 'pre_update_option_' . $this->section, [ $this, 'on_pre_update_option' ], 10, 2 );
 
 		// Opting in or out through the admin notice or the URL bypasses the settings page.
 		add_action( $this->slug . '_tracker_optin', [ $this, 'sync_stored_value' ] );
@@ -109,23 +109,17 @@ class UsageTracking {
 	}
 
 	/**
-	 * Apply the toggle when the settings option is first created.
+	 * Apply the toggle when the settings section is saved.
 	 *
-	 * @param string $option The option name.
-	 * @param mixed  $value  The new option value.
-	 */
-	public function on_option_added( $option, $value ): void {
-		$this->apply_requested_state( null, $value );
-	}
-
-	/**
-	 * Apply the toggle when the settings option is updated.
-	 *
-	 * @param mixed $old_value The previous option value.
 	 * @param mixed $value     The new option value.
+	 * @param mixed $old_value The stored option value, or false when the option is new.
+	 *
+	 * @return mixed The new option value, unchanged.
 	 */
-	public function on_option_updated( $old_value, $value ): void {
+	public function on_pre_update_option( $value, $old_value ) {
 		$this->apply_requested_state( $old_value, $value );
+
+		return $value;
 	}
 
 	/**
@@ -159,7 +153,7 @@ class UsageTracking {
 	 * changed the toggle, so re-saving the section for another field with a stale stored
 	 * value can never grant consent on the site's behalf.
 	 *
-	 * @param mixed $old_value The previous option value, or null when the option is new.
+	 * @param mixed $old_value The stored option value, or false when the option is new.
 	 * @param mixed $value     The new option value.
 	 */
 	protected function apply_requested_state( $old_value, $value ): void {
