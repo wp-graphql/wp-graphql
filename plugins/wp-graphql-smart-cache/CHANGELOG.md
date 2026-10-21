@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.3...wp-graphql-smart-cache/v2.3.4) (2026-10-21)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group across 1 directory ([#4348](https://github.com/wp-graphql/wp-graphql/issues/4348)) ([6ea8166](https://github.com/wp-graphql/wp-graphql/commit/6ea816659e54c43946e7c832bced71e6c6f855bc))
+* **deps:** bump appsero/client from 2.0.6 to 2.0.7 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-patch group ([#4495](https://github.com/wp-graphql/wp-graphql/issues/4495)) ([2b63596](https://github.com/wp-graphql/wp-graphql/commit/2b635966c98a0ac8a50c4347a457f5151341c4e1))
+* **smart-cache:** don't store response extensions in the object cache ([#4501](https://github.com/wp-graphql/wp-graphql/issues/4501)) ([98416b6](https://github.com/wp-graphql/wp-graphql/commit/98416b652653a617f14fbb58044be68cae0672c5))
+* **smart-cache:** withhold saved-document settings from restricted views ([#4479](https://github.com/wp-graphql/wp-graphql/issues/4479)) ([6caeed3](https://github.com/wp-graphql/wp-graphql/commit/6caeed3068b593df5572d2cafd82e48cc671c7fd))
+
 ## [2.3.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.2...wp-graphql-smart-cache/v2.3.3) (2026-10-13)
 
 

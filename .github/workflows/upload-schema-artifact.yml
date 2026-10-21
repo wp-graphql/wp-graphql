@@ -146,9 +146,10 @@ jobs:
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
-        with:
-          tag_name: ${{ inputs.tag || github.event.release.tag_name }}
-          files: /tmp/schema.graphql
+        # `gh release upload` rather than softprops/action-gh-release: see the
+        # "Upload artifact to release" step in release-please.yml for why.
+        # --clobber replaces the schema when this is re-run for a tag.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
+        run: gh release upload "$TAG_NAME" /tmp/schema.graphql --clobber --repo "$GITHUB_REPOSITORY"
