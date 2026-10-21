@@ -322,7 +322,7 @@ if [ "$ACF_PRO" == "true" ]; then
       fi;
       wp plugin install \"\$download_link\" --activate --quiet --allow-root;
       echo 'SUCCESS'
-    " 2>&1)
+    " 2>&1) || true  # Under `set -e`, a failed install would exit here and skip the fallback below.
     
     # Check if installation succeeded
     if echo "$INSTALL_RESULT" | grep -q "SUCCESS"; then

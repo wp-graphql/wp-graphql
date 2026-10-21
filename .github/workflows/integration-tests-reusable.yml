@@ -297,7 +297,7 @@ jobs:
                 fi;
                 wp plugin install \"\$download_link\" --activate --quiet --allow-root;
                 echo 'SUCCESS'
-              " 2>&1)
+              " 2>&1) || true  # Under `set -e`, a failed install would exit here and skip the fallback below.
               
               if echo "$INSTALL_RESULT" | grep -q "SUCCESS"; then
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
@@ -327,7 +327,7 @@ jobs:
                 fi;
                 wp plugin install \"\$download_link\" --activate --quiet --allow-root;
                 echo 'SUCCESS'
-              " 2>&1)
+              " 2>&1) || true  # Under `set -e`, a failed install would exit here and skip the fallback below.
               
               if echo "$INSTALL_RESULT" | grep -q "SUCCESS"; then
                 ACF_EXTENDED_PLUGIN_SLUG="acf-extended-pro/acf-extended.php"
