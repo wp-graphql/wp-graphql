@@ -125,6 +125,7 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Regenerates hook docs/audits for supported components (`scripts/hooks/generate-hook-docs.js`)
 - Regenerates function docs for supported components (`scripts/functions/generate-function-docs.js`)
 - Updates readme changelog and optional POT file generation
+- Discards files whose only change is a generation timestamp, so a re-run with nothing new does not commit
 - Commits changes back to the Release PR branch
 - Ensures WordPress.org users see warnings before upgrading
 

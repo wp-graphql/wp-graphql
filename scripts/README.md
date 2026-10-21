@@ -56,6 +56,7 @@ npm run hooks:generate -- --plugin=wp-graphql
 - **Release PR updates** (`.github/workflows/update-release-pr.yml`):
   - Replaces `x-release-please-version` in plugin PHP/readme files.
   - Regenerates hook docs for the releasing component by running `generate-hook-docs.js`.
+  - Discards files whose only change is a generation timestamp (`discard-timestamp-only-changes.js`).
   - Commits refreshed hook docs/index/lint artifacts back to the release PR branch.
 - **Lint workflow** (`.github/workflows/lint.yml`):
   - Runs for plugin changes and release PRs.
@@ -178,6 +179,29 @@ Builds `docs/recipes/index.md`, `docs/generated/recipes-index.json`, and copies 
 ```bash
 npm run recipes:generate -- --plugin=wp-graphql
 ```
+
+### `discard-timestamp-only-changes.js`
+
+Restores modified files whose only change is a generation timestamp, during the release PR update process.
+
+**Purpose**: The hook, function and recipe generators stamp `"generatedAt"` into their JSON indexes and `wp i18n make-pot` stamps `POT-Creation-Date` into the POT file, so every regeneration leaves a diff. Without this, every run of `update-release-pr.yml` commits that diff, the push triggers the workflow again, and each new commit cancels the CI running on the release PR.
+
+**Usage**:
+```bash
+node scripts/discard-timestamp-only-changes.js --paths=plugins/wp-graphql,websites/wpgraphql.com/src/generated/recipes-index.json
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--paths` | Yes | Comma-separated paths to check, relative to the repository root |
+| `--cwd` | No | Repository root (default: the current directory) |
+
+**How it works**:
+1. Lists files modified against `HEAD` under the given paths (new and deleted files are left alone)
+2. Compares each with its `HEAD` version after blanking `"generatedAt"` values and the `POT-Creation-Date` header
+3. Restores the file from `HEAD` when that is the only difference; a file with a real change keeps its new timestamp
+4. Never fails the sync: a file it cannot compare is logged and left changed, which falls back to committing it
 
 ### `update-upgrade-notice.js`
 
