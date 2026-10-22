@@ -101,7 +101,7 @@ WPGraphQL IDE uses [Appsero](https://appsero.com) SDK to collect some telemetry 
 
 Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**.
 
-You can stop sharing at any time by unchecking **Share Usage Data** under **GraphQL → Settings → IDE Settings**. Opting out stops all further check-ins, including the copies sent to https://telemetry.wpgraphql.com. The only request made when you opt out records that you opted out and carries no data about your site.
+You can stop sharing at any time by unchecking **Share Usage Data** under **GraphQL → Settings → IDE Settings**. Opting out stops all further check-ins, including the copies sent to https://telemetry.wpgraphql.com. When you opt out, one final request records the opt-out with Appsero (and its copy at https://telemetry.wpgraphql.com). It includes a hashed identifier for your site, but no site details.
 
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
 

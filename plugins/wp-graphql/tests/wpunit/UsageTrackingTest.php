@@ -33,6 +33,13 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	private $request_bodies = [];
 
+	/**
+	 * Headers of the outgoing HTTP requests made during the test, keyed like $requests.
+	 *
+	 * @var array<int,mixed>
+	 */
+	private $request_headers = [];
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -46,6 +53,9 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->requests = [];
 		add_filter( 'pre_http_request', [ $this, 'record_request' ], 1, 3 );
 
+		// Opting in requires the capability Appsero's own notice requires.
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
 		delete_option( self::SECTION );
 		delete_option( $this->slug . '_allow_tracking' );
 		wp_clear_scheduled_hook( $this->slug . '_tracker_send_event' );
@@ -53,10 +63,7 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function tearDown(): void {
 		remove_filter( 'pre_http_request', [ $this, 'record_request' ], 1 );
-		remove_filter( 'pre_update_option_' . self::SECTION, [ $this->tracker, 'on_pre_update_option' ] );
-		remove_action( $this->slug . '_tracker_optin', [ $this->tracker, 'sync_stored_value' ] );
-		remove_action( $this->slug . '_tracker_optout', [ $this->tracker, 'sync_stored_value' ] );
-		remove_action( 'graphql_register_settings', [ $this->tracker, 'register_field' ] );
+		$this->unhook_tracker();
 
 		delete_option( self::SECTION );
 		delete_option( $this->slug . '_allow_tracking' );
@@ -75,8 +82,9 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @return array<string,mixed>
 	 */
 	public function record_request( $preempt, $args, $url ) {
-		$this->requests[]       = $url;
-		$this->request_bodies[] = $args['body'] ?? null;
+		$this->requests[]        = $url;
+		$this->request_bodies[]  = $args['body'] ?? null;
+		$this->request_headers[] = $args['headers'] ?? [];
 
 		return [
 			'headers'  => [],
@@ -89,9 +97,26 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 	}
 
+	private function unhook_tracker(): void {
+		remove_filter( 'pre_update_option_' . self::SECTION, [ $this->tracker, 'on_pre_update_option' ] );
+		remove_action( 'add_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
+		remove_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
+		remove_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
+		remove_action( 'graphql_register_settings', [ $this->tracker, 'register_field' ] );
+	}
+
 	private function opt_in_via_notice(): void {
 		update_option( $this->slug . '_allow_tracking', 'yes' );
 		wp_schedule_event( time(), 'weekly', $this->slug . '_tracker_send_event' );
+	}
+
+	/**
+	 * Changes the opt-in state while the toggle isn't listening, as when the plugin is inactive.
+	 */
+	private function set_allow_tracking_unsynced( string $value ): void {
+		remove_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
+		update_option( $this->slug . '_allow_tracking', $value );
+		add_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
 	}
 
 	private function is_scheduled(): bool {
@@ -171,10 +196,94 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'off', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
 	}
 
+	public function testWritingTheOptionDirectlyUpdatesTheStoredToggle(): void {
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+
+		// The first opt-in on a site adds the option, as WP-CLI or another plugin might.
+		add_option( $this->slug . '_allow_tracking', 'yes' );
+		$this->assertSame( 'on', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
+
+		update_option( $this->slug . '_allow_tracking', 'no' );
+		$this->assertSame( 'off', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
+
+		update_option( $this->slug . '_allow_tracking', 'yes' );
+		delete_option( $this->slug . '_allow_tracking' );
+		$this->assertSame( 'off', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
+	}
+
+	public function testADirectWriteDoesNotLetAnUnrelatedSaveOptOut(): void {
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+		update_option( $this->slug . '_allow_tracking', 'yes' );
+
+		// Saving another field re-saves the stored copy of the toggle along with it.
+		$stored                     = get_option( self::SECTION );
+		$stored['some_other_field'] = 'changed';
+		update_option( self::SECTION, $stored );
+
+		$this->assertTrue( $this->tracker->is_tracking_allowed() );
+	}
+
+	public function testSavingTheToggleWritesTheSectionOnce(): void {
+		update_option(
+			self::SECTION,
+			[
+				UsageTracking::FIELD_NAME => 'off',
+				'some_other_field'        => 'old',
+			]
+		);
+
+		$writes = [];
+		$record = static function ( $option, $old_value, $value ) use ( &$writes ): void {
+			if ( self::SECTION === $option ) {
+				$writes[] = $value;
+			}
+		};
+		add_action( 'updated_option', $record, 10, 3 );
+
+		// The settings form saves every field in the section at once.
+		$saved = [
+			UsageTracking::FIELD_NAME => 'on',
+			'some_other_field'        => 'new',
+		];
+		update_option( self::SECTION, $saved );
+
+		remove_action( 'updated_option', $record );
+
+		$this->assertTrue( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( [ $saved ], $writes );
+	}
+
+	public function testOptingInRequiresManageOptions(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+		$this->assertFalse( $this->is_scheduled() );
+		$this->assertSame( [], $this->requests );
+	}
+
+	public function testOptingInIsSkippedWithoutAUser(): void {
+		wp_set_current_user( 0 );
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+	}
+
+	public function testOptingOutDoesNotRequireManageOptions(): void {
+		$this->opt_in_via_notice();
+		wp_set_current_user( 0 );
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+	}
+
 	public function testStaleStoredToggleNeverOptsIn(): void {
 		// Stored "on", then opted out by a path that didn't update the stored copy.
 		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
-		update_option( $this->slug . '_allow_tracking', 'no' );
+		$this->set_allow_tracking_unsynced( 'no' );
 
 		// Re-saving the section for a different field carries the stale value along.
 		update_option(
@@ -191,7 +300,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testUncheckingOptsOutWhenTheStoredValueIsAlreadyOff(): void {
 		// Stored "off", then opted in by a path that didn't update the stored copy.
 		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
-		$this->opt_in_via_notice();
+		$this->set_allow_tracking_unsynced( 'yes' );
+		wp_schedule_event( time(), 'weekly', $this->slug . '_tracker_send_event' );
 
 		// Saving the form posts the same value that's stored, so WordPress skips the update.
 		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
@@ -229,6 +339,35 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringEndsWith( '/tracking-skipped', $this->requests[0] );
 		$this->assertEqualsCanonicalizing( [ 'hash', 'previously_skipped', 'client' ], array_keys( $this->request_bodies[0] ) );
+	}
+
+	public function testTheRealOptOutRequestIsMirroredWithAHashedSiteIdentifier(): void {
+		// The plugin's real hash, which the mirror filter in wp-graphql.php matches on.
+		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', WPGRAPHQL_PLUGIN_FILE );
+
+		$this->unhook_tracker();
+		$this->tracker = new UsageTracking( $client->insights(), $client->slug, self::SECTION );
+		$this->tracker->init();
+
+		$this->opt_in_via_notice();
+		$this->requests        = [];
+		$this->request_bodies  = [];
+		$this->request_headers = [];
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'off' ] );
+
+		$this->assertSame(
+			[
+				'https://api.appsero.com/tracking-skipped',
+				'https://telemetry.wpgraphql.com/api/appsero/tracking-skipped',
+			],
+			$this->requests
+		);
+
+		foreach ( array_keys( $this->requests ) as $i ) {
+			$this->assertEqualsCanonicalizing( [ 'hash', 'previously_skipped', 'client' ], array_keys( $this->request_bodies[ $i ] ) );
+			$this->assertSame( 'Appsero/' . md5( esc_url( home_url() ) ) . ';', $this->request_headers[ $i ]['user-agent'] );
+		}
 	}
 
 	public function testPluginRegistersTheToggleOnTheGeneralSettings(): void {

@@ -131,4 +131,24 @@ class UsageTrackingSettingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertSame( 'yes', get_option( $this->slug . '_allow_tracking' ) );
 		$this->assertNotFalse( wp_next_scheduled( $this->slug . '_tracker_send_event' ) );
 	}
+
+	public function test_lowering_the_settings_capability_does_not_let_editors_opt_in(): void {
+		$lower_cap = static function (): string {
+			return 'edit_others_posts';
+		};
+		add_filter( 'graphql_manage_settings_cap', $lower_cap );
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+		$this->usage_tracking_field();
+
+		$response = $this->set_toggle( true );
+
+		remove_filter( 'graphql_manage_settings_cap', $lower_cap );
+
+		// The save itself goes through; only the opt-in is held back.
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertTrue( $response['data']['updateGraphqlSetting']['success'] );
+
+		$this->assertNotSame( 'yes', get_option( $this->slug . '_allow_tracking' ) );
+		$this->assertFalse( wp_next_scheduled( $this->slug . '_tracker_send_event' ) );
+	}
 }
