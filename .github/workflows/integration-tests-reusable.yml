@@ -291,13 +291,13 @@ jobs:
           fi
           
           # Install ACF Extended only when explicitly requested (respects matrix acf_extended flag).
-          # ACF Extended Pro is installed when the cell asks for it, or to match ACF Pro when the
-          # ACF Extended license key is available (the same as the local install-acf.sh script).
-          # Otherwise ACF Extended Free is installed.
+          # ACF Extended Pro is installed only when the cell asks for it with acf_extended_pro, the
+          # same as the local install-acf.sh script, so what a cell tests never depends on which
+          # secrets are set. Otherwise ACF Extended Free is installed.
           # Use PHP to parse JSON (PHP is available in WordPress containers, more reliable than jq)
           ACF_EXTENDED_PLUGIN_SLUG=""
           if [ "$INPUT_ACF_EXTENDED" = "true" ]; then
-            if [ "$INPUT_ACF_EXTENDED_PRO" = "true" ] || { [ "$INPUT_ACF_PRO" = "true" ] && [ -n "$ACF_EXTENDED_LICENSE_KEY" ]; }; then
+            if [ "$INPUT_ACF_EXTENDED_PRO" = "true" ]; then
               if [ -z "$ACF_EXTENDED_LICENSE_KEY" ]; then
                 echo "::error::ACF Extended Pro was requested but ACF_EXTENDED_LICENSE_KEY is not set, so ACF Extended Pro can't be tested."
                 exit 1
