@@ -209,8 +209,15 @@ class Settings {
 	 * @throws \Exception
 	 */
 	public function display_graphql_field_group_fields( $field_group ): void {
+		// Before ACF 6.1 this renders in a meta box, whose callback receives the field group's post
+		// rather than the field group, so load the field group (or ACF's defaults for a new one).
 		if ( $field_group instanceof WP_Post ) {
-			$field_group = (array) $field_group;
+			$post        = $field_group;
+			$field_group = acf_get_field_group( $post->ID );
+
+			if ( empty( $field_group ) ) {
+				$field_group = acf_get_valid_field_group( [ 'ID' => $post->ID ] );
+			}
 		}
 
 		// Render a field in the Field Group settings to allow for a Field Group to be shown in GraphQL.
@@ -299,14 +306,9 @@ class Settings {
 			true
 		);
 
+		// ACF renders the field group's own `acf_field_group[key]` input, so none is added here: a
+		// second one is submitted after ACF's and replaces the key ACF saves the field group with.
 		?>
-		<div class="acf-hidden">
-			<input
-				type="hidden"
-				name="acf_field_group[key]"
-				value="<?php echo esc_attr( $field_group['key'] ); ?>"
-			/>
-		</div>
 		<script type="text/javascript">
 			if (typeof acf !== 'undefined') {
 				acf.newPostbox({
