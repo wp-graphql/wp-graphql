@@ -168,11 +168,54 @@ abstract class Model {
 	/**
 	 * Tear-down call that runs after each field is resolved.
 	 *
-	 * This can be used to reset state to where it was before the model was setup.
+	 * This can be used to reset state to where it was before the model was setup. The global
+	 * main query ($wp_query) is restored by the base model after this runs, so subclasses only
+	 * need to restore any other globals their setup() changes, such as the global $post.
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
+	}
+
+	/**
+	 * Captures the public state of the global main query, so it can be restored after a model
+	 * field resolves.
+	 *
+	 * The models' setup() methods parse a query for the modeled object on the global $wp_query
+	 * (query vars, conditional flags, queried object), so that filters running during field
+	 * resolution see it as the current object. The state has to be put back afterwards, or it
+	 * leaks into everything resolved later in the request.
+	 *
+	 * @return array<string,mixed>|null The query's public properties, or null if there's no global query.
+	 */
+	private static function get_global_query_state(): ?array {
+		global $wp_query;
+
+		if ( ! $wp_query instanceof \WP_Query ) {
+			return null;
+		}
+
+		return get_object_vars( $wp_query );
+	}
+
+	/**
+	 * Restores the global main query to the state captured by get_global_query_state().
+	 *
+	 * The properties are written back onto the same object, rather than replacing it, because
+	 * $wp_the_query and other code can hold a reference to the main query object.
+	 *
+	 * @param array<string,mixed>|null $state The state to restore.
+	 */
+	private static function restore_global_query_state( ?array $state ): void {
+		global $wp_query;
+
+		if ( null === $state || ! $wp_query instanceof \WP_Query ) {
+			return;
+		}
+
+		foreach ( $state as $property => $value ) {
+			$wp_query->$property = $value;
+		}
 	}
 
 	/**
@@ -422,9 +465,17 @@ abstract class Model {
 		// function name), so it must be returned rather than invoked. This mirrors the
 		// Closure gate in __get(). Defense in depth for GHSA-7922 / CVE-2026-18944.
 		if ( is_callable( $field ) && ! is_string( $field ) ) {
+			// setup() may point the global main query at the modeled object, so capture it first
+			// and put it back afterwards, even if the field throws.
+			$global_query_state = self::get_global_query_state();
 			$this->setup();
-			$field = call_user_func( $field );
-			$this->tear_down();
+
+			try {
+				$field = call_user_func( $field );
+			} finally {
+				$this->tear_down();
+				self::restore_global_query_state( $global_query_state );
+			}
 		}
 
 		/**
