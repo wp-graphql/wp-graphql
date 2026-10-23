@@ -128,6 +128,8 @@ The "All" value of the Block location rule is also fixed. A field group set to "
 
 **Single-value select fields set to "Both (Array)" return just the value.** A select field that allows one value and uses the "Both (Array)" return format resolved as `["red", "Red"]`, the chosen option's value followed by its label. It now resolves as `["red"]`, the same as a select set to "Value", and the same as a multi-value select already did. If a client read the label from that second entry, set the field's return format to "Label" instead. See #4561.
 
+**Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
