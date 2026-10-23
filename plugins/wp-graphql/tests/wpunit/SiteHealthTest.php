@@ -201,6 +201,27 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 	}
 
+	/**
+	 * Sorts the attributes of each tag, so markup compares equal whatever order its attributes are in.
+	 *
+	 * Newer WordPress versions write attributes back in a different order when sanitizing, which
+	 * doesn't change the markup.
+	 *
+	 * @param string $html The markup.
+	 */
+	private function normalize_html( string $html ): string {
+		return (string) preg_replace_callback(
+			'/<([a-z][a-z0-9]*)((?:\s+[a-z-]+="[^"]*")*)\s*>/i',
+			static function ( array $tag ): string {
+				preg_match_all( '/[a-z-]+="[^"]*"/i', $tag[2], $attributes );
+				sort( $attributes[0] );
+
+				return '<' . $tag[1] . ( $attributes[0] ? ' ' . implode( ' ', $attributes[0] ) : '' ) . '>';
+			},
+			$html
+		);
+	}
+
 	public function testDescriptionsAndActionsSurviveSanitizing(): void {
 		// Site Health shows these as HTML, so they must only use markup that's allowed in posts.
 		foreach ( [ 'good', 'recommended' ] as $state ) {
@@ -215,8 +236,8 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				$result = $this->run_test( $id );
 
 				$this->assertSame( $state, $result['status'], $id );
-				$this->assertSame( wp_kses_post( $result['description'] ), $result['description'], $id );
-				$this->assertSame( wp_kses_post( $result['actions'] ), $result['actions'], $id );
+				$this->assertSame( $this->normalize_html( $result['description'] ), $this->normalize_html( wp_kses_post( $result['description'] ) ), $id );
+				$this->assertSame( $this->normalize_html( $result['actions'] ), $this->normalize_html( wp_kses_post( $result['actions'] ) ), $id );
 			}
 		}
 	}
