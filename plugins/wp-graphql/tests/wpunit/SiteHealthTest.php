@@ -49,6 +49,29 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Returns Site Health tests that see the given GRAPHQL_DEBUG constant value, since the test
+	 * config always defines it.
+	 *
+	 * @param bool|null $value The constant's value, or null for not defined.
+	 */
+	private function site_health_with_debug_constant( ?bool $value ): SiteHealth {
+		return new class( $value ) extends SiteHealth {
+			/**
+			 * @var bool|null
+			 */
+			private $debug_constant;
+
+			public function __construct( ?bool $debug_constant ) {
+				$this->debug_constant = $debug_constant;
+			}
+
+			protected function get_debug_constant(): ?bool {
+				return $this->debug_constant;
+			}
+		};
+	}
+
+	/**
 	 * Saves WPGraphQL settings, keeping the defaults for any not passed.
 	 *
 	 * @param array<string,mixed> $settings The settings to save.
@@ -81,6 +104,30 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		foreach ( self::TEST_IDS as $id ) {
 			$this->assertArrayHasKey( $id, $tests['direct'] );
 			$this->assertNotEmpty( $tests['direct'][ $id ]['label'] );
+		}
+	}
+
+	public function testInitRegistersTheTestsWithSiteHealth(): void {
+		remove_all_filters( 'site_status_tests' );
+
+		( new SiteHealth() )->init();
+
+		$tests = WP_Site_Health::get_tests();
+
+		foreach ( self::TEST_IDS as $id ) {
+			$this->assertArrayHasKey( $id, $tests['direct'] );
+		}
+	}
+
+	public function testAdminRegistersTheTestsWhenTheAdminPagesAreOn(): void {
+		remove_all_filters( 'site_status_tests' );
+
+		( new \WPGraphQL\Admin\Admin() )->init();
+
+		$tests = WP_Site_Health::get_tests();
+
+		foreach ( self::TEST_IDS as $id ) {
+			$this->assertArrayHasKey( $id, $tests['direct'] );
 		}
 	}
 
@@ -238,6 +285,32 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'page=graphql-settings', $result['actions'] );
 		// The test config turns debug mode on with the GRAPHQL_DEBUG constant.
 		$this->assertStringContainsString( 'GRAPHQL_DEBUG', $result['description'] );
+	}
+
+	public function testDebugModeSaysWhenTheFilterTurnedItOn(): void {
+		$this->set_debug_mode( true );
+
+		// No constant, and the setting is off, so the filter turned it on.
+		$result = $this->site_health_with_debug_constant( null )->test_debug_mode();
+		$this->assertSame( 'recommended', $result['status'] );
+		$this->assertStringContainsString( 'graphql_debug_enabled', $result['description'] );
+		$this->assertStringNotContainsString( 'GRAPHQL_DEBUG', $result['description'] );
+
+		// The constant is false, so only the filter can have turned it on.
+		$result = $this->site_health_with_debug_constant( false )->test_debug_mode();
+		$this->assertStringContainsString( 'graphql_debug_enabled', $result['description'] );
+	}
+
+	public function testDebugModeDoesNotMentionCodeWhenTheSettingTurnedItOn(): void {
+		$this->set_debug_mode( true );
+		$this->save_settings( [ 'debug_mode_enabled' => 'on' ] );
+
+		$result = $this->site_health_with_debug_constant( null )->test_debug_mode();
+
+		$this->assertSame( 'recommended', $result['status'] );
+		$this->assertStringNotContainsString( 'graphql_debug_enabled', $result['description'] );
+		$this->assertStringNotContainsString( 'GRAPHQL_DEBUG', $result['description'] );
+		$this->assertStringContainsString( 'Review debug mode', $result['actions'] );
 	}
 
 	public function testQueryDepthIsRecommendedByDefault(): void {

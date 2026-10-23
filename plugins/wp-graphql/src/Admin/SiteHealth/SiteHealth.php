@@ -253,11 +253,20 @@ class SiteHealth {
 	 * @return string 'constant', 'setting' or 'filter'.
 	 */
 	private function get_debug_mode_source(): string {
-		if ( defined( 'GRAPHQL_DEBUG' ) ) {
-			return GRAPHQL_DEBUG ? 'constant' : 'filter';
+		$constant = $this->get_debug_constant();
+
+		if ( null !== $constant ) {
+			return $constant ? 'constant' : 'filter';
 		}
 
 		return 'on' === get_graphql_setting( 'debug_mode_enabled', 'off' ) ? 'setting' : 'filter';
+	}
+
+	/**
+	 * Returns the value of the GRAPHQL_DEBUG constant, or null when it isn't defined.
+	 */
+	protected function get_debug_constant(): ?bool {
+		return defined( 'GRAPHQL_DEBUG' ) ? (bool) GRAPHQL_DEBUG : null;
 	}
 
 	/**
