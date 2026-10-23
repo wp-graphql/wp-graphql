@@ -49,7 +49,8 @@ class SiteHealth {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public function register_tests( $tests ) {
-		if ( 'production' !== $this->get_environment_type() ) {
+		// Another callback on the filter may have returned something unexpected. Leave it alone.
+		if ( ! is_array( $tests ) || 'production' !== $this->get_environment_type() ) {
 			return $tests;
 		}
 
@@ -84,9 +85,9 @@ class SiteHealth {
 	public function test_public_introspection(): array {
 		$restricted = $this->is_restricted_to_logged_in_users();
 		$debug      = \WPGraphQL::debug();
-		$public     = $debug || 'on' === get_graphql_setting( 'public_introspection_enabled', 'off' );
+		$setting_on = 'on' === get_graphql_setting( 'public_introspection_enabled', 'off' );
 
-		if ( $restricted || ! $public ) {
+		if ( $restricted || ( ! $debug && ! $setting_on ) ) {
 			return $this->result(
 				'wpgraphql_public_introspection',
 				'good',
@@ -97,11 +98,13 @@ class SiteHealth {
 
 		$description = '<p>' . __( 'Anyone can ask the GraphQL API for its schema: the names and descriptions of every type, field and argument it offers, including ones added by other plugins. What each field returns still depends on who is asking.', 'wp-graphql' ) . '</p>';
 
-		if ( $debug ) {
-			$description .= '<p>' . __( 'This is on because debug mode is on, which lets logged-out visitors read the schema whatever the introspection setting is.', 'wp-graphql' ) . '</p>';
+		if ( $debug && $setting_on ) {
+			$description .= '<p>' . __( 'Both debug mode and the introspection setting let logged-out visitors read the schema, so both have to be off to stop it.', 'wp-graphql' ) . '</p>';
+		} elseif ( $debug ) {
+			$description .= '<p>' . __( 'The introspection setting is off, but debug mode is on, and debug mode lets logged-out visitors read the schema whatever that setting is.', 'wp-graphql' ) . '</p>';
 		}
 
-		$description .= '<p>' . __( 'Turning it off doesn\'t have to break apps or builds that need the schema. They can:', 'wp-graphql' ) . '</p>';
+		$description .= '<p>' . __( 'Keeping the schema private doesn\'t have to break apps or builds that need it. They can:', 'wp-graphql' ) . '</p>';
 		$description .= '<ul>';
 		$description .= '<li>' . __( 'send introspection queries with credentials, such as an application password, since logged-in users can always read the schema', 'wp-graphql' ) . '</li>';
 		$description .= '<li>' . sprintf(
@@ -117,7 +120,7 @@ class SiteHealth {
 			__( 'WPGraphQL shows the schema to logged-out visitors', 'wp-graphql' ),
 			$description,
 			$debug ? __( 'Review debug mode', 'wp-graphql' ) : __( 'Review the introspection setting', 'wp-graphql' ),
-			'#introspection-disabled-by-default'
+			'#getting-the-schema-without-public-introspection'
 		);
 	}
 
@@ -142,11 +145,19 @@ class SiteHealth {
 		$description .= '<li>' . __( 'Logged-out visitors can read the schema, even when public introspection is off.', 'wp-graphql' ) . '</li>';
 		$description .= '</ul>';
 
-		if ( defined( 'GRAPHQL_DEBUG' ) && GRAPHQL_DEBUG ) {
+		$source = $this->get_debug_mode_source();
+
+		if ( 'constant' === $source ) {
 			$description .= '<p>' . sprintf(
 				/* translators: %s: the GRAPHQL_DEBUG constant */
 				__( 'Debug mode is turned on in code with the %s constant, usually in wp-config.php, so it has to be turned off there.', 'wp-graphql' ),
 				'<code>GRAPHQL_DEBUG</code>'
+			) . '</p>';
+		} elseif ( 'filter' === $source ) {
+			$description .= '<p>' . sprintf(
+				/* translators: %s: the name of the filter that turns debug mode on in code */
+				__( 'Debug mode is turned on in code with the %s filter, so it has to be turned off there. The debug mode setting is off.', 'wp-graphql' ),
+				'<code>graphql_debug_enabled</code>'
 			) . '</p>';
 		}
 
@@ -231,6 +242,22 @@ class SiteHealth {
 			$description,
 			__( 'Review tracing and query logs', 'wp-graphql' )
 		);
+	}
+
+	/**
+	 * Returns what turned debug mode on, following WPGraphQL::debug(): the GRAPHQL_DEBUG constant
+	 * when it's defined, otherwise the setting, and the graphql_debug_enabled filter when neither did.
+	 *
+	 * Only meaningful while debug mode is on.
+	 *
+	 * @return string 'constant', 'setting' or 'filter'.
+	 */
+	private function get_debug_mode_source(): string {
+		if ( defined( 'GRAPHQL_DEBUG' ) ) {
+			return GRAPHQL_DEBUG ? 'constant' : 'filter';
+		}
+
+		return 'on' === get_graphql_setting( 'debug_mode_enabled', 'off' ) ? 'setting' : 'filter';
 	}
 
 	/**

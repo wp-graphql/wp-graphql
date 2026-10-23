@@ -96,6 +96,10 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( [ 'direct' => [], 'async' => [] ], $tests );
 	}
 
+	public function testLeavesUnexpectedFilterValuesAlone(): void {
+		$this->assertNull( ( new SiteHealth() )->register_tests( null ) );
+	}
+
 	public function testResultsHaveTheShapeSiteHealthExpects(): void {
 		foreach ( self::TEST_IDS as $id ) {
 			$result = $this->run_test( $id );
@@ -150,7 +154,26 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$result = $this->run_test( 'wpgraphql_public_introspection' );
 
 		$this->assertSame( 'recommended', $result['status'] );
-		$this->assertStringContainsString( 'debug mode', $result['description'] );
+		$this->assertStringContainsString( 'The introspection setting is off, but debug mode is on', $result['description'] );
+		$this->assertStringContainsString( 'Review debug mode', $result['actions'] );
+	}
+
+	public function testPublicIntrospectionSaysBothNeedTurningOffWhenDebugModeAndTheSettingAreOn(): void {
+		$this->set_debug_mode( true );
+		$this->save_settings( [ 'public_introspection_enabled' => 'on' ] );
+
+		$result = $this->run_test( 'wpgraphql_public_introspection' );
+
+		$this->assertSame( 'recommended', $result['status'] );
+		$this->assertStringContainsString( 'so both have to be off', $result['description'] );
+	}
+
+	public function testPublicIntrospectionLinksToTheDocsOnGettingTheSchema(): void {
+		$this->save_settings( [ 'public_introspection_enabled' => 'on' ] );
+
+		$result = $this->run_test( 'wpgraphql_public_introspection' );
+
+		$this->assertStringContainsString( 'docs/security#getting-the-schema-without-public-introspection', $result['actions'] );
 	}
 
 	public function testPublicIntrospectionIsGoodWhenOnlyLoggedInUsersCanUseTheApi(): void {
@@ -198,6 +221,8 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertSame( 'recommended', $result['status'] );
 		$this->assertStringContainsString( 'page=graphql-settings', $result['actions'] );
+		// The test config turns debug mode on with the GRAPHQL_DEBUG constant.
+		$this->assertStringContainsString( 'GRAPHQL_DEBUG', $result['description'] );
 	}
 
 	public function testQueryDepthIsRecommendedByDefault(): void {
