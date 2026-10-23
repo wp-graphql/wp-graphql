@@ -339,9 +339,11 @@ class FieldConfig {
 	 * Determine if a field nested in a row (of a repeater, flexible content or group field)
 	 * should resolve from the row's stored (unformatted) value instead of its formatted value.
 	 *
-	 * These fields resolve connections by ID. Depending on the field's return format, ACF formats
-	 * their value as a URL (and always does for page_link), which can't be resolved back to a node.
-	 * Top-level fields of these types are already read unformatted.
+	 * Most of these fields resolve connections by ID. Depending on the field's return format, ACF
+	 * formats their value as a URL (and always does for page_link), which can't be resolved back to
+	 * a node. A link field resolves the AcfLink type from the stored title, url and target, which
+	 * ACF reduces to just the URL with the "url" return format. Top-level fields of these types are
+	 * already read unformatted.
 	 *
 	 * @param string $field_type The ACF Field Type of field being resolved
 	 */
@@ -355,6 +357,7 @@ class FieldConfig {
 			'gallery',
 			'taxonomy',
 			'user',
+			'link',
 		];
 
 		return in_array( $field_type, $types_to_resolve_raw, true );
