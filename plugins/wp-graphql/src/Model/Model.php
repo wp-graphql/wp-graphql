@@ -158,7 +158,12 @@ abstract class Model {
 	}
 
 	/**
-	 * Setup the global state before each field is resolved so the Model has the necessary context.
+	 * Sets up the global state so WordPress treats the modeled object as the current one.
+	 *
+	 * Runs when resolution enters the part of the query under this model's node, so every field
+	 * selected there (including fields other plugins register, and fields of nested values that
+	 * are not models) resolves with this context. It also runs around a single field when the
+	 * field is read outside that part of the query, such as from PHP. See NodeContext.
 	 *
 	 * @return void
 	 */
@@ -166,56 +171,15 @@ abstract class Model {
 	}
 
 	/**
-	 * Tear-down call that runs after each field is resolved.
+	 * Resets state that setup() changed, when resolution leaves the model's node.
 	 *
-	 * This can be used to reset state to where it was before the model was setup. The global
-	 * main query ($wp_query) is restored by the base model after this runs, so subclasses only
-	 * need to restore any other globals their setup() changes, such as the global $post.
+	 * The global main query ($wp_query) and the post data globals (such as $post and $authordata)
+	 * are restored after this runs, so subclasses only need to restore any other globals their
+	 * setup() changes.
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
-	}
-
-	/**
-	 * Captures the public state of the global main query, so it can be restored after a model
-	 * field resolves.
-	 *
-	 * The models' setup() methods parse a query for the modeled object on the global $wp_query
-	 * (query vars, conditional flags, queried object), so that filters running during field
-	 * resolution see it as the current object. The state has to be put back afterwards, or it
-	 * leaks into everything resolved later in the request.
-	 *
-	 * @return array<string,mixed>|null The query's public properties, or null if there's no global query.
-	 */
-	private static function get_global_query_state(): ?array {
-		global $wp_query;
-
-		if ( ! $wp_query instanceof \WP_Query ) {
-			return null;
-		}
-
-		return get_object_vars( $wp_query );
-	}
-
-	/**
-	 * Restores the global main query to the state captured by get_global_query_state().
-	 *
-	 * The properties are written back onto the same object, rather than replacing it, because
-	 * $wp_the_query and other code can hold a reference to the main query object.
-	 *
-	 * @param array<string,mixed>|null $state The state to restore.
-	 */
-	private static function restore_global_query_state( ?array $state ): void {
-		global $wp_query;
-
-		if ( null === $state || ! $wp_query instanceof \WP_Query ) {
-			return;
-		}
-
-		foreach ( $state as $property => $value ) {
-			$wp_query->$property = $value;
-		}
 	}
 
 	/**
@@ -464,34 +428,33 @@ abstract class Model {
 		// not a resolver we registered (for example a value that happens to match a PHP
 		// function name), so it must be returned rather than invoked. This mirrors the
 		// Closure gate in __get(). Defense in depth for GHSA-7922 / CVE-2026-18944.
-		if ( is_callable( $field ) && ! is_string( $field ) ) {
-			// setup() may point the global main query at the modeled object, so capture it first
-			// and put it back afterwards, even if the field throws.
-			$global_query_state = self::get_global_query_state();
-			$this->setup();
+		$is_resolver = is_callable( $field ) && ! is_string( $field );
 
-			try {
+		$resolve = function () use ( $field, $field_name, $is_resolver ) {
+			if ( $is_resolver ) {
 				$field = call_user_func( $field );
-			} finally {
-				$this->tear_down();
-				self::restore_global_query_state( $global_query_state );
 			}
-		}
 
-		/**
-		 * Filter the data returned by the default callback for the field
-		 *
-		 * @param mixed    $field        The data returned from the callback
-		 * @param string   $field_name   The name of the field on the type
-		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param TData    $data         The un-modeled incoming data
-		 * @param string   $visibility   The visibility setting for this piece of data
-		 * @param int|null $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
-		 * @hookGroup models
-		 * @since 0.3.0
-		 */
-		return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+			/**
+			 * Filter the data returned by the default callback for the field
+			 *
+			 * @param mixed    $field        The data returned from the callback
+			 * @param string   $field_name   The name of the field on the type
+			 * @param string   $model_name   Name of the model the filter is currently being executed in
+			 * @param TData    $data         The un-modeled incoming data
+			 * @param string   $visibility   The visibility setting for this piece of data
+			 * @param int|null $owner        The user ID for the owner of this piece of data
+			 * @param \WP_User $current_user The current user for the session
+			 * @hookGroup models
+			 * @since 0.3.0
+			 */
+			return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+		};
+
+		// Resolvers run with the model set up as the current object. Within the model's part of
+		// the query it already is; anywhere else it is set up around this field and the previous
+		// state is restored afterwards, even if the field throws.
+		return $is_resolver ? NodeContext::run_as( $this, $resolve ) : $resolve();
 	}
 
 	/**
