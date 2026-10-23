@@ -173,6 +173,18 @@ npm run wp-env run tests-cli -- wp plugin install "https://connect.advancedcusto
 
 **Note:** ACF plugins only need to be installed once. They will persist in your wp-env environment until you destroy it (`npm run wp-env destroy`).
 
+### Secure Custom Fields
+
+To run the suite against [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF), the WordPress.org fork of ACF, install SCF instead of ACF. The suite picks whichever plugin is installed, preferring ACF Pro, then ACF Free, then SCF, so remove ACF from the test site first:
+
+```bash
+npm run wp-env run tests-cli -- wp plugin delete advanced-custom-fields advanced-custom-fields-pro --allow-root
+npm run wp-env run tests-cli -- wp plugin install secure-custom-fields --activate --allow-root
+npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
+```
+
+SCF defines `ACF_PRO` and includes ACF Pro's field types, options pages and blocks, so the Pro-only tests run against it too. CI runs the suite against SCF (with WPGraphQL Content Blocks), including on fork PRs, since SCF needs no license.
+
 ### E2E Tests (Playwright)
 
 wp-graphql-acf has Playwright E2E tests. Install ACF first (e.g. `npm run install-test-deps` from `plugins/wp-graphql-acf`), then run:
