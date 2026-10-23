@@ -126,6 +126,8 @@ If a query relies on one of these fields, check that field group's location rule
 
 The "All" value of the Block location rule is also fixed. A field group set to "Block is equal to All" was added to no ACF block type, and now appears on every ACF block type shown in GraphQL. A field group set to "Block is not equal to All" was added to every ACF block type, and now, like ACF itself, matches none, so its fields disappear from blocks after updating.
 
+**Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.

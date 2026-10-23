@@ -291,7 +291,7 @@ class FieldConfig {
 					$field_config['resolve'] = function ( $node, array $args, AppContext $context, ResolveInfo $info ) {
 						$value = $this->resolve_field( $node, $args, $context, $info );
 
-						if ( empty( $value ) && ! is_array( $value ) ) {
+						if ( ! is_array( $value ) && self::is_empty_value( $value ) ) {
 							return null;
 						}
 
@@ -500,22 +500,22 @@ class FieldConfig {
 
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
-		if ( isset( $field_config['key'] ) && ! empty( $root[ $field_config['key'] ] ) ) {
+		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
-		if ( isset( $field_config['__key'] ) && ! empty( $root[ $field_config['__key'] ] ) ) {
+		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['__key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
-		if ( isset( $field_config['name'] ) && ! empty( $root[ '_' . $field_config['name'] ] ) ) {
+		if ( isset( $field_config['name'] ) && isset( $root[ '_' . $field_config['name'] ] ) && ! self::is_empty_value( $root[ '_' . $field_config['name'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ '_' . $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
-		if ( isset( $field_config['name'] ) && ! empty( $root[ $field_config['name'] ] ) ) {
+		if ( isset( $field_config['name'] ) && isset( $root[ $field_config['name'] ] ) && ! self::is_empty_value( $root[ $field_config['name'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
@@ -565,11 +565,11 @@ class FieldConfig {
 			}
 			acf_reset_meta( $block_id );
 
-			if ( empty( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
+			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
 				$return_value = $node['attrs']['data'][ $field_config['name'] ];
 			}
 
-			if ( empty( $return_value ) && ( ! empty( $parent_field_name ) && ! empty( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
+			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
 				$return_value = $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ];
 			}
 		}
@@ -577,12 +577,12 @@ class FieldConfig {
 
 
 		// If there's no node_id at this point, we can return null
-		if ( empty( $return_value ) && empty( $node_id ) ) {
+		if ( self::is_empty_value( $return_value ) && empty( $node_id ) ) {
 			return null;
 		}
 
 		// if a value hasn't been set yet, use the get_field() function to get the value
-		if ( empty( $return_value ) ) {
+		if ( self::is_empty_value( $return_value ) ) {
 			$return_value = $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
 			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
 				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_key, $parent_field_name, $node_id, false ), $field_config );
@@ -591,8 +591,8 @@ class FieldConfig {
 
 		// Prepare the value for response
 		$prepared_value = $this->prepare_acf_field_value( $return_value, $root, $node_id, $field_config );
-		// Empty values are set to null
-		if ( empty( $prepared_value ) ) {
+		// Empty values are set to null (0 and "0" are values, not empty)
+		if ( self::is_empty_value( $prepared_value ) ) {
 			$prepared_value = null;
 		}
 
@@ -605,6 +605,18 @@ class FieldConfig {
 		 * @param mixed $node_id The ID of the node being resolved
 		 */
 		return \apply_filters( 'wpgraphql/acf/field_value', $prepared_value, $field_config, $root, $node_id );
+	}
+
+	/**
+	 * Whether a field value counts as "no value".
+	 *
+	 * Like empty(), except that the number 0 and the string "0" are values: a field that stores 0
+	 * should resolve as 0, not null.
+	 *
+	 * @param mixed $value The field value.
+	 */
+	protected static function is_empty_value( $value ): bool {
+		return null === $value || false === $value || '' === $value || [] === $value;
 	}
 
 	/**
@@ -668,7 +680,7 @@ class FieldConfig {
 		}
 
 		if ( ! empty( $acf_field_config['type'] ) && in_array( $acf_field_config['type'], [ 'number', 'range' ], true ) ) {
-			$value = (float) $value ?: null;
+			$value = is_numeric( $value ) ? (float) $value : null;
 		}
 
 		return $value;
