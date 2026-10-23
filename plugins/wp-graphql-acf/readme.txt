@@ -69,6 +69,10 @@ If you think you found a bug, please [open a bug report](https://github.com/wp-g
 
 Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF has some additional features, such as Flexible Content Fields, Repeater Fields and Options Pages that are supported by WPGraphQL for ACF.
 
+**Does WPGraphQL for ACF work with Secure Custom Fields?**
+
+Yes. [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF), the WordPress.org fork of ACF, is supported the same way as ACF Pro: it includes the Pro field types (such as Repeater, Flexible Content and Clone fields), Options Pages and ACF Blocks, and WPGraphQL for ACF exposes them all. The full test suite runs against SCF in CI. Install either ACF or SCF, not both.
+
 **Do I have to use Faust.js to use WPGraphQL for ACF?**
 
 No! You can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, [Faust.js](https://faustjs.org/), etc.
@@ -112,13 +116,15 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
-= 3.0.1 =
+= 3.1.0 =
 
 **Schema change**: this release fixes ACF location rules that use "is not equal to". Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
 
 This reaches more than just field groups using "Post Type is not equal to". Removals were also cancelled for every field group processed after one that had nothing to remove, so a site with any exclusion rule may see several field groups move.
 
 If a query relies on one of these fields, check that field group's location rules, since the field group is now on exactly the types those rules describe. To keep a field group on types its location rules exclude, enable "Manually Set GraphQL Types for Field Group" on the field group and choose the types directly, which bypasses location rules entirely.
+
+The "All" value of the Block location rule is also fixed. A field group set to "Block is equal to All" was added to no ACF block type, and now appears on every ACF block type shown in GraphQL. A field group set to "Block is not equal to All" was added to every ACF block type, and now, like ACF itself, matches none, so its fields disappear from blocks after updating.
 
 = 3.0.0 =
 

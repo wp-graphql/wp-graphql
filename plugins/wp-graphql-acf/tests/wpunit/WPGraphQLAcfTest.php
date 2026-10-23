@@ -96,7 +96,7 @@ class WPGraphQLAcfTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase 
 	 * acf/ui_options_page/registration_args filter (run at init 0) adds graphql_type_name to the
 	 * options page args; get_field_group_name() then uses it. This test asserts the contract:
 	 * options page with graphql_type_name yields that name, not page_title.
-	 * Options pages are an ACF Pro feature; skip when ACF Free is active.
+	 * Options pages are an ACF Pro feature (Secure Custom Fields has them too); skip when ACF Free is active.
 	 */
 	public function test_options_page_custom_graphql_type_name_used_for_schema_name(): void {
 		if ( ! $this->is_acf_pro ) {
