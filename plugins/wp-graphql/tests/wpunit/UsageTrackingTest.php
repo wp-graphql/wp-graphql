@@ -294,6 +294,23 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( [], $this->requests );
 	}
 
+	public function testAHeldBackOptInDoesNotBlockALaterAdminOptIn(): void {
+		$admin = wp_get_current_user();
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+
+		// The opt-in was held back, so the stored toggle says so.
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( 'off', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
+
+		wp_set_current_user( $admin->ID );
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+
+		$this->assertTrue( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( 'on', get_option( self::SECTION )[ UsageTracking::FIELD_NAME ] );
+	}
+
 	public function testOptingInIsSkippedWithoutAUser(): void {
 		wp_set_current_user( 0 );
 

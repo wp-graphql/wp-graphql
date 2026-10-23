@@ -109,7 +109,7 @@ class UsageTracking {
 				'label'   => __( 'Share Usage Data', 'wp-graphql' ),
 				'desc'    => sprintf(
 					// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-					__( 'Send details about this site to help guide %1$s development, once when checked and then weekly: server environment and WordPress version, site name and URL, site language, active plugins, number of users, and the admin name and email address. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+					__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and the name and email address of a site administrator. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
 					esc_html( $this->product_name ),
 					'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
 				),
@@ -127,7 +127,7 @@ class UsageTracking {
 	 * @param mixed $value     The new option value.
 	 * @param mixed $old_value The stored option value, or false when the option is new.
 	 *
-	 * @return mixed The new option value, unchanged.
+	 * @return mixed The new option value, with the toggle set to the opt-in state that resulted.
 	 */
 	public function on_pre_update_option( $value, $old_value ) {
 		$this->applying = true;
@@ -136,6 +136,13 @@ class UsageTracking {
 			$this->apply_requested_state( $old_value, $value );
 		} finally {
 			$this->applying = false;
+		}
+
+		// Store the real state, not the requested one. When an opt-in is held back (no
+		// `manage_options`, or no user), storing "on" would make a later admin opt-in look
+		// unchanged, and it would never be applied.
+		if ( is_array( $value ) && isset( $value[ self::FIELD_NAME ] ) ) {
+			$value[ self::FIELD_NAME ] = $this->is_tracking_allowed() ? 'on' : 'off';
 		}
 
 		return $value;

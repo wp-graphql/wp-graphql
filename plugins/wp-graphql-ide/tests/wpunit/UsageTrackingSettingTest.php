@@ -199,9 +199,9 @@ class UsageTrackingSettingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		remove_filter( 'graphql_manage_settings_cap', $lower_cap );
 
-		// The save itself goes through; only the opt-in is held back.
+		// The opt-in is held back, and the stored toggle records that rather than the request.
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertTrue( $response['data']['updateGraphqlSetting']['success'] );
+		$this->assertSame( 'off', get_option( 'graphql_ide_settings' )['share_usage_data'] ?? 'off' );
 
 		$this->assertNotSame( 'yes', get_option( $this->slug . '_allow_tracking' ) );
 		$this->assertFalse( wp_next_scheduled( $this->slug . '_tracker_send_event' ) );
