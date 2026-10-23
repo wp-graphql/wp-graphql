@@ -719,17 +719,29 @@ class LocationRules {
 		}
 
 		if ( '==' === $operator ) {
-			$acf_block = acf_get_block_type( $value );
+			// "All" matches every ACF block type, so map the field group to each one shown in GraphQL
+			$acf_blocks = 'all' === $value ? acf_get_block_types() : [ acf_get_block_type( $value ) ];
 
-			if ( empty( $acf_block ) || ! \WPGraphQL\Acf\Utils::should_field_group_show_in_graphql( $acf_block ) ) {
+			if ( empty( $acf_blocks ) || ! is_array( $acf_blocks ) ) {
 				return;
 			}
 
-			$type_name = \WPGraphQL\Acf\Utils::get_field_group_name( $acf_block );
-			$this->set_graphql_type( $field_group_name, $type_name );
+			foreach ( $acf_blocks as $acf_block ) {
+				if ( empty( $acf_block ) || ! is_array( $acf_block ) || ! \WPGraphQL\Acf\Utils::should_field_group_show_in_graphql( $acf_block ) ) {
+					continue;
+				}
+
+				$type_name = \WPGraphQL\Acf\Utils::get_field_group_name( $acf_block );
+				$this->set_graphql_type( $field_group_name, $type_name );
+			}
 		}
 
 		if ( '!=' === $operator ) {
+			// "Not equal to all" matches no block, so there is nothing to map
+			if ( 'all' === $value ) {
+				return;
+			}
+
 			$acf_blocks = acf_get_block_types();
 
 			if ( empty( $acf_blocks ) || ! is_array( $acf_blocks ) ) {
