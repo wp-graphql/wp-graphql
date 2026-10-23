@@ -1177,6 +1177,55 @@ class LocationRulesTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase
 		$this->assertNotContains( 'NotEqualBlockOne', $result['mygroup'] );
 	}
 
+	/**
+	 * Registers one ACF block type shown in GraphQL and one hidden from it, for the "All" rule tests.
+	 */
+	private function register_all_rule_block_types(): void {
+		$blocks = [
+			'all-rule-visible-block' => [ 'AllRuleVisibleBlock', true ],
+			'all-rule-hidden-block'  => [ 'AllRuleHiddenBlock', false ],
+		];
+
+		foreach ( $blocks as $name => [ $graphql_name, $show_in_graphql ] ) {
+			// The block registry persists across tests, so only register once
+			if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'acf/' . $name ) ) {
+				acf_register_block_type( [
+					'name'               => $name,
+					'title'              => $graphql_name,
+					'show_in_graphql'    => $show_in_graphql,
+					'graphql_field_name' => $graphql_name,
+				] );
+			}
+		}
+	}
+
+	public function testDetermineBlockRulesEqualsAll(): void {
+		if ( ! function_exists( 'acf_register_block_type' ) ) {
+			$this->markTestSkipped( 'ACF Blocks are not available in this test environment' );
+		}
+
+		$this->register_all_rule_block_types();
+
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_block_rules( 'MyGroup', 'block', '==', 'all' );
+		$result = $rules->get_rules();
+		$this->assertArrayHasKey( 'mygroup', $result );
+		$this->assertContains( 'AllRuleVisibleBlock', $result['mygroup'] );
+		$this->assertNotContains( 'AllRuleHiddenBlock', $result['mygroup'] );
+	}
+
+	public function testDetermineBlockRulesNotEqualsAll(): void {
+		if ( ! function_exists( 'acf_register_block_type' ) ) {
+			$this->markTestSkipped( 'ACF Blocks are not available in this test environment' );
+		}
+
+		$this->register_all_rule_block_types();
+
+		$rules = new \WPGraphQL\Acf\LocationRules\LocationRules( [] );
+		$rules->determine_block_rules( 'MyGroup', 'block', '!=', 'all' );
+		$this->assertSame( [], $rules->get_rules() );
+	}
+
 	// --- determine_options_rules ---
 
 	public function testDetermineOptionsRulesNotEqualsOptionsPage(): void {
