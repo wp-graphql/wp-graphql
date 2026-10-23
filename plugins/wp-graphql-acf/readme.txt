@@ -126,6 +126,8 @@ If a query relies on one of these fields, check that field group's location rule
 
 The "All" value of the Block location rule is also fixed. A field group set to "Block is equal to All" was added to no ACF block type, and now appears on every ACF block type shown in GraphQL. A field group set to "Block is not equal to All" was added to every ACF block type, and now, like ACF itself, matches none, so its fields disappear from blocks after updating.
 
+**Field group settings on ACF before 6.1.** On ACF versions older than 6.1, saving a field group could rewrite a "Taxonomy is equal to" location rule as "Post Taxonomy is equal to", give the field group a new key, and reset its GraphQL settings (Show in GraphQL, GraphQL Type Name and the rest) to their defaults. That no longer happens, but field groups already saved this way aren't repaired by updating. If your site runs an ACF version older than 6.1, open your field groups and check their location rules and GraphQL settings. See #4527.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
