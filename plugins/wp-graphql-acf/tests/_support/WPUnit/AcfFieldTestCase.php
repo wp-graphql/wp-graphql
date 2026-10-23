@@ -658,6 +658,24 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 
 	}
 
+
+	/**
+	 * Returns the description of a field in a __type introspection response, found by name.
+	 *
+	 * The type's fields also include fieldGroupName, so the field under test isn't necessarily first.
+	 *
+	 * @param array  $actual     The GraphQL response for a __type { fields { name description } } query.
+	 * @param string $field_name The name of the field.
+	 */
+	protected function get_type_field_description( array $actual, string $field_name ): string {
+		foreach ( $actual['data']['__type']['fields'] ?? [] as $field ) {
+			if ( $field_name === $field['name'] ) {
+				return (string) $field['description'];
+			}
+		}
+
+		return '';
+	}
 	/**
 	 * @throws \Exception
 	 */
@@ -700,7 +718,7 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 
 		] );
 
-		$this->assertStringContainsString( $instructions, $actual['data']['__type']['fields'][0]['description'] );
+		$this->assertStringContainsString( $instructions, $this->get_type_field_description( $actual, $this->get_formatted_field_name() ) );
 
 		// remove the local field
 		acf_remove_local_field( $field_key );
@@ -750,7 +768,7 @@ abstract class AcfFieldTestCase extends WPGraphQLAcfTestCase {
 			]),
 		] );
 
-		$this->assertStringContainsString( $graphql_description, $actual['data']['__type']['fields'][0]['description'] );
+		$this->assertStringContainsString( $graphql_description, $this->get_type_field_description( $actual, $this->get_formatted_field_name() ) );
 
 
 		// remove the local field
