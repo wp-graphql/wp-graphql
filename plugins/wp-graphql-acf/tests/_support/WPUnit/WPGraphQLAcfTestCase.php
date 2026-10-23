@@ -107,10 +107,9 @@ class WPGraphQLAcfTestCase extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->clearSchema();
 		Utils::clear_field_type_registry();
 
-		$active_plugins = get_option( 'active_plugins' );
-
-		// whether the tests are being run with ACF pro or not
-		$this->is_acf_pro = in_array( 'advanced-custom-fields-pro/acf.php', $active_plugins, true );
+		// Whether the PRO features (repeater, flexible content, options pages, blocks...) are available.
+		// Checked by feature rather than plugin path, because Secure Custom Fields provides them too.
+		$this->is_acf_pro = defined( 'ACF_PRO' ) && ACF_PRO;
 
 		$this->test_image = dirname( __FILE__, 3 ) . '/_data/images/test.png';
 		$this->test_image_2 = dirname( __FILE__, 3 ) . '/_data/images/test2.png';
