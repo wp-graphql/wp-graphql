@@ -69,6 +69,10 @@ If you think you found a bug, please [open a bug report](https://github.com/wp-g
 
 Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF has some additional features, such as Flexible Content Fields, Repeater Fields and Options Pages that are supported by WPGraphQL for ACF.
 
+**Does WPGraphQL for ACF work with Secure Custom Fields?**
+
+Yes. [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF), the WordPress.org fork of ACF, is supported the same way as ACF Pro: it includes the Pro field types (such as Repeater, Flexible Content and Clone fields), Options Pages and ACF Blocks, and WPGraphQL for ACF exposes them all. The full test suite runs against SCF in CI. Install either ACF or SCF, not both.
+
 **Do I have to use Faust.js to use WPGraphQL for ACF?**
 
 No! You can use WPGraphQL for ACF with any GraphQL client, including Apollo, Relay, Urql, [Faust.js](https://faustjs.org/), etc.

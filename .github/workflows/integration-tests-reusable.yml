@@ -50,6 +50,11 @@ on:
         required: false
         type: string
         default: ''
+      scf:
+        description: "Whether to install Secure Custom Fields (the WordPress.org fork of ACF) instead of ACF. Can't be combined with acf_pro. Pass 'true' or 'false'."
+        required: false
+        type: string
+        default: 'false'
       acf_extended:
         description: "Whether to install ACF Extended. Pass 'true' or 'false'."
         required: false
@@ -242,7 +247,7 @@ jobs:
       - name: Install ACF plugins (if configured)
         # Always install ACF for wp-graphql-acf plugin (it's required)
         # For other plugins, only install if explicitly requested
-        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == 'true' || inputs.acf_extended == 'true' || inputs.wpgraphql_content_blocks == true
+        if: inputs.plugin_name == 'wp-graphql-acf' || inputs.acf_pro == 'true' || inputs.scf == 'true' || inputs.acf_extended == 'true' || inputs.wpgraphql_content_blocks == true
         env:
           ACF_LICENSE_KEY: ${{ secrets.ACF_LICENSE_KEY }}
           ACF_EXTENDED_LICENSE_KEY: ${{ secrets.ACF_EXTENDED_LICENSE_KEY }}
@@ -252,6 +257,7 @@ jobs:
           INPUT_ACF_EXTENDED_PRO: ${{ inputs.acf_extended_pro }}
           INPUT_PLUGIN_NAME: ${{ inputs.plugin_name }}
           INPUT_ACF_VERSION: ${{ inputs.acf_version }}
+          INPUT_SCF: ${{ inputs.scf }}
         run: |
           echo "Installing ACF plugins based on configuration..."
           echo "  INPUT_ACF_PRO=$INPUT_ACF_PRO INPUT_ACF_EXTENDED=$INPUT_ACF_EXTENDED INPUT_ACF_EXTENDED_PRO=$INPUT_ACF_EXTENDED_PRO"
@@ -263,7 +269,24 @@ jobs:
 
           # Determine ACF plugin slug based on Pro/Free
           ACF_PLUGIN_SLUG="advanced-custom-fields/acf.php"
-          if [ "$INPUT_ACF_PRO" = "true" ]; then
+          if [ "$INPUT_SCF" = "true" ]; then
+            # Secure Custom Fields is a fork of ACF and replaces it, so it's never installed alongside ACF.
+            if [ "$INPUT_ACF_PRO" = "true" ]; then
+              echo "::error::scf and acf_pro can't both be set: Secure Custom Fields replaces ACF."
+              exit 1
+            fi
+            echo "Installing Secure Custom Fields..."
+            if [ -n "$INPUT_ACF_VERSION" ] && [ "$INPUT_ACF_VERSION" != "" ]; then
+              npm run wp-env -- run tests-cli -- wp plugin install secure-custom-fields --version="${INPUT_ACF_VERSION}" --activate --allow-root
+            else
+              npm run wp-env -- run tests-cli -- wp plugin install secure-custom-fields --activate --allow-root
+            fi
+            if ! npm run --silent wp-env -- run tests-cli -- wp plugin is-active secure-custom-fields --allow-root >/dev/null 2>&1; then
+              echo "::error::Secure Custom Fields is not installed and active, so it can't be tested."
+              exit 1
+            fi
+            ACF_PLUGIN_SLUG="secure-custom-fields/secure-custom-fields.php"
+          elif [ "$INPUT_ACF_PRO" = "true" ]; then
             if [ -z "$ACF_LICENSE_KEY" ]; then
               echo "::error::ACF Pro was requested but ACF_LICENSE_KEY is not set, so ACF Pro can't be tested."
               exit 1
