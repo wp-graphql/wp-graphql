@@ -148,6 +148,10 @@ final class Extensions {
 				'graphqlEndpoint'  => trailingslashit( site_url() ) . 'index.php?' . graphql_get_endpoint(),
 				'extensions'       => $this->get_extensions(),
 				'pluginsInstalled' => $this->get_installed_plugins(),
+				// Where to send the user when installing or activating from this page fails.
+				// On multisite, plugins are only installed from the network admin (the site admin's plugin-install.php redirects there, dropping the search).
+				'pluginInstallUrl' => is_multisite() ? network_admin_url( 'plugin-install.php' ) : admin_url( 'plugin-install.php' ),
+				'pluginsUrl'       => admin_url( 'plugins.php' ),
 			]
 		);
 	}
