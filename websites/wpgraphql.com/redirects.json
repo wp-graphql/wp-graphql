@@ -94,7 +94,7 @@
   },
   {
     "source": "/acf",
-    "destination": "/docs/acf",
+    "destination": "/extensions/wp-graphql-acf",
     "permanent": true
   },
   {
