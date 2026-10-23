@@ -1,17 +1,50 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { describeExtensionError, isFolderExistsError } from './utils';
+
+/**
+ * @typedef {Object} ExtensionError
+ * @property {'install'|'activate'} action  The step that failed.
+ * @property {string}               message A short, readable description of the failure.
+ * @property {string}               details The original error, as plain text, for debugging.
+ */
 
 const useInstallPlugin = (pluginUrl, pluginPath, pluginFile) => {
 	const [installing, setInstalling] = useState(false);
 	const [activating, setActivating] = useState(false);
 	const [status, setStatus] = useState('');
-	const [error, setError] = useState('');
+	/** @type {[ExtensionError|null, Function]} */
+	const [error, setError] = useState(null);
 
 	// Helper function to update the status and error states
-	const updateStatus = (newStatus, newError = '') => {
+	const updateStatus = (newStatus, newError = null) => {
 		setStatus(newStatus);
 		setError(newError);
+	};
+
+	/**
+	 * Records a failed install or activation and returns the error to throw.
+	 *
+	 * @param {'install'|'activate'} action The step that failed.
+	 * @param {*}                    err    The error thrown by apiFetch, or the unexpected response.
+	 * @return {Error} The error to re-throw to the caller, with the failed step in `action`.
+	 */
+	const fail = (action, err) => {
+		const { message, details } = describeExtensionError(err, action);
+
+		updateStatus(
+			'install' === action
+				? __('Installation failed', 'wp-graphql')
+				: __('Activation failed', 'wp-graphql'),
+			{ action, message, details }
+		);
+
+		const failure = new Error(message);
+		failure.action = action;
+		failure.cause = err;
+
+		return failure;
 	};
 
 	// Helper function to update the plugin's activation state in wpgraphqlExtensions
@@ -47,25 +80,22 @@ const useInstallPlugin = (pluginUrl, pluginPath, pluginFile) => {
 				},
 			});
 
-			const jsonResponse = activateResult;
-
-			if (jsonResponse.status === 'active') {
-				updateStatus(__('Active', 'wp-graphql'));
-				updateExtensionStatus(true);
-				return true; // Indicate success
-			} else if (
-				jsonResponse.message.includes('Plugin file does not exist')
-			) {
-				throw new Error(__('Plugin file does not exist', 'wp-graphql'));
-			} else {
-				throw new Error(__('Activation failed', 'wp-graphql'));
+			if (activateResult?.status !== 'active') {
+				// A successful response that does not confirm activation: report its message, if it has one.
+				const unexpected = new Error(
+					'string' === typeof activateResult?.message
+						? activateResult.message
+						: ''
+				);
+				unexpected.status = 'error';
+				throw unexpected;
 			}
+
+			updateStatus(__('Active', 'wp-graphql'));
+			updateExtensionStatus(true);
+			return true; // Indicate success
 		} catch (err) {
-			updateStatus(
-				__('Activation failed', 'wp-graphql'),
-				err.message || __('Activation failed', 'wp-graphql')
-			);
-			throw err; // Re-throw error to handle in PluginCard
+			throw fail('activate', err); // Re-throw error to handle in PluginCard
 		} finally {
 			setInstalling(false);
 			setActivating(false);
@@ -81,8 +111,10 @@ const useInstallPlugin = (pluginUrl, pluginPath, pluginFile) => {
 			.filter(Boolean)
 			.pop();
 
+		let installResult;
+
 		try {
-			const installResult = await apiFetch({
+			installResult = await apiFetch({
 				path: '/wp/v2/plugins',
 				method: 'POST',
 				data: {
@@ -93,30 +125,29 @@ const useInstallPlugin = (pluginUrl, pluginPath, pluginFile) => {
 					'X-WP-Nonce': wpgraphqlExtensions.nonce,
 				},
 			});
-
-			if (installResult.status !== 'inactive') {
-				throw new Error(__('Installation failed', 'wp-graphql'));
-			}
-
-			// The REST response names the installed plugin ("dir/file" without the .php suffix),
-			// which is more reliable than guessing the path from the slug.
-			const installedPath = installResult.plugin
-				? `${installResult.plugin}.php`
-				: pluginPath;
-
-			await activatePlugin(installedPath);
 		} catch (err) {
-			if (err.message.includes('destination folder already exists')) {
-				await activatePlugin(pluginPath);
-			} else {
-				updateStatus(
-					__('Installation failed', 'wp-graphql'),
-					err.message || __('Installation failed', 'wp-graphql')
-				);
-				setInstalling(false);
-				throw err; // Re-throw error to handle in PluginCard
+			// The plugin is already on disk (e.g. an earlier attempt installed it), so activate it instead.
+			if (isFolderExistsError(err)) {
+				return activatePlugin(pluginPath);
 			}
+
+			setInstalling(false);
+			throw fail('install', err); // Re-throw error to handle in PluginCard
 		}
+
+		if (installResult?.status !== 'inactive') {
+			setInstalling(false);
+			throw fail('install', installResult);
+		}
+
+		// The REST response names the installed plugin ("dir/file" without the .php suffix),
+		// which is more reliable than guessing the path from the slug.
+		const installedPath = installResult.plugin
+			? `${installResult.plugin}.php`
+			: pluginPath;
+
+		// Activation errors are reported (and re-thrown) by activatePlugin as activation failures.
+		return activatePlugin(installedPath);
 	};
 
 	return {

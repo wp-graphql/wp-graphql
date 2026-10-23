@@ -64,3 +64,31 @@
         padding-left: 2ex;
     }
 }
+
+/* The error shown on a card when installing or activating its plugin fails. */
+.plugin-card .wpgraphql-extension-error {
+    margin: 0;
+
+    p {
+        margin: 0.5em 0;
+    }
+
+    .wpgraphql-extension-error__message {
+        font-weight: 600;
+    }
+
+    .wpgraphql-extension-error__details {
+        margin: 0.5em 0;
+
+        summary {
+            cursor: pointer;
+        }
+
+        pre {
+            max-height: 12em;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    }
+}
