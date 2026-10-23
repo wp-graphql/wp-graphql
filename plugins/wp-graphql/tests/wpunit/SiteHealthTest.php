@@ -176,7 +176,10 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 	}
 
-	public function testNeverReportsCritical(): void {
+	/**
+	 * Saves settings that every test recommends changing.
+	 */
+	private function flag_every_test(): void {
 		$this->set_debug_mode( true );
 		$this->save_settings(
 			[
@@ -188,10 +191,63 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'query_log_user_role'          => 'any',
 			]
 		);
+	}
+
+	public function testNeverReportsCritical(): void {
+		$this->flag_every_test();
 
 		foreach ( self::TEST_IDS as $id ) {
 			$this->assertSame( 'recommended', $this->run_test( $id )['status'], $id );
 		}
+	}
+
+	public function testDescriptionsAndActionsSurviveSanitizing(): void {
+		// Site Health shows these as HTML, so they must only use markup that's allowed in posts.
+		foreach ( [ 'good', 'recommended' ] as $state ) {
+			if ( 'good' === $state ) {
+				// Depth limiting is off by default, so it has to be turned on for every test to pass.
+				$this->save_settings( [ 'query_depth_enabled' => 'on' ] );
+			} else {
+				$this->flag_every_test();
+			}
+
+			foreach ( self::TEST_IDS as $id ) {
+				$result = $this->run_test( $id );
+
+				$this->assertSame( $state, $result['status'], $id );
+				$this->assertSame( wp_kses_post( $result['description'] ), $result['description'], $id );
+				$this->assertSame( wp_kses_post( $result['actions'] ), $result['actions'], $id );
+			}
+		}
+	}
+
+	public function testDocsLinksPointAtSectionsThatExist(): void {
+		$this->flag_every_test();
+
+		// The headings of the security docs, as the anchors the docs site gives them.
+		$docs = file_get_contents( dirname( __DIR__, 2 ) . '/docs/security.md' );
+		preg_match_all( '/^#{2,6} (.+)$/m', (string) $docs, $headings );
+		$anchors = array_map(
+			static function ( string $heading ): string {
+				return trim( (string) preg_replace( '/[^a-z0-9]+/', '-', strtolower( $heading ) ), '-' );
+			},
+			$headings[1]
+		);
+
+		$linked = 0;
+		foreach ( self::TEST_IDS as $id ) {
+			$result = $this->run_test( $id );
+
+			$this->assertStringContainsString( 'https://www.wpgraphql.com/docs/security', $result['actions'], $id );
+
+			if ( preg_match( '/docs\/security#([a-z0-9-]+)/', $result['actions'], $match ) ) {
+				$this->assertContains( $match[1], $anchors, "{$id} links to #{$match[1]}, which isn't a heading in docs/security.md" );
+				++$linked;
+			}
+		}
+
+		// The introspection and query depth recommendations link to their own sections.
+		$this->assertSame( 2, $linked );
 	}
 
 	public function testPublicIntrospectionIsGoodByDefault(): void {
@@ -249,7 +305,7 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'good', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
 	}
 
-	public function testPublicIntrospectionFollowsTheRestrictEndpointFilter(): void {
+	public function testPublicIntrospectionIsGoodWhenTheRestrictEndpointFilterRestrictsTheApi(): void {
 		$this->save_settings(
 			[
 				'public_introspection_enabled'         => 'on',
@@ -259,14 +315,15 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		add_filter( 'graphql_pre_restrict_endpoint', '__return_true' );
 
 		$this->assertSame( 'good', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
+	}
 
+	public function testPublicIntrospectionIsRecommendedWhenTheRestrictEndpointFilterOverridesTheSetting(): void {
 		$this->save_settings(
 			[
 				'public_introspection_enabled'         => 'on',
 				'restrict_endpoint_to_logged_in_users' => 'on',
 			]
 		);
-		remove_all_filters( 'graphql_pre_restrict_endpoint' );
 		add_filter( 'graphql_pre_restrict_endpoint', '__return_false' );
 
 		$this->assertSame( 'recommended', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
