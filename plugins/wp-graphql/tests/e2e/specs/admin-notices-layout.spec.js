@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { loginToWordPressAdmin, wpAdminUrl } from '../utils.js';
+import {
+	loginToWordPressAdmin,
+	setPluginActive,
+	wpAdminUrl,
+} from '../utils.js';
 
 /**
  * @file admin-notices-layout.spec.js
@@ -10,31 +14,6 @@ import { loginToWordPressAdmin, wpAdminUrl } from '../utils.js';
  */
 
 const noticesPluginFile = 'settings-page-spec/admin-notices-spec.php';
-
-/**
- * Activates or deactivates a plugin from the Plugins screen.
- *
- * The row is found by its plugin file, because every plugin in the same folder shares a slug.
- *
- * @param {import('@playwright/test').Page} page       The Playwright page object.
- * @param {string}                          pluginFile The plugin file, relative to the plugins folder.
- * @param {boolean}                         active     Whether the plugin should be active.
- */
-async function setPluginActive(page, pluginFile, active) {
-	await page.goto(`${wpAdminUrl}/plugins.php`, { waitUntil: 'networkidle' });
-
-	const row = page.locator(`tr[data-plugin="${pluginFile}"]`);
-	const isActive = await row.locator('.deactivate a').isVisible();
-
-	if (isActive !== active) {
-		await row.locator(active ? '.activate a' : '.deactivate a').click();
-		await page.waitForLoadState('networkidle');
-	}
-
-	await expect(
-		row.locator(active ? '.deactivate a' : '.activate a')
-	).toBeVisible();
-}
 
 /**
  * The notices registered by this spec's own test plugin.
