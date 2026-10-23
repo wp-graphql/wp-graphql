@@ -31,7 +31,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Fields that report what WordPress considers the current object while they resolve.
 		add_action(
 			'graphql_register_types',
-			function () {
+			static function () {
 				$current_state = [
 					'type'    => 'String',
 					'resolve' => static function () {
@@ -60,6 +60,19 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 						'type'    => [ 'list_of' => 'ModelGlobalQueryStateTestPart' ],
 						'resolve' => static function () {
 							return [ [ 'part' => 1 ], [ 'part' => 2 ] ];
+						},
+					]
+				);
+
+				// A nested object resolved from the post itself, the way some plugins expose an "seo"
+				// object whose source is the post.
+				register_graphql_field(
+					'Post',
+					'self',
+					[
+						'type'    => 'Post',
+						'resolve' => static function ( $post ) {
+							return $post;
 						},
 					]
 				);
@@ -278,6 +291,35 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	/**
+	 * A node is set up once for its part of the query, not around each of its fields, and not
+	 * again for a nested object that resolves to the same model.
+	 */
+	public function testNodeIsSetUpOncePerPartOfTheQuery() {
+		$post_id = $this->create_post();
+
+		$main_query_parses = 0;
+		$count_parses      = static function ( $query ) use ( &$main_query_parses ) {
+			if ( $query === $GLOBALS['wp_query'] ) {
+				++$main_query_parses;
+			}
+		};
+		add_action( 'parse_query', $count_parses );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: Int! ) { modelPost( id: $id ) { title self { currentState self { currentState } } databaseId slug } }',
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		remove_action( 'parse_query', $count_parses );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['modelPost']['self']['self']['currentState'] );
+		$this->assertSame( 1, $main_query_parses );
+	}
+
+	/**
 	 * Term nodes are set up as the current object for their part of the query too.
 	 */
 	public function testFieldRegisteredOnACategorySeesTheCategory() {
@@ -350,6 +392,9 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertSame( $before, $this->global_state() );
 	}
 
+	/**
+	 * Reading a Term model's fields from PHP restores the state afterwards.
+	 */
 	public function testTermModelRestoresTheGlobalStateAfterAField() {
 		$term_id = self::factory()->category->create();
 		$before  = $this->global_state();
@@ -360,6 +405,9 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertSame( $before, $this->global_state() );
 	}
 
+	/**
+	 * Reading a User model's fields from PHP restores the state afterwards.
+	 */
 	public function testUserModelRestoresTheGlobalStateAfterAField() {
 		// Resolve as an administrator so the user is visible regardless of their published posts.
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );

@@ -53,21 +53,21 @@ final class NodeContext {
 	/**
 	 * The model whose context is currently applied to the global state, if any.
 	 *
-	 * @var ?\WPGraphQL\Model\Model
+	 * @var ?\WPGraphQL\Model\Model<mixed>
 	 */
 	private static $active_model;
 
 	/**
 	 * The models that own a node in the query, keyed by the node's response path.
 	 *
-	 * @var array<string,\WPGraphQL\Model\Model>
+	 * @var array<string,\WPGraphQL\Model\Model<mixed>>
 	 */
 	private $owners = [];
 
 	/**
 	 * The node contexts currently applied, outermost first.
 	 *
-	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model,state:array<string,mixed>,previous:?\WPGraphQL\Model\Model}>
+	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model<mixed>,state:array<string,mixed>,previous:?\WPGraphQL\Model\Model<mixed>}>
 	 */
 	private $stack = [];
 
@@ -127,7 +127,9 @@ final class NodeContext {
 		foreach ( $parent_path as $segment ) {
 			$key = null === $key ? (string) $segment : $key . '/' . $segment;
 
-			if ( isset( $this->owners[ $key ] ) ) {
+			// A model passed down as the source of a nested object (say, an "seo" object resolved
+			// from the post) is already set up by the node above, so it isn't set up again.
+			if ( isset( $this->owners[ $key ] ) && ( empty( $chain ) || end( $chain )[1] !== $this->owners[ $key ] ) ) {
 				$chain[] = [ $key, $this->owners[ $key ] ];
 			}
 		}
@@ -142,7 +144,7 @@ final class NodeContext {
 			++$shared;
 		}
 
-		while ( count( $this->stack ) > $shared ) {
+		for ( $depth = count( $this->stack ); $depth > $shared; $depth-- ) {
 			$this->pop();
 		}
 
@@ -161,8 +163,8 @@ final class NodeContext {
 	 *
 	 * @template T
 	 *
-	 * @param \WPGraphQL\Model\Model $model    The model to set up.
-	 * @param callable():T           $callback The callback to run.
+	 * @param \WPGraphQL\Model\Model<mixed> $model    The model to set up.
+	 * @param callable():T                  $callback The callback to run.
 	 *
 	 * @return T
 	 */
@@ -189,8 +191,10 @@ final class NodeContext {
 	/**
 	 * Sets up a node's context on top of the ones already applied.
 	 *
-	 * @param string                 $key   The node's response path.
-	 * @param \WPGraphQL\Model\Model $model The model that owns the node.
+	 * @param string                        $key   The node's response path.
+	 * @param \WPGraphQL\Model\Model<mixed> $model The model that owns the node.
+	 *
+	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
 	 */
 	private function push( string $key, Model $model ): void {
 		$state    = self::capture_global_state();
@@ -259,7 +263,7 @@ final class NodeContext {
 	 *
 	 * Models that don't, such as Comment, leave the context of the node above them in place.
 	 *
-	 * @param \WPGraphQL\Model\Model $model The model.
+	 * @param \WPGraphQL\Model\Model<mixed> $model The model.
 	 */
 	private static function sets_up_context( Model $model ): bool {
 		$class = get_class( $model );
