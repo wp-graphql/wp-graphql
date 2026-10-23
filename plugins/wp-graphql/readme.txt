@@ -80,6 +80,12 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.26.0 =
+
+**Model fields no longer leave global query state behind.** While a post, term or user field resolves, WPGraphQL sets that object up as the current one on the global query (`$wp_query` and the global `$post`), so filters that run during resolution see it. That state is now put back once the field has resolved. Before, the last object resolved stayed "current" for the rest of the request, so code that read `get_queried_object()`, `is_singular()`, `is_category()`, `is_author()` or the global `$post` later in the request, including other fields' resolvers and code running on `shutdown`, saw that object instead of the request's actual query.
+
+If a custom resolver relied on that, read the object from the resolver's source argument instead (for example `$post->databaseId`). The object is still current while its own fields resolve, so filters that run during resolution are unaffected. See #4572.
+
 = 2.24.2 =
 
 **Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.
