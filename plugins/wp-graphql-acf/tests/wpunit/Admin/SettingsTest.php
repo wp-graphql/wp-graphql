@@ -145,6 +145,43 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$this->assertArrayHasKey( 'wpgraphql-acf-meta-box', $wp_meta_boxes['acf-field-group']['advanced']['default'] ?? [] );
 	}
 
+	/**
+	 * Regression test for wp-graphql/wp-graphql#4527.
+	 *
+	 * Before ACF 6.1 the GraphQL settings render in a meta box, whose callback receives the field
+	 * group's WP_Post rather than the field group. The settings then rendered their defaults instead
+	 * of the saved values, and an empty `acf_field_group[key]` input that overwrote the key ACF
+	 * submits, so saving the field group ran ACF's legacy migration and rewrote its location rules.
+	 */
+	public function test_meta_box_renders_the_saved_field_group_settings(): void {
+		$field_group = acf_update_field_group(
+			[
+				'key'                => 'group_meta_box_4527',
+				'title'              => 'Meta Box Field Group',
+				'show_in_graphql'    => 1,
+				'graphql_field_name' => 'MetaBoxSavedTypeName',
+				'location'           => [
+					[
+						[
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => 'post',
+						],
+					],
+				],
+			]
+		);
+
+		ob_start();
+		$this->settings->display_graphql_field_group_fields( get_post( $field_group['ID'] ) );
+		$output = ob_get_clean();
+
+		acf_delete_field_group( $field_group['ID'] );
+
+		$this->assertStringContainsString( 'MetaBoxSavedTypeName', $output, 'The saved GraphQL Type Name should be rendered, not the default.' );
+		$this->assertDoesNotMatchRegularExpression( '/name="acf_field_group\\[key\\]"\\s+value=""/', $output, 'An empty field group key input should not be rendered.' );
+	}
+
 	public function test_wpgraphql_admin_table_columns_html_default_column_echoes_null(): void {
 		ob_start();
 		$this->settings->wpgraphql_admin_table_columns_html( 'unknown-column', 0 );
