@@ -33,6 +33,11 @@ export const featuredExtensions = [
     description: "Expose Advanced Custom Fields to the GraphQL schema.",
     theme: "theme-acf",
     Mark: WPGraphQLACFLogoMark,
+    // Title substrings that mark a CMS ExtensionPlugin listing as this plugin, so
+    // it isn't shown again in the community grid. The CMS entry is currently
+    // "WPGraphQL for Advanced Custom Fields"; the others are defensive, covering
+    // a rename to the plugin's short name ("WPGraphQL for ACF") or a listing
+    // under the Secure Custom Fields name.
     aliases: [
       "advanced custom fields",
       "for acf",
