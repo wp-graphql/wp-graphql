@@ -46,7 +46,7 @@ on:
         type: string
         default: 'false'
       acf_version:
-        description: 'Specific ACF version to install (optional, defaults to latest)'
+        description: 'Exact ACF version to install, e.g. 6.3.12 (optional, defaults to latest). The step fails if the installed version does not match it exactly.'
         required: false
         type: string
         default: ''
