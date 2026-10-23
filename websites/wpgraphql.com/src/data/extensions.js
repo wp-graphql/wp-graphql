@@ -33,7 +33,12 @@ export const featuredExtensions = [
     description: "Expose Advanced Custom Fields to the GraphQL schema.",
     theme: "theme-acf",
     Mark: WPGraphQLACFLogoMark,
-    aliases: ["advanced custom fields", "for acf"],
+    aliases: [
+      "advanced custom fields",
+      "for acf",
+      "secure custom fields",
+      "scf",
+    ],
   },
   {
     name: "WPGraphQL Smart Cache",
