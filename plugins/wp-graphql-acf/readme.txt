@@ -32,7 +32,7 @@ If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgra
 
 For non-major version updates, automatic updates usually should work smoothly, but we still recommend you back up your site and test on a staging site.
 
-Before updating WPGraphQL for ACF, review the release notes on [GitHub](https://github.com/wp-graphql/wpgraphql-acf/releases).
+Before updating WPGraphQL for ACF, review the [release notes on GitHub](https://github.com/wp-graphql/wp-graphql/releases). Look for releases tagged with `wp-graphql-acf/v*`.
 
 We follow Semantic Versioning (Semver) for meaningful releases:
 
@@ -63,7 +63,7 @@ At this time WPGraphQL for ACF does not support filtering or sorting queries by 
 
 **I think I found a bug, where do I report it?**
 
-If you think you found a bug, please open an issue on [GitHub](https://github.com/wp-graphql/wpgraphql-acf). The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
+If you think you found a bug, please [open a bug report](https://github.com/wp-graphql/wp-graphql/issues/new?template=bug_report.yml) in the WPGraphQL monorepo and pick "WPGraphQL for ACF" from the plugin dropdown. The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
 
 **Can I use ACF Free or Pro with WPGraphQL for ACF?**
 
@@ -87,7 +87,7 @@ WPGraphQL for ACF is a FREE open-source plugin. The development is sponsored by 
 
 **Does WPGraphQL for ACF support GraphQL Mutations?**
 
-Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wpgraphql-acf/issues/109) for progress.
+Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wp-graphql/issues/4551) for progress.
 
 **Does this work with Field Groups registered in PHP or JSON?**
 
@@ -130,7 +130,7 @@ Please review these changes before upgrading.
 
 = 2.3.0 =
 
-This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
+This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wp-graphql/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
 
 = 2.1.0 =
 

@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import useInstallPlugin from './useInstallPlugin';
-import { getButtonDetails } from './utils';
+import { getButtonDetails, getPluginsScreenUrl } from './utils';
 
 const PluginCard = ({ plugin }) => {
 	const {
@@ -26,6 +26,13 @@ const PluginCard = ({ plugin }) => {
 		setIsActive(plugin.active);
 	}, [plugin]);
 
+	// Show each new error, even if the previous one was dismissed.
+	useEffect(() => {
+		if (error) {
+			setIsErrorVisible(true);
+		}
+	}, [error]);
+
 	const handleButtonClick = async () => {
 		const prevInstalled = isInstalled;
 		const prevActive = isActive;
@@ -40,8 +47,14 @@ const PluginCard = ({ plugin }) => {
 				setIsActive(true);
 			}
 		} catch (err) {
-			setIsInstalled(prevInstalled);
-			setIsActive(prevActive);
+			if ('activate' === err?.action) {
+				// Only activation failed, so the plugin is installed (an install may have just succeeded).
+				setIsInstalled(true);
+				setIsActive(false);
+			} else {
+				setIsInstalled(prevInstalled);
+				setIsActive(prevActive);
+			}
 		} finally {
 			// Ensure the extension status in the global window object is updated
 			window.wpgraphqlExtensions.extensions =
@@ -155,8 +168,38 @@ const PluginCard = ({ plugin }) => {
 					status="error"
 					isDismissible
 					onRemove={() => setIsErrorVisible(false)}
+					spokenMessage={error.message}
+					className="wpgraphql-extension-error"
 				>
-					{error}
+					<p className="wpgraphql-extension-error__message">
+						{error.message}
+					</p>
+					<p>
+						<a
+							href={getPluginsScreenUrl(
+								error.action,
+								plugin.plugin_url
+							)}
+						>
+							{'install' === error.action
+								? __(
+										'Install it from the Plugins screen instead',
+										'wp-graphql'
+									)
+								: __(
+										'Activate it from the Plugins screen instead',
+										'wp-graphql'
+									)}
+						</a>
+					</p>
+					{error.details && (
+						<details className="wpgraphql-extension-error__details">
+							<summary>
+								{__('Error details', 'wp-graphql')}
+							</summary>
+							<pre>{error.details}</pre>
+						</details>
+					)}
 				</Notice>
 			)}
 		</div>

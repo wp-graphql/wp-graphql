@@ -107,4 +107,4 @@ These advanced features of `register_graphql_acf_field_type` provide more contro
 
 This guide assists developers in extending the WPGraphQL schema with custom ACF field types, ensuring a secure, efficient, and seamless integration within the WordPress ecosystem.
 
-For examples of the `register_graphql_acf_field_type` API in action, you can browse the code to see how custom field types provided by Advanced Custom Fields Extended are supported by WPGraphQL for ACF: [https://github.com/wp-graphql/wpgraphql-acf/tree/develop/src/ThirdParty/AcfExtended/FieldType](https://github.com/wp-graphql/wpgraphql-acf/tree/develop/src/ThirdParty/AcfExtended/FieldType)
+For examples of the `register_graphql_acf_field_type` API in action, you can browse the code to see how custom field types provided by Advanced Custom Fields Extended are supported by WPGraphQL for ACF: [plugins/wp-graphql-acf/src/ThirdParty/AcfExtended/FieldType](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-acf/src/ThirdParty/AcfExtended/FieldType)
