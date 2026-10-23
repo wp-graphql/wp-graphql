@@ -116,7 +116,7 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
-= 3.0.1 =
+= 3.1.0 =
 
 **Schema change**: this release fixes ACF location rules that use "is not equal to". Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
 
