@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": "^7.1 || ^8.0",
-    "appsero/client": "1.4.0"
+    "appsero/client": "2.0.7"
   },
   "require-dev": {
     "automattic/vipwpcs": "^3.0",
@@ -95,10 +95,6 @@
     ],
     "phpstan": [
       "phpstan analyze --ansi --memory-limit=1G"
-    ],
-    "post-install-cmd": [
-      "rm ./vendor/appsero/client/src/Updater.php",
-      "cp ./build/Updater.php ./vendor/appsero/client/src/"
     ],
     "zip": [
       "# Note: WordPress.org requires 'wpgraphql-acf' (no hyphen between wp and graphql)",
