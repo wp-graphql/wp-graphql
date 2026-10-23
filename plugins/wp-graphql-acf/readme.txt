@@ -128,6 +128,8 @@ The "All" value of the Block location rule is also fixed. A field group set to "
 
 **Single-value select fields set to "Both (Array)" return just the value.** A select field that allows one value and uses the "Both (Array)" return format resolved as `["red", "Red"]`, the chosen option's value followed by its label. It now resolves as `["red"]`, the same as a select set to "Value", and the same as a multi-value select already did. If a client read the label from that second entry, set the field's return format to "Label" instead. See #4561.
 
+**Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
+
 **Field group settings on ACF before 6.1.** On ACF versions older than 6.1, saving a field group could rewrite a "Taxonomy is equal to" location rule as "Post Taxonomy is equal to", give the field group a new key, and reset its GraphQL settings (Show in GraphQL, GraphQL Type Name and the rest) to their defaults. That no longer happens, but field groups already saved this way aren't repaired by updating. If your site runs an ACF version older than 6.1, open your field groups and check their location rules and GraphQL settings. See #4527.
 
 = 3.0.0 =
