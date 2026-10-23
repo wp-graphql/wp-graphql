@@ -189,6 +189,21 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$this->assertDoesNotMatchRegularExpression( '/name="acf_field_group\\[key\\]"\\s+value=""/', $output, 'An empty field group key input should not be rendered.' );
 	}
 
+	/**
+	 * When the post isn't a saved field group, the meta box falls back to ACF's field group
+	 * defaults rather than reading settings from nothing.
+	 */
+	public function test_meta_box_renders_defaults_when_the_post_is_not_a_field_group(): void {
+		$post_id = self::factory()->post->create();
+
+		ob_start();
+		$this->settings->display_graphql_field_group_fields( get_post( $post_id ) );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'acf_field_group[graphql_field_name]', $output, 'The GraphQL settings should still render.' );
+		$this->assertStringNotContainsString( 'name="acf_field_group[key]"', $output, 'No field group key input should be rendered.' );
+	}
+
 	public function test_wpgraphql_admin_table_columns_html_default_column_echoes_null(): void {
 		ob_start();
 		$this->settings->wpgraphql_admin_table_columns_html( 'unknown-column', 0 );
