@@ -84,6 +84,21 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 	}
 
+	public function testDoesNotRegisterTestsWhenTheAdminPagesAreOff(): void {
+		remove_all_filters( 'site_status_tests' );
+		add_filter( 'graphql_show_admin', '__return_false' );
+
+		( new \WPGraphQL\Admin\Admin() )->init();
+
+		remove_filter( 'graphql_show_admin', '__return_false' );
+
+		$tests = WP_Site_Health::get_tests();
+
+		foreach ( self::TEST_IDS as $id ) {
+			$this->assertArrayNotHasKey( $id, $tests['direct'] );
+		}
+	}
+
 	public function testDoesNotRegisterTestsOutsideProduction(): void {
 		$site_health = new class() extends SiteHealth {
 			protected function get_environment_type(): string {

@@ -113,7 +113,7 @@ register_graphql_settings_field(
 
 On production sites, WPGraphQL adds recommendations to **Tools > Site Health** for settings worth checking before a site goes live:
 
-- logged-out visitors can read the schema (public introspection is on, or debug mode is on)
+- logged-out visitors can read the schema, because public introspection or debug mode is on and the API doesn't require users to be logged in
 - debug mode is on
 - the query depth limit setting is off
 - tracing or query logs are added to responses for any user
