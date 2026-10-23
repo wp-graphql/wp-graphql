@@ -176,7 +176,24 @@ function graphql_init_appsero_telemetry(): void {
 			$insights->add_plugin_data();
 		}
 
+		// Set the opt-in notice text just before Appsero renders it (priority 10), since translations can't load this early.
+		add_action(
+			'admin_notices',
+			static function () use ( $insights ): void {
+				$insights->notice(
+					sprintf(
+						// translators: %s is a link to the WPGraphQL settings page.
+						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s.', 'wp-graphql' ),
+						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings' ) ) . '">' . esc_html__( 'GraphQL → Settings', 'wp-graphql' ) . '</a>'
+					)
+				);
+			},
+			9
+		);
+
 		$insights->init();
+
+		( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug ) )->init();
 	} catch ( \Throwable $e ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
 			sprintf(
