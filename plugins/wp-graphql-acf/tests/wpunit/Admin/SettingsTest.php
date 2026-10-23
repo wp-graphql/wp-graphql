@@ -141,7 +141,8 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$wp_meta_boxes = [];
 		$this->settings->register_meta_boxes();
 		$this->assertNotEmpty( $wp_meta_boxes['acf-field-group'] );
-		$this->assertArrayHasKey( 'wpgraphql-acf-meta-box', $wp_meta_boxes['acf-field-group']['normal']['default'] ?? [] );
+		// add_meta_box() registers in the 'advanced' context by default.
+		$this->assertArrayHasKey( 'wpgraphql-acf-meta-box', $wp_meta_boxes['acf-field-group']['advanced']['default'] ?? [] );
 	}
 
 	public function test_wpgraphql_admin_table_columns_html_default_column_echoes_null(): void {
