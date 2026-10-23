@@ -109,6 +109,30 @@ register_graphql_settings_field(
 );
 ```
 
+## Site Health
+
+On production sites, WPGraphQL adds recommendations to **Tools > Site Health** for settings worth checking before a site goes live:
+
+- logged-out visitors can read the schema (public introspection is on, or debug mode is on)
+- debug mode is on
+- the query depth limit setting is off
+- tracing or query logs are added to responses for any user
+
+Whether these settings are right depends on how a site uses its API, so WPGraphQL reports them as recommended improvements, never as critical issues. Each one explains the tradeoff and links to the setting. A site counts as production when its [environment type](https://developer.wordpress.org/reference/functions/wp_get_environment_type/) is `production`, which is the default when none is set. The recommendations aren't added when the WPGraphQL admin pages are turned off with the `graphql_show_admin` filter, since there's no settings page to link to.
+
+To remove a recommendation that doesn't apply to your site, unset it by its identifier with the `site_status_tests` filter. The identifiers are `wpgraphql_public_introspection`, `wpgraphql_debug_mode`, `wpgraphql_query_depth` and `wpgraphql_debug_output`.
+
+```php
+add_filter(
+	'site_status_tests',
+	static function ( $tests ) {
+		unset( $tests['direct']['wpgraphql_query_depth'] );
+		return $tests;
+	},
+	20
+);
+```
+
 ## Introspection Disabled by Default
 
 One feature of GraphQL is Schema Introspection, which means the GraphQL Schema itself can be queried. This is a feature used by tools such as GraphiQL and others.
@@ -116,6 +140,15 @@ One feature of GraphQL is Schema Introspection, which means the GraphQL Schema i
 It's possible that exposing the Schema publicly (in some cases) can leak information about the system that's not intended to be known publicly.
 
 WPGraphQL disables public Schema Introspection by default, but for users that want to enable it, it can be enabled with one-click from the GraphQL > Settings page in the WordPress dashboard.
+
+### Getting the schema without public introspection
+
+Apps and builds that need the schema, such as code generators, don't need public introspection to get it:
+
+- **Send introspection queries with credentials.** Logged-in users can always read the schema, so a build can authenticate its introspection query, for example with an [application password](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/).
+- **Generate the schema at build time.** [`wp graphql generate-static-schema`](/docs/wp-cli#wp-graphql-generate-static-schema) writes the schema to a file, and most code generators can read the schema from a file instead of from the API.
+
+Debug mode also lets logged-out visitors read the schema, whatever the introspection setting is, so keep it off on production sites.
 
 ## Limiting Query Depth
 
