@@ -154,29 +154,36 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 	 * submits, so saving the field group ran ACF's legacy migration and rewrote its location rules.
 	 */
 	public function test_meta_box_renders_the_saved_field_group_settings(): void {
-		$field_group = acf_update_field_group(
+		// Stored the way ACF stores a field group (key in post_name, settings in post_content). Created
+		// with the factory rather than acf_update_field_group(), so it's rolled back with the test and
+		// leaves nothing behind for later tests.
+		$post_id = self::factory()->post->create(
 			[
-				'key'                => 'group_meta_box_4527',
-				'title'              => 'Meta Box Field Group',
-				'show_in_graphql'    => 1,
-				'graphql_field_name' => 'MetaBoxSavedTypeName',
-				'location'           => [
+				'post_type'    => 'acf-field-group',
+				'post_status'  => 'publish',
+				'post_title'   => 'Meta Box Field Group',
+				'post_name'    => 'group_meta_box_4527',
+				'post_content' => maybe_serialize(
 					[
-						[
-							'param'    => 'post_type',
-							'operator' => '==',
-							'value'    => 'post',
+						'show_in_graphql'    => 1,
+						'graphql_field_name' => 'MetaBoxSavedTypeName',
+						'location'           => [
+							[
+								[
+									'param'    => 'post_type',
+									'operator' => '==',
+									'value'    => 'post',
+								],
+							],
 						],
-					],
-				],
+					]
+				),
 			]
 		);
 
 		ob_start();
-		$this->settings->display_graphql_field_group_fields( get_post( $field_group['ID'] ) );
+		$this->settings->display_graphql_field_group_fields( get_post( $post_id ) );
 		$output = ob_get_clean();
-
-		acf_delete_field_group( $field_group['ID'] );
 
 		$this->assertStringContainsString( 'MetaBoxSavedTypeName', $output, 'The saved GraphQL Type Name should be rendered, not the default.' );
 		$this->assertDoesNotMatchRegularExpression( '/name="acf_field_group\\[key\\]"\\s+value=""/', $output, 'An empty field group key input should not be rendered.' );
