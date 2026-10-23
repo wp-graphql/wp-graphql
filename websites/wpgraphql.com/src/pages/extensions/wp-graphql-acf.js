@@ -168,7 +168,8 @@ function Hero() {
               </Button>
             </div>
             <p className="mt-4 font-mono text-xs text-muted-foreground">
-              Free &amp; open source · Requires WPGraphQL + ACF
+              Free &amp; open source · Requires WPGraphQL + ACF or Secure Custom
+              Fields
             </p>
           </div>
           {/* The ACF logo mark is the hero element — large, with an emerald glow. */}
@@ -391,12 +392,17 @@ function Faq() {
     {
       question: "Do I need WPGraphQL and ACF both active?",
       answer:
-        "Yes. This is a 'bridge' plugin that brings ACF data to WPGraphQL, so both WPGraphQL and Advanced Custom Fields need to be installed and active in your WordPress site.",
+        "Yes. This is a 'bridge' plugin that brings ACF data to WPGraphQL, so both WPGraphQL and Advanced Custom Fields (or Secure Custom Fields, the WordPress.org fork of ACF) need to be installed and active in your WordPress site.",
     },
     {
       question: "Does it work with ACF Free, Pro, and Extended?",
       answer:
         "Yes to all three. It works great with ACF Free and Pro (including Pro-only fields like Flexible Content, Repeater, and Options Pages), and supports most field types from ACF Extended (Free and Pro) as well.",
+    },
+    {
+      question: "Does it work with Secure Custom Fields?",
+      answer:
+        "Yes. Secure Custom Fields (SCF), the WordPress.org fork of ACF, works the same way as ACF Pro: it includes the Pro field types like Repeater, Flexible Content, and Clone, along with Options Pages and ACF Blocks, and they're all exposed to the schema. The full test suite runs against SCF in CI. Install either ACF or SCF, not both.",
     },
     {
       question: "Does it work with field groups registered in PHP or JSON?",
