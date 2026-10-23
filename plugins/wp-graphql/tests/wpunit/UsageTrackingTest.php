@@ -253,6 +253,37 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( [ $saved ], $writes );
 	}
 
+	public function testUncheckingTheToggleWritesTheSectionOnce(): void {
+		$this->opt_in_via_notice();
+		update_option(
+			self::SECTION,
+			[
+				UsageTracking::FIELD_NAME => 'on',
+				'some_other_field'        => 'old',
+			]
+		);
+
+		$writes = [];
+		$record = static function ( $option, $old_value, $value ) use ( &$writes ): void {
+			if ( self::SECTION === $option ) {
+				$writes[] = $value;
+			}
+		};
+		add_action( 'updated_option', $record, 10, 3 );
+
+		// Opting out writes Appsero's option during this save, which must not save the section again.
+		$saved = [
+			UsageTracking::FIELD_NAME => 'off',
+			'some_other_field'        => 'new',
+		];
+		update_option( self::SECTION, $saved );
+
+		remove_action( 'updated_option', $record );
+
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( [ $saved ], $writes );
+	}
+
 	public function testOptingInRequiresManageOptions(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
 
