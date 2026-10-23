@@ -335,17 +335,40 @@ $j(document).ready(function () {
 					const types =
 						res && res.graphql_types ? res.graphql_types : [];
 
-					checkboxes.each(function (_i, _el) {
-						const checkbox = $j(this);
-						const value = $j(this).val();
-						checkbox.prop('checked', false);
-						if (types && types.length) {
-							if (-1 !== $j.inArray(value, types)) {
-								checkbox.prop('checked', true);
+					// This only mirrors the location rules into the GraphQL Types checkboxes, which
+					// are disabled (and so not submitted) while types come from the location rules.
+					// It isn't an edit, so keep ACF from treating the change events below as unsaved
+					// changes and warning before leaving the page.
+					const unload =
+						window.acf && window.acf.unload
+							? window.acf.unload
+							: null;
+					const unloadWasActive = unload ? unload.active : false;
+					if (unload && 'function' === typeof unload.disable) {
+						unload.disable();
+					}
+
+					try {
+						checkboxes.each(function (_i, _el) {
+							const checkbox = $j(this);
+							const value = $j(this).val();
+							checkbox.prop('checked', false);
+							if (types && types.length) {
+								if (-1 !== $j.inArray(value, types)) {
+									checkbox.prop('checked', true);
+								}
 							}
+							checkbox.trigger('change');
+						});
+					} finally {
+						if (
+							unload &&
+							unloadWasActive &&
+							'function' === typeof unload.enable
+						) {
+							unload.enable();
 						}
-						checkbox.trigger('change');
-					});
+					}
 
 					// Signal that the request is finished
 					form.removeAttr('data-request-pending');
