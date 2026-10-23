@@ -7,7 +7,7 @@ In this guide, we will show how to get started using WPGraphQL for Advanced Cust
 
 _If you are upgrading from another version, we recommend heading over to the [Upgrade Guide](./upgrade-guide.md)._
 
-In order to use [WPGraphQL for ACF,](https://wordpress.org/plugins/wpgraphql-acf/) you will need a supported version of [WPGraphQL](https://www.wpgraphql.com/docs/quick-start#install) and [Advanced Custom Fields](https://www.advancedcustomfields.com/resources/getting-started-with-acf/) installed and activated.
+In order to use [WPGraphQL for ACF,](https://wordpress.org/plugins/wpgraphql-acf/) you will need a supported version of [WPGraphQL](https://www.wpgraphql.com/docs/quick-start#install) and [Advanced Custom Fields](https://www.advancedcustomfields.com/resources/getting-started-with-acf/) installed and activated. [Secure Custom Fields](#using-secure-custom-fields) works in place of Advanced Custom Fields.
 
 ## Install from the WordPress Dashboard
 
@@ -36,6 +36,12 @@ WPGraphQL for ACF is developed in the [WPGraphQL monorepo](https://github.com/wp
 Each release has an “assets” section below the release notes where you will find a “wpgraphql-acf.zip” asset that can be downloaded and installed in your WordPress site.
 
 You can either Upload the .zip file to your WordPress dashboard under the “Plugins > Add New” page, or you can unzip the plugin into your WordPress install’s `wp-content/plugins` directory on your server.
+
+## Using Secure Custom Fields
+
+[Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF) is the WordPress.org fork of ACF, and WPGraphQL for ACF works with it the same way it works with ACF PRO. SCF includes the field types that are PRO-only in ACF, such as Repeater, Flexible Content, Clone and Gallery, along with Options Pages and ACF Blocks, and they're all exposed to the GraphQL schema with nothing extra to configure.
+
+Install and activate either ACF or SCF, not both. The full WPGraphQL for ACF test suite runs against SCF in CI, alongside ACF Free and ACF PRO.
 
 ## Verifying Installation
 
