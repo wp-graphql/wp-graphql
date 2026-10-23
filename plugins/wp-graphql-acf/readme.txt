@@ -126,6 +126,8 @@ If a query relies on one of these fields, check that field group's location rule
 
 The "All" value of the Block location rule is also fixed. A field group set to "Block is equal to All" was added to no ACF block type, and now appears on every ACF block type shown in GraphQL. A field group set to "Block is not equal to All" was added to every ACF block type, and now, like ACF itself, matches none, so its fields disappear from blocks after updating.
 
+**Single-value select fields set to "Both (Array)" return just the value.** A select field that allows one value and uses the "Both (Array)" return format resolved as `["red", "Red"]`, the chosen option's value followed by its label. It now resolves as `["red"]`, the same as a select set to "Value", and the same as a multi-value select already did. If a client read the label from that second entry, set the field's return format to "Label" instead. See #4561.
+
 **Field group settings on ACF before 6.1.** On ACF versions older than 6.1, saving a field group could rewrite a "Taxonomy is equal to" location rule as "Post Taxonomy is equal to", give the field group a new key, and reset its GraphQL settings (Show in GraphQL, GraphQL Type Name and the rest) to their defaults. That no longer happens, but field groups already saved this way aren't repaired by updating. If your site runs an ACF version older than 6.1, open your field groups and check their location rules and GraphQL settings. See #4527.
 
 = 3.0.0 =

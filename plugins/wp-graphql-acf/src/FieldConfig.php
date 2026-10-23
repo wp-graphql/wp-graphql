@@ -623,19 +623,25 @@ class FieldConfig {
 			return $value;
 		}
 
-		// if the value is an array and the field return format is set to array,
-		// map over the array to get the return values
+		// If the field's return format is "array" (ACF's "Both (Array)"), ACF formats each chosen
+		// option as [ 'value' => ..., 'label' => ... ]. Resolve the values.
 		if ( isset( $acf_field_config['return_format'] ) && 'array' === $acf_field_config['return_format'] && is_array( $value ) ) {
-			$value = array_map(
-				static function ( $opt ) {
-					if ( ! is_array( $opt ) ) {
-						return $opt;
-					}
+			if ( array_key_exists( 'value', $value ) && array_key_exists( 'label', $value ) ) {
+				// A single choice (a select that allows one value, a radio, a button group) is one
+				// such array, rather than a list of them.
+				$value = $value['value'];
+			} else {
+				$value = array_map(
+					static function ( $opt ) {
+						if ( ! is_array( $opt ) ) {
+							return $opt;
+						}
 
-					return $opt['value'] ?? null;
-				},
-				$value
-			);
+						return $opt['value'] ?? null;
+					},
+					$value
+				);
+			}
 		}
 
 		if ( isset( $acf_field_config['new_lines'] ) ) {
