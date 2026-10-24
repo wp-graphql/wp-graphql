@@ -17,11 +17,14 @@ use WPGraphQL\AppContext;
  * of every node above it is set up, outermost first, so fields selected under a node see it as the
  * current object. This includes fields other plugins register on the node and fields of nested
  * values that are not models themselves, such as a list of blocks. Fields outside any node, like a
- * root field selected after one, see the state the request started with. Each node is set up once
- * when resolution enters its part of the query and torn down when it leaves, not around each field.
+ * root field selected after one, see the state the request started with. Each node is set up when
+ * resolution enters its part of the query and torn down when it leaves, not around each field. It
+ * is set up again if one of its fields leaves the globals pointing somewhere else, such as a block
+ * that loops over other posts, so the node's later fields still see it.
  *
- * Reading a model's fields outside of a node's part of the query (for example from PHP, or from
- * the resolver of a field on another node) sets the model up around that one field instead, and
+ * The nodes are Post, Term and User models, including subclasses that inherit their setup().
+ * Reading a model's fields anywhere else (from PHP, from the resolver of a field on another node,
+ * or on a model with a setup() of its own) sets the model up around that one field instead, and
  * restores the previous state afterwards.
  *
  * @internal Plumbing behind the model lifecycle. Models customize it through setup() and tear_down().
@@ -67,7 +70,7 @@ final class NodeContext {
 	/**
 	 * The node contexts currently applied, outermost first.
 	 *
-	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model<mixed>,state:array<string,mixed>,previous:?\WPGraphQL\Model\Model<mixed>}>
+	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model<mixed>,state:array<string,mixed>,previous:?\WPGraphQL\Model\Model<mixed>,applied:array{0:?int,1:?int,2:?int}}>
 	 */
 	private $stack = [];
 
@@ -144,7 +147,15 @@ final class NodeContext {
 			++$shared;
 		}
 
-		for ( $depth = count( $this->stack ); $depth > $shared; $depth-- ) {
+		$stack_size = count( $this->stack );
+
+		// A field of the node may have pointed the globals somewhere else, say by rendering a block
+		// that loops over other posts. Set the node up again so its later fields see it.
+		if ( $shared > 0 && $shared === $stack_size && self::applied_state() !== $this->stack[ $shared - 1 ]['applied'] ) {
+			--$shared;
+		}
+
+		for ( $depth = $stack_size; $depth > $shared; $depth-- ) {
 			$this->pop();
 		}
 
@@ -213,6 +224,26 @@ final class NodeContext {
 			'model'    => $model,
 			'state'    => $state,
 			'previous' => $previous,
+			'applied'  => self::applied_state(),
+		];
+	}
+
+	/**
+	 * Identifies the object the global state currently points at: the global post, the global
+	 * author and the main query's queried object.
+	 *
+	 * Compared before each field with what it was right after the active node was set up, to tell
+	 * whether something has pointed the globals elsewhere since.
+	 *
+	 * @return array{0:?int,1:?int,2:?int}
+	 */
+	private static function applied_state(): array {
+		global $wp_query;
+
+		return [
+			isset( $GLOBALS['post'] ) && $GLOBALS['post'] instanceof \WP_Post ? $GLOBALS['post']->ID : null,
+			isset( $GLOBALS['authordata'] ) && $GLOBALS['authordata'] instanceof \WP_User ? $GLOBALS['authordata']->ID : null,
+			$wp_query instanceof \WP_Query && isset( $wp_query->queried_object_id ) ? (int) $wp_query->queried_object_id : null,
 		];
 	}
 
@@ -259,9 +290,13 @@ final class NodeContext {
 	}
 
 	/**
-	 * Whether a model sets up a context, by overriding Model::setup().
+	 * Whether a model owns a node: whether it uses the Post, Term or User setup().
 	 *
-	 * Models that don't, such as Comment, leave the context of the node above them in place.
+	 * Those set up the current object for the node's part of the query. Subclasses that inherit
+	 * them (a product modeled on Post, say) do too. Models without a setup(), such as Comment, leave
+	 * the context of the node above them in place. Models with a setup() of their own are set up
+	 * around each of their fields instead, as they always were, because their setup() may expect
+	 * to run before each field.
 	 *
 	 * @param \WPGraphQL\Model\Model<mixed> $model The model.
 	 */
@@ -270,7 +305,7 @@ final class NodeContext {
 
 		if ( ! isset( self::$sets_up_context[ $class ] ) ) {
 			$method                          = new \ReflectionMethod( $model, 'setup' );
-			self::$sets_up_context[ $class ] = Model::class !== $method->getDeclaringClass()->getName();
+			self::$sets_up_context[ $class ] = in_array( $method->getDeclaringClass()->getName(), [ Post::class, Term::class, User::class ], true );
 		}
 
 		return self::$sets_up_context[ $class ];

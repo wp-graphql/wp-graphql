@@ -20,6 +20,20 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	private $author_id;
 
 	/**
+	 * Registers the fields the tests query.
+	 *
+	 * @var callable
+	 */
+	private $register_fields;
+
+	/**
+	 * How many times the custom model's setup() ran.
+	 *
+	 * @var int
+	 */
+	public static $custom_setups = 0;
+
+	/**
 	 * Clear the cached schema before each test.
 	 */
 	public function setUp(): void {
@@ -29,9 +43,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->author_id = self::factory()->user->create( [ 'role' => 'author' ] );
 
 		// Fields that report what WordPress considers the current object while they resolve.
-		add_action(
-			'graphql_register_types',
-			static function () {
+		$this->register_fields = static function () {
 				$current_state = [
 					'type'    => 'String',
 					'resolve' => static function () {
@@ -91,6 +103,78 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 					]
 				);
 
+				// A field that loops over another post and leaves the globals pointing at it, the way
+				// rendering a query loop block does (in a GraphQL request the main query has no post,
+				// so wp_reset_postdata() doesn't put the node back).
+				register_graphql_field(
+					'Post',
+					'loopOver',
+					[
+						'type'    => 'Int',
+						'args'    => [ 'otherId' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
+						'resolve' => static function ( $post, $args ) {
+							$query = new \WP_Query( [ 'p' => $args['otherId'] ] );
+							while ( $query->have_posts() ) {
+								$query->the_post();
+							}
+							wp_reset_postdata();
+
+							return get_the_ID();
+						},
+					]
+				);
+
+				// A nested object backed by a model with a setup() of its own, like the SEO models
+				// some plugins add.
+				register_graphql_object_type(
+					'ModelGlobalQueryStateTestCustom',
+					[
+						'fields' => [
+							'first'  => [ 'type' => 'String' ],
+							'second' => [ 'type' => 'String' ],
+						],
+					]
+				);
+				register_graphql_field(
+					'Post',
+					'custom',
+					[
+						'type'    => 'ModelGlobalQueryStateTestCustom',
+						'resolve' => static function () {
+							return new class() extends \WPGraphQL\Model\Model {
+								/**
+								 * Models some fixed data.
+								 */
+								public function __construct() {
+									$this->data = [ 'source' => 'test' ];
+									parent::__construct();
+								}
+
+								/**
+								 * Counts each setup, instead of changing any globals.
+								 */
+								public function setup() {
+									++ModelGlobalQueryStateTest::$custom_setups;
+								}
+
+								/**
+								 * Two fields that report the current object.
+								 */
+								protected function init() {
+									$this->fields = [
+										'first'  => static function () {
+											return ModelGlobalQueryStateTest::current_state();
+										},
+										'second' => static function () {
+											return ModelGlobalQueryStateTest::current_state();
+										},
+									];
+								}
+							};
+						},
+					]
+				);
+
 				// A field that runs a whole GraphQL request of its own, then reports the state.
 				register_graphql_field(
 					'Post',
@@ -110,14 +194,15 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 						},
 					]
 				);
-			}
-		);
+		};
+		add_action( 'graphql_register_types', $this->register_fields );
 	}
 
 	/**
 	 * Clear the cached schema after each test.
 	 */
 	public function tearDown(): void {
+		remove_action( 'graphql_register_types', $this->register_fields );
 		$this->clearSchema();
 		parent::tearDown();
 	}
@@ -317,6 +402,56 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['modelPost']['self']['self']['currentState'] );
 		$this->assertSame( 1, $main_query_parses );
+	}
+
+	/**
+	 * When a field leaves the globals pointing at another post, the node's later fields, and the
+	 * fields nested under them, still see the node.
+	 */
+	public function testNodeIsSetUpAgainAfterAFieldPointsTheGlobalsElsewhere() {
+		$post_id  = $this->create_post();
+		$other_id = $this->create_post();
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: ID!, $otherId: Int! ) { post( id: $id, idType: DATABASE_ID ) { loopOver( otherId: $otherId ) after: currentState parts { currentState } } }',
+				'variables' => [
+					'id'      => $post_id,
+					'otherId' => $other_id,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Inside the looping field, the globals point at the other post...
+		$this->assertSame( $other_id, $actual['data']['post']['loopOver'] );
+
+		// ...and the fields after it see the node again.
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['after'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['parts'][0]['currentState'] );
+	}
+
+	/**
+	 * A model with a setup() of its own is set up around each of its fields, as before, rather
+	 * than once for its part of the query, and the node above it is in place around it.
+	 */
+	public function testModelWithItsOwnSetupIsSetUpAroundEachField() {
+		$post_id             = $this->create_post();
+		self::$custom_setups = 0;
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { custom { first second } after: currentState } }',
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 2, self::$custom_setups );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['custom']['first'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['custom']['second'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['after'] );
 	}
 
 	/**

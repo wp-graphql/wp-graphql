@@ -160,10 +160,11 @@ abstract class Model {
 	/**
 	 * Sets up the global state so WordPress treats the modeled object as the current one.
 	 *
-	 * Runs when resolution enters the part of the query under this model's node, so every field
-	 * selected there (including fields other plugins register, and fields of nested values that
-	 * are not models) resolves with this context. It also runs around a single field when the
-	 * field is read outside that part of the query, such as from PHP. See NodeContext.
+	 * For Post, Term and User (and subclasses that inherit their setup()), this runs when resolution
+	 * enters the part of the query under the model's node, so every field selected there (including
+	 * fields other plugins register, and fields of nested values that are not models) resolves with
+	 * this context. Otherwise, including for models that define their own setup(), it runs around
+	 * each field that is read, and the previous state is restored afterwards. See NodeContext.
 	 *
 	 * @return void
 	 */
