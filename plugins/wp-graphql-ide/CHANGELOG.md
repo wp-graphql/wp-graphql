@@ -170,6 +170,13 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.7.0...wp-graphql-ide/v5.8.0) (2026-10-24)
+
+
+### New Features
+
+* let sites opt out of usage tracking from settings ([#4508](https://github.com/wp-graphql/wp-graphql/issues/4508)) ([0e61787](https://github.com/wp-graphql/wp-graphql/commit/0e61787e1278219ee3794e48e6be25c3635610d0))
+
 ## [5.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.6.0...wp-graphql-ide/v5.7.0) (2026-10-21)
 
 
