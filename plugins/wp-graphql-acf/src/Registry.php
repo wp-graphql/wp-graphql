@@ -162,9 +162,8 @@ class Registry {
 				'description' => __( 'A Field Group managed by ACF', 'wpgraphql-acf' ),
 				'fields'      => [
 					'fieldGroupName' => [
-						'type'              => 'String',
-						'description'       => __( 'The name of the field group', 'wpgraphql-acf' ),
-						'deprecationReason' => __( 'Use __typename instead', 'wpgraphql-acf' ),
+						'type'        => 'String',
+						'description' => __( 'The name of the GraphQL Type that represents this field group', 'wpgraphql-acf' ),
 					],
 				],
 			]
@@ -176,9 +175,8 @@ class Registry {
 				'description' => __( 'Fields associated with an ACF Field Group', 'wpgraphql-acf' ),
 				'fields'      => [
 					'fieldGroupName' => [
-						'type'              => 'String',
-						'description'       => __( 'The name of the field group', 'wpgraphql-acf' ),
-						'deprecationReason' => __( 'Use __typename instead', 'wpgraphql-acf' ),
+						'type'        => 'String',
+						'description' => __( 'The name of the GraphQL Type that represents this field group', 'wpgraphql-acf' ),
 					],
 				],
 			]
@@ -508,14 +506,15 @@ class Registry {
 		// Set the default field for each field group
 		$graphql_fields = [
 			'fieldGroupName' => [
-				'type'              => 'String',
-				'description'       => __( 'The name of the field group', 'wpgraphql-acf' ),
+				'type'        => 'String',
+				'description' => __( 'The name of the GraphQL Type that represents this field group', 'wpgraphql-acf' ),
 
-				// this field is required to be registered to ensure the field group doesn't have
-				// no fields at all, but is marked deprecated as it is not an actual field
-				// of the field group as defined by the ACF Field Group
-				'deprecationReason' => __( 'Use __typename instead', 'wpgraphql-acf' ),
-				'resolve'           => function ( $root, $args, $context, $info ) use ( $acf_field_group ) {
+				// Every field group type needs at least one field to be valid GraphQL, even when none
+				// of the field group's own fields are shown in GraphQL. It isn't deprecated: tools that
+				// leave deprecated fields out when they introspect the schema would then see field group
+				// types (and the AcfFieldGroup interfaces) with no fields, and flexible content layout
+				// types missing a field their _Layout interface requires.
+				'resolve'     => function ( $root, $args, $context, $info ) use ( $acf_field_group ) {
 					return $this->get_field_group_graphql_type_name( $acf_field_group );
 				},
 			],
