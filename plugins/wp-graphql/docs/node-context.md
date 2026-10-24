@@ -79,7 +79,29 @@ register_graphql_field( 'Post', 'readingTime', [
 
 ### Deferred resolvers
 
-The context is set up before each field's resolver runs. Code that runs later, inside a `Deferred` callback (for example after a DataLoader batch loads), runs with whatever was set up most recently, which may be a different node. If a deferred resolver needs the current object, read what it needs in the resolver itself, before returning the `Deferred`, or work from the source.
+The context is set up before each field's resolver runs. Code that runs later, in the callback of a `Deferred` the resolver returns, runs after other fields (often other nodes' fields) have resolved, so by then a different node may be set up.
+
+To have a callback see the node its field is selected under, wrap it with `graphql_bind_node_context()` while the resolver runs. The wrapped callback runs with the global state as it was when it was wrapped, and the state at the time it's called is restored afterwards:
+
+```php
+register_graphql_field( 'Post', 'relatedSummary', [
+	'type'    => 'String',
+	'resolve' => static function ( \WPGraphQL\Model\Post $post ) {
+		return new \GraphQL\Deferred(
+			graphql_bind_node_context(
+				static function () {
+					// Runs later, but sees the post this field is selected under.
+					return my_plugin_related_summary( get_the_ID() );
+				}
+			)
+		);
+	},
+] );
+```
+
+WPGraphQL does this for its own connections, so filters a connection runs while it loads its nodes (`graphql_connection_nodes`, `graphql_connection_edges` and the like) see the node the connection belongs to.
+
+DataLoader batches are different: a batch loads keys requested from many nodes at once, so its callbacks don't belong to any one node. Don't rely on the current object in a loader; work from the keys and the data they load.
 
 ### Restoring more globals
 

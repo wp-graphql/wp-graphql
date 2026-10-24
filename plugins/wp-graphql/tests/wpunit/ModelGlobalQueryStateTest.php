@@ -99,6 +99,39 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				]
 			);
 
+			// Fields whose value is worked out in a Deferred callback, which runs after other
+			// fields (here, the other posts in a list) have resolved: unbound and bound.
+			register_graphql_field(
+				'Post',
+				'deferredState',
+				[
+					'type'    => 'String',
+					'resolve' => static function () {
+						return new \GraphQL\Deferred(
+							static function () {
+								return self::current_state();
+							}
+						);
+					},
+				]
+			);
+			register_graphql_field(
+				'Post',
+				'boundDeferredState',
+				[
+					'type'    => 'String',
+					'resolve' => static function () {
+						return new \GraphQL\Deferred(
+							graphql_bind_node_context(
+								static function () {
+									return self::current_state();
+								}
+							)
+						);
+					},
+				]
+			);
+
 			// A nested object resolved from the post itself, the way some plugins expose an "seo"
 			// object whose source is the post.
 			register_graphql_field(
@@ -624,6 +657,78 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertSame( 'opted', $actual['data']['post']['opted']['second'] );
 		$this->assertSame( 'none', $actual['data']['post']['after'] );
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['currentState'] );
+	}
+
+	/**
+	 * A Deferred callback bound with graphql_bind_node_context() sees the node its field is
+	 * selected under, though it runs after the other nodes in the list have resolved.
+	 */
+	public function testBoundDeferredCallbackSeesItsOwnNode() {
+		$post_ids = [ $this->create_post(), $this->create_post(), $this->create_post() ];
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $in: [ID] ) { posts( where: { in: $in } ) { nodes { databaseId deferredState boundDeferredState } } }',
+				'variables' => [ 'in' => $post_ids ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 3, $actual['data']['posts']['nodes'] );
+
+		$unbound = [];
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
+			$this->assertSame( $this->post_state( $node['databaseId'] ), $node['boundDeferredState'] );
+			$unbound[] = $node['deferredState'];
+		}
+
+		// Unbound, every callback runs with whichever node was set up last, so they can't all be
+		// right. This guards that the test still exercises the deferred timing it's about.
+		$this->assertCount( 1, array_unique( $unbound ) );
+	}
+
+	/**
+	 * The filters a connection runs in its Deferred callback see the node the connection belongs
+	 * to, not whichever node was set up last.
+	 */
+	public function testConnectionCallbacksSeeTheNodeTheyBelongTo() {
+		$expected = [];
+		foreach ( [ 'A', 'B', 'C' ] as $name ) {
+			$category_id = self::factory()->category->create( [ 'name' => 'Category ' . $name ] );
+			$post_id     = self::factory()->post->create(
+				[
+					'post_status'   => 'publish',
+					'post_author'   => $this->author_id,
+					'post_category' => [ $category_id ],
+				]
+			);
+
+			$expected[ $post_id ] = 'Category ' . $name;
+		}
+
+		$seen         = [];
+		$record_nodes = static function ( $nodes, $resolver ) use ( &$seen ) {
+			if ( $resolver instanceof \WPGraphQL\Data\Connection\TermObjectConnectionResolver ) {
+				$seen[ get_the_ID() ] = implode( ',', wp_list_pluck( array_map( static fn ( $node ) => get_term( $node->databaseId ), $nodes ), 'name' ) );
+			}
+			return $nodes;
+		};
+		add_filter( 'graphql_connection_nodes', $record_nodes, 10, 2 );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $in: [ID] ) { posts( where: { in: $in } ) { nodes { databaseId categories { nodes { name } } } } }',
+				'variables' => [ 'in' => array_keys( $expected ) ],
+			]
+		);
+
+		remove_filter( 'graphql_connection_nodes', $record_nodes, 10 );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		ksort( $expected );
+		ksort( $seen );
+		$this->assertSame( $expected, $seen );
 	}
 
 	/**

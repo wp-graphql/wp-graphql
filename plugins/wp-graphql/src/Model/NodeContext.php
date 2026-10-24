@@ -30,8 +30,13 @@ use WPGraphQL\AppContext;
  * Besides the main query, the state saved and restored is the post data globals and $authordata,
  * plus any globals added with the graphql_model_node_context_globals filter.
  *
+ * Callbacks that run later than the field that created them (a connection's Deferred callback,
+ * say) can be bound to the state at the time they were created with bind(), which extensions
+ * reach through graphql_bind_node_context().
+ *
  * @internal Plumbing behind the model lifecycle. Models customize it through setup(), tear_down()
  *           and scopes_setup_to_node(), and the graphql_model_node_context_globals filter.
+ *           Extensions bind callbacks through graphql_bind_node_context().
  *
  * @since x-release-please-version
  */
@@ -175,6 +180,40 @@ final class NodeContext {
 		for ( $i = $shared; $i < $chain_length; $i++ ) {
 			$this->push( $chain[ $i ][0], $chain[ $i ][1] );
 		}
+	}
+
+	/**
+	 * Wraps a callback so that, whenever it's called, it runs with the global state as it is now.
+	 *
+	 * For callbacks that run later than the field that created them, such as a connection's
+	 * Deferred callback, which runs after other fields (often of other nodes) have resolved. Bound
+	 * while the field resolves, the callback sees that field's node as the current object, and the
+	 * state at the time it's called is restored afterwards, even if it throws.
+	 *
+	 * @param callable $callback The callback to wrap.
+	 *
+	 * @return callable The wrapped callback, which takes the same arguments and returns the same value.
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function bind( callable $callback ): callable {
+		$model = self::$active_model;
+		$state = self::capture_global_state( $model );
+
+		return static function ( ...$args ) use ( $callback, $model, $state ) {
+			$current       = self::capture_global_state( $model );
+			$current_model = self::$active_model;
+
+			self::restore_global_state( $state );
+			self::$active_model = $model;
+
+			try {
+				return $callback( ...$args );
+			} finally {
+				self::restore_global_state( $current );
+				self::$active_model = $current_model;
+			}
+		};
 	}
 
 	/**
@@ -338,13 +377,13 @@ final class NodeContext {
 	/**
 	 * Captures the global state setting up a model can change.
 	 *
-	 * @param \WPGraphQL\Model\Model<mixed> $model The model about to be set up.
+	 * @param ?\WPGraphQL\Model\Model<mixed> $model The model about to be set up, or whose context is being captured. Null when no model is set up.
 	 *
 	 * @return array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]}
 	 *
 	 * @since x-release-please-version
 	 */
-	private static function capture_global_state( Model $model ): array {
+	private static function capture_global_state( ?Model $model ): array {
 		global $wp_query;
 
 		$globals = [];
@@ -396,13 +435,18 @@ final class NodeContext {
 	/**
 	 * Returns the names of the globals to save before setting up a model, and to restore after.
 	 *
-	 * @param \WPGraphQL\Model\Model<mixed> $model The model about to be set up.
+	 * @param ?\WPGraphQL\Model\Model<mixed> $model The model about to be set up, or whose context is being captured. Null when no model is set up.
 	 *
 	 * @return string[]
 	 *
 	 * @since x-release-please-version
 	 */
-	private static function get_globals( Model $model ): array {
+	private static function get_globals( ?Model $model ): array {
+		// With no model set up there's nothing node-specific to capture beyond the defaults.
+		if ( null === $model ) {
+			return self::GLOBALS;
+		}
+
 		/**
 		 * Filters the globals saved before a model is set up as the current object, and restored
 		 * when resolution leaves it.
