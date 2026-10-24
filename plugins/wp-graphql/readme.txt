@@ -80,6 +80,12 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.27.0 =
+
+**A post, term or user is the current object only for its part of a query.** While a node's fields resolve, WPGraphQL sets it up as the current object on the global query and the global `$post` (or `$authordata`), so WordPress functions and filters that read "the current" object see it. That now covers every field selected under the node, including fields other plugins register and nested values such as blocks, and the state from before is restored once resolution leaves the node. Before, the last object resolved stayed "current" for the rest of the request, so fields outside it, and code running after the request, saw that object instead.
+
+Some responses change as a result, each to the correct value. Values that depend on the current object, such as Faust's `templates`, galleries without explicit IDs in ACF WYSIWYG fields on options pages, terms and users, and some SEO canonical URLs, no longer come from whichever node happened to resolve before them. If a custom resolver relied on the leftover state, read the object from the resolver's source argument instead (for example `$post->databaseId`). Extensions can restore their own globals with the new `graphql_model_node_context_globals` filter, keep a node's context in a `Deferred` callback with `graphql_bind_node_context()`, and opt custom models in to node scope with `scopes_setup_to_node()`. See the Node Context and Global State docs and #4572.
+
 = 2.24.2 =
 
 **Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.

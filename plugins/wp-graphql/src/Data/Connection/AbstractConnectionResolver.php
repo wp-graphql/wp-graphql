@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\NodeContext;
 use WPGraphQL\Model\Post;
 
 /**
@@ -999,71 +1000,77 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Return a Deferred function to load all buffered nodes before
 		 * returning the connection.
+		 *
+		 * The callback runs after other fields (often other nodes' fields) have resolved, so it's
+		 * bound to the global state as it is now: the node this connection belongs to stays the
+		 * current object for the filters it runs.
 		 */
 		return new Deferred(
-			function () {
-				// @todo This should use ::get_ids() when b/c is not a concern.
-				$ids = $this->ids;
+			NodeContext::bind(
+				function () {
+					// @todo This should use ::get_ids() when b/c is not a concern.
+					$ids = $this->ids;
 
-				if ( ! empty( $ids ) ) {
-					// Load the ids.
-					$this->get_loader()->load_many( $ids );
+					if ( ! empty( $ids ) ) {
+						// Load the ids.
+						$this->get_loader()->load_many( $ids );
+					}
+
+					/**
+					 * Set the items. These are the "nodes" that make up the connection.
+					 *
+					 * Filters the nodes in the connection
+					 *
+					 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
+					 *
+					 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
+					 * @param self                                 $resolver Instance of the Connection Resolver
+					 * @hookGroup connections
+					 * @since 0.0.6
+					 */
+					$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+
+					/**
+					 * Filters the edges in the connection.
+					 *
+					 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
+					 *
+					 * @param array<string,mixed> $edges    The edges in the connection
+					 * @param self                $resolver Instance of the Connection Resolver
+					 * @hookGroup connections
+					 * @since 0.0.6
+					 */
+					$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+
+					// @todo: we should also short-circuit fetching/populating the actual nodes/edges if we only need one result.
+					if ( true === $this->one_to_one ) {
+						// For one to one connections, return the first edge.
+						$first_edge_key = array_key_first( $this->edges );
+						$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
+					} else {
+						// For plural connections (default) return edges/nodes/pageInfo
+						$connection = [
+							'nodes'    => $this->nodes,
+							'edges'    => $this->edges,
+							'pageInfo' => $this->get_page_info(),
+						];
+					}
+
+					/**
+					 * Filter the connection. In some cases, connections will want to provide
+					 * additional information other than edges, nodes, and pageInfo
+					 *
+					 * This filter allows additional fields to be returned to the connection resolver
+					 *
+					 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
+					 * @param self                 $resolver   The instance of the connection resolver
+					 * @hookGroup connections
+					 * @since 0.3.0
+					 */
+					$connection = apply_filters( 'graphql_connection', $connection, $this );
+					return $connection;
 				}
-
-				/**
-				 * Set the items. These are the "nodes" that make up the connection.
-				 *
-				 * Filters the nodes in the connection
-				 *
-				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
-				 *
-				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
-				 * @param self                                 $resolver Instance of the Connection Resolver
-				 * @hookGroup connections
-				 * @since 0.0.6
-				 */
-				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
-
-				/**
-				 * Filters the edges in the connection.
-				 *
-				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
-				 *
-				 * @param array<string,mixed> $edges    The edges in the connection
-				 * @param self                $resolver Instance of the Connection Resolver
-				 * @hookGroup connections
-				 * @since 0.0.6
-				 */
-				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
-
-				// @todo: we should also short-circuit fetching/populating the actual nodes/edges if we only need one result.
-				if ( true === $this->one_to_one ) {
-					// For one to one connections, return the first edge.
-					$first_edge_key = array_key_first( $this->edges );
-					$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
-				} else {
-					// For plural connections (default) return edges/nodes/pageInfo
-					$connection = [
-						'nodes'    => $this->nodes,
-						'edges'    => $this->edges,
-						'pageInfo' => $this->get_page_info(),
-					];
-				}
-
-				/**
-				 * Filter the connection. In some cases, connections will want to provide
-				 * additional information other than edges, nodes, and pageInfo
-				 *
-				 * This filter allows additional fields to be returned to the connection resolver
-				 *
-				 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
-				 * @param self                 $resolver   The instance of the connection resolver
-				 * @hookGroup connections
-				 * @since 0.3.0
-				 */
-				$connection = apply_filters( 'graphql_connection', $connection, $this );
-				return $connection;
-			}
+			)
 		);
 	}
 

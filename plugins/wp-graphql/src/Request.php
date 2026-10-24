@@ -8,6 +8,7 @@ use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use WPGraphQL\Model\NodeContext;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
 use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
@@ -690,6 +691,10 @@ class Request {
 		 * be anything the because the resolvers themself can set it to whatever. So we just manually reset the
 		 * post with setup_postdata we cached before this request.
 		 */
+
+		// Tear down the nodes the request set up as the current object, restoring the global
+		// state from before execution, before the original main query and post are put back.
+		NodeContext::end_request( $this->app_context );
 
 		if ( ! empty( $this->global_wp_the_query ) ) {
 			$GLOBALS['wp_the_query'] = $this->global_wp_the_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
