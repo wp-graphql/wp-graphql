@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-10-20T23:00:58.131Z",
+  "generatedAt": "2026-10-24T02:33:25.178Z",
   "stats": {
     "totalHooks": 287,
     "actions": 63,
@@ -5724,7 +5724,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Extensions::get_extensions()",
       "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-      "line": 445,
+      "line": 449,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the list of extensions, allowing other plugins to add or remove extensions.",
@@ -5754,7 +5754,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Admin/Extensions/Extensions.php",
-          "line": 445,
+          "line": 449,
           "symbol": "Extensions::get_extensions()",
           "emitter": "apply_filters"
         }
