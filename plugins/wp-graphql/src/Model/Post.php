@@ -266,14 +266,6 @@ class Post extends Model {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function tear_down() {
-		$GLOBALS['post'] = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		wp_reset_postdata();
-	}
-
-	/**
 	 * Retrieve the cap to check if the data should be restricted for the post
 	 *
 	 * @return string

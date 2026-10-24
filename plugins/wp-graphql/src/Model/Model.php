@@ -194,11 +194,13 @@ abstract class Model {
 	}
 
 	/**
-	 * Resets state that setup() changed, when resolution leaves the model's node.
+	 * Resets state that setup() changed.
 	 *
-	 * The global main query ($wp_query) and the post data globals (such as $post and $authordata)
-	 * are restored after this runs, so subclasses only need to restore any other globals their
-	 * setup() changes.
+	 * Runs when resolution leaves the model's part of the query, for models whose
+	 * scopes_setup_to_node() returns true, and after each field read for other models. The global
+	 * main query ($wp_query), the post data globals (such as $post and $authordata) and any globals
+	 * added with the graphql_model_node_context_globals filter are restored after this runs, so
+	 * subclasses only need to undo other changes their setup() makes, such as filters it adds.
 	 *
 	 * @return void
 	 */
