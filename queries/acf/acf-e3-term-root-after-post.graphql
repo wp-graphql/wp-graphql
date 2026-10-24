@@ -1,0 +1,1 @@
+query E3($p2: ID!, $cat: ID!) { post(id: $p2, idType: DATABASE_ID) { title } category(id: $cat, idType: DATABASE_ID) { extMatrixTerm { body } } }

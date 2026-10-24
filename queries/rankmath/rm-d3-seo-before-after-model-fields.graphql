@@ -1,0 +1,4 @@
+query D3($p1: ID!) {
+  first: post(id: $p1, idType: DATABASE_ID) { seo { title canonicalUrl } title content uri }
+  second: post(id: $p1, idType: DATABASE_ID) { title content uri seo { title canonicalUrl } }
+}

@@ -1,0 +1,19 @@
+{
+  "data": {
+    "lateObj": {
+      "state": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "post": {
+      "author": {
+        "node": {
+          "auth": {
+            "isUserSecretRevoked": false
+          },
+          "databaseId": 18,
+          "name": "[ext-matrix] HL User"
+        }
+      }
+    },
+    "viewer": null
+  }
+}

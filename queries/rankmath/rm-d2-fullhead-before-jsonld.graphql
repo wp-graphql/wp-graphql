@@ -1,0 +1,5 @@
+query D2($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    seo { fullHead openGraph { title } jsonLd { raw } }
+  }
+}

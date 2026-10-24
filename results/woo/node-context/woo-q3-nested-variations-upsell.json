@@ -1,0 +1,33 @@
+{
+  "data": {
+    "product": {
+      "after": "{\"post\":316,\"product\":316,\"queried\":316,\"isProduct\":true}",
+      "before": "{\"post\":316,\"product\":316,\"queried\":316,\"isProduct\":true}",
+      "content": "<h2 class=\"wp-block-post-title\">[ext-matrix] Variable V</h2>",
+      "databaseId": 316,
+      "price": "$11.00 - $12.00",
+      "upsell": {
+        "nodes": [
+          {
+            "databaseId": 313,
+            "probeGlobals": "{\"post\":313,\"product\":313,\"queried\":313,\"isProduct\":true}"
+          }
+        ]
+      },
+      "variations": {
+        "nodes": [
+          {
+            "databaseId": 317,
+            "price": "$11.00",
+            "probeGlobals": "{\"post\":317,\"product\":317,\"queried\":317,\"isProduct\":false}"
+          },
+          {
+            "databaseId": 318,
+            "price": "$12.00",
+            "probeGlobals": "{\"post\":318,\"product\":318,\"queried\":318,\"isProduct\":false}"
+          }
+        ]
+      }
+    }
+  }
+}

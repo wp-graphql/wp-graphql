@@ -1,0 +1,19 @@
+{
+  "data": {
+    "movie": {
+      "title": "[ext-matrix] Movie One"
+    },
+    "seo": {
+      "contentTypes": {
+        "book": {
+          "archive": {
+            "social": {
+              "title": "Archive"
+            },
+            "title": "Books Archive - wp-graphql"
+          }
+        }
+      }
+    }
+  }
+}

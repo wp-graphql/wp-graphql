@@ -1,0 +1,7 @@
+query G($p1: ID!, $p2: ID!) {
+  one: post(id: $p1, idType: DATABASE_ID) { editorBlocks(flat: false) { name ... on CoreQuery { renderedHtml } } }
+  two: post(id: $p2, idType: DATABASE_ID) { editorBlocks(flat: false) { name renderedHtml ... on CorePostTerms { terms { nodes { name } } } } title }
+  debugGlobals
+  late: debugGlobalsLate
+  lateObj: debugLateObject { state }
+}

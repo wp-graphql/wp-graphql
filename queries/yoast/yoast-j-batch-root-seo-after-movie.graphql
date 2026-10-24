@@ -1,0 +1,3 @@
+query Op1($movie1: ID!) { movie(id: $movie1, idType: DATABASE_ID) { title } }
+#### next-operation
+query Op2 { seo { contentTypes { book { archive { title social { title } } } } } }

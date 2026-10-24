@@ -1,0 +1,12 @@
+query C($p1: ID!, $child: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    seo { title }
+    author { node { databaseId seo { title breadcrumbs { text } ... on RankMathUserSeo { twitterUserName } } } }
+    categories { nodes { databaseId seo { title breadcrumbs { text url } } } }
+    afterNested: seo { title canonicalUrl breadcrumbs { text } }
+  }
+  page(id: $child, idType: DATABASE_ID) {
+    seo { breadcrumbs { text } }
+    parent { node { ... on Page { seo { title breadcrumbs { text } } } } }
+  }
+}

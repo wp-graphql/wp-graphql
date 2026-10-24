@@ -1,0 +1,5 @@
+query A($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    seo { title canonical opengraphUrl fullHead breadcrumbs { text url } schema { raw pageType articleType } opengraphImage { databaseId } readingTime cornerstone }
+  }
+}

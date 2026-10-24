@@ -1,0 +1,5 @@
+query Q2($include: [Int]) {
+  products(first: 3, where: { include: $include, orderby: { field: IN, order: ASC } }) {
+    nodes { databaseId probeGlobals description content }
+  }
+}

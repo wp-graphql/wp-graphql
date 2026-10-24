@@ -1,0 +1,5 @@
+query Q7($p1: ID!, $p3: ID!) {
+  a: product(id: $p1, idType: DATABASE_ID) { description name }
+  b: product(id: $p3, idType: DATABASE_ID) { s0: probeGlobals content name }
+  lateObj: probeGlobalsLate { state }
+}

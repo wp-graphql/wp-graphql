@@ -1,0 +1,21 @@
+{
+  "data": {
+    "posts": {
+      "nodes": [
+        {
+          "title": "[ext-matrix] Bob Post"
+        },
+        {
+          "title": "[ext-matrix] Alice Post"
+        }
+      ],
+      "pageInfo": {
+        "seo": {
+          "schema": {
+            "raw": "[]"
+          }
+        }
+      }
+    }
+  }
+}

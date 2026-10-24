@@ -1,0 +1,5 @@
+query B2($ids: [ID]) {
+  fi: posts(where: { in: $ids, language: FI, orderby: { field: TITLE, order: ASC } }) { nodes { title } }
+  multi: contentNodes(where: { in: $ids, languages: [EN, DE], contentTypes: [POST], orderby: { field: TITLE, order: ASC } }) { nodes { ... on Post { title language { code } } } }
+  def: categories(where: { language: DEFAULT, slug: ["extmx-news-pll", "extmx-uutiset-pll"] }) { nodes { name language { code } } }
+}

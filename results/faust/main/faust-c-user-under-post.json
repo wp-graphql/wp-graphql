@@ -1,0 +1,25 @@
+{
+  "data": {
+    "post": {
+      "author": {
+        "node": {
+          "name": "[ext-matrix] F Author",
+          "templates": [
+            "author-extmx-fauthor",
+            "author-13",
+            "author",
+            "archive",
+            "index"
+          ]
+        }
+      },
+      "templates": [
+        "single-post-extmx-alpha",
+        "single-post",
+        "single",
+        "index"
+      ],
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

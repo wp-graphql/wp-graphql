@@ -1,0 +1,5 @@
+query D($fi2: ID!, $de3: ID!) {
+  first: post(id: $fi2, idType: DATABASE_ID) { title }
+  before: post(id: $de3, idType: DATABASE_ID) { language { code } translations { title } title }
+  after:  post(id: $de3, idType: DATABASE_ID) { title translations { title } language { code } }
+}

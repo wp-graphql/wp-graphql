@@ -1,0 +1,22 @@
+{
+  "data": {
+    "mediaItem": {
+      "description": "<p>[ext-matrix] media description</p>\n"
+    },
+    "nodeByUri": {
+      "templates": [
+        "single-post-extmx-alpha",
+        "single-post",
+        "single",
+        "index"
+      ]
+    },
+    "post": {
+      "featuredImage": {
+        "node": {
+          "databaseId": 283
+        }
+      }
+    }
+  }
+}

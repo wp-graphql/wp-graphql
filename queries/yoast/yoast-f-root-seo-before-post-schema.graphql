@@ -1,0 +1,4 @@
+query F($p1: ID!) {
+  seo { contentTypes { book { schema { raw } archive { fullHead } } } }
+  post(id: $p1, idType: DATABASE_ID) { title }
+}

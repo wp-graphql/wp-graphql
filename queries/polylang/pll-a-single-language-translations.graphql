@@ -1,0 +1,8 @@
+query A($en1: ID!) {
+  post(id: $en1, idType: DATABASE_ID) {
+    language { code name locale }
+    title
+    translations { databaseId title language { code } }
+    translation(language: FI) { title language { code } }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "nodeByUri": {
+      "__typename": "ContentType",
+      "conditionalTags": {
+        "isAttachment": false,
+        "isFrontPage": true,
+        "isHome": true,
+        "isSingle": false
+      },
+      "templates": [
+        "front-page",
+        "home",
+        "index"
+      ]
+    },
+    "post": {
+      "featuredImage": {
+        "node": {
+          "sourceUrl": "http://localhost:8888/wp-content/uploads/2026/10/extmx.png"
+        }
+      },
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

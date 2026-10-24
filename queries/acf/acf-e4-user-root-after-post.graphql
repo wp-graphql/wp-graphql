@@ -1,0 +1,1 @@
+query E4($p2: ID!, $u: ID!) { post(id: $p2, idType: DATABASE_ID) { title } user(id: $u, idType: DATABASE_ID) { extMatrixUser { body } } }

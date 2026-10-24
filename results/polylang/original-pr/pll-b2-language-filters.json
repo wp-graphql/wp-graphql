@@ -1,0 +1,67 @@
+{
+  "data": {
+    "def": {
+      "nodes": [
+        {
+          "language": {
+            "code": "EN"
+          },
+          "name": "[ext-matrix] News PLL"
+        }
+      ]
+    },
+    "fi": {
+      "nodes": [
+        {
+          "title": "[ext-matrix] PLL Post 1 FI"
+        },
+        {
+          "title": "[ext-matrix] PLL Post 2 FI"
+        },
+        {
+          "title": "[ext-matrix] PLL Post 3 FI"
+        }
+      ]
+    },
+    "multi": {
+      "nodes": [
+        {
+          "language": {
+            "code": "DE"
+          },
+          "title": "[ext-matrix] PLL Post 1 DE"
+        },
+        {
+          "language": {
+            "code": "EN"
+          },
+          "title": "[ext-matrix] PLL Post 1 EN"
+        },
+        {
+          "language": {
+            "code": "DE"
+          },
+          "title": "[ext-matrix] PLL Post 2 DE"
+        },
+        {
+          "language": {
+            "code": "EN"
+          },
+          "title": "[ext-matrix] PLL Post 2 EN"
+        },
+        {
+          "language": {
+            "code": "DE"
+          },
+          "title": "[ext-matrix] PLL Post 3 DE"
+        },
+        {
+          "language": {
+            "code": "EN"
+          },
+          "title": "[ext-matrix] PLL Post 3 EN"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "data": {
+    "post": {
+      "databaseId": 279,
+      "templates": [
+        "single-post-extmx-alpha",
+        "single-post",
+        "single",
+        "index"
+      ]
+    }
+  }
+}

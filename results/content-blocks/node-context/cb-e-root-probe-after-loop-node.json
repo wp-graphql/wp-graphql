@@ -1,0 +1,46 @@
+{
+  "data": {
+    "debugGlobals": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "late": "{\"post\":276,\"postTitle\":\"[ext-matrix] Host P1\",\"queried\":276,\"singular\":true,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "lateObj": {
+      "state": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "post": {
+      "editorBlocks": [
+        {
+          "name": "core/post-title",
+          "renderedHtml": "<h2 class=\"wp-block-post-title\">[ext-matrix] Host P1</h2>"
+        },
+        {
+          "name": "core/post-terms",
+          "renderedHtml": "<div class=\"taxonomy-category wp-block-post-terms\"><a href=\"http://localhost:8888/category/extmx-host-cat/\" rel=\"tag\">[ext-matrix] Host Cat</a></div>"
+        },
+        {
+          "name": "core/query",
+          "renderedHtml": "\n<div class=\"wp-block-query is-layout-flow wp-block-query-is-layout-flow\"><ul class=\"wp-block-post-template is-layout-flow wp-block-post-template-is-layout-flow\"><li class=\"wp-block-post post-280 post type-post status-publish format-standard hentry category-uncategorized\"><h2 class=\"wp-block-post-title\">[ext-matrix] Beta</h2></li><li class=\"wp-block-post post-273 post type-post status-publish format-standard hentry category-extmx-loop-cat\"><h2 class=\"wp-block-post-title\">[ext-matrix] Loop A</h2></li><li class=\"wp-block-post post-274 post type-post status-publish format-standard hentry category-extmx-loop-cat\"><h2 class=\"wp-block-post-title\">[ext-matrix] Loop B</h2></li></ul></div>\n"
+        },
+        {
+          "name": "core/post-title",
+          "renderedHtml": "<h3 class=\"wp-block-post-title\">[ext-matrix] Host P1</h3>"
+        },
+        {
+          "name": "core/post-terms",
+          "renderedHtml": "<div class=\"taxonomy-category wp-block-post-terms\"><a href=\"http://localhost:8888/category/extmx-host-cat/\" rel=\"tag\">[ext-matrix] Host Cat</a></div>"
+        },
+        {
+          "name": "core/post-title",
+          "renderedHtml": "<h5 class=\"wp-block-post-title\">[ext-matrix] Host P1</h5>"
+        },
+        {
+          "name": "core/latest-posts",
+          "renderedHtml": "<ul class=\"wp-block-latest-posts__list wp-block-latest-posts\"><li><a class=\"wp-block-latest-posts__post-title\" href=\"http://localhost:8888/extmx-gamma/\">[ext-matrix] Gamma</a></li>\n<li><a class=\"wp-block-latest-posts__post-title\" href=\"http://localhost:8888/extmx-beta/\">[ext-matrix] Beta</a></li>\n</ul>"
+        },
+        {
+          "name": "core/post-title",
+          "renderedHtml": "<h4 class=\"wp-block-post-title\">[ext-matrix] Host P1</h4>"
+        }
+      ],
+      "title": "[ext-matrix] Host P1"
+    }
+  }
+}

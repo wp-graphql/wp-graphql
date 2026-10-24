@@ -1,0 +1,37 @@
+{
+  "data": {
+    "post": {
+      "categories": {
+        "nodes": [
+          {
+            "name": "[ext-matrix] News PLL",
+            "translations": [
+              {
+                "name": "[ext-matrix] Uutiset PLL"
+              }
+            ]
+          }
+        ]
+      },
+      "title": "[ext-matrix] PLL Post 1 EN",
+      "translation": {
+        "categories": {
+          "nodes": [
+            {
+              "language": {
+                "code": "FI"
+              },
+              "name": "[ext-matrix] Uutiset PLL",
+              "translation": {
+                "name": "[ext-matrix] News PLL"
+              }
+            }
+          ]
+        },
+        "title": "[ext-matrix] PLL Post 1 FI",
+        "uri": "/fi/ext-matrix-pll-post-1-fi/"
+      },
+      "uri": "/ext-matrix-pll-post-1-en/"
+    }
+  }
+}

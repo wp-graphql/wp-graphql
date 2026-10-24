@@ -1,0 +1,5 @@
+query H($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    editorBlocks { name renderedHtml ... on CorePostTerms { terms { nodes { name } } } }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "data": {
+    "categories": {
+      "nodes": [
+        {
+          "conditionalTags": {
+            "isCategory": true,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] Events",
+          "templates": [
+            "category-extmx-news",
+            "category-229",
+            "category",
+            "archive",
+            "index"
+          ]
+        },
+        {
+          "conditionalTags": {
+            "isCategory": true,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] Guides",
+          "templates": [
+            "category-extmx-events",
+            "category-230",
+            "category",
+            "archive",
+            "index"
+          ]
+        },
+        {
+          "conditionalTags": {
+            "isCategory": true,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] News",
+          "templates": [
+            "category-extmx-guides",
+            "category-231",
+            "category",
+            "archive",
+            "index"
+          ]
+        }
+      ]
+    }
+  }
+}

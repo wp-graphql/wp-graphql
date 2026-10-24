@@ -1,0 +1,58 @@
+{
+  "data": {
+    "debugGlobals": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "late": "{\"post\":277,\"postTitle\":\"[ext-matrix] Second P2\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "lateObj": {
+      "state": "{\"post\":277,\"postTitle\":\"[ext-matrix] Second P2\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "one": {
+      "editorBlocks": [
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/post-terms"
+        },
+        {
+          "name": "core/query",
+          "renderedHtml": "\n<div class=\"wp-block-query is-layout-flow wp-block-query-is-layout-flow\"><ul class=\"wp-block-post-template is-layout-flow wp-block-post-template-is-layout-flow\"><li class=\"wp-block-post post-280 post type-post status-publish format-standard hentry category-uncategorized\"><h2 class=\"wp-block-post-title\">[ext-matrix] Beta</h2></li><li class=\"wp-block-post post-273 post type-post status-publish format-standard hentry category-extmx-loop-cat\"><h2 class=\"wp-block-post-title\">[ext-matrix] Loop A</h2></li><li class=\"wp-block-post post-274 post type-post status-publish format-standard hentry category-extmx-loop-cat\"><h2 class=\"wp-block-post-title\">[ext-matrix] Loop B</h2></li></ul></div>\n"
+        },
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/post-terms"
+        },
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/latest-posts"
+        },
+        {
+          "name": "core/post-title"
+        }
+      ]
+    },
+    "two": {
+      "editorBlocks": [
+        {
+          "name": "core/post-title",
+          "renderedHtml": "<h2 class=\"wp-block-post-title\">[ext-matrix] Second P2</h2>"
+        },
+        {
+          "name": "core/post-terms",
+          "renderedHtml": "<div class=\"taxonomy-category wp-block-post-terms\"><a href=\"http://localhost:8888/category/extmx-cat-two/\" rel=\"tag\">[ext-matrix] Cat Two</a></div>",
+          "terms": {
+            "nodes": [
+              {
+                "name": "[ext-matrix] Cat Two"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "[ext-matrix] Second P2"
+    }
+  }
+}

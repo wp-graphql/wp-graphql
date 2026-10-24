@@ -1,0 +1,6 @@
+query C($hostCat: ID!) {
+  category(id: $hostCat, idType: DATABASE_ID) {
+    name
+    posts { nodes { title editorBlocks(flat: false) { name renderedHtml ... on CorePostTerms { terms { nodes { name } } } } } }
+  }
+}

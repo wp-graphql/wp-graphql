@@ -1,0 +1,114 @@
+{
+  "data": {
+    "contentNodes": {
+      "nodes": [
+        {
+          "databaseId": 294,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "[ext-matrix] Alice Post"
+              }
+            ],
+            "canonical": "http://localhost:8888/ext-matrix-alice-post/",
+            "opengraphAuthor": "",
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Article\",\"@id\":\"http://localhost:8888/ext-matrix-alice-post/#article\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-alice-post/\"},\"author\":{\"name\":\"[ext-matrix] Alice Author\",\"@id\":\"http://localhost:8888/#/schema/person/2f5cb1d1ca223c30afe8c4f2147ced6c\"},\"headline\":\"[ext-matrix] Alice Post\",\"datePublished\":\"2026-10-24T00:18:06+00:00\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-alice-post/\"},\"wordCount\":3,\"commentCount\":0,\"articleSection\":[\"[ext-matrix] News Y\",\"[ext-matrix] Sports Y\"],\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"CommentAction\",\"name\":\"Comment\",\"target\":[\"http://localhost:8888/ext-matrix-alice-post/#respond\"]}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-alice-post/\",\"url\":\"http://localhost:8888/ext-matrix-alice-post/\",\"name\":\"[ext-matrix] Alice Post - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"datePublished\":\"2026-10-24T00:18:06+00:00\",\"author\":{\"@id\":\"http://localhost:8888/#/schema/person/2f5cb1d1ca223c30afe8c4f2147ced6c\"},\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-alice-post/#breadcrumb\"},\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"ReadAction\",\"target\":[\"http://localhost:8888/ext-matrix-alice-post/\"]}]},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-alice-post/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"[ext-matrix] Alice Post\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/#/schema/person/2f5cb1d1ca223c30afe8c4f2147ced6c\",\"name\":\"[ext-matrix] Alice Author\",\"image\":{\"@type\":\"ImageObject\",\"inLanguage\":\"en-US\",\"@id\":\"https://secure.gravatar.com/avatar/5838ce3d407910e45e06d862284f76a2b2dd31c2d1e3df9b32ae50ffb0eb6336?s=96&d=mm&r=g\",\"url\":\"https://secure.gravatar.com/avatar/5838ce3d407910e45e06d862284f76a2b2dd31c2d1e3df9b32ae50ffb0eb6336?s=96&d=mm&r=g\",\"contentUrl\":\"https://secure.gravatar.com/avatar/5838ce3d407910e45e06d862284f76a2b2dd31c2d1e3df9b32ae50ffb0eb6336?s=96&d=mm&r=g\",\"caption\":\"[ext-matrix] Alice Author\"},\"url\":\"http://localhost:8888/author/extmx-alice/\"}]}"
+            },
+            "title": "[ext-matrix] Alice Post - wp-graphql"
+          },
+          "uri": "/ext-matrix-alice-post/"
+        },
+        {
+          "databaseId": 295,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "[ext-matrix] Bob Post"
+              }
+            ],
+            "canonical": "http://localhost:8888/ext-matrix-bob-post/",
+            "opengraphAuthor": "",
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Article\",\"@id\":\"http://localhost:8888/ext-matrix-bob-post/#article\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-bob-post/\"},\"author\":{\"name\":\"[ext-matrix] Bob Builder\",\"@id\":\"http://localhost:8888/#/schema/person/aca66b1d25ccd009013b5e9c95a973cd\"},\"headline\":\"[ext-matrix] Bob Post\",\"datePublished\":\"2026-10-24T00:18:07+00:00\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-bob-post/\"},\"wordCount\":3,\"commentCount\":0,\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"CommentAction\",\"name\":\"Comment\",\"target\":[\"http://localhost:8888/ext-matrix-bob-post/#respond\"]}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-bob-post/\",\"url\":\"http://localhost:8888/ext-matrix-bob-post/\",\"name\":\"[ext-matrix] Bob Post - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"datePublished\":\"2026-10-24T00:18:07+00:00\",\"author\":{\"@id\":\"http://localhost:8888/#/schema/person/aca66b1d25ccd009013b5e9c95a973cd\"},\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-bob-post/#breadcrumb\"},\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"ReadAction\",\"target\":[\"http://localhost:8888/ext-matrix-bob-post/\"]}]},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-bob-post/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"[ext-matrix] Bob Post\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/#/schema/person/aca66b1d25ccd009013b5e9c95a973cd\",\"name\":\"[ext-matrix] Bob Builder\",\"image\":{\"@type\":\"ImageObject\",\"inLanguage\":\"en-US\",\"@id\":\"https://secure.gravatar.com/avatar/7b073d3f3f00eb8840e7c779059ef88ed8682ff9b554c3936744f83368b93dc1?s=96&d=mm&r=g\",\"url\":\"https://secure.gravatar.com/avatar/7b073d3f3f00eb8840e7c779059ef88ed8682ff9b554c3936744f83368b93dc1?s=96&d=mm&r=g\",\"contentUrl\":\"https://secure.gravatar.com/avatar/7b073d3f3f00eb8840e7c779059ef88ed8682ff9b554c3936744f83368b93dc1?s=96&d=mm&r=g\",\"caption\":\"[ext-matrix] Bob Builder\"},\"url\":\"http://localhost:8888/author/extmx-bob/\"}]}"
+            },
+            "title": "[ext-matrix] Bob Post - wp-graphql"
+          },
+          "uri": "/ext-matrix-bob-post/"
+        },
+        {
+          "databaseId": 296,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "Books"
+              },
+              {
+                "text": "[ext-matrix] Book One"
+              }
+            ],
+            "canonical": "http://localhost:8888/book/ext-matrix-book-one/",
+            "opengraphAuthor": "",
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/book/ext-matrix-book-one/\",\"url\":\"http://localhost:8888/book/ext-matrix-book-one/\",\"name\":\"[ext-matrix] Book One - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"datePublished\":\"2026-10-24T00:18:12+00:00\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/book/ext-matrix-book-one/#breadcrumb\"},\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"ReadAction\",\"target\":[\"http://localhost:8888/book/ext-matrix-book-one/\"]}]},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/book/ext-matrix-book-one/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Books\",\"item\":\"http://localhost:8888/book/\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"[ext-matrix] Book One\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"}]}"
+            },
+            "title": "[ext-matrix] Book One - wp-graphql"
+          },
+          "uri": "/book/ext-matrix-book-one/"
+        },
+        {
+          "databaseId": 301,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "[ext-matrix] Parent"
+              },
+              {
+                "text": "[ext-matrix] Child"
+              }
+            ],
+            "canonical": "http://localhost:8888/ext-matrix-parent/ext-matrix-child/",
+            "opengraphAuthor": "",
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-parent/ext-matrix-child/\",\"url\":\"http://localhost:8888/ext-matrix-parent/ext-matrix-child/\",\"name\":\"[ext-matrix] Child - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"datePublished\":\"2026-10-24T00:18:19+00:00\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-parent/ext-matrix-child/#breadcrumb\"},\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"ReadAction\",\"target\":[\"http://localhost:8888/ext-matrix-parent/ext-matrix-child/\"]}]},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-parent/ext-matrix-child/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"[ext-matrix] Parent\",\"item\":\"http://localhost:8888/ext-matrix-parent/\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"[ext-matrix] Child\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"}]}"
+            },
+            "title": "[ext-matrix] Child - wp-graphql"
+          },
+          "uri": "/ext-matrix-parent/ext-matrix-child/"
+        },
+        {
+          "databaseId": 298,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "[ext-matrix] Home Page"
+              }
+            ],
+            "canonical": "http://localhost:8888/",
+            "opengraphAuthor": "",
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/\",\"url\":\"http://localhost:8888/\",\"name\":\"[ext-matrix] Home Page - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"datePublished\":\"2026-10-24T00:18:16+00:00\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/#breadcrumb\"},\"inLanguage\":\"en-US\",\"potentialAction\":[{\"@type\":\"ReadAction\",\"target\":[\"http://localhost:8888/\"]}]},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"[ext-matrix] Home Page\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"}]}"
+            },
+            "title": "[ext-matrix] Home Page - wp-graphql"
+          },
+          "uri": "/"
+        }
+      ]
+    }
+  }
+}

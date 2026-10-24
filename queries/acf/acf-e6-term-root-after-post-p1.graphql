@@ -1,0 +1,1 @@
+query E6($p1: ID!, $cat: ID!) { post(id: $p1, idType: DATABASE_ID) { title } category(id: $cat, idType: DATABASE_ID) { extMatrixTerm { body } } late: debugGlobalsLate lateObj: debugLateObject { state } }

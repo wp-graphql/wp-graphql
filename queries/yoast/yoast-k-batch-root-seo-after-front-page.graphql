@@ -1,0 +1,3 @@
+query Op1($front: ID!) { page(id: $front, idType: DATABASE_ID) { title } }
+#### next-operation
+query Op2 { seo { contentTypes { book { schema { raw } archive { fullHead } } } } }

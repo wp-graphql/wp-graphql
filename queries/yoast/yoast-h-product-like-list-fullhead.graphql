@@ -1,0 +1,5 @@
+query H($ids: [ID]) {
+  contentNodes(where: { in: $ids, contentTypes: [POST, BOOK], orderby: { field: IN, order: ASC } }) {
+    nodes { databaseId seo { fullHead } }
+  }
+}

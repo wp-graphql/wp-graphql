@@ -1,0 +1,13 @@
+query Q3($v: ID!) {
+  product(id: $v, idType: DATABASE_ID) {
+    databaseId
+    before: probeGlobals
+    ... on VariableProduct {
+      price
+      variations { nodes { databaseId probeGlobals price } }
+    }
+    upsell { nodes { databaseId ... on Product { probeGlobals } } }
+    after: probeGlobals
+    content
+  }
+}

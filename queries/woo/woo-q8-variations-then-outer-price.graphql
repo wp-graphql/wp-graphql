@@ -1,0 +1,5 @@
+query Q8($v: ID!) {
+  product(id: $v, idType: DATABASE_ID) {
+    ... on VariableProduct { variations { nodes { databaseId } } after: probeGlobals price regularPrice name }
+  }
+}

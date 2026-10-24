@@ -1,0 +1,3 @@
+query E6 {
+  posts(first: 2) { nodes { title } pageInfo { seo { schema { raw } } } }
+}

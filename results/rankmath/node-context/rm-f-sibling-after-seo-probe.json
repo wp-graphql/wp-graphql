@@ -1,0 +1,23 @@
+{
+  "data": {
+    "lateObj": {
+      "state": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "one": {
+      "content": "<p class=\"wp-block-paragraph\">Alpha body</p>",
+      "s0": "{\"post\":302,\"postTitle\":\"[ext-matrix] RM Alpha\",\"queried\":302,\"singular\":true,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":17,\"product\":null}",
+      "s1": "{\"post\":302,\"postTitle\":\"[ext-matrix] RM Alpha\",\"queried\":302,\"singular\":true,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":17,\"product\":null}",
+      "seo": {
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      },
+      "title": "[ext-matrix] RM Alpha"
+    },
+    "two": {
+      "content": "<p>Beta body</p>\n",
+      "s0": "{\"post\":303,\"postTitle\":\"[ext-matrix] RM Beta\",\"queried\":303,\"singular\":true,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":1,\"product\":null}",
+      "seo": {
+        "canonicalUrl": "http://localhost:8888/ext-matrix-rm-beta/"
+      }
+    }
+  }
+}

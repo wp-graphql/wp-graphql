@@ -1,0 +1,11 @@
+query E($p1: ID!, $c1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) { seo { title } }
+  contentType(id: "post", idType: NAME) {
+    seo { title canonicalUrl breadcrumbs { text url } jsonLd { raw } }
+  }
+  category(id: $c1, idType: DATABASE_ID) {
+    seo { title description breadcrumbs { text url } jsonLd { raw } }
+  }
+  rankMathSettings { general { hasBreadcrumbs } meta { global { separator } } }
+  lateObj: debugLateObject { state }
+}

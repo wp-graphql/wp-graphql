@@ -1,0 +1,4 @@
+query E($a: ID!) {
+  post(id: $a, idType: DATABASE_ID) { title featuredImage { node { sourceUrl } } }
+  nodeByUri(uri: "/") { __typename ... on ContentType { templates conditionalTags { isHome isFrontPage isSingle isAttachment } } }
+}

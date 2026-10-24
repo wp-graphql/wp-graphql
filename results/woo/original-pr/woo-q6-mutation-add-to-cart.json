@@ -1,0 +1,18 @@
+{
+  "data": {
+    "addToCart": {
+      "cart": {
+        "total": "$20.00"
+      },
+      "cartItem": {
+        "product": {
+          "node": {
+            "databaseId": 313,
+            "probeGlobals": "{\"post\":313,\"product\":313,\"queried\":0,\"isProduct\":false}"
+          }
+        },
+        "quantity": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+query G($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    categories { nodes { seo { title } } }
+    after: debugNodeGlobals
+    content
+  }
+}

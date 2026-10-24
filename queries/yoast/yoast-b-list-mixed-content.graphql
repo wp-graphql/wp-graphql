@@ -1,0 +1,5 @@
+query B($ids: [ID]) {
+  contentNodes(first: 10, where: { in: $ids, contentTypes: [POST, PAGE, BOOK] }) {
+    nodes { databaseId uri seo { title canonical opengraphAuthor breadcrumbs { text } schema { raw } } }
+  }
+}

@@ -1,0 +1,5 @@
+query F($p1: ID!, $p2: ID!) {
+  one: post(id: $p1, idType: DATABASE_ID) { s0: debugNodeGlobals seo { title } s1: debugNodeGlobals title content }
+  two: post(id: $p2, idType: DATABASE_ID) { s0: debugNodeGlobals content seo { canonicalUrl } }
+  lateObj: debugLateObject { state }
+}

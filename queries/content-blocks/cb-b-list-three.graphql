@@ -1,0 +1,5 @@
+query B($ids: [ID]) {
+  posts(where: { in: $ids, orderby: { field: IN, order: ASC } }) {
+    nodes { databaseId title editorBlocks(flat: false) { name renderedHtml ... on CorePostTerms { terms { nodes { name } } } } }
+  }
+}

@@ -1,0 +1,6 @@
+query E2($p2: ID!) {
+  post(id: $p2, idType: DATABASE_ID) { title }
+  debugGlobals
+  late: debugGlobalsLate
+  lateObj: debugLateObject { state }
+}

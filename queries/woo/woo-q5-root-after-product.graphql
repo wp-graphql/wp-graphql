@@ -1,0 +1,6 @@
+query Q5($p1: ID!) {
+  product(id: $p1, idType: DATABASE_ID) { databaseId description }
+  probeGlobals
+  lateObj: probeGlobalsLate { state }
+  cart { total isEmpty }
+}

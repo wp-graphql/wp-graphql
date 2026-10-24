@@ -1,0 +1,4 @@
+query E3($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) { title }
+  seo { contentTypes { book { schema { raw } archive { fullHead } } } }
+}

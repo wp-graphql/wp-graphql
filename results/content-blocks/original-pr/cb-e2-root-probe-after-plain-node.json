@@ -1,0 +1,12 @@
+{
+  "data": {
+    "debugGlobals": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "late": "{\"post\":277,\"postTitle\":\"[ext-matrix] Second P2\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}",
+    "lateObj": {
+      "state": "{\"post\":277,\"postTitle\":\"[ext-matrix] Second P2\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "post": {
+      "title": "[ext-matrix] Second P2"
+    }
+  }
+}

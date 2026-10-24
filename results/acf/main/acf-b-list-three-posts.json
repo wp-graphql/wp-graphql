@@ -1,0 +1,41 @@
+{
+  "data": {
+    "posts": {
+      "nodes": [
+        {
+          "databaseId": 284,
+          "extMatrixStory": {
+            "body": "<p>Post 284</p>\n",
+            "rows": [
+              {
+                "rowBody": ""
+              }
+            ]
+          }
+        },
+        {
+          "databaseId": 285,
+          "extMatrixStory": {
+            "body": "<p>Post 285</p>\n",
+            "rows": [
+              {
+                "rowBody": ""
+              }
+            ]
+          }
+        },
+        {
+          "databaseId": 286,
+          "extMatrixStory": {
+            "body": "<p>Post 286</p>\n",
+            "rows": [
+              {
+                "rowBody": ""
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

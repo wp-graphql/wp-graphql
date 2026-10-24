@@ -1,0 +1,1 @@
+query F($a: ID!) { post(id: $a, idType: DATABASE_ID) { content } }

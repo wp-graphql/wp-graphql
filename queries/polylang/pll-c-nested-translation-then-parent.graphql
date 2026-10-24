@@ -1,0 +1,8 @@
+query C($en1: ID!) {
+  post(id: $en1, idType: DATABASE_ID) {
+    translation(language: FI) { title uri categories { nodes { name language { code } translation(language: EN) { name } } } }
+    title
+    uri
+    categories { nodes { name translations { name } } }
+  }
+}

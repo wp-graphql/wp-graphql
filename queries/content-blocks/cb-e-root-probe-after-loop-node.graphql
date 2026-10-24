@@ -1,0 +1,9 @@
+query E($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    title
+    editorBlocks(flat: false) { name renderedHtml }
+  }
+  debugGlobals
+  late: debugGlobalsLate
+  lateObj: debugLateObject { state }
+}

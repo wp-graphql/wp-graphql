@@ -1,0 +1,1 @@
+mutation H { generateAuthorizationCode(input: { username: "extmx-fauthor", password: "wrong" }) { code error } }

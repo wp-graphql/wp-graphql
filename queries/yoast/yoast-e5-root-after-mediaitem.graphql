@@ -1,0 +1,5 @@
+query E5($img1: ID!) {
+  mediaItem(id: $img1, idType: DATABASE_ID) { title }
+  seo { contentTypes { book { archive { fullHead } } } }
+  genres { nodes { name seo { canonical opengraphUrl } } }
+}

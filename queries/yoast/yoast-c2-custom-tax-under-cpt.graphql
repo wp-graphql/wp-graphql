@@ -1,0 +1,3 @@
+query C2($book1: ID!) {
+  book(id: $book1, idType: DATABASE_ID) { title genres { nodes { name seo { canonical schema { raw } } } } }
+}

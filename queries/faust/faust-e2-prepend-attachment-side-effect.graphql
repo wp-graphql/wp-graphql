@@ -1,0 +1,5 @@
+query E2($a: ID!, $media: ID!) {
+  post(id: $a, idType: DATABASE_ID) { featuredImage { node { databaseId } } }
+  nodeByUri(uri: "/") { ... on ContentType { templates } }
+  mediaItem(id: $media, idType: DATABASE_ID) { description }
+}

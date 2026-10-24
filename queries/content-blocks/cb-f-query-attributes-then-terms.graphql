@@ -1,0 +1,9 @@
+query F($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    editorBlocks(flat: false) {
+      name
+      ... on CoreQuery { attributes { queryId tagName } }
+      ... on CorePostTerms { terms { nodes { name } } }
+    }
+  }
+}

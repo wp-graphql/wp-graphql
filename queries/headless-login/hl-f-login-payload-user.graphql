@@ -1,0 +1,1 @@
+mutation HlLogin { login(input: { provider: PASSWORD, credentials: { username: "extmx-hluser", password: "hl-pass-123" } }) { authToken user { databaseId name auth { isUserSecretRevoked } } } }

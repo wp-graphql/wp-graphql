@@ -1,0 +1,25 @@
+{
+  "data": {
+    "after": {
+      "templates": [
+        "page-extmx-about",
+        "page-282",
+        "page",
+        "index"
+      ],
+      "title": "[ext-matrix] About"
+    },
+    "before": {
+      "templates": [
+        "page-extmx-about",
+        "page-282",
+        "page",
+        "index"
+      ],
+      "title": "[ext-matrix] About"
+    },
+    "post": {
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

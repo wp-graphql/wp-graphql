@@ -1,0 +1,14 @@
+{
+  "data": {
+    "login": {
+      "authToken": "<JWT>",
+      "user": {
+        "auth": {
+          "isUserSecretRevoked": false
+        },
+        "databaseId": 18,
+        "name": "[ext-matrix] HL User"
+      }
+    }
+  }
+}

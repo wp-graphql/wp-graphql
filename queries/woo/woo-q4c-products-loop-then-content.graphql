@@ -1,0 +1,3 @@
+query Q4c($p3: ID!) {
+  product(id: $p3, idType: DATABASE_ID) { description content probeGlobals name }
+}

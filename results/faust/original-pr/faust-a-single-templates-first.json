@@ -1,0 +1,12 @@
+{
+  "data": {
+    "post": {
+      "databaseId": 279,
+      "templates": [
+        "front-page",
+        "home",
+        "index"
+      ]
+    }
+  }
+}

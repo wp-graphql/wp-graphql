@@ -1,0 +1,3 @@
+query Op1($img1: ID!) { mediaItem(id: $img1, idType: DATABASE_ID) { title } }
+#### next-operation
+query Op2 { seo { contentTypes { book { archive { fullHead } } } } }

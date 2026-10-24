@@ -1,0 +1,12 @@
+{
+  "data": {
+    "post": {
+      "title": "[ext-matrix] ACF Post Two"
+    },
+    "user": {
+      "extMatrixUser": {
+        "body": "<div id='gallery-1' class='gallery galleryid-0 gallery-columns-3 gallery-size-thumbnail'>\n<figure class='gallery-item'>\n<div class='gallery-icon landscape'>\n\t\t\t\t<a href='http://localhost:8888/ext-matrix-unattached-image/'><img width=\"40\" height=\"30\" src=\"http://localhost:8888/wp-content/uploads/2026/10/extmx-1.png\" class=\"attachment-thumbnail size-thumbnail\" alt=\"\" decoding=\"async\" loading=\"lazy\" /></a>\n\t\t\t</div>\n</figure></div>\n"
+      }
+    }
+  }
+}

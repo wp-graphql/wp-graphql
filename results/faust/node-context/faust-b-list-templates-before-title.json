@@ -1,0 +1,35 @@
+{
+  "data": {
+    "posts": {
+      "nodes": [
+        {
+          "templates": [
+            "single-post-extmx-alpha",
+            "single-post",
+            "single",
+            "index"
+          ],
+          "title": "[ext-matrix] Alpha"
+        },
+        {
+          "templates": [
+            "single-post-extmx-beta",
+            "single-post",
+            "single",
+            "index"
+          ],
+          "title": "[ext-matrix] Beta"
+        },
+        {
+          "templates": [
+            "single-post-extmx-gamma",
+            "single-post",
+            "single",
+            "index"
+          ],
+          "title": "[ext-matrix] Gamma"
+        }
+      ]
+    }
+  }
+}

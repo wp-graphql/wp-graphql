@@ -1,0 +1,5 @@
+query D($a: ID!, $page: ID!) {
+  post(id: $a, idType: DATABASE_ID) { title }
+  before: page(id: $page, idType: DATABASE_ID) { templates title }
+  after:  page(id: $page, idType: DATABASE_ID) { title templates }
+}

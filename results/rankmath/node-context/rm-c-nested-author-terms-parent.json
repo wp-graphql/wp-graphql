@@ -1,0 +1,91 @@
+{
+  "data": {
+    "page": {
+      "parent": {
+        "node": {
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "[ext-matrix] RM Parent Page"
+              }
+            ],
+            "title": "[ext-matrix] RM Parent Page - wp-graphql"
+          }
+        }
+      },
+      "seo": {
+        "breadcrumbs": [
+          {
+            "text": "Home"
+          },
+          {
+            "text": "[ext-matrix] RM Parent Page"
+          },
+          {
+            "text": "[ext-matrix] RM Child Page"
+          }
+        ]
+      }
+    },
+    "post": {
+      "afterNested": {
+        "breadcrumbs": [
+          {
+            "text": "Home"
+          },
+          {
+            "text": "[ext-matrix] Child Cat"
+          },
+          {
+            "text": "[ext-matrix] RM Alpha"
+          }
+        ],
+        "canonicalUrl": "http://localhost:8888/ext-matrix-rm-alpha/",
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      },
+      "author": {
+        "node": {
+          "databaseId": 17,
+          "seo": {
+            "breadcrumbs": [
+              {
+                "text": "Home"
+              },
+              {
+                "text": "Archives for [ext-matrix] RM Author"
+              }
+            ],
+            "title": "[ext-matrix] RM Author - wp-graphql",
+            "twitterUserName": "extmxrmauthor"
+          }
+        }
+      },
+      "categories": {
+        "nodes": [
+          {
+            "databaseId": 237,
+            "seo": {
+              "breadcrumbs": [
+                {
+                  "text": "Home",
+                  "url": "http://localhost:8888"
+                },
+                {
+                  "text": "[ext-matrix] Child Cat",
+                  "url": "http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/"
+                }
+              ],
+              "title": "[ext-matrix] Child Cat SEO Title"
+            }
+          }
+        ]
+      },
+      "seo": {
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      }
+    }
+  }
+}

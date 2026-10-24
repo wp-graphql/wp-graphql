@@ -1,0 +1,19 @@
+{
+  "data": {
+    "extMatrixSiteSettings": {
+      "extMatrixSiteFields": {
+        "body": "<p>Options</p>\n<div id='gallery-1' class='gallery galleryid-285 gallery-columns-3 gallery-size-thumbnail'>\n<figure class='gallery-item'>\n<div class='gallery-icon landscape'>\n\t\t\t\t<a href='http://localhost:8888/ext-matrix-acf-post-two/ext-matrix-p2-image/'><img width=\"40\" height=\"30\" src=\"http://localhost:8888/wp-content/uploads/2001/02/extmx-2.png\" class=\"attachment-thumbnail size-thumbnail\" alt=\"\" decoding=\"async\" loading=\"lazy\" /></a>\n\t\t\t</div>\n</figure></div>\n"
+      }
+    },
+    "posts": {
+      "nodes": [
+        {
+          "title": "[ext-matrix] ACF Post One"
+        },
+        {
+          "title": "[ext-matrix] ACF Post Two"
+        }
+      ]
+    }
+  }
+}

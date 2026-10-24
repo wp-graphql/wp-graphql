@@ -1,0 +1,1 @@
+query A($p1: ID!) { post(id: $p1, idType: DATABASE_ID) { extMatrixStory { body rows { rowBody } } } }

@@ -1,0 +1,9 @@
+query I($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    s0: debugNodeGlobals
+    q: editorBlocks(flat: false) { name ... on CoreQuery { renderedHtml } }
+    s1: debugNodeGlobals
+    title
+    s2: debugNodeGlobals
+  }
+}

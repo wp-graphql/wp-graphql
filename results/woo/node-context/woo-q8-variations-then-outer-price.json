@@ -1,0 +1,20 @@
+{
+  "data": {
+    "product": {
+      "after": "{\"post\":316,\"product\":316,\"queried\":316,\"isProduct\":true}",
+      "name": "[ext-matrix] Variable V",
+      "price": "$11.00 - $12.00",
+      "regularPrice": "$11.00 - $12.00",
+      "variations": {
+        "nodes": [
+          {
+            "databaseId": 317
+          },
+          {
+            "databaseId": 318
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+query C1($cat: ID!) { category(id: $cat, idType: DATABASE_ID) { name extMatrixTerm { body } posts(where: { orderby: { field: DATE, order: ASC } }) { nodes { databaseId extMatrixStory { body } } } } }

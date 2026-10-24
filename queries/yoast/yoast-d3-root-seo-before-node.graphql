@@ -1,0 +1,4 @@
+query D3($p1: ID!) {
+  seo { meta { author { title social { title } } } }
+  post(id: $p1, idType: DATABASE_ID) { title }
+}

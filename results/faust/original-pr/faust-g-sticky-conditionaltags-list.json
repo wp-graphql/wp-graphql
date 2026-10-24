@@ -1,0 +1,32 @@
+{
+  "data": {
+    "posts": {
+      "nodes": [
+        {
+          "conditionalTags": {
+            "isSingle": false,
+            "isSingular": false,
+            "isSticky": false
+          },
+          "databaseId": 279
+        },
+        {
+          "conditionalTags": {
+            "isSingle": false,
+            "isSingular": false,
+            "isSticky": false
+          },
+          "databaseId": 280
+        },
+        {
+          "conditionalTags": {
+            "isSingle": false,
+            "isSingular": false,
+            "isSticky": false
+          },
+          "databaseId": 281
+        }
+      ]
+    }
+  }
+}

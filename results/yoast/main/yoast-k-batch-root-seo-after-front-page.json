@@ -1,0 +1,25 @@
+[
+  {
+    "data": {
+      "page": {
+        "title": "[ext-matrix] Home Page"
+      }
+    }
+  },
+  {
+    "data": {
+      "seo": {
+        "contentTypes": {
+          "book": {
+            "archive": {
+              "fullHead": "<!-- This site is optimized with the Yoast SEO plugin v28.7 - https://yoast.com/product/yoast-seo-wordpress/ -->\n<link rel=\"canonical\" href=\"http://localhost:8888/book/\" />\n<meta property=\"og:locale\" content=\"en_US\" />\n<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:title\" content=\"Books Archive - wp-graphql\" />\n<meta property=\"og:url\" content=\"http://localhost:8888/book/\" />\n<meta property=\"og:site_name\" content=\"wp-graphql\" />\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n<script type=\"application/ld+json\" class=\"yoast-schema-graph\">{\n\t    \"@context\": \"https:\\/\\/schema.org\",\n\t    \"@graph\": [\n\t        {\n\t            \"@type\": \"CollectionPage\",\n\t            \"@id\": \"http:\\/\\/localhost:8888\\/book\\/\",\n\t            \"url\": \"http:\\/\\/localhost:8888\\/book\\/\",\n\t            \"name\": \"Books Archive - wp-graphql\",\n\t            \"isPartOf\": {\n\t                \"@id\": \"http:\\/\\/localhost:8888\\/#website\"\n\t            },\n\t            \"breadcrumb\": {\n\t                \"@id\": \"http:\\/\\/localhost:8888\\/book\\/#breadcrumb\"\n\t            },\n\t            \"inLanguage\": \"en-US\"\n\t        },\n\t        {\n\t            \"@type\": \"BreadcrumbList\",\n\t            \"@id\": \"http:\\/\\/localhost:8888\\/book\\/#breadcrumb\",\n\t            \"itemListElement\": [\n\t                {\n\t                    \"@type\": \"ListItem\",\n\t                    \"position\": 1,\n\t                    \"name\": \"Home\",\n\t                    \"item\": \"http:\\/\\/localhost:8888\\/\"\n\t                },\n\t                {\n\t                    \"@type\": \"ListItem\",\n\t                    \"position\": 2,\n\t                    \"name\": \"Books\"\n\t                }\n\t            ]\n\t        },\n\t        {\n\t            \"@type\": \"WebSite\",\n\t            \"@id\": \"http:\\/\\/localhost:8888\\/#website\",\n\t            \"url\": \"http:\\/\\/localhost:8888\\/\",\n\t            \"name\": \"wp-graphql\",\n\t            \"description\": \"\",\n\t            \"potentialAction\": [\n\t                {\n\t                    \"@type\": \"SearchAction\",\n\t                    \"target\": {\n\t                        \"@type\": \"EntryPoint\",\n\t                        \"urlTemplate\": \"http:\\/\\/localhost:8888\\/?s={search_term_string}\"\n\t                    },\n\t                    \"query-input\": {\n\t                        \"@type\": \"PropertyValueSpecification\",\n\t                        \"valueRequired\": true,\n\t                        \"valueName\": \"search_term_string\"\n\t                    }\n\t                }\n\t            ],\n\t            \"inLanguage\": \"en-US\"\n\t        }\n\t    ]\n\t}</script>\n<!-- / Yoast SEO plugin. -->"
+            },
+            "schema": {
+              "raw": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"CollectionPage\",\"@id\":\"http://localhost:8888/book/\",\"url\":\"http://localhost:8888/book/\",\"name\":\"Books Archive - wp-graphql\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"breadcrumb\":{\"@id\":\"http://localhost:8888/book/#breadcrumb\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/book/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://localhost:8888/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Books\"}]},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql\",\"description\":\"\",\"potentialAction\":[{\"@type\":\"SearchAction\",\"target\":{\"@type\":\"EntryPoint\",\"urlTemplate\":\"http://localhost:8888/?s={search_term_string}\"},\"query-input\":{\"@type\":\"PropertyValueSpecification\",\"valueRequired\":true,\"valueName\":\"search_term_string\"}}],\"inLanguage\":\"en-US\"}]}"
+            }
+          }
+        }
+      }
+    }
+  }
+]

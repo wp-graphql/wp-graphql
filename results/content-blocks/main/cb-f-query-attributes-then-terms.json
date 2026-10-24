@@ -1,0 +1,50 @@
+{
+  "data": {
+    "post": {
+      "editorBlocks": [
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/post-terms",
+          "terms": {
+            "nodes": [
+              {
+                "name": "[ext-matrix] Host Cat"
+              }
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "queryId": 1,
+            "tagName": "div"
+          },
+          "name": "core/query"
+        },
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/post-terms",
+          "terms": {
+            "nodes": [
+              {
+                "name": "[ext-matrix] Host Cat"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core/post-title"
+        },
+        {
+          "name": "core/latest-posts"
+        },
+        {
+          "name": "core/post-title"
+        }
+      ]
+    }
+  }
+}

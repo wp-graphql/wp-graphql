@@ -1,0 +1,1 @@
+query I($a: ID!, $page: ID!) { post(id: $a, idType: DATABASE_ID) { title author { node { name } } } page(id: $page, idType: DATABASE_ID) { templates } late: debugGlobalsLate lateObj: debugLateObject { state } }

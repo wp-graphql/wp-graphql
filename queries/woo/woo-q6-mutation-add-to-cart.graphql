@@ -1,0 +1,6 @@
+mutation Q6($p2: Int!) {
+  addToCart(input: { productId: $p2, quantity: 1 }) {
+    cart { total }
+    cartItem { quantity product { node { databaseId probeGlobals } } }
+  }
+}

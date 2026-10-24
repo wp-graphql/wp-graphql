@@ -1,0 +1,3 @@
+query Q4b($p1: ID!) {
+  product(id: $p1, idType: DATABASE_ID) { content description probeGlobals }
+}

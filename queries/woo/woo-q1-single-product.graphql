@@ -1,0 +1,9 @@
+query Q1($p2: ID!) {
+  product(id: $p2, idType: DATABASE_ID) {
+    databaseId
+    probeGlobals
+    ... on SimpleProduct { price regularPrice(format: RAW) salePrice }
+    shortDescription
+    description
+  }
+}

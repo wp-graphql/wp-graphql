@@ -1,0 +1,24 @@
+{
+  "data": {
+    "late": "{\"post\":279,\"postTitle\":\"[ext-matrix] Alpha\",\"queried\":13,\"singular\":false,\"tax\":false,\"author\":true,\"home\":false,\"authordata\":13,\"product\":null}",
+    "lateObj": {
+      "state": "{\"post\":null,\"postTitle\":null,\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "page": {
+      "templates": [
+        "page-extmx-about",
+        "page-282",
+        "page",
+        "index"
+      ]
+    },
+    "post": {
+      "author": {
+        "node": {
+          "name": "[ext-matrix] F Author"
+        }
+      },
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

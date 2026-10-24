@@ -1,0 +1,1 @@
+query D($p1: ID!) { before: post(id: $p1, idType: DATABASE_ID) { extMatrixStory { body } title databaseId } after: post(id: $p1, idType: DATABASE_ID) { title databaseId extMatrixStory { body } } }

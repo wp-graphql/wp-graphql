@@ -1,0 +1,32 @@
+{
+  "data": {
+    "posts": {
+      "nodes": [
+        {
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ],
+          "title": "[ext-matrix] Alpha"
+        },
+        {
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ],
+          "title": "[ext-matrix] Beta"
+        },
+        {
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ],
+          "title": "[ext-matrix] Gamma"
+        }
+      ]
+    }
+  }
+}

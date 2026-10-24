@@ -1,0 +1,1 @@
+query B2 { categories(where: { slug: ["extmx-news","extmx-events","extmx-guides"], orderby: NAME }) { nodes { templates conditionalTags { isCategory isSingle } name } } }

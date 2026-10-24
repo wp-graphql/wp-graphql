@@ -1,0 +1,4 @@
+query E4($front: ID!) {
+  page(id: $front, idType: DATABASE_ID) { title }
+  seo { contentTypes { book { schema { raw } archive { fullHead } } } }
+}

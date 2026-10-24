@@ -1,0 +1,23 @@
+{
+  "data": {
+    "after": {
+      "templates": [
+        "front-page",
+        "home",
+        "index"
+      ],
+      "title": "[ext-matrix] About"
+    },
+    "before": {
+      "templates": [
+        "front-page",
+        "home",
+        "index"
+      ],
+      "title": "[ext-matrix] About"
+    },
+    "post": {
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

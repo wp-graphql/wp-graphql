@@ -1,0 +1,34 @@
+{
+  "data": {
+    "post": {
+      "language": {
+        "code": "EN",
+        "locale": "en_US",
+        "name": "English"
+      },
+      "title": "[ext-matrix] PLL Post 1 EN",
+      "translation": {
+        "language": {
+          "code": "FI"
+        },
+        "title": "[ext-matrix] PLL Post 1 FI"
+      },
+      "translations": [
+        {
+          "databaseId": 320,
+          "language": {
+            "code": "FI"
+          },
+          "title": "[ext-matrix] PLL Post 1 FI"
+        },
+        {
+          "databaseId": 321,
+          "language": {
+            "code": "DE"
+          },
+          "title": "[ext-matrix] PLL Post 1 DE"
+        }
+      ]
+    }
+  }
+}

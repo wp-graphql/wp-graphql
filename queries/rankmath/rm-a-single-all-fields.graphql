@@ -1,0 +1,13 @@
+query A($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    databaseId
+    seo {
+      title description canonicalUrl robots focusKeywords breadcrumbTitle
+      breadcrumbs { text url isHidden }
+      openGraph { title url description type }
+      jsonLd { raw }
+      fullHead
+      ... on RankMathContentNodeSeo { isPillarContent seoScore { score rating badgeHtml hasFrontendScore } }
+    }
+  }
+}

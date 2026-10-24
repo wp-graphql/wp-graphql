@@ -1,0 +1,8 @@
+query B($ids: [ID]) {
+  posts(where: { in: $ids, orderby: { field: TITLE, order: ASC } }) {
+    nodes {
+      databaseId title
+      seo { title canonicalUrl breadcrumbs { text } ... on RankMathContentNodeSeo { seoScore { score badgeHtml } } jsonLd { raw } }
+    }
+  }
+}

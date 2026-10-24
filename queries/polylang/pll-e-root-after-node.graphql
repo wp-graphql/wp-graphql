@@ -1,0 +1,8 @@
+query E($fi2: ID!) {
+  post(id: $fi2, idType: DATABASE_ID) { title language { code } }
+  defaultLanguage { homeUrl }
+  defaultLanguage2: defaultLanguage { code homeUrl }
+  languages { code name homeUrl }
+  translateString(string: "Read more", language: FI)
+  lateObj: debugLateObject { state }
+}

@@ -1,0 +1,5 @@
+query G($p1: ID!, $p2: ID!) {
+  one: post(id: $p1, idType: DATABASE_ID) { title seo { fullHead schema { raw } } }
+  two: post(id: $p2, idType: DATABASE_ID) { seo { fullHead schema { raw } } title }
+  lateObj: debugLateObject { state }
+}

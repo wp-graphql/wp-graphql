@@ -1,0 +1,10 @@
+query C1($alice: ID!, $p1: ID!) {
+  user(id: $alice, idType: DATABASE_ID) {
+    seo { title canonical schema { raw } }
+    posts { nodes { databaseId seo { canonical schema { raw } } } }
+  }
+  post(id: $p1, idType: DATABASE_ID) {
+    author { node { seo { title } } }
+    categories { edges { isPrimary node { name } } }
+  }
+}

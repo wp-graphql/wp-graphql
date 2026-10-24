@@ -1,0 +1,1 @@
+query B($ids: [ID]) { posts(first: 9, where: { in: $ids, language: ALL, orderby: { field: TITLE, order: ASC } }) { nodes { language { code } title translations { title language { code } } } } }

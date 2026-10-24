@@ -1,0 +1,23 @@
+{
+  "data": {
+    "late": "{\"post\":279,\"postTitle\":\"[ext-matrix] Alpha\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":true,\"authordata\":13,\"product\":null}",
+    "lateObj": {
+      "state": "{\"post\":279,\"postTitle\":\"[ext-matrix] Alpha\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":true,\"authordata\":13,\"product\":null}"
+    },
+    "page": {
+      "templates": [
+        "front-page",
+        "home",
+        "index"
+      ]
+    },
+    "post": {
+      "author": {
+        "node": {
+          "name": "[ext-matrix] F Author"
+        }
+      },
+      "title": "[ext-matrix] Alpha"
+    }
+  }
+}

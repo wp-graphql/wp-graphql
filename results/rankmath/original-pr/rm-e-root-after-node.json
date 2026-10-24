@@ -1,0 +1,56 @@
+{
+  "data": {
+    "category": {
+      "seo": {
+        "breadcrumbs": [
+          {
+            "text": "Home",
+            "url": "http://localhost:8888"
+          },
+          {
+            "text": "[ext-matrix] Child Cat",
+            "url": "http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/"
+          }
+        ],
+        "description": "Child cat description",
+        "jsonLd": {
+          "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/\",\"name\":\"[ext-matrix] Child Cat\"}}]},{\"@type\":\"CollectionPage\",\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/#webpage\",\"url\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/\",\"name\":\"[ext-matrix] Child Cat SEO Title\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/#breadcrumb\"}}]}</script>\n"
+        },
+        "title": "[ext-matrix] Child Cat SEO Title"
+      }
+    },
+    "contentType": {
+      "seo": {
+        "breadcrumbs": [
+          {
+            "text": "Home",
+            "url": "http://localhost:8888"
+          }
+        ],
+        "canonicalUrl": "http://localhost:8888/",
+        "jsonLd": {
+          "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"http://localhost:8888/?s={search_term_string}\",\"query-input\":\"required name=search_term_string\"}},{\"@type\":\"CollectionPage\",\"@id\":\"http://localhost:8888/#webpage\",\"url\":\"http://localhost:8888/\",\"name\":\"wp-graphql -\",\"about\":{\"@id\":\"http://localhost:8888/#person\"},\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\"}]}</script>\n"
+        },
+        "title": "wp-graphql -"
+      }
+    },
+    "lateObj": {
+      "state": "{\"post\":302,\"postTitle\":\"[ext-matrix] RM Alpha\",\"queried\":null,\"singular\":false,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":17,\"product\":null}"
+    },
+    "post": {
+      "seo": {
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      }
+    },
+    "rankMathSettings": {
+      "general": {
+        "hasBreadcrumbs": true
+      },
+      "meta": {
+        "global": {
+          "separator": "-"
+        }
+      }
+    }
+  }
+}

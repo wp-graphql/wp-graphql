@@ -1,0 +1,4 @@
+query E1($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) { title }
+  seo { meta { author { title social { title } } } }
+}

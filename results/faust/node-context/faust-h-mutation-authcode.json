@@ -1,0 +1,8 @@
+{
+  "data": {
+    "generateAuthorizationCode": {
+      "code": null,
+      "error": "The provided password is an invalid application password."
+    }
+  }
+}

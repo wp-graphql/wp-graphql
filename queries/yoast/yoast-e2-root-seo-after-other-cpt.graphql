@@ -1,0 +1,4 @@
+query E2($movie1: ID!) {
+  movie(id: $movie1, idType: DATABASE_ID) { title }
+  seo { contentTypes { book { archive { title social { title } } } } }
+}

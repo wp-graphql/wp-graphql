@@ -1,0 +1,44 @@
+{
+  "data": {
+    "categories": {
+      "nodes": [
+        {
+          "conditionalTags": {
+            "isCategory": false,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] Events",
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ]
+        },
+        {
+          "conditionalTags": {
+            "isCategory": false,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] Guides",
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ]
+        },
+        {
+          "conditionalTags": {
+            "isCategory": false,
+            "isSingle": false
+          },
+          "name": "[ext-matrix] News",
+          "templates": [
+            "front-page",
+            "home",
+            "index"
+          ]
+        }
+      ]
+    }
+  }
+}

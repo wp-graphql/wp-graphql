@@ -1,0 +1,8 @@
+query D($p1: ID!) {
+  post(id: $p1, idType: DATABASE_ID) {
+    q: editorBlocks(flat: false) { name ... on CoreQuery { renderedHtml } }
+    before: editorBlocks(flat: false) { name ... on CorePostTerms { terms { nodes { name } } } }
+    title
+    after: editorBlocks(flat: false) { name ... on CorePostTerms { terms { nodes { name } } } }
+  }
+}

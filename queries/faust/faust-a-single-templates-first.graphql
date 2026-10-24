@@ -1,0 +1,1 @@
+query A($a: ID!) { post(id: $a, idType: DATABASE_ID) { templates databaseId } }

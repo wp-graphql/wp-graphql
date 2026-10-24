@@ -1,0 +1,38 @@
+{
+  "data": {
+    "defaultLanguage": {
+      "homeUrl": "http://localhost:8888/"
+    },
+    "defaultLanguage2": {
+      "code": "EN",
+      "homeUrl": "http://localhost:8888/"
+    },
+    "languages": [
+      {
+        "code": "EN",
+        "homeUrl": "http://localhost:8888/",
+        "name": "English"
+      },
+      {
+        "code": "FI",
+        "homeUrl": "http://localhost:8888/fi/",
+        "name": "Suomi"
+      },
+      {
+        "code": "DE",
+        "homeUrl": "http://localhost:8888/de/",
+        "name": "Deutsch"
+      }
+    ],
+    "lateObj": {
+      "state": "{\"post\":323,\"postTitle\":\"[ext-matrix] PLL Post 2 FI\",\"queried\":323,\"singular\":true,\"tax\":false,\"author\":false,\"home\":false,\"authordata\":null,\"product\":null}"
+    },
+    "post": {
+      "language": {
+        "code": "FI"
+      },
+      "title": "[ext-matrix] PLL Post 2 FI"
+    },
+    "translateString": "Lue lis\u00e4\u00e4"
+  }
+}

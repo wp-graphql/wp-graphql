@@ -1,0 +1,5 @@
+query D4($ids: [ID]) {
+  posts(where: { in: $ids, orderby: { field: TITLE, order: ASC } }) {
+    nodes { databaseId seo { jsonLd { raw } fullHead } }
+  }
+}

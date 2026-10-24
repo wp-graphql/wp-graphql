@@ -1,0 +1,22 @@
+{
+  "data": {
+    "first": {
+      "content": "<p class=\"wp-block-paragraph\">Alpha body</p>",
+      "seo": {
+        "canonicalUrl": "http://localhost:8888/ext-matrix-rm-alpha/",
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      },
+      "title": "[ext-matrix] RM Alpha",
+      "uri": "/ext-matrix-rm-alpha/"
+    },
+    "second": {
+      "content": "<p class=\"wp-block-paragraph\">Alpha body</p>",
+      "seo": {
+        "canonicalUrl": "http://localhost:8888/ext-matrix-rm-alpha/",
+        "title": "[ext-matrix] RM Alpha - wp-graphql"
+      },
+      "title": "[ext-matrix] RM Alpha",
+      "uri": "/ext-matrix-rm-alpha/"
+    }
+  }
+}

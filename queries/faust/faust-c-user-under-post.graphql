@@ -1,0 +1,1 @@
+query C($a: ID!) { post(id: $a, idType: DATABASE_ID) { title author { node { templates name } } templates } }
