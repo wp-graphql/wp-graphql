@@ -130,6 +130,8 @@ The "All" value of the Block location rule is also fixed. A field group set to "
 
 **Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
 
+**WYSIWYG fields are no longer run through `the_content`.** ACF formats a WYSIWYG value with its own `acf_the_content` filter, and the value was then run through WordPress's `the_content` filter as well, so anything a plugin or theme adds to post content through `the_content` (sharing buttons, related posts, newsletter forms) was added to WYSIWYG field values too. They now get ACF's formatting only, as they do from `get_field()`, so paragraphs, shortcodes and embeds still apply. If a client relied on markup added by a `the_content` filter, add it with the `wpgraphql/acf/field_value` filter instead. See #4562.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
