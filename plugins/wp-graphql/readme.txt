@@ -80,11 +80,11 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
-= 2.26.0 =
+= 2.27.0 =
 
-**Model fields no longer leave global query state behind.** While a post, term or user field resolves, WPGraphQL sets that object up as the current one on the global query (`$wp_query` and the global `$post`), so filters that run during resolution see it. That state is now put back once the field has resolved. Before, the last object resolved stayed "current" for the rest of the request, so code that read `get_queried_object()`, `is_singular()`, `is_category()`, `is_author()` or the global `$post` later in the request, including other fields' resolvers and code running on `shutdown`, saw that object instead of the request's actual query.
+**A post, term or user is the current object only for its part of a query.** While a node's fields resolve, WPGraphQL sets it up as the current object on the global query and the global `$post` (or `$authordata`), so WordPress functions and filters that read "the current" object see it. That now covers every field selected under the node, including fields other plugins register and nested values such as blocks, and the state from before is restored once resolution leaves the node. Before, the last object resolved stayed "current" for the rest of the request, so fields outside it, and code running after the request, saw that object instead.
 
-If a custom resolver relied on that, read the object from the resolver's source argument instead (for example `$post->databaseId`). The object is still current while its own fields resolve, so filters that run during resolution are unaffected. See #4572.
+Some responses change as a result, each to the correct value. Values that depend on the current object, such as Faust's `templates`, galleries without explicit IDs in ACF WYSIWYG fields on options pages, terms and users, and some SEO canonical URLs, no longer come from whichever node happened to resolve before them. If a custom resolver relied on the leftover state, read the object from the resolver's source argument instead (for example `$post->databaseId`). Extensions can restore their own globals with the new `graphql_model_node_context_globals` filter, and custom models can opt in to node scope with `scopes_setup_to_node()`. See the Node Context and Global State docs and #4572.
 
 = 2.24.2 =
 
