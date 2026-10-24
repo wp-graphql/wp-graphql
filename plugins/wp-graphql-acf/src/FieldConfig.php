@@ -420,6 +420,26 @@ class FieldConfig {
 	}
 
 	/**
+	 * Apply ACF's WYSIWYG formatting (the acf_the_content filter, which get_field() runs when it
+	 * formats the value) to the stored value of a WYSIWYG field.
+	 *
+	 * Values passed down by field key, like the sub fields of a group field, and values read from a
+	 * block's data are stored values.
+	 *
+	 * @param mixed        $value        The stored value of the field
+	 * @param array<mixed> $field_config The ACF Field Config for the field being resolved
+	 *
+	 * @return mixed
+	 */
+	protected function format_stored_wysiwyg_value( $value, array $field_config ) {
+		if ( 'wysiwyg' !== ( $field_config['type'] ?? null ) || ! is_string( $value ) ) {
+			return $value;
+		}
+
+		return \apply_filters( 'acf_the_content', $value );
+	}
+
+	/**
 	 * @param string          $selector
 	 * @param string|null     $parent_field_name
 	 * @param string|int|null $post_id
@@ -504,12 +524,12 @@ class FieldConfig {
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
 		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['key'] ], $field_config ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
 		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['__key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['__key'] ], $field_config ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
@@ -569,11 +589,11 @@ class FieldConfig {
 			acf_reset_meta( $block_id );
 
 			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
-				$return_value = $node['attrs']['data'][ $field_config['name'] ];
+				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $field_config['name'] ], $field_config );
 			}
 
 			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
-				$return_value = $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ];
+				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config );
 			}
 		}
 
@@ -666,12 +686,6 @@ class FieldConfig {
 			if ( 'br' === $acf_field_config['new_lines'] ) {
 				$value = \nl2br( $value );
 			}
-		}
-
-		// @todo: This was ported over, but I'm not 💯 sure what this is solving and
-		// why it's only applied on options pages and not other pages 🤔
-		if ( 'wysiwyg' === $acf_field_config['type'] ) {
-			$value = \apply_filters( 'the_content', $value );
 		}
 
 		if ( ! empty( $acf_field_config['type'] ) && in_array(
