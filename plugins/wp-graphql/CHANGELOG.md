@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.26.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.25.0...wp-graphql/v2.26.0) (2026-10-24)
+
+
+### New Features
+
+* let sites opt out of usage tracking from settings ([#4508](https://github.com/wp-graphql/wp-graphql/issues/4508)) ([0e61787](https://github.com/wp-graphql/wp-graphql/commit/0e61787e1278219ee3794e48e6be25c3635610d0))
+
+
+### Bug Fixes
+
+* show a readable error when installing or activating an extension fails ([#4568](https://github.com/wp-graphql/wp-graphql/issues/4568)) ([67aab29](https://github.com/wp-graphql/wp-graphql/commit/67aab29e5c17154c80486101c065d06fce3b927d))
+
 ## [2.25.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.2...wp-graphql/v2.25.0) (2026-10-20)
 
 

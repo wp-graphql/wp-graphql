@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.25.0\n"
+"Project-Id-Version: WPGraphQL 2.26.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T23:00:59+00:00\n"
+"POT-Creation-Date: 2026-10-24T02:33:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -125,12 +125,12 @@ msgid "The Extensions page requires JavaScript assets that need to be built. Ple
 msgstr ""
 
 #. translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
-#: src/Admin/Extensions/Extensions.php:295
+#: src/Admin/Extensions/Extensions.php:299
 #, php-format
 msgid "Invalid extension %1$s is missing a valid value for %2$s."
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:299
+#: src/Admin/Extensions/Extensions.php:303
 msgid "Invalid extension. All extensions must have a `name`."
 msgstr ""
 
@@ -604,6 +604,20 @@ msgstr ""
 
 #: src/Admin/Updates/Updates.php:191
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
+msgstr ""
+
+#: src/Admin/UsageTracking.php:109
+msgid "Share Usage Data"
+msgstr ""
+
+#. translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
+#: src/Admin/UsageTracking.php:112
+#, php-format
+msgid "Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and the name and email address of a site administrator. Uncheck to stop sharing at any time. %2$s"
+msgstr ""
+
+#: src/Admin/UsageTracking.php:114
+msgid "Learn more"
 msgstr ""
 
 #: src/AppContext.php:241
@@ -5729,8 +5743,18 @@ msgstr ""
 msgid "WPGraphQL appears to have been installed without it's dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`."
 msgstr ""
 
+#. translators: %s is a link to the WPGraphQL settings page.
+#: wp-graphql.php:186
+#, php-format
+msgid "Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s."
+msgstr ""
+
+#: wp-graphql.php:187
+msgid "GraphQL → Settings"
+msgstr ""
+
 #. translators: %s is the error message
-#: wp-graphql.php:184
+#: wp-graphql.php:201
 #, php-format
 msgid "Error initializing Appsero: %s"
 msgstr ""
