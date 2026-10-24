@@ -173,20 +173,21 @@ These are illustrations of how some widely used extensions could build on node c
 
 **Restoring `$product` (WPGraphQL WooCommerce).** WooCommerce sets the global `$product` on `the_post` (`wc_setup_product_data()`), so it's set whenever WPGraphQL sets up a product, but nothing resets it when resolution leaves the product. Adding `product` with the filter above would mean fields outside a product never see a stale `$product`, and any field under a product, including nested objects, could call WooCommerce template functions that read it.
 
-**Less duplicated setup (WPGraphQL for Rank Math).** The extension's SEO models (`ContentNodeSeo`, `TermNodeSeo`, `UserSeo`) each re-implement the matching core model's `setup()`: the same `parse_query()` calls, the same swap of the global `$post`. The `seo` field is always selected under its node, so the node is already set up when the SEO model's fields resolve. Pseudo-code:
+**Less duplicated setup (WPGraphQL for Rank Math).** The extension's SEO models repeat the matching core model's `setup()` before adding their own state. `ContentNodeSeo` repeats the Post model's setup almost line for line (the `parse_query()` call for each post type, the global `$post`, the queried object). `TermNodeSeo` repeats the Term model's and also adds a filter for Rank Math's replacement variables. `UserSeo` repeats the User model's and also sets the global `$author`, which core doesn't. The `seo` field is resolved from its node, so the node is already set up when an SEO model's fields resolve, and only the additions are still needed. Pseudo-code:
 
 ```php
-// ContentNodeSeo, sketched for WPGraphQL versions with node context.
+// TermNodeSeo, sketched for WPGraphQL versions with node context.
 public function setup(): void {
+	// Rank Math's own addition, still needed.
 	add_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
 
-	// No parse_query() or global $post here: the post this SEO object belongs to is
-	// already set up as the current object, because `seo` is selected under it.
+	// No parse_query(), global $post or queried object here: the term this SEO object
+	// belongs to is already set up as the current object, because `seo` is selected under it.
 	parent::setup();
 }
 ```
 
-The model would still be set up around each field (it doesn't need `scopes_setup_to_node()`), because its parent `setup()` resets Rank Math's head output before each field.
+`UserSeo` would keep setting `$author` (and could add `author` to the restored globals with the filter instead of restoring it in `tear_down()`). The models would still be set up around each of their fields (they don't need `scopes_setup_to_node()`), because the parent `setup()` resets Rank Math's head output before each field. Reading an SEO model's fields from anywhere other than under its node would need the old setup, so this only fits code paths that always resolve the model through the `seo` field.
 
 **Correct results without changes (Faust, WPGraphQL Content Blocks).** Some extensions already read the current object and get the right one now with no code change:
 
