@@ -77,6 +77,8 @@ register_graphql_field( 'Post', 'readingTime', [
 ] );
 ```
 
+Don't use the current object to decide _what_ a field returns, such as limiting a nested connection's results to the ones related to a post a few levels up the query. The same node can be reached by different paths, and clients that cache by ID (like Apollo) expect its fields to be the same wherever it appears. Build results from the field's source and arguments, and use the node context for WordPress functions and filters that need a current object. WPGraphQL itself once limited a category's `children` to the ones assigned to an ancestor post this way, and removed it for this reason ([#887](https://github.com/wp-graphql/wp-graphql/issues/887)).
+
 ### Deferred resolvers
 
 The context is set up before each field's resolver runs. Code that runs later, in the callback of a `Deferred` the resolver returns, runs after other fields (often other nodes' fields) have resolved, so by then a different node may be set up.

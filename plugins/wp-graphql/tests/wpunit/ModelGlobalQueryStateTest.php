@@ -790,6 +790,57 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	/**
+	 * A GraphQL request made from a theme template, inside the loop of a page showing a post, leaves
+	 * the loop as it was: the main query, its current post, and the global post data.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1420
+	 */
+	public function testRequestInsideATemplateLoopLeavesTheLoopAsItWas() {
+		$page_post_id = $this->create_post();
+		$other_ids    = [ $this->create_post(), $this->create_post() ];
+
+		// Render the post's page and enter the loop, the way a single post template does.
+		$this->go_to( get_permalink( $page_post_id ) );
+		$this->assertTrue( have_posts() );
+		the_post();
+
+		$loop_state = static function (): array {
+			global $wp_query;
+
+			return [
+				'post'         => get_the_ID(),
+				'queried'      => get_queried_object_id(),
+				'singular'     => is_singular(),
+				'in_the_loop'  => in_the_loop(),
+				'current_post' => $wp_query->current_post,
+				'query_post'   => $wp_query->post instanceof \WP_Post ? $wp_query->post->ID : null,
+				'query_vars'   => $wp_query->query_vars,
+				'title'        => get_the_title(),
+			];
+		};
+		$before     = $loop_state();
+
+		$actual = graphql(
+			[
+				'query'     => 'query ( $in: [ID] ) { posts( where: { in: $in } ) { nodes { databaseId title currentState parts { currentState } categories { nodes { name } } author { node { currentState } } } } }',
+				'variables' => [ 'in' => $other_ids ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
+
+		// The request saw its own nodes...
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
+			$this->assertSame( $this->post_state( $node['databaseId'] ), $node['currentState'] );
+		}
+
+		// ...and the template's loop is exactly where it was.
+		$this->assertSame( $before, $loop_state() );
+		$this->assertSame( $page_post_id, $before['post'] );
+	}
+
+	/**
 	 * Reading a Post model's fields from PHP restores the state afterwards, including fields whose
 	 * resolvers read other fields of the same model (id reads databaseId).
 	 */
