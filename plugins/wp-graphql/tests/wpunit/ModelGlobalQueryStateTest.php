@@ -471,6 +471,30 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	/**
+	 * A field another plugin registers, selected before any of the node's own fields in a list,
+	 * sees its own node: the shape reported in #1398, where it saw a different post.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1398
+	 */
+	public function testFieldSelectedFirstInAListSeesItsOwnNode() {
+		$post_ids = [ $this->create_post(), $this->create_post(), $this->create_post() ];
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $in: [ID] ) { posts( where: { in: $in } ) { nodes { currentState databaseId } } }',
+				'variables' => [ 'in' => $post_ids ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 3, $actual['data']['posts']['nodes'] );
+
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
+			$this->assertSame( $this->post_state( $node['databaseId'] ), $node['currentState'] );
+		}
+	}
+
+	/**
 	 * A node nested under another sees itself, and the outer node's later fields see the outer
 	 * node again.
 	 */
