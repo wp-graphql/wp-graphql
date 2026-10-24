@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -153,6 +153,30 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
+
+= 3.1.0 =
+
+**New Features**
+
+* **acf:** test and document Secure Custom Fields support ([#4573](https://github.com/wp-graphql/wp-graphql/issues/4573))
+
+**Bug Fixes**
+
+* **acf:** apply field groups located on "All" blocks to every ACF block type ([#4565](https://github.com/wp-graphql/wp-graphql/issues/4565))
+* **acf:** don't warn about unsaved changes after opening a field group ([#4579](https://github.com/wp-graphql/wp-graphql/issues/4579))
+* **acf:** exclude types matched by "not equal to" location rules ([#4431](https://github.com/wp-graphql/wp-graphql/issues/4431))
+* **acf:** keep a field group's key and GraphQL settings when saving on ACF before 6.1 ([#4571](https://github.com/wp-graphql/wp-graphql/issues/4571))
+* **acf:** resolve a single "Both (Array)" choice as its value ([#4583](https://github.com/wp-graphql/wp-graphql/issues/4583))
+* **acf:** resolve connection fields nested in repeater, flexible content and group rows ([#4380](https://github.com/wp-graphql/wp-graphql/issues/4380))
+* **acf:** resolve link fields with the URL return format inside rows ([#4580](https://github.com/wp-graphql/wp-graphql/issues/4580))
+* **acf:** resolve stored 0 values as 0 instead of null ([#4581](https://github.com/wp-graphql/wp-graphql/issues/4581))
+* **acf:** stop deprecating fieldGroupName ([#4582](https://github.com/wp-graphql/wp-graphql/issues/4582))
+* **acf:** update the Appsero client so telemetry no longer loads translations too early ([#4567](https://github.com/wp-graphql/wp-graphql/issues/4567))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4324](https://github.com/wp-graphql/wp-graphql/issues/4324))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4349](https://github.com/wp-graphql/wp-graphql/issues/4349))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478))
 
 = 3.0.0 =
 
