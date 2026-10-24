@@ -1,0 +1,174 @@
+---
+uri: "/docs/node-context/"
+title: "Node Context and Global State"
+---
+
+Many WordPress functions don't take an ID: they read "the current" post, term or user from global state. Template tags like `get_the_ID()` and `get_the_title()`, conditional tags like `is_singular()` and `is_category()`, `get_queried_object()`, `render_block()`, and the filters many plugins hook into all work this way.
+
+So that this code behaves as it would on the object's own page, WPGraphQL sets up a post, term or user as the current object while its part of a query resolves. This page explains what is set up, which fields see it, and how extensions can build on it.
+
+## What gets set up
+
+| Node | What WordPress sees |
+| --- | --- |
+| Post (any post type) | The main query is parsed for the post, so `is_singular()`, `get_queried_object()` and related conditional tags describe it. The global `$post` and post data are set up, which also fires the `the_post` action. |
+| Term | The main query is parsed for the term's archive, so `is_category()`, `is_tag()`, `is_tax()` and `get_queried_object()` describe it. |
+| User | The main query is parsed for the user's author archive, so `is_author()` and `get_queried_object()` describe it, and `$authordata` is the user. |
+
+Models that extend Post, Term or User (for example, a product modeled on Post) get the same setup.
+
+## Which fields see it
+
+A node's context applies to **every field selected under it** in the query, and to nothing outside it.
+
+```graphql
+{
+  post(id: "hello-world", idType: SLUG) {
+    title              # the post is the current object
+    seo {              # so are fields other plugins register on the post...
+      fullHead
+    }
+    editorBlocks {     # ...and fields of nested values that aren't nodes themselves
+      renderedHtml
+    }
+    author {
+      node {
+        name           # the author is the current object here (set up on top of the post)
+      }
+    }
+    excerpt            # the post again
+  }
+  generalSettings {
+    title              # outside any node: the state the request started with
+  }
+}
+```
+
+In detail:
+
+- A node is set up before the first field under it resolves, and torn down when resolution moves outside it. The global state from before is restored at that point, so a field outside the node never sees a node it isn't part of.
+- Nodes nest. Under a post's author, the user is set up on top of the post, and the post's later fields get the post back.
+- If a field leaves the global `$post`, `$authordata` or the queried object pointing somewhere else (for example, by running a loop over other posts and not resetting), the node is set up again before its next field. That field and the ones after it see the node, not whatever the earlier field left behind.
+- When the request finishes, the global state is what it was before the request. This also holds for a GraphQL request made from PHP in the middle of rendering a page, for example with `graphql()` in a shortcode or template.
+
+Earlier versions of WPGraphQL set up the object before each of the node's own fields, and never restored it, so the last object resolved stayed "current" for the rest of the request. Code that relied on that leftover state outside the node now sees the request's original state. See [#4572](https://github.com/wp-graphql/wp-graphql/issues/4572).
+
+## For extension authors
+
+### Fields you register on node types
+
+A field you register with `register_graphql_field()` on `Post`, `Category`, `User` or any other type backed by those models resolves with the node set up, as do the fields of any objects it returns. You can call WordPress functions that read the current object, and filters hooked into them see the right object.
+
+For the object's own data, keep reading from the source, which is always the right object:
+
+```php
+register_graphql_field( 'Post', 'readingTime', [
+	'type'    => 'Int',
+	'resolve' => static function ( \WPGraphQL\Model\Post $post ) {
+		// Prefer the source for the post itself...
+		$content = get_post_field( 'post_content', $post->databaseId );
+
+		// ...and rely on the node context for code that reads the current post, such as
+		// `the_content` filters added by other plugins.
+		$content = apply_filters( 'the_content', $content );
+
+		return (int) ceil( str_word_count( wp_strip_all_tags( $content ) ) / 200 );
+	},
+] );
+```
+
+### Deferred resolvers
+
+The context is set up before each field's resolver runs. Code that runs later, inside a `Deferred` callback (for example after a DataLoader batch loads), runs with whatever was set up most recently, which may be a different node. If a deferred resolver needs the current object, read what it needs in the resolver itself, before returning the `Deferred`, or work from the source.
+
+### Restoring more globals
+
+Setting up a post fires the `the_post` action, and some plugins set their own globals there. When resolution leaves the node, WPGraphQL restores the main query and the post data globals (`$post`, `$id`, `$authordata`, `$page`, `$pages`, `$multipage`, `$more`, `$numpages`, `$currentday`, `$currentmonth`), but it doesn't know about globals other plugins set. Add them with the `graphql_model_node_context_globals` filter so they're restored too:
+
+```php
+add_filter(
+	'graphql_model_node_context_globals',
+	static function ( array $globals, \WPGraphQL\Model\Model $model ): array {
+		// WooCommerce sets the global $product on `the_post`.
+		if ( $model instanceof \WPGraphQL\Model\Post ) {
+			$globals[] = 'product';
+		}
+
+		return $globals;
+	},
+	10,
+	2
+);
+```
+
+The filter receives the model about to be set up, so you can add a global only for the models that change it.
+
+### Custom models
+
+If your extension has its own model (a class extending `WPGraphQL\Model\Model`), its `setup()` and `tear_down()` run in one of two ways:
+
+- **Around each field (the default).** `setup()` runs before each of the model's fields is read and `tear_down()` after, then the main query and the restored globals are put back. Use this when `setup()` expects to run before every field.
+- **For the node's part of the query.** Return `true` from `scopes_setup_to_node()` and the model is treated like Post, Term and User: set up once when resolution enters its part of the query, seen by every field under it (including fields other plugins register on its type and nested values), and torn down when resolution leaves it.
+
+A hypothetical course model from an LMS plugin, whose template functions read a global "current course":
+
+```php
+class Course extends \WPGraphQL\Model\Model {
+
+	public function scopes_setup_to_node(): bool {
+		return true;
+	}
+
+	public function setup() {
+		// The plugin's template functions, such as my_lms_get_course_progress(),
+		// read the current course from this global.
+		$GLOBALS['my_lms_current_course'] = $this->data;
+	}
+
+	// ...the constructor and init() as for any model.
+}
+
+// Restore the global when resolution leaves the course, instead of writing a tear_down().
+add_filter(
+	'graphql_model_node_context_globals',
+	static function ( array $globals, \WPGraphQL\Model\Model $model ): array {
+		if ( $model instanceof Course ) {
+			$globals[] = 'my_lms_current_course';
+		}
+
+		return $globals;
+	},
+	10,
+	2
+);
+```
+
+`tear_down()` is still the place to undo anything that isn't a global, such as filters `setup()` adds.
+
+## Ideas for existing extensions
+
+These are illustrations of how some widely used extensions could build on node context, based on reading their source in October 2026. They are pseudo-code, not prescriptions, and not recommendations from those projects' maintainers. An extension that adopts any of them needs to keep working on WPGraphQL versions without node context.
+
+**Restoring `$product` (WPGraphQL WooCommerce).** WooCommerce sets the global `$product` on `the_post` (`wc_setup_product_data()`), so it's set whenever WPGraphQL sets up a product, but nothing resets it when resolution leaves the product. Adding `product` with the filter above would mean fields outside a product never see a stale `$product`, and any field under a product, including nested objects, could call WooCommerce template functions that read it.
+
+**Less duplicated setup (WPGraphQL for Rank Math).** The extension's SEO models (`ContentNodeSeo`, `TermNodeSeo`, `UserSeo`) each re-implement the matching core model's `setup()`: the same `parse_query()` calls, the same swap of the global `$post`. The `seo` field is always selected under its node, so the node is already set up when the SEO model's fields resolve. Pseudo-code:
+
+```php
+// ContentNodeSeo, sketched for WPGraphQL versions with node context.
+public function setup(): void {
+	add_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
+
+	// No parse_query() or global $post here: the post this SEO object belongs to is
+	// already set up as the current object, because `seo` is selected under it.
+	parent::setup();
+}
+```
+
+The model would still be set up around each field (it doesn't need `scopes_setup_to_node()`), because its parent `setup()` resets Rank Math's head output before each field.
+
+**Correct results without changes (Faust, WPGraphQL Content Blocks).** Some extensions already read the current object and get the right one now with no code change:
+
+- Faust's `templates` field works out a node's template hierarchy from the main query's conditional tags.
+- Content Blocks renders blocks with `render_block()`, which reads the global `$post`, and its Post Terms block falls back to `get_the_ID()`.
+
+Under node context those always describe the node the field is selected under, including in lists and nested queries, where earlier versions could see the previous node.

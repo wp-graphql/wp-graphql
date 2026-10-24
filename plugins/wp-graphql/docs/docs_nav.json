@@ -127,6 +127,10 @@
 			"href": "/docs/graphql-resolvers"
 		},
 		{
+			"title": "Node Context and Global State",
+			"href": "/docs/node-context"
+		},
+		{
 			"title": "Mutations",
 			"href": "/docs/graphql-mutations"
 		},
