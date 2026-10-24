@@ -22,12 +22,18 @@ use WPGraphQL\AppContext;
  * is set up again if one of its fields leaves the globals pointing somewhere else, such as a block
  * that loops over other posts, so the node's later fields still see it.
  *
- * The nodes are Post, Term and User models, including subclasses that inherit their setup().
- * Reading a model's fields anywhere else (from PHP, from the resolver of a field on another node,
- * or on a model with a setup() of its own) sets the model up around that one field instead, and
- * restores the previous state afterwards.
+ * The nodes are models whose Model::scopes_setup_to_node() returns true: Post, Term and User, and
+ * subclasses that inherit theirs. Reading any other model's fields (or a node's fields from PHP,
+ * or from the resolver of a field on another node) sets the model up around that one field instead,
+ * and restores the previous state afterwards.
  *
- * @internal Plumbing behind the model lifecycle. Models customize it through setup() and tear_down().
+ * Besides the main query, the state saved and restored is the post data globals and $authordata,
+ * plus any globals added with the graphql_model_node_context_globals filter.
+ *
+ * @internal Plumbing behind the model lifecycle. Models customize it through setup(), tear_down()
+ *           and scopes_setup_to_node(), and the graphql_model_node_context_globals filter.
+ *
+ * @since x-release-please-version
  */
 final class NodeContext {
 
@@ -47,11 +53,11 @@ final class NodeContext {
 	private static $requests;
 
 	/**
-	 * Whether each model class sets up a context, keyed by class name.
+	 * Whether each model class overrides setup() or tear_down(), keyed by class name.
 	 *
 	 * @var array<class-string,bool>
 	 */
-	private static $sets_up_context = [];
+	private static $has_lifecycle = [];
 
 	/**
 	 * The model whose context is currently applied to the global state, if any.
@@ -70,7 +76,7 @@ final class NodeContext {
 	/**
 	 * The node contexts currently applied, outermost first.
 	 *
-	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model<mixed>,state:array<string,mixed>,previous:?\WPGraphQL\Model\Model<mixed>,applied:array{0:?int,1:?int,2:?int}}>
+	 * @var array<int,array{key:string,model:\WPGraphQL\Model\Model<mixed>,state:array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]},previous:?\WPGraphQL\Model\Model<mixed>,applied:array{0:?int,1:?int,2:?int}}>
 	 */
 	private $stack = [];
 
@@ -78,6 +84,8 @@ final class NodeContext {
 	 * Returns the node context for a request.
 	 *
 	 * @param \WPGraphQL\AppContext $context The request's AppContext.
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function for_request( AppContext $context ): self {
 		if ( null === self::$requests ) {
@@ -95,6 +103,8 @@ final class NodeContext {
 	 * Tears down the request's node contexts, restoring the state the request started with.
 	 *
 	 * @param \WPGraphQL\AppContext $context The request's AppContext.
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function end_request( AppContext $context ): void {
 		if ( null === self::$requests || ! self::$requests->contains( $context ) ) {
@@ -110,6 +120,8 @@ final class NodeContext {
 	 *
 	 * @param mixed                                $source The value the field is resolved on.
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info   The field's resolve info.
+	 *
+	 * @since x-release-please-version
 	 */
 	public function enter( $source, ResolveInfo $info ): void {
 		$parent_path = array_slice( $info->path, 0, -1 );
@@ -120,7 +132,7 @@ final class NodeContext {
 			$this->forget_owners_under( (string) $info->path[0] );
 		}
 
-		if ( $source instanceof Model && self::sets_up_context( $source ) ) {
+		if ( $source instanceof Model && $source->scopes_setup_to_node() ) {
 			$this->owners[ implode( '/', $parent_path ) ] = $source;
 		}
 
@@ -178,13 +190,17 @@ final class NodeContext {
 	 * @param callable():T                  $callback The callback to run.
 	 *
 	 * @return T
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function run_as( Model $model, callable $callback ) {
-		if ( self::$active_model === $model ) {
+		// Already set up as the current node, or nothing to set up (the model has no setup() or
+		// tear_down() of its own, as for comments and menu items).
+		if ( self::$active_model === $model || ! self::has_lifecycle( $model ) ) {
 			return $callback();
 		}
 
-		$state    = self::capture_global_state();
+		$state    = self::capture_global_state( $model );
 		$previous = self::$active_model;
 
 		try {
@@ -206,9 +222,11 @@ final class NodeContext {
 	 * @param \WPGraphQL\Model\Model<mixed> $model The model that owns the node.
 	 *
 	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
+	 *
+	 * @since x-release-please-version
 	 */
 	private function push( string $key, Model $model ): void {
-		$state    = self::capture_global_state();
+		$state    = self::capture_global_state( $model );
 		$previous = self::$active_model;
 
 		try {
@@ -236,6 +254,8 @@ final class NodeContext {
 	 * whether something has pointed the globals elsewhere since.
 	 *
 	 * @return array{0:?int,1:?int,2:?int}
+	 *
+	 * @since x-release-please-version
 	 */
 	private static function applied_state(): array {
 		global $wp_query;
@@ -249,6 +269,8 @@ final class NodeContext {
 
 	/**
 	 * Tears down the innermost node context and restores the state from before it was set up.
+	 *
+	 * @since x-release-please-version
 	 */
 	private function pop(): void {
 		$entry = array_pop( $this->stack );
@@ -267,6 +289,8 @@ final class NodeContext {
 
 	/**
 	 * Tears down every node context the request applied.
+	 *
+	 * @since x-release-please-version
 	 */
 	private function leave_all(): void {
 		while ( ! empty( $this->stack ) ) {
@@ -280,6 +304,8 @@ final class NodeContext {
 	 * Forgets the nodes recorded at or under a root field's path.
 	 *
 	 * @param string $root_key The root field's response key.
+	 *
+	 * @since x-release-please-version
 	 */
 	private function forget_owners_under( string $root_key ): void {
 		foreach ( array_keys( $this->owners ) as $key ) {
@@ -290,39 +316,44 @@ final class NodeContext {
 	}
 
 	/**
-	 * Whether a model owns a node: whether it uses the Post, Term or User setup().
-	 *
-	 * Those set up the current object for the node's part of the query. Subclasses that inherit
-	 * them (a product modeled on Post, say) do too. Models without a setup(), such as Comment, leave
-	 * the context of the node above them in place. Models with a setup() of their own are set up
-	 * around each of their fields instead, as they always were, because their setup() may expect
-	 * to run before each field.
+	 * Whether a model overrides setup() or tear_down(), so reading its fields has state to set up.
 	 *
 	 * @param \WPGraphQL\Model\Model<mixed> $model The model.
+	 *
+	 * @since x-release-please-version
 	 */
-	private static function sets_up_context( Model $model ): bool {
+	private static function has_lifecycle( Model $model ): bool {
 		$class = get_class( $model );
 
-		if ( ! isset( self::$sets_up_context[ $class ] ) ) {
-			$method                          = new \ReflectionMethod( $model, 'setup' );
-			self::$sets_up_context[ $class ] = in_array( $method->getDeclaringClass()->getName(), [ Post::class, Term::class, User::class ], true );
+		if ( ! isset( self::$has_lifecycle[ $class ] ) ) {
+			$setup     = new \ReflectionMethod( $model, 'setup' );
+			$tear_down = new \ReflectionMethod( $model, 'tear_down' );
+
+			self::$has_lifecycle[ $class ] = Model::class !== $setup->getDeclaringClass()->getName() || Model::class !== $tear_down->getDeclaringClass()->getName();
 		}
 
-		return self::$sets_up_context[ $class ];
+		return self::$has_lifecycle[ $class ];
 	}
 
 	/**
-	 * Captures the global state a model's setup() can change.
+	 * Captures the global state setting up a model can change.
 	 *
-	 * @return array<string,mixed>
+	 * @param \WPGraphQL\Model\Model<mixed> $model The model about to be set up.
+	 *
+	 * @return array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]}
+	 *
+	 * @since x-release-please-version
 	 */
-	private static function capture_global_state(): array {
+	private static function capture_global_state( Model $model ): array {
 		global $wp_query;
 
 		$globals = [];
-		foreach ( self::GLOBALS as $name ) {
+		$unset   = [];
+		foreach ( self::get_globals( $model ) as $name ) {
 			if ( array_key_exists( $name, $GLOBALS ) ) {
 				$globals[ $name ] = $GLOBALS[ $name ];
+			} else {
+				$unset[] = $name;
 			}
 		}
 
@@ -330,6 +361,7 @@ final class NodeContext {
 			// The main query's public properties: query vars, conditional flags, queried object.
 			'query'   => $wp_query instanceof \WP_Query ? get_object_vars( $wp_query ) : null,
 			'globals' => $globals,
+			'unset'   => $unset,
 		];
 	}
 
@@ -339,7 +371,9 @@ final class NodeContext {
 	 * The main query's properties are written back onto the same object, rather than replacing it,
 	 * because $wp_the_query and other code can hold a reference to the main query object.
 	 *
-	 * @param array<string,mixed> $state The state to restore.
+	 * @param array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]} $state The state to restore.
+	 *
+	 * @since x-release-please-version
 	 */
 	private static function restore_global_state( array $state ): void {
 		global $wp_query;
@@ -350,12 +384,49 @@ final class NodeContext {
 			}
 		}
 
-		foreach ( self::GLOBALS as $name ) {
-			if ( array_key_exists( $name, $state['globals'] ) ) {
-				$GLOBALS[ $name ] = $state['globals'][ $name ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-			} else {
-				unset( $GLOBALS[ $name ] );
-			}
+		foreach ( $state['globals'] as $name => $value ) {
+			$GLOBALS[ $name ] = $value; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		}
+
+		foreach ( $state['unset'] as $name ) {
+			unset( $GLOBALS[ $name ] );
+		}
+	}
+
+	/**
+	 * Returns the names of the globals to save before setting up a model, and to restore after.
+	 *
+	 * @param \WPGraphQL\Model\Model<mixed> $model The model about to be set up.
+	 *
+	 * @return string[]
+	 *
+	 * @since x-release-please-version
+	 */
+	private static function get_globals( Model $model ): array {
+		/**
+		 * Filters the globals saved before a model is set up as the current object, and restored
+		 * when resolution leaves it.
+		 *
+		 * The main query ($wp_query) is always saved and restored, separately. By default the list
+		 * is the post data globals WordPress sets up for a post ($post, $id, $authordata, $page,
+		 * $pages, $multipage, $more, $numpages, $currentday and $currentmonth). Add a global that
+		 * setting up the model can change, such as one a plugin sets on the `the_post` action
+		 * (WooCommerce sets the global $product there) or one a custom model's setup() sets, so
+		 * fields outside the model's part of the query don't see the value it left behind.
+		 *
+		 * @param string[]                      $globals The names of the globals, as keys of $GLOBALS.
+		 * @param \WPGraphQL\Model\Model<mixed> $model   The model about to be set up.
+		 *
+		 * @hookGroup models
+		 * @since x-release-please-version
+		 */
+		$globals = apply_filters( 'graphql_model_node_context_globals', self::GLOBALS, $model );
+
+		if ( ! is_array( $globals ) ) {
+			return self::GLOBALS;
+		}
+
+		// The main query is restored property by property, never by replacing the object.
+		return array_values( array_unique( array_diff( array_filter( $globals, 'is_string' ), [ 'wp_query', 'wp_the_query', 'GLOBALS' ] ) ) );
 	}
 }

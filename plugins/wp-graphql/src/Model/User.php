@@ -87,6 +87,15 @@ class User extends Model {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @since x-release-please-version
+	 */
+	public function scopes_setup_to_node(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function setup() {
 		global $wp_query, $post, $authordata;

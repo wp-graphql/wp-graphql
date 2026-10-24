@@ -160,15 +160,37 @@ abstract class Model {
 	/**
 	 * Sets up the global state so WordPress treats the modeled object as the current one.
 	 *
-	 * For Post, Term and User (and subclasses that inherit their setup()), this runs when resolution
-	 * enters the part of the query under the model's node, so every field selected there (including
-	 * fields other plugins register, and fields of nested values that are not models) resolves with
-	 * this context. Otherwise, including for models that define their own setup(), it runs around
-	 * each field that is read, and the previous state is restored afterwards. See NodeContext.
+	 * For models whose scopes_setup_to_node() returns true (Post, Term and User), this runs when
+	 * resolution enters the part of the query under the model's node, so every field selected there
+	 * (including fields other plugins register, and fields of nested values that are not models)
+	 * resolves with this context. For other models it runs around each field that is read, and the
+	 * previous state is restored afterwards. See NodeContext.
 	 *
 	 * @return void
 	 */
 	public function setup() {
+	}
+
+	/**
+	 * Whether the model's setup() applies to its whole part of a query, rather than around each
+	 * field read.
+	 *
+	 * Return true from a model that represents a node whose context every field selected under it
+	 * should see: fields other plugins register on its type, and fields of nested values that are
+	 * not models themselves. The model is then set up once when resolution enters its part of the
+	 * query, set up again if a field leaves the global post, author or queried object pointing
+	 * somewhere else, and torn down (with the previous state restored) when resolution leaves it.
+	 * Post, Term and User return true.
+	 *
+	 * Return false (the default) for a model whose setup() expects to run before each field.
+	 *
+	 * Either way, the main query and the globals listed by the graphql_model_node_context_globals
+	 * filter are saved before setup() and restored after tear_down().
+	 *
+	 * @since x-release-please-version
+	 */
+	public function scopes_setup_to_node(): bool {
+		return false;
 	}
 
 	/**

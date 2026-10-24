@@ -34,6 +34,18 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	public static $custom_setups = 0;
 
 	/**
+	 * How many times the opted-in model's setup() ran.
+	 *
+	 * @var int
+	 */
+	public static $opted_setups = 0;
+
+	/**
+	 * The global a plugin sets when a post is set up, like WooCommerce's $product.
+	 */
+	public const ITEM_GLOBAL = 'model_global_query_state_test_item';
+
+	/**
 	 * Clear the cached schema before each test.
 	 */
 	public function setUp(): void {
@@ -44,156 +56,232 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Fields that report what WordPress considers the current object while they resolve.
 		$this->register_fields = static function () {
-				$current_state = [
-					'type'    => 'String',
+			$current_state = [
+				'type'    => 'String',
+				'resolve' => static function () {
+					return self::current_state();
+				},
+			];
+
+			register_graphql_field( 'RootQuery', 'currentState', $current_state );
+			register_graphql_field( 'Post', 'currentState', $current_state );
+			register_graphql_field( 'Category', 'currentState', $current_state );
+			register_graphql_field( 'User', 'currentState', $current_state );
+
+			// Reports a global a plugin sets, like WooCommerce's $product.
+			$current_item = [
+				'type'    => 'String',
+				'resolve' => static function () {
+					return isset( $GLOBALS[ self::ITEM_GLOBAL ] ) ? (string) $GLOBALS[ self::ITEM_GLOBAL ] : 'none';
+				},
+			];
+			register_graphql_field( 'RootQuery', 'currentItem', $current_item );
+			register_graphql_field( 'Post', 'currentItem', $current_item );
+
+			// A nested value that is not a model, like the list of blocks some plugins expose.
+			register_graphql_object_type(
+				'ModelGlobalQueryStateTestPart',
+				[
+					'fields' => [
+						'currentState' => $current_state,
+						'currentItem'  => $current_item,
+					],
+				]
+			);
+			register_graphql_field(
+				'Post',
+				'parts',
+				[
+					'type'    => [ 'list_of' => 'ModelGlobalQueryStateTestPart' ],
 					'resolve' => static function () {
+						return [ [ 'part' => 1 ], [ 'part' => 2 ] ];
+					},
+				]
+			);
+
+			// A nested object resolved from the post itself, the way some plugins expose an "seo"
+			// object whose source is the post.
+			register_graphql_field(
+				'Post',
+				'self',
+				[
+					'type'    => 'Post',
+					'resolve' => static function ( $post ) {
+						return $post;
+					},
+				]
+			);
+
+			// A root field that builds a Post model synchronously, as in the issue's reproduction
+			// (the built-in post field resolves through a deferred loader, which hides the ordering).
+			register_graphql_field(
+				'RootQuery',
+				'modelPost',
+				[
+					'type'    => 'Post',
+					'args'    => [ 'id' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
+					'resolve' => static function ( $root, $args ) {
+						return new \WPGraphQL\Model\Post( get_post( $args['id'] ) );
+					},
+				]
+			);
+
+			// A field that loops over another post and leaves the globals pointing at it, the way
+			// rendering a query loop block does (in a GraphQL request the main query has no post,
+			// so wp_reset_postdata() doesn't put the node back).
+			register_graphql_field(
+				'Post',
+				'loopOver',
+				[
+					'type'    => 'Int',
+					'args'    => [ 'otherId' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
+					'resolve' => static function ( $post, $args ) {
+						$query = new \WP_Query( [ 'p' => $args['otherId'] ] );
+						while ( $query->have_posts() ) {
+							$query->the_post();
+						}
+						wp_reset_postdata();
+
+						return get_the_ID();
+					},
+				]
+			);
+
+			// A nested object backed by a model with a setup() of its own, like the SEO models
+			// some plugins add.
+			register_graphql_object_type(
+				'ModelGlobalQueryStateTestCustom',
+				[
+					'fields' => [
+						'first'  => [ 'type' => 'String' ],
+						'second' => [ 'type' => 'String' ],
+					],
+				]
+			);
+			register_graphql_field(
+				'Post',
+				'custom',
+				[
+					'type'    => 'ModelGlobalQueryStateTestCustom',
+					'resolve' => static function () {
+						return new class() extends \WPGraphQL\Model\Model {
+							/**
+							 * Models some fixed data.
+							 */
+							public function __construct() {
+								$this->data = [ 'source' => 'test' ];
+								parent::__construct();
+							}
+
+							/**
+							 * Counts each setup, instead of changing any globals.
+							 */
+							public function setup() {
+								++ModelGlobalQueryStateTest::$custom_setups;
+							}
+
+							/**
+							 * Two fields that report the current object.
+							 */
+							protected function init() {
+								$this->fields = [
+									'first'  => static function () {
+										return ModelGlobalQueryStateTest::current_state();
+									},
+									'second' => static function () {
+										return ModelGlobalQueryStateTest::current_state();
+									},
+								];
+							}
+						};
+					},
+				]
+			);
+
+			// A nested object backed by a model that opts in to node scope, the way a plugin's own
+			// node type could. Its setup() sets the plugin global.
+			register_graphql_object_type(
+				'ModelGlobalQueryStateTestOpted',
+				[
+					'fields' => [
+						'first'  => [ 'type' => 'String' ],
+						'second' => [ 'type' => 'String' ],
+						'parts'  => [
+							'type'    => [ 'list_of' => 'ModelGlobalQueryStateTestPart' ],
+							'resolve' => static function () {
+								return [ [ 'part' => 1 ] ];
+							},
+						],
+					],
+				]
+			);
+			register_graphql_field(
+				'Post',
+				'opted',
+				[
+					'type'    => 'ModelGlobalQueryStateTestOpted',
+					'resolve' => static function () {
+						return new class() extends \WPGraphQL\Model\Model {
+							/**
+							 * Models some fixed data.
+							 */
+							public function __construct() {
+								$this->data = [ 'source' => 'test' ];
+								parent::__construct();
+							}
+
+							/**
+							 * Opts in to node scope.
+							 */
+							public function scopes_setup_to_node(): bool {
+								return true;
+							}
+
+							/**
+							 * Points the plugin global at this object.
+							 */
+							public function setup() {
+								++ModelGlobalQueryStateTest::$opted_setups;
+								$GLOBALS[ ModelGlobalQueryStateTest::ITEM_GLOBAL ] = 'opted';
+							}
+
+							/**
+							 * Two fields that report the plugin global.
+							 */
+							protected function init() {
+								$this->fields = [
+									'first'  => static function () {
+										return $GLOBALS[ ModelGlobalQueryStateTest::ITEM_GLOBAL ] ?? 'none';
+									},
+									'second' => static function () {
+										return $GLOBALS[ ModelGlobalQueryStateTest::ITEM_GLOBAL ] ?? 'none';
+									},
+								];
+							}
+						};
+					},
+				]
+			);
+
+			// A field that runs a whole GraphQL request of its own, then reports the state.
+			register_graphql_field(
+				'Post',
+				'stateAfterNestedRequest',
+				[
+					'type'    => 'String',
+					'args'    => [ 'otherId' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
+					'resolve' => static function ( $post, $args ) {
+						graphql(
+							[
+								'query'     => 'query ( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { title currentState } }',
+								'variables' => [ 'id' => $args['otherId'] ],
+							]
+						);
+
 						return self::current_state();
 					},
-				];
-
-				register_graphql_field( 'RootQuery', 'currentState', $current_state );
-				register_graphql_field( 'Post', 'currentState', $current_state );
-				register_graphql_field( 'Category', 'currentState', $current_state );
-				register_graphql_field( 'User', 'currentState', $current_state );
-
-				// A nested value that is not a model, like the list of blocks some plugins expose.
-				register_graphql_object_type(
-					'ModelGlobalQueryStateTestPart',
-					[
-						'fields' => [
-							'currentState' => $current_state,
-						],
-					]
-				);
-				register_graphql_field(
-					'Post',
-					'parts',
-					[
-						'type'    => [ 'list_of' => 'ModelGlobalQueryStateTestPart' ],
-						'resolve' => static function () {
-							return [ [ 'part' => 1 ], [ 'part' => 2 ] ];
-						},
-					]
-				);
-
-				// A nested object resolved from the post itself, the way some plugins expose an "seo"
-				// object whose source is the post.
-				register_graphql_field(
-					'Post',
-					'self',
-					[
-						'type'    => 'Post',
-						'resolve' => static function ( $post ) {
-							return $post;
-						},
-					]
-				);
-
-				// A root field that builds a Post model synchronously, as in the issue's reproduction
-				// (the built-in post field resolves through a deferred loader, which hides the ordering).
-				register_graphql_field(
-					'RootQuery',
-					'modelPost',
-					[
-						'type'    => 'Post',
-						'args'    => [ 'id' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
-						'resolve' => static function ( $root, $args ) {
-							return new \WPGraphQL\Model\Post( get_post( $args['id'] ) );
-						},
-					]
-				);
-
-				// A field that loops over another post and leaves the globals pointing at it, the way
-				// rendering a query loop block does (in a GraphQL request the main query has no post,
-				// so wp_reset_postdata() doesn't put the node back).
-				register_graphql_field(
-					'Post',
-					'loopOver',
-					[
-						'type'    => 'Int',
-						'args'    => [ 'otherId' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
-						'resolve' => static function ( $post, $args ) {
-							$query = new \WP_Query( [ 'p' => $args['otherId'] ] );
-							while ( $query->have_posts() ) {
-								$query->the_post();
-							}
-							wp_reset_postdata();
-
-							return get_the_ID();
-						},
-					]
-				);
-
-				// A nested object backed by a model with a setup() of its own, like the SEO models
-				// some plugins add.
-				register_graphql_object_type(
-					'ModelGlobalQueryStateTestCustom',
-					[
-						'fields' => [
-							'first'  => [ 'type' => 'String' ],
-							'second' => [ 'type' => 'String' ],
-						],
-					]
-				);
-				register_graphql_field(
-					'Post',
-					'custom',
-					[
-						'type'    => 'ModelGlobalQueryStateTestCustom',
-						'resolve' => static function () {
-							return new class() extends \WPGraphQL\Model\Model {
-								/**
-								 * Models some fixed data.
-								 */
-								public function __construct() {
-									$this->data = [ 'source' => 'test' ];
-									parent::__construct();
-								}
-
-								/**
-								 * Counts each setup, instead of changing any globals.
-								 */
-								public function setup() {
-									++ModelGlobalQueryStateTest::$custom_setups;
-								}
-
-								/**
-								 * Two fields that report the current object.
-								 */
-								protected function init() {
-									$this->fields = [
-										'first'  => static function () {
-											return ModelGlobalQueryStateTest::current_state();
-										},
-										'second' => static function () {
-											return ModelGlobalQueryStateTest::current_state();
-										},
-									];
-								}
-							};
-						},
-					]
-				);
-
-				// A field that runs a whole GraphQL request of its own, then reports the state.
-				register_graphql_field(
-					'Post',
-					'stateAfterNestedRequest',
-					[
-						'type'    => 'String',
-						'args'    => [ 'otherId' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
-						'resolve' => static function ( $post, $args ) {
-							graphql(
-								[
-									'query'     => 'query ( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { title currentState } }',
-									'variables' => [ 'id' => $args['otherId'] ],
-								]
-							);
-
-							return self::current_state();
-						},
-					]
-				);
+				]
+			);
 		};
 		add_action( 'graphql_register_types', $this->register_fields );
 	}
@@ -203,6 +291,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 */
 	public function tearDown(): void {
 		remove_action( 'graphql_register_types', $this->register_fields );
+		unset( $GLOBALS[ self::ITEM_GLOBAL ] );
 		$this->clearSchema();
 		parent::tearDown();
 	}
@@ -452,6 +541,89 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['custom']['first'] );
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['custom']['second'] );
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['after'] );
+	}
+
+	/**
+	 * A global a plugin sets when a post is set up (as WooCommerce sets $product on the_post) is
+	 * restored when resolution leaves the post, once it's added to the restored globals.
+	 */
+	public function testFilteredGlobalIsRestoredWhenLeavingANode() {
+		$post_id = $this->create_post();
+		$query   = 'query ( $id: Int! ) { modelPost( id: $id ) { currentItem parts { currentItem } } currentItem }';
+
+		$set_item = static function ( $post ) {
+			$GLOBALS[ self::ITEM_GLOBAL ] = $post->ID;
+		};
+		add_action( 'the_post', $set_item );
+
+		// Without the filter, the plugin global leaks out of the post's part of the query.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( (string) $post_id, $actual['data']['currentItem'] );
+
+		unset( $GLOBALS[ self::ITEM_GLOBAL ] );
+		$add_global = static function ( $globals ) {
+			$globals[] = self::ITEM_GLOBAL;
+			return $globals;
+		};
+		add_filter( 'graphql_model_node_context_globals', $add_global );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		remove_filter( 'graphql_model_node_context_globals', $add_global );
+		remove_action( 'the_post', $set_item );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Inside the post's part of the query the plugin global is the post...
+		$this->assertSame( (string) $post_id, $actual['data']['modelPost']['currentItem'] );
+		$this->assertSame( (string) $post_id, $actual['data']['modelPost']['parts'][0]['currentItem'] );
+
+		// ...and outside it, it's back to what it was (unset), including after the request.
+		$this->assertSame( 'none', $actual['data']['currentItem'] );
+		$this->assertArrayNotHasKey( self::ITEM_GLOBAL, $GLOBALS );
+	}
+
+	/**
+	 * A model that opts in to node scope is set up once for its part of the query, everything under
+	 * it sees its context, and the node above gets its own context back afterwards.
+	 */
+	public function testModelThatOptsInIsSetUpOnceForItsPartOfTheQuery() {
+		$post_id            = $this->create_post();
+		self::$opted_setups = 0;
+
+		$add_global = static function ( $globals ) {
+			$globals[] = self::ITEM_GLOBAL;
+			return $globals;
+		};
+		add_filter( 'graphql_model_node_context_globals', $add_global );
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { opted { first parts { currentItem } second } after: currentItem currentState } }',
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		remove_filter( 'graphql_model_node_context_globals', $add_global );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 1, self::$opted_setups );
+		$this->assertSame( 'opted', $actual['data']['post']['opted']['first'] );
+		$this->assertSame( 'opted', $actual['data']['post']['opted']['parts'][0]['currentItem'] );
+		$this->assertSame( 'opted', $actual['data']['post']['opted']['second'] );
+		$this->assertSame( 'none', $actual['data']['post']['after'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['currentState'] );
 	}
 
 	/**
