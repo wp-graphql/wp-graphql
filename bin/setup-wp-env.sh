@@ -244,10 +244,12 @@ docker compose exec -T tests-cli cat /var/www/html/wp-content/mu-plugins/wp-env-
 echo "Verifying WordPress is responding:"
 docker compose exec -T tests-cli wp option get siteurl || echo "WARNING: WordPress not responding!"
 
+# Look up this project's tests-cli container (a global `docker ps` would also match other wp-env projects)
+CONTAINER_ID="$(docker compose ps -q tests-cli)"
+
 cd -
 
 # Install pdo_mysql extension in the tests-cli environment
-CONTAINER_ID="$(docker ps | grep tests-cli  | awk '{print $1}')"
 if [[ -n "$CONTAINER_ID" ]]; then
 	install_pdo_mysql "$CONTAINER_ID" "tests-cli"
 fi
