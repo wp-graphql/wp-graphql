@@ -39,6 +39,14 @@ use WP_Comment;
  * @extends \WPGraphQL\Model\Model<\WP_Comment>
  */
 class Comment extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'comment';
+
 	/**
 	 * Comment constructor.
 	 *
@@ -149,7 +157,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
 				},
 				'id'                 => function () {
-					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'comment', (string) $this->databaseId ) : null;
+					return ! empty( $this->databaseId ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'karma'              => function () {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
