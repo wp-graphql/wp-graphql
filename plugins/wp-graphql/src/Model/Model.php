@@ -488,8 +488,14 @@ abstract class Model {
 
 		// Resolvers run with the model set up as the current object. Within the model's part of
 		// the query it already is; anywhere else it is set up around this field and the previous
-		// state is restored afterwards, even if the field throws.
-		return $is_resolver ? NodeContext::run_as( $this, $resolve ) : $resolve();
+		// state is restored afterwards, even if the field throws. A node's identifiers are worked
+		// out from its data alone, and are often read outside its part of the query (the query
+		// analyzer reads every node's ID to build cache keys), so reading them doesn't set it up.
+		if ( ! $is_resolver || ( in_array( $field_name, [ 'id', 'ID', 'databaseId' ], true ) && $this->is_node_scoped() ) ) {
+			return $resolve();
+		}
+
+		return NodeContext::run_as( $this, $resolve );
 	}
 
 	/**
