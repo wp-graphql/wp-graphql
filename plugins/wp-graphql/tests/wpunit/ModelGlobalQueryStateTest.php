@@ -312,6 +312,20 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				]
 			);
 
+			// A root field that hands the executor a Post model directly, the way an extension's
+			// resolver might, even when the requester isn't allowed to see the post.
+			register_graphql_field(
+				'RootQuery',
+				'rawModelPost',
+				[
+					'type'    => 'Post',
+					'args'    => [ 'id' => [ 'type' => [ 'non_null' => 'Int' ] ] ],
+					'resolve' => static function ( $root, $args ) {
+						return new \WPGraphQL\Model\Post( get_post( $args['id'] ) );
+					},
+				]
+			);
+
 			// A root field whose value is not a model, at the same path a node is at in another
 			// operation of a batch.
 			register_graphql_field(
@@ -863,6 +877,32 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		ksort( $expected );
 		ksort( $seen );
 		$this->assertSame( $expected, $seen );
+	}
+
+	/**
+	 * A post the requester isn't allowed to see is never set up as the current object, even when
+	 * a resolver hands the executor its model directly.
+	 */
+	public function testPostTheRequesterCannotSeeIsNotSetUp() {
+		$draft_id = self::factory()->post->create(
+			[
+				'post_status'  => 'draft',
+				'post_author'  => $this->author_id,
+				'post_content' => 'Draft content',
+			]
+		);
+		wp_set_current_user( 0 );
+		$expected = self::current_state();
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: Int! ) { rawModelPost( id: $id ) { currentState } }',
+				'variables' => [ 'id' => $draft_id ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['rawModelPost']['currentState'] );
 	}
 
 	/**
