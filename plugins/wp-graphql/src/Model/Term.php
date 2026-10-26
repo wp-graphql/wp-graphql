@@ -40,6 +40,9 @@ class Term extends Model {
 	/**
 	 * The global Post instance
 	 *
+	 * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+	 * saved and restored around setup() and tear_down(). See NodeContext.
+	 *
 	 * @var \WP_Post
 	 */
 	protected $global_post;
@@ -61,9 +64,11 @@ class Term extends Model {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @return bool
+	 *
 	 * @since x-release-please-version
 	 */
-	public function scopes_setup_to_node(): bool {
+	public function is_node_scoped() {
 		return true;
 	}
 
@@ -106,14 +111,6 @@ class Term extends Model {
 			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
 			$wp_query->queried_object_id = $this->data->term_id;
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function tear_down() {
-		$GLOBALS['post'] = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		wp_reset_postdata();
 	}
 
 	/**

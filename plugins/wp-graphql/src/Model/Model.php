@@ -160,7 +160,7 @@ abstract class Model {
 	/**
 	 * Sets up the global state so WordPress treats the modeled object as the current one.
 	 *
-	 * For models whose scopes_setup_to_node() returns true (Post, Term and User), this runs when
+	 * For models whose is_node_scoped() returns true (Post, Term and User), this runs when
 	 * resolution enters the part of the query under the model's node, so every field selected there
 	 * (including fields other plugins register, and fields of nested values that are not models)
 	 * resolves with this context. For other models it runs around each field that is read, and the
@@ -180,16 +180,25 @@ abstract class Model {
 	 * not models themselves. The model is then set up once when resolution enters its part of the
 	 * query, set up again if a field leaves the global post, author or queried object pointing
 	 * somewhere else, and torn down (with the previous state restored) when resolution leaves it.
-	 * Post, Term and User return true.
+	 * Its fields read anywhere else, such as from PHP, are still set up around each read.
+	 *
+	 * Post, Term and User return true, and so do subclasses that don't override this. A subclass
+	 * whose setup() has to run before each field should return false.
+	 *
+	 * Node-scoped models nest: another node's setup() can run while this one's is in effect, and
+	 * tear_down() runs in the reverse order, so setup() and tear_down() must not depend on running
+	 * once at a time (for example, by adding and removing a filter with a shared callback).
 	 *
 	 * Return false (the default) for a model whose setup() expects to run before each field.
 	 *
 	 * Either way, the main query and the globals listed by the graphql_model_node_context_globals
 	 * filter are saved before setup() and restored after tear_down().
 	 *
+	 * @return bool
+	 *
 	 * @since x-release-please-version
 	 */
-	public function scopes_setup_to_node(): bool {
+	public function is_node_scoped() {
 		return false;
 	}
 
@@ -197,7 +206,8 @@ abstract class Model {
 	 * Resets state that setup() changed.
 	 *
 	 * Runs when resolution leaves the model's part of the query, for models whose
-	 * scopes_setup_to_node() returns true, and after each field read for other models. The global
+	 * is_node_scoped() returns true, and after each field read otherwise (including a node-scoped
+	 * model's fields read outside its part of the query). The global
 	 * main query ($wp_query), the post data globals (such as $post and $authordata) and any globals
 	 * added with the graphql_model_node_context_globals filter are restored after this runs, so
 	 * subclasses only need to undo other changes their setup() makes, such as filters it adds.

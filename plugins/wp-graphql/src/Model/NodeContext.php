@@ -22,7 +22,7 @@ use WPGraphQL\AppContext;
  * is set up again if one of its fields leaves the globals pointing somewhere else, such as a block
  * that loops over other posts, so the node's later fields still see it.
  *
- * The nodes are models whose Model::scopes_setup_to_node() returns true: Post, Term and User, and
+ * The nodes are models whose Model::is_node_scoped() returns true: Post, Term and User, and
  * subclasses that inherit theirs. Reading any other model's fields (or a node's fields from PHP,
  * or from the resolver of a field on another node) sets the model up around that one field instead,
  * and restores the previous state afterwards.
@@ -35,8 +35,8 @@ use WPGraphQL\AppContext;
  * reach through graphql_bind_node_context().
  *
  * @internal Plumbing behind the model lifecycle. Models customize it through setup(), tear_down()
- *           and scopes_setup_to_node(), and the graphql_model_node_context_globals filter.
- *           Extensions bind callbacks through graphql_bind_node_context().
+ *           and is_node_scoped(), and the graphql_model_node_context_globals filter. Extensions
+ *           bind callbacks through graphql_bind_node_context().
  *
  * @since x-release-please-version
  */
@@ -49,6 +49,16 @@ final class NodeContext {
 	 * User model sets.
 	 */
 	private const GLOBALS = [ 'post', 'authordata', 'id', 'currentday', 'currentmonth', 'page', 'pages', 'multipage', 'more', 'numpages' ];
+
+	/**
+	 * Globals that are never saved and restored, even if the graphql_model_node_context_globals
+	 * filter adds them.
+	 *
+	 * The main query is restored property by property, never by replacing the object. The rest hold
+	 * WordPress's own infrastructure (hooks, the database, caches, the current user, registries),
+	 * which rolling back to an earlier value would break.
+	 */
+	private const NEVER_RESTORED = [ 'GLOBALS', 'wp_query', 'wp_the_query', 'wp', 'wpdb', 'wp_filter', 'wp_actions', 'wp_filters', 'wp_current_filter', 'wp_object_cache', 'current_user', 'wp_roles', 'wp_rewrite', 'wp_post_types', 'wp_taxonomies' ];
 
 	/**
 	 * The node context of each request being executed, keyed by the request's AppContext.
@@ -66,6 +76,10 @@ final class NodeContext {
 
 	/**
 	 * The model whose context is currently applied to the global state, if any.
+	 *
+	 * Shared by every request in the process (a GraphQL request made from a resolver runs inside
+	 * the outer one), which works because each setup saves the previous value and its teardown
+	 * restores it.
 	 *
 	 * @var ?\WPGraphQL\Model\Model<mixed>
 	 */
@@ -109,6 +123,8 @@ final class NodeContext {
 	 *
 	 * @param \WPGraphQL\AppContext $context The request's AppContext.
 	 *
+	 * @throws \Throwable When a model's tear_down() throws, after every node has been torn down.
+	 *
 	 * @since x-release-please-version
 	 */
 	public static function end_request( AppContext $context ): void {
@@ -116,8 +132,17 @@ final class NodeContext {
 			return;
 		}
 
-		self::$requests[ $context ]->leave_all();
+		$node_context = self::$requests[ $context ];
 		self::$requests->detach( $context );
+
+		try {
+			$node_context->leave_all();
+		} finally {
+			// With no request left running, nothing can be the current node.
+			if ( 0 === count( self::$requests ) ) {
+				self::$active_model = null;
+			}
+		}
 	}
 
 	/**
@@ -131,14 +156,14 @@ final class NodeContext {
 	public function enter( $source, ResolveInfo $info ): void {
 		$parent_path = array_slice( $info->path, 0, -1 );
 
-		// A root field starts its own part of the query, so nodes recorded at its path by an
-		// earlier operation in the same request (a batch) no longer apply.
-		if ( empty( $parent_path ) ) {
-			$this->forget_owners_under( (string) $info->path[0] );
-		}
-
-		if ( $source instanceof Model && $source->scopes_setup_to_node() ) {
-			$this->owners[ implode( '/', $parent_path ) ] = $source;
+		// Every field at a path resolves on the same source, so recording (or forgetting) the
+		// source here keeps the record current, including when another operation in a batch has
+		// something different at the same path. Models the requester can't see never own a node.
+		$parent_key = implode( '/', $parent_path );
+		if ( $source instanceof Model && $source->is_node_scoped() && 'private' !== $source->get_visibility() ) {
+			$this->owners[ $parent_key ] = $source;
+		} else {
+			unset( $this->owners[ $parent_key ] );
 		}
 
 		// The models that own the nodes above the field, outermost first.
@@ -187,8 +212,12 @@ final class NodeContext {
 	 *
 	 * For callbacks that run later than the field that created them, such as a connection's
 	 * Deferred callback, which runs after other fields (often of other nodes) have resolved. Bound
-	 * while the field resolves, the callback sees that field's node as the current object, and the
-	 * state at the time it's called is restored afterwards, even if it throws.
+	 * while the field resolves, the callback sees the main query and the restored globals as they
+	 * were then, so the field's node is the current object, and the state at the time it's called
+	 * is restored afterwards, even if it throws.
+	 *
+	 * Only that saved state is put back. setup() isn't run again, so anything else a model's setup()
+	 * does, such as adding filters, isn't in effect inside the callback.
 	 *
 	 * @param callable $callback The callback to wrap.
 	 *
@@ -230,6 +259,8 @@ final class NodeContext {
 	 *
 	 * @return T
 	 *
+	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
+	 *
 	 * @since x-release-please-version
 	 */
 	public static function run_as( Model $model, callable $callback ) {
@@ -242,15 +273,25 @@ final class NodeContext {
 		$state    = self::capture_global_state( $model );
 		$previous = self::$active_model;
 
+		// If setup() fails, there's nothing to tear down: put the state back and stop.
 		try {
 			$model->setup();
-			self::$active_model = $model;
+		} catch ( \Throwable $e ) {
+			self::restore_global_state( $state );
+			throw $e;
+		}
 
+		self::$active_model = $model;
+
+		try {
 			return $callback();
 		} finally {
-			$model->tear_down();
-			self::restore_global_state( $state );
-			self::$active_model = $previous;
+			try {
+				$model->tear_down();
+			} finally {
+				self::restore_global_state( $state );
+				self::$active_model = $previous;
+			}
 		}
 	}
 
@@ -309,6 +350,8 @@ final class NodeContext {
 	/**
 	 * Tears down the innermost node context and restores the state from before it was set up.
 	 *
+	 * @throws \Throwable When the model's tear_down() throws, after restoring the state.
+	 *
 	 * @since x-release-please-version
 	 */
 	private function pop(): void {
@@ -329,28 +372,28 @@ final class NodeContext {
 	/**
 	 * Tears down every node context the request applied.
 	 *
+	 * Every node is torn down even if one's tear_down() throws, and the first error is thrown once
+	 * they all are.
+	 *
+	 * @throws \Throwable When a model's tear_down() throws.
+	 *
 	 * @since x-release-please-version
 	 */
 	private function leave_all(): void {
+		$error = null;
+
 		while ( ! empty( $this->stack ) ) {
-			$this->pop();
+			try {
+				$this->pop();
+			} catch ( \Throwable $e ) {
+				$error = $error ?? $e;
+			}
 		}
 
 		$this->owners = [];
-	}
 
-	/**
-	 * Forgets the nodes recorded at or under a root field's path.
-	 *
-	 * @param string $root_key The root field's response key.
-	 *
-	 * @since x-release-please-version
-	 */
-	private function forget_owners_under( string $root_key ): void {
-		foreach ( array_keys( $this->owners ) as $key ) {
-			if ( $key === $root_key || 0 === strpos( $key, $root_key . '/' ) ) {
-				unset( $this->owners[ $key ] );
-			}
+		if ( null !== $error ) {
+			throw $error;
 		}
 	}
 
@@ -377,6 +420,10 @@ final class NodeContext {
 	/**
 	 * Captures the global state setting up a model can change.
 	 *
+	 * A global that is null is captured as unset, and unset again when restored, which code reading
+	 * it through `global` can't tell apart. (Checking with isset() rather than array_key_exists()
+	 * also avoids copying the whole $GLOBALS array on every capture.)
+	 *
 	 * @param ?\WPGraphQL\Model\Model<mixed> $model The model about to be set up, or whose context is being captured. Null when no model is set up.
 	 *
 	 * @return array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]}
@@ -389,7 +436,7 @@ final class NodeContext {
 		$globals = [];
 		$unset   = [];
 		foreach ( self::get_globals( $model ) as $name ) {
-			if ( array_key_exists( $name, $GLOBALS ) ) {
+			if ( isset( $GLOBALS[ $name ] ) ) {
 				$globals[ $name ] = $GLOBALS[ $name ];
 			} else {
 				$unset[] = $name;
@@ -408,7 +455,9 @@ final class NodeContext {
 	 * Restores the global state captured by capture_global_state().
 	 *
 	 * The main query's properties are written back onto the same object, rather than replacing it,
-	 * because $wp_the_query and other code can hold a reference to the main query object.
+	 * because $wp_the_query and other code can hold a reference to the main query object. The
+	 * restore is shallow: a global, or a main query property, that holds an object gets the same
+	 * object back, so changes made to that object in the meantime stay.
 	 *
 	 * @param array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]} $state The state to restore.
 	 *
@@ -458,8 +507,13 @@ final class NodeContext {
 		 * (WooCommerce sets the global $product there) or one a custom model's setup() sets, so
 		 * fields outside the model's part of the query don't see the value it left behind.
 		 *
+		 * The filter runs each time a model is set up, and when a callback is bound to the current
+		 * node's state, so callbacks should be quick and have no side effects. Globals that hold
+		 * WordPress's own infrastructure, such as $wpdb, $wp_filter and $current_user, are never
+		 * saved or restored, even if they're added here.
+		 *
 		 * @param string[]                      $globals The names of the globals, as keys of $GLOBALS.
-		 * @param \WPGraphQL\Model\Model<mixed> $model   The model about to be set up.
+		 * @param \WPGraphQL\Model\Model<mixed> $model   The model about to be set up, or the current node when a callback is being bound.
 		 *
 		 * @hookGroup models
 		 * @since x-release-please-version
@@ -470,7 +524,6 @@ final class NodeContext {
 			return self::GLOBALS;
 		}
 
-		// The main query is restored property by property, never by replacing the object.
-		return array_values( array_unique( array_diff( array_filter( $globals, 'is_string' ), [ 'wp_query', 'wp_the_query', 'GLOBALS' ] ) ) );
+		return array_values( array_unique( array_diff( array_filter( $globals, 'is_string' ), self::NEVER_RESTORED ) ) );
 	}
 }

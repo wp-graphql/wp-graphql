@@ -85,6 +85,9 @@ class Post extends Model {
 	/**
 	 * Store the global post to reset during model tear down
 	 *
+	 * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+	 * saved and restored around setup() and tear_down(). See NodeContext.
+	 *
 	 * @var \WP_Post
 	 */
 	protected $global_post;
@@ -179,9 +182,11 @@ class Post extends Model {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @return bool
+	 *
 	 * @since x-release-please-version
 	 */
-	public function scopes_setup_to_node(): bool {
+	public function is_node_scoped() {
 		return true;
 	}
 

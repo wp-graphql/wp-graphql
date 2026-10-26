@@ -27,6 +27,13 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	private $register_fields;
 
 	/**
+	 * Hooks a test added, removed in tearDown() even if the test fails.
+	 *
+	 * @var array<int,array{0:string,1:callable,2:int}>
+	 */
+	private $hooks = [];
+
+	/**
 	 * How many times the custom model's setup() ran.
 	 *
 	 * @var int
@@ -39,6 +46,13 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 * @var int
 	 */
 	public static $opted_setups = 0;
+
+	/**
+	 * How many times the throwing model's tear_down() ran.
+	 *
+	 * @var int
+	 */
+	public static $throwing_tear_downs = 0;
 
 	/**
 	 * The global a plugin sets when a post is set up, like WooCommerce's $product.
@@ -265,8 +279,10 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 							/**
 							 * Opts in to node scope.
+							 *
+							 * @return bool
 							 */
-							public function scopes_setup_to_node(): bool {
+							public function is_node_scoped() {
 								return true;
 							}
 
@@ -292,6 +308,39 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 								];
 							}
 						};
+					},
+				]
+			);
+
+			// A root field whose value is not a model, at the same path a node is at in another
+			// operation of a batch.
+			register_graphql_field(
+				'RootQuery',
+				'partsRoot',
+				[
+					'type'    => 'ModelGlobalQueryStateTestPart',
+					'resolve' => static function () {
+						return [ 'part' => 1 ];
+					},
+				]
+			);
+
+			// A nested object backed by a node-scoped model whose setup() fails.
+			register_graphql_object_type(
+				'ModelGlobalQueryStateTestThrowing',
+				[
+					'fields' => [
+						'first' => [ 'type' => 'String' ],
+					],
+				]
+			);
+			register_graphql_field(
+				'Post',
+				'throwingNode',
+				[
+					'type'    => 'ModelGlobalQueryStateTestThrowing',
+					'resolve' => static function () {
+						return self::throwing_model();
 					},
 				]
 			);
@@ -324,9 +373,79 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 */
 	public function tearDown(): void {
 		remove_action( 'graphql_register_types', $this->register_fields );
+		foreach ( $this->hooks as [ $hook, $callback, $priority ] ) {
+			remove_filter( $hook, $callback, $priority );
+		}
+		$this->hooks = [];
 		unset( $GLOBALS[ self::ITEM_GLOBAL ] );
 		$this->clearSchema();
 		parent::tearDown();
+	}
+
+	/**
+	 * A node-scoped model whose setup() points the global post elsewhere, then fails.
+	 *
+	 * @return \WPGraphQL\Model\Model<array<string,string>>
+	 */
+	public static function throwing_model(): \WPGraphQL\Model\Model {
+		return new class() extends \WPGraphQL\Model\Model {
+			/**
+			 * Models some fixed data.
+			 */
+			public function __construct() {
+				$this->data = [ 'source' => 'test' ];
+				parent::__construct();
+			}
+
+			/**
+			 * Opts in to node scope.
+			 *
+			 * @return bool
+			 */
+			public function is_node_scoped() {
+				return true;
+			}
+
+			/**
+			 * Changes the global post, then fails.
+			 *
+			 * @throws \RuntimeException Always.
+			 */
+			public function setup() {
+				$GLOBALS['post'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+				throw new \RuntimeException( 'setup failed' );
+			}
+
+			/**
+			 * Counts teardowns, which shouldn't happen after a failed setup().
+			 */
+			public function tear_down() {
+				++ModelGlobalQueryStateTest::$throwing_tear_downs;
+			}
+
+			/**
+			 * One field.
+			 */
+			protected function init() {
+				$this->fields = [
+					'first' => static function () {
+						return 'first';
+					},
+				];
+			}
+		};
+	}
+
+	/**
+	 * Adds a filter or action that tearDown() removes, even if the test fails.
+	 *
+	 * @param string   $hook          The hook.
+	 * @param callable $callback      The callback.
+	 * @param int      $accepted_args The number of arguments the callback accepts.
+	 */
+	private function hook( string $hook, callable $callback, int $accepted_args = 1 ): void {
+		add_filter( $hook, $callback, 10, $accepted_args );
+		$this->hooks[] = [ $hook, $callback, 10 ];
 	}
 
 	/**
@@ -534,7 +653,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				++$main_query_parses;
 			}
 		};
-		add_action( 'parse_query', $count_parses );
+		$this->hook( 'parse_query', $count_parses );
 
 		$actual = $this->graphql(
 			[
@@ -542,8 +661,6 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				'variables' => [ 'id' => $post_id ],
 			]
 		);
-
-		remove_action( 'parse_query', $count_parses );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->post_state( $post_id ), $actual['data']['modelPost']['self']['self']['currentState'] );
@@ -611,7 +728,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$set_item = static function ( $post ) {
 			$GLOBALS[ self::ITEM_GLOBAL ] = $post->ID;
 		};
-		add_action( 'the_post', $set_item );
+		$this->hook( 'the_post', $set_item );
 
 		// Without the filter, the plugin global leaks out of the post's part of the query.
 		$actual = $this->graphql(
@@ -628,7 +745,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			$globals[] = self::ITEM_GLOBAL;
 			return $globals;
 		};
-		add_filter( 'graphql_model_node_context_globals', $add_global );
+		$this->hook( 'graphql_model_node_context_globals', $add_global );
 
 		$actual = $this->graphql(
 			[
@@ -636,9 +753,6 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				'variables' => [ 'id' => $post_id ],
 			]
 		);
-
-		remove_filter( 'graphql_model_node_context_globals', $add_global );
-		remove_action( 'the_post', $set_item );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -663,7 +777,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			$globals[] = self::ITEM_GLOBAL;
 			return $globals;
 		};
-		add_filter( 'graphql_model_node_context_globals', $add_global );
+		$this->hook( 'graphql_model_node_context_globals', $add_global );
 
 		$actual = $this->graphql(
 			[
@@ -671,8 +785,6 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 				'variables' => [ 'id' => $post_id ],
 			]
 		);
-
-		remove_filter( 'graphql_model_node_context_globals', $add_global );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 1, self::$opted_setups );
@@ -737,7 +849,7 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			}
 			return $nodes;
 		};
-		add_filter( 'graphql_connection_nodes', $record_nodes, 10, 2 );
+		$this->hook( 'graphql_connection_nodes', $record_nodes, 2 );
 
 		$actual = $this->graphql(
 			[
@@ -746,13 +858,193 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			]
 		);
 
-		remove_filter( 'graphql_connection_nodes', $record_nodes, 10 );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		ksort( $expected );
 		ksort( $seen );
 		$this->assertSame( $expected, $seen );
+	}
+
+	/**
+	 * Hooks that run on the response see the request's own state, not the last node.
+	 */
+	public function testResponseHooksSeeTheRequestsOwnState() {
+		$post_id  = $this->create_post();
+		$expected = self::current_state();
+		$seen     = null;
+
+		$this->hook(
+			'graphql_request_results',
+			static function ( $response ) use ( &$seen ) {
+				$seen = self::current_state();
+				return $response;
+			}
+		);
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: Int! ) { modelPost( id: $id ) { title currentState } }',
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['modelPost']['currentState'] );
+		$this->assertSame( $expected, $seen );
+	}
+
+	/**
+	 * When a node's setup() fails, its fields error, the state is put back without a teardown,
+	 * and the node above it is still in place for its later fields.
+	 */
+	public function testNodeWhoseSetupFailsLeavesTheStateAsItWas() {
+		$post_id                   = $this->create_post();
+		self::$throwing_tear_downs = 0;
+		$before                    = $this->global_state();
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { throwingNode { first } after: currentState } }',
+				'variables' => [ 'id' => $post_id ],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertSame( [ 'post', 'throwingNode', 'first' ], $actual['errors'][0]['path'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['post']['after'] );
+		$this->assertSame( 0, self::$throwing_tear_downs );
+		$this->assertSame( $before, $this->global_state() );
+	}
+
+	/**
+	 * Reading a field of a model whose setup() fails, from PHP, throws without a teardown and
+	 * leaves the state as it was.
+	 */
+	public function testReadingAFieldOfAModelWhoseSetupFailsLeavesTheStateAsItWas() {
+		$this->create_post();
+		self::$throwing_tear_downs = 0;
+		$before                    = $this->global_state();
+		$model                     = self::throwing_model();
+
+		try {
+			$model->first; // phpcs:ignore Generic.CodeAnalysis.EmptyStatement
+			$this->fail( 'Reading the field should have thrown.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'setup failed', $e->getMessage() );
+		}
+
+		$this->assertSame( 0, self::$throwing_tear_downs );
+		$this->assertSame( $before, $this->global_state() );
+	}
+
+	/**
+	 * Aliased sibling nodes each see themselves.
+	 */
+	public function testAliasedSiblingNodesEachSeeThemselves() {
+		$first  = $this->create_post();
+		$second = $this->create_post();
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $a: ID!, $b: ID! ) { a: post( id: $a, idType: DATABASE_ID ) { currentState } b: post( id: $b, idType: DATABASE_ID ) { currentState } }',
+				'variables' => [
+					'a' => $first,
+					'b' => $second,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->post_state( $first ), $actual['data']['a']['currentState'] );
+		$this->assertSame( $this->post_state( $second ), $actual['data']['b']['currentState'] );
+	}
+
+	/**
+	 * Nodes reached through a connection's edges each see themselves.
+	 */
+	public function testNodesThroughEdgesEachSeeThemselves() {
+		$post_ids = [ $this->create_post(), $this->create_post() ];
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $in: [ID] ) { posts( where: { in: $in } ) { edges { cursor node { databaseId currentState } } } }',
+				'variables' => [ 'in' => $post_ids ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['posts']['edges'] );
+
+		foreach ( $actual['data']['posts']['edges'] as $edge ) {
+			$this->assertSame( $this->post_state( $edge['node']['databaseId'] ), $edge['node']['currentState'] );
+		}
+	}
+
+	/**
+	 * A node resolved by URI, through an interface, sees itself.
+	 */
+	public function testNodeResolvedByUriSeesItself() {
+		$this->set_permalink_structure( '/%postname%/' );
+		$post_id = $this->create_post();
+
+		$actual = $this->graphql(
+			[
+				'query'     => 'query ( $uri: String! ) { nodeByUri( uri: $uri ) { __typename ... on Post { databaseId currentState } } }',
+				'variables' => [ 'uri' => wp_make_link_relative( get_permalink( $post_id ) ) ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Post', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $this->post_state( $post_id ), $actual['data']['nodeByUri']['currentState'] );
+	}
+
+	/**
+	 * A mutation's resolver sees the request's own state, and the node in its payload sees itself.
+	 */
+	public function testMutationPayloadNodeSeesItself() {
+		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_id );
+		$expected_root = self::current_state();
+
+		$actual = $this->graphql(
+			[
+				'query' => 'mutation { createPost( input: { title: "Node context", status: PUBLISH } ) { post { databaseId currentState } } } ',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$post_id = $actual['data']['createPost']['post']['databaseId'];
+		$this->assertSame( sprintf( 'post=%1$d queried=%1$d singular=yes category=no author=no authordata=%2$d', $post_id, $admin_id ), $actual['data']['createPost']['post']['currentState'] );
+		$this->assertSame( $expected_root, self::current_state() );
+	}
+
+	/**
+	 * In a batch, an operation with a value that isn't a node at the same path as another
+	 * operation's node doesn't see that node.
+	 */
+	public function testBatchOperationDoesNotInheritAnotherOperationsNode() {
+		$post_id  = $this->create_post();
+		$expected = self::current_state();
+
+		$actual = graphql(
+			[
+				[
+					'query'     => 'query ( $id: Int! ) { node: modelPost( id: $id ) { currentState } }',
+					'variables' => [ 'id' => $post_id ],
+				],
+				[
+					'query' => '{ node: partsRoot { currentState } }',
+				],
+			]
+		);
+
+		$this->assertCount( 2, $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual[0] );
+		$this->assertArrayNotHasKey( 'errors', $actual[1] );
+		$this->assertSame( $this->post_state( $post_id ), $actual[0]['data']['node']['currentState'] );
+		$this->assertSame( $expected, $actual[1]['data']['node']['currentState'] );
 	}
 
 	/**
@@ -921,12 +1213,10 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			}
 			return $fields;
 		};
-		add_filter( 'graphql_model_prepare_fields', $add_field, 10, 2 );
+		$this->hook( 'graphql_model_prepare_fields', $add_field, 2 );
 
 		$model = new \WPGraphQL\Model\Post( get_post( $post_id ) );
 		$state = $model->currentState;
-
-		remove_filter( 'graphql_model_prepare_fields', $add_field, 10 );
 
 		$this->assertSame( $this->post_state( $post_id ), $state );
 	}
