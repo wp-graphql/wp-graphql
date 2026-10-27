@@ -455,7 +455,10 @@ final class NodeContext {
 	 * Restores the global state captured by capture_global_state().
 	 *
 	 * The main query's properties are written back onto the same object, rather than replacing it,
-	 * because $wp_the_query and other code can hold a reference to the main query object. The
+	 * because $wp_the_query and other code can hold a reference to the main query object. If code
+	 * replaced $wp_query with a different object in the meantime (with query_posts(), say), the
+	 * properties are written onto that object, and putting the original back (wp_reset_query())
+	 * is that code's job, as it is outside GraphQL. The
 	 * restore is shallow: a global, or a main query property, that holds an object gets the same
 	 * object back, so changes made to that object in the meantime stay.
 	 *

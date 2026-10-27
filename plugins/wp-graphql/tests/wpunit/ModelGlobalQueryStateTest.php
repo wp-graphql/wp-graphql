@@ -838,6 +838,36 @@ class ModelGlobalQueryStateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	/**
+	 * A bound callback that throws still restores the state it was called with.
+	 */
+	public function testBoundCallbackThatThrowsRestoresTheState() {
+		$post_id = $this->create_post();
+		$before  = $this->global_state();
+
+		$bound = null;
+		$model = new \WPGraphQL\Model\Post( get_post( $post_id ) );
+		\WPGraphQL\Model\NodeContext::run_as(
+			$model,
+			static function () use ( &$bound ) {
+				$bound = graphql_bind_node_context(
+					static function () {
+						throw new \RuntimeException( 'callback failed' );
+					}
+				);
+			}
+		);
+
+		try {
+			$bound();
+			$this->fail( 'The bound callback should have thrown.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'callback failed', $e->getMessage() );
+		}
+
+		$this->assertSame( $before, $this->global_state() );
+	}
+
+	/**
 	 * The filters a connection runs in its Deferred callback see the node the connection belongs
 	 * to, not whichever node was set up last.
 	 */
