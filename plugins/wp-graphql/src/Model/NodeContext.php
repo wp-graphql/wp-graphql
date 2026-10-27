@@ -270,18 +270,8 @@ final class NodeContext {
 			return $callback();
 		}
 
-		$state    = self::capture_global_state( $model );
 		$previous = self::$active_model;
-
-		// If setup() fails, there's nothing to tear down: put the state back and stop.
-		try {
-			$model->setup();
-		} catch ( \Throwable $e ) {
-			self::restore_global_state( $state );
-			throw $e;
-		}
-
-		self::$active_model = $model;
+		$state    = self::set_up( $model );
 
 		try {
 			return $callback();
@@ -306,8 +296,33 @@ final class NodeContext {
 	 * @since x-release-please-version
 	 */
 	private function push( string $key, Model $model ): void {
-		$state    = self::capture_global_state( $model );
-		$previous = self::$active_model;
+		$previous      = self::$active_model;
+		$state         = self::set_up( $model );
+		$this->stack[] = [
+			'key'      => $key,
+			'model'    => $model,
+			'state'    => $state,
+			'previous' => $previous,
+			'applied'  => self::applied_state(),
+		];
+	}
+
+	/**
+	 * Saves the global state, sets a model up as the current object, and returns the saved state.
+	 *
+	 * If setup() throws, there's nothing to tear down: the saved state is put back and the error
+	 * rethrown.
+	 *
+	 * @param \WPGraphQL\Model\Model<mixed> $model The model to set up.
+	 *
+	 * @return array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]} The state from before the setup.
+	 *
+	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
+	 *
+	 * @since x-release-please-version
+	 */
+	private static function set_up( Model $model ): array {
+		$state = self::capture_global_state( $model );
 
 		try {
 			$model->setup();
@@ -317,13 +332,8 @@ final class NodeContext {
 		}
 
 		self::$active_model = $model;
-		$this->stack[]      = [
-			'key'      => $key,
-			'model'    => $model,
-			'state'    => $state,
-			'previous' => $previous,
-			'applied'  => self::applied_state(),
-		];
+
+		return $state;
 	}
 
 	/**
