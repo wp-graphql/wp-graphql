@@ -2,7 +2,7 @@
 
 Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.com/wp-graphql/wp-graphql/pull/4575). See the [README](../../README.md) for what the change is, the builds compared, and how to run these queries yourself.
 
-10 queries. Against `main`: **node-context** (#4575 as it stands) has 8 identical, 2 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 7 identical, 3 probe only, 0 with changed extension output.
+10 queries. Compared with `main`, **#4575** (`node-context`) changed extension output in 0, changed only the probe in 2, and left 8 the same. **The first version of #4575** (`original-pr`) changed extension output in 0, only the probe in 3, and left 7 the same.
 
 ## Anything to do?
 
@@ -30,17 +30,24 @@ Optional: [IDEAS.md](../../IDEAS.md), "WPGraphQL for Rank Math: less duplicated 
 
 ## Results by query
 
-Each build's responses were captured twice and matched. "Probe only" means the only values that changed are test-only probe fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), which report the current object at a point in the query. Otherwise the cell lists the extension values that changed, as the value on `main` → the value on that build. The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), the queries in [`queries/rankmath/`](../../queries/rankmath), and the fixture IDs they used in [`rankmath.ids`](../rankmath.ids).
+Each build's responses were captured twice and matched. Each cell compares that build's response with `main`'s for the same query:
 
-| Query | What it checks | node-context vs `main` | original-pr vs `main` |
+- **Same as `main`**: every value in the response is identical.
+- **Extension output**: values from the extension's own fields that differ, as the value on `main` → the value on that build. Long values show the part around the first difference.
+- **Probe**: test-only fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), selected at a point in the query, that report what WordPress treats as current there: `post` is the global `$post`, `queried` the main query's queried object, `product` WooCommerce's global `$product`, `authordata` the global `$authordata`, and `singular`, `tax`, `isProduct` and the like are conditional tags. They aren't extension output; they show what an extension reading the current object would see. Inside a node the right answer is that node. At the root, after the nodes, it's whatever was current before the query, which on these requests is nothing (`none`).
+- Fixture names such as `C0`, `C1`, `U1` are the ones in [`rankmath.ids`](../rankmath.ids), shown with their IDs.
+
+The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), and the queries in [`queries/rankmath/`](../../queries/rankmath).
+
+| Query | What it checks | #4575 (`node-context`) | First version of #4575 (`original-pr`) |
 | --- | --- | --- | --- |
-| `rm-a-single-all-fields` | one post, every `seo` field including `jsonLd`, `fullHead`, `breadcrumbs` and `seoScore`. | identical | identical |
-| `rm-b-list-three` | three posts in a list, `seo` title, canonical, breadcrumbs, `seoScore` and `jsonLd`. | identical | identical |
-| `rm-c-nested-author-terms-parent` | a post's author `seo` and categories' `seo`, then a second `seo` alias after them, plus a child page's parent `seo`. | identical | identical |
-| `rm-d1-jsonld-before-fullhead` | `jsonLd` selected before `fullHead` (checks for a duplicated JSON-LD block). | identical | identical |
-| `rm-d2-fullhead-before-jsonld` | `fullHead` and `openGraph` before `jsonLd`. | identical | identical |
-| `rm-d3-seo-before-after-model-fields` | the same post with `seo` before and after `title`/`content`/`uri`. | identical | identical |
-| `rm-d4-list-jsonld-before-fullhead` | `jsonLd` before `fullHead` in a list of three posts. | identical | identical |
-| `rm-e-root-after-node` | root `contentType.seo`, `category.seo` and `rankMathSettings` after a post's `seo`, plus `debugLateObject`. | probe only | probe only |
-| `rm-f-sibling-after-seo-probe` | two posts with `debugNodeGlobals` around `seo` and `content`, plus `debugLateObject`. | probe only | probe only |
-| `rm-g-term-seo-under-post-then-post-field` | term `seo` under a post's categories, then an in-node probe and the post's `content`. | identical | probe only |
+| `rm-a-single-all-fields` | one post, every `seo` field including `jsonLd`, `fullHead`, `breadcrumbs` and `seoScore`. | Same as `main`. | Same as `main`. |
+| `rm-b-list-three` | three posts in a list, `seo` title, canonical, breadcrumbs, `seoScore` and `jsonLd`. | Same as `main`. | Same as `main`. |
+| `rm-c-nested-author-terms-parent` | a post's author `seo` and categories' `seo`, then a second `seo` alias after them, plus a child page's parent `seo`. | Same as `main`. | Same as `main`. |
+| `rm-d1-jsonld-before-fullhead` | `jsonLd` selected before `fullHead` (checks for a duplicated JSON-LD block). | Same as `main`. | Same as `main`. |
+| `rm-d2-fullhead-before-jsonld` | `fullHead` and `openGraph` before `jsonLd`. | Same as `main`. | Same as `main`. |
+| `rm-d3-seo-before-after-model-fields` | the same post with `seo` before and after `title`/`content`/`uri`. | Same as `main`. | Same as `main`. |
+| `rm-d4-list-jsonld-before-fullhead` | `jsonLd` before `fullHead` in a list of three posts. | Same as `main`. | Same as `main`. |
+| `rm-e-root-after-node` | root `contentType.seo`, `category.seo` and `rankMathSettings` after a post's `seo`, plus `debugLateObject`. | **Extension output:** same as `main`<br>**Probe** `lateObj`: authordata U1 (31) → none, post P1 (529) → none, queried P1 (529) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `lateObj`: queried P1 (529) → none, singular true → false |
+| `rm-f-sibling-after-seo-probe` | two posts with `debugNodeGlobals` around `seo` and `content`, plus `debugLateObject`. | **Extension output:** same as `main`<br>**Probe** `lateObj`: authordata 1 → none, post P2 (530) → none, queried P2 (530) → none, singular true → false<br>**Probe** `one.s0`: authordata 1 → U1 (31), post P2 (530) → P1 (529), queried P2 (530) → P1 (529)<br>**Probe** `two.s0`: authordata U1 (31) → 1, post P1 (529) → P2 (530), queried P1 (529) → P2 (530) | **Extension output:** same as `main`<br>**Probe** `lateObj`: queried P2 (530) → none, singular true → false<br>**Probe** `one.s0`: queried P2 (530) → none, singular true → false<br>**Probe** `one.s1`: queried P1 (529) → none, singular true → false<br>**Probe** `two.s0`: queried P1 (529) → none, singular true → false |
+| `rm-g-term-seo-under-post-then-post-field` | term `seo` under a post's categories, then an in-node probe and the post's `content`. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `post.after`: queried P1 (529) → none, singular true → false |

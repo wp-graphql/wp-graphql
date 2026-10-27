@@ -2,7 +2,7 @@
 
 Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.com/wp-graphql/wp-graphql/pull/4575). See the [README](../../README.md) for what the change is, the builds compared, and how to run these queries yourself.
 
-10 queries. Against `main`: **node-context** (#4575 as it stands) has 6 identical, 4 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 0 identical, 10 probe only, 0 with changed extension output.
+10 queries. Compared with `main`, **#4575** (`node-context`) changed extension output in 0, changed only the probe in 4, and left 6 the same. **The first version of #4575** (`original-pr`) changed extension output in 0, only the probe in 10, and left 0 the same.
 
 ## Anything to do?
 
@@ -31,17 +31,24 @@ The product models extend core's Post model (`includes/model/class-wc-post.php:2
 
 ## Results by query
 
-Each build's responses were captured twice and matched. "Probe only" means the only values that changed are test-only probe fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), which report the current object at a point in the query. Otherwise the cell lists the extension values that changed, as the value on `main` → the value on that build. The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), the queries in [`queries/woo/`](../../queries/woo), and the fixture IDs they used in [`woo.ids`](../woo.ids).
+Each build's responses were captured twice and matched. Each cell compares that build's response with `main`'s for the same query:
 
-| Query | What it checks | node-context vs `main` | original-pr vs `main` |
+- **Same as `main`**: every value in the response is identical.
+- **Extension output**: values from the extension's own fields that differ, as the value on `main` → the value on that build. Long values show the part around the first difference.
+- **Probe**: test-only fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), selected at a point in the query, that report what WordPress treats as current there: `post` is the global `$post`, `queried` the main query's queried object, `product` WooCommerce's global `$product`, `authordata` the global `$authordata`, and `singular`, `tax`, `isProduct` and the like are conditional tags. They aren't extension output; they show what an extension reading the current object would see. Inside a node the right answer is that node. At the root, after the nodes, it's whatever was current before the query, which on these requests is nothing (`none`).
+- Fixture names such as `P2`, `P1`, `P3` are the ones in [`woo.ids`](../woo.ids), shown with their IDs.
+
+The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), and the queries in [`queries/woo/`](../../queries/woo).
+
+| Query | What it checks | #4575 (`node-context`) | First version of #4575 (`original-pr`) |
 | --- | --- | --- | --- |
-| `woo-q1-single-product` | one simple product (P2), prices, `shortDescription`, `description`, probe. | identical | probe only |
-| `woo-q2-list-three` | three products in a list, `description` and `content`, probe in each. | identical | probe only |
-| `woo-q3-nested-variations-upsell` | a variable product with `variations` and `upsell` nested, probes before and after, then `content`. | identical | probe only |
-| `woo-q4a-description-then-content` | P1, `description` (runs `[product_page]` for P2) before `content`, then probe. | probe only | probe only |
-| `woo-q4b-content-then-description` | the same with `content` first. | probe only | probe only |
-| `woo-q4c-products-loop-then-content` | P3, `description` (runs a `[products]` loop for P2) before `content`, probe, `name`. | identical | probe only |
-| `woo-q5-root-after-product` | root `probeGlobals`, `probeGlobalsLate` and `cart` after P1's `description`. | probe only | probe only |
-| `woo-q6-mutation-add-to-cart` | `addToCart`, with the payload cart item's product and probe. | identical | probe only |
-| `woo-q7-sibling-products-after-shortcode` | P3 resolved after P1's `[product_page]` description, probe in P3 and a late root probe. | probe only | probe only |
-| `woo-q8-variations-then-outer-price` | a variable product's `variations`, then probe, `price`, `regularPrice` and `name` on the outer product. | identical | probe only |
+| `woo-q1-single-product` | one simple product (P2), prices, `shortDescription`, `description`, probe. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: isProduct true → false, queried P2 (513) → none |
+| `woo-q2-list-three` | three products in a list, `description` and `content`, probe in each. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `products.nodes[0].probeGlobals`: isProduct true → false, queried P1 (514) → none<br>**Probe** `products.nodes[1].probeGlobals`: isProduct true → false, queried P2 (513) → none<br>**Probe** `products.nodes[2].probeGlobals`: isProduct true → false, queried P3 (515) → none |
+| `woo-q3-nested-variations-upsell` | a variable product with `variations` and `upsell` nested, probes before and after, then `content`. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `product.after`: isProduct true → false, queried V (516) → none<br>**Probe** `product.before`: isProduct true → false, queried V (516) → none<br>**Probe** `product.upsell.nodes[0].probeGlobals`: isProduct true → false, queried P2 (513) → none<br>**Probe** `product.variations.nodes[0].probeGlobals`: post V1 (517) → P2 (513), queried V1 (517) → none<br>**Probe** `product.variations.nodes[1].probeGlobals`: post V2 (518) → P2 (513), queried V2 (518) → none |
+| `woo-q4a-description-then-content` | P1, `description` (runs `[product_page]` for P2) before `content`, then probe. | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: post P2 (513) → P1 (514), product P2 (513) → P1 (514) | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: isProduct true → false, post P2 (513) → P1 (514), queried P1 (514) → none |
+| `woo-q4b-content-then-description` | the same with `content` first. | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: post P2 (513) → P1 (514), product P2 (513) → P1 (514) | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: isProduct true → false, post P2 (513) → P1 (514), queried P1 (514) → none |
+| `woo-q4c-products-loop-then-content` | P3, `description` (runs a `[products]` loop for P2) before `content`, probe, `name`. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `product.probeGlobals`: isProduct true → false, queried P3 (515) → none |
+| `woo-q5-root-after-product` | root `probeGlobals`, `probeGlobalsLate` and `cart` after P1's `description`. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P2 (513) → none, queried P1 (514) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P2 (513) → P1 (514), queried P1 (514) → none, singular true → false |
+| `woo-q6-mutation-add-to-cart` | `addToCart`, with the payload cart item's product and probe. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `addToCart.cartItem.product.node.probeGlobals`: isProduct true → false, queried P2 (513) → none |
+| `woo-q7-sibling-products-after-shortcode` | P3 resolved after P1's `[product_page]` description, probe in P3 and a late root probe. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P3 (515) → none, product P3 (515) → P2 (513), queried P3 (515) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `b.s0`: isProduct true → false, queried P3 (515) → none<br>**Probe** `lateObj`: queried P3 (515) → none, singular true → false |
+| `woo-q8-variations-then-outer-price` | a variable product's `variations`, then probe, `price`, `regularPrice` and `name` on the outer product. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `product.after`: isProduct true → false, queried V (516) → none |

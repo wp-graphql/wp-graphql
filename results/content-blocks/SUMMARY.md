@@ -2,7 +2,7 @@
 
 Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.com/wp-graphql/wp-graphql/pull/4575). See the [README](../../README.md) for what the change is, the builds compared, and how to run these queries yourself.
 
-11 queries. Against `main`: **node-context** (#4575 as it stands) has 8 identical, 3 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 6 identical, 4 probe only, 1 with changed extension output.
+11 queries. Compared with `main`, **#4575** (`node-context`) changed extension output in 0, changed only the probe in 3, and left 8 the same. **The first version of #4575** (`original-pr`) changed extension output in 1, only the probe in 4, and left 6 the same.
 
 ## Anything to do?
 
@@ -26,18 +26,25 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 ## Results by query
 
-Each build's responses were captured twice and matched. "Probe only" means the only values that changed are test-only probe fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), which report the current object at a point in the query. Otherwise the cell lists the extension values that changed, as the value on `main` → the value on that build. The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), the queries in [`queries/content-blocks/`](../../queries/content-blocks), and the fixture IDs they used in [`content.ids`](../content.ids).
+Each build's responses were captured twice and matched. Each cell compares that build's response with `main`'s for the same query:
 
-| Query | What it checks | node-context vs `main` | original-pr vs `main` |
+- **Same as `main`**: every value in the response is identical.
+- **Extension output**: values from the extension's own fields that differ, as the value on `main` → the value on that build. Long values show the part around the first difference.
+- **Probe**: test-only fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), selected at a point in the query, that report what WordPress treats as current there: `post` is the global `$post`, `queried` the main query's queried object, `product` WooCommerce's global `$product`, `authordata` the global `$authordata`, and `singular`, `tax`, `isProduct` and the like are conditional tags. They aren't extension output; they show what an extension reading the current object would see. Inside a node the right answer is that node. At the root, after the nodes, it's whatever was current before the query, which on these requests is nothing (`none`).
+- Fixture names such as `HOSTCAT`, `LOOPCAT`, `CAT2` are the ones in [`content.ids`](../content.ids), shown with their IDs.
+
+The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), and the queries in [`queries/content-blocks/`](../../queries/content-blocks).
+
+| Query | What it checks | #4575 (`node-context`) | First version of #4575 (`original-pr`) |
 | --- | --- | --- | --- |
-| `cb-a-single-loop-siblings` | one post, `editorBlocks(flat: false)` with title and terms before and after a Query Loop, a synced pattern and Latest Posts (`renderedHtml`, `terms`). | identical | identical |
-| `cb-b-list-three` | three posts in a list (Host P1 with the loop, two plain posts), `title` before `editorBlocks`. | identical | `data.posts.nodes[0].editorBlocks[0].renderedHtml`: "<h2 class=\"wp-block-post-title\">[ext-matrix] Host P1</... → "<h2 class=\"wp-block-post-title\">[ext-matrix] Third P3<...<br>`data.posts.nodes[0].editorBlocks[1].renderedHtml`: "<div class=\"taxonomy-category wp-block-post-terms\"><a ... → "<div class=\"taxonomy-category wp-block-post-terms\"><a ...<br>`data.posts.nodes[0].editorBlocks[1].terms.nodes[0].name`: "[ext-matrix] Host Cat" → "[ext-matrix] Cat Three"<br>…and 8 more |
-| `cb-c-nested-category-posts` | posts nested under a category, each with `editorBlocks`. | identical | identical |
-| `cb-d-loop-then-terms` | the Query Loop rendered in one `editorBlocks` alias, then post-terms `terms` in aliases before and after `title`. | identical | identical |
-| `cb-d2-title-first-then-loop` | the same with `title` first. | identical | identical |
-| `cb-e-root-probe-after-loop-node` | root probes (`debugGlobals`, `debugGlobalsLate`, `debugLateObject`) after a post whose blocks ran a Query Loop. | probe only | probe only |
-| `cb-e2-root-probe-after-plain-node` | the same root probes after a post with only `title` selected. | probe only | probe only |
-| `cb-f-query-attributes-then-terms` | CoreQuery `attributes` (rendered per attribute), then post-terms `terms`. | identical | identical |
-| `cb-g-sibling-node-after-loop-node` | a second post resolved after a post whose Query Loop rendered, plus root probes. | probe only | probe only |
-| `cb-h-flat-default` | default flat `editorBlocks`, where the post template is also listed and rendered on its own. | identical | identical |
-| `cb-i-node-probe-around-loop` | `debugNodeGlobals` inside the post before and after the Query Loop renders and after `title`. | identical | probe only |
+| `cb-a-single-loop-siblings` | one post, `editorBlocks(flat: false)` with title and terms before and after a Query Loop, a synced pattern and Latest Posts (`renderedHtml`, `terms`). | Same as `main`. | Same as `main`. |
+| `cb-b-list-three` | three posts in a list (Host P1 with the loop, two plain posts), `title` before `editorBlocks`. | Same as `main`. | **Extension output:** 11 values changed<br>• `posts.nodes[0].editorBlocks[0].renderedHtml`: `"…title\">[ext-matrix] Host P1</h2>"` → `"…title\">[ext-matrix] Third P3</h2>"`<br>• `posts.nodes[0].editorBlocks[1].renderedHtml`: `"…8888/category/extmx-host-cat/\" rel=\"tag\">[ext-matrix] Ho…"` → `"…8888/category/extmx-cat-three/\" rel=\"tag\">[ext-matrix] C…"`<br>• `posts.nodes[0].editorBlocks[1].terms.nodes[0].name`: `"[ext-matrix] Host Cat"` → `"[ext-matrix] Cat Three"`<br>• …and 8 more |
+| `cb-c-nested-category-posts` | posts nested under a category, each with `editorBlocks`. | Same as `main`. | Same as `main`. |
+| `cb-d-loop-then-terms` | the Query Loop rendered in one `editorBlocks` alias, then post-terms `terms` in aliases before and after `title`. | Same as `main`. | Same as `main`. |
+| `cb-d2-title-first-then-loop` | the same with `title` first. | Same as `main`. | Same as `main`. |
+| `cb-e-root-probe-after-loop-node` | root probes (`debugGlobals`, `debugGlobalsLate`, `debugLateObject`) after a post whose blocks ran a Query Loop. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P1 (482) → none, queried P1 (482) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `late`: queried P1 (482) → none, singular true → false<br>**Probe** `lateObj`: queried P1 (482) → none, singular true → false |
+| `cb-e2-root-probe-after-plain-node` | the same root probes after a post with only `title` selected. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P2 (483) → none, queried P2 (483) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `late`: queried P2 (483) → none, singular true → false<br>**Probe** `lateObj`: queried P2 (483) → none, singular true → false |
+| `cb-f-query-attributes-then-terms` | CoreQuery `attributes` (rendered per attribute), then post-terms `terms`. | Same as `main`. | Same as `main`. |
+| `cb-g-sibling-node-after-loop-node` | a second post resolved after a post whose Query Loop rendered, plus root probes. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post P2 (483) → none, queried CAT2 (297) → none, tax true → false | **Extension output:** same as `main`<br>**Probe** `late`: queried CAT2 (297) → none, tax true → false<br>**Probe** `lateObj`: queried CAT2 (297) → none, tax true → false |
+| `cb-h-flat-default` | default flat `editorBlocks`, where the post template is also listed and rendered on its own. | Same as `main`. | Same as `main`. |
+| `cb-i-node-probe-around-loop` | `debugNodeGlobals` inside the post before and after the Query Loop renders and after `title`. | Same as `main`. | **Extension output:** same as `main`<br>**Probe** `post.s0`: queried P1 (482) → none, singular true → false<br>**Probe** `post.s1`: queried P1 (482) → none, singular true → false<br>**Probe** `post.s2`: queried P1 (482) → none, singular true → false |

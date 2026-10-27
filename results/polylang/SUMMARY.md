@@ -2,7 +2,7 @@
 
 Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.com/wp-graphql/wp-graphql/pull/4575). See the [README](../../README.md) for what the change is, the builds compared, and how to run these queries yourself.
 
-6 queries. Against `main`: **node-context** (#4575 as it stands) has 5 identical, 1 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 5 identical, 1 probe only, 0 with changed extension output.
+6 queries. Compared with `main`, **#4575** (`node-context`) changed extension output in 0, changed only the probe in 1, and left 5 the same. **The first version of #4575** (`original-pr`) changed extension output in 0, only the probe in 1, and left 5 the same.
 
 ## Anything to do?
 
@@ -18,13 +18,20 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 ## Results by query
 
-Each build's responses were captured twice and matched. "Probe only" means the only values that changed are test-only probe fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), which report the current object at a point in the query. Otherwise the cell lists the extension values that changed, as the value on `main` → the value on that build. The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), the queries in [`queries/polylang/`](../../queries/polylang), and the fixture IDs they used in [`polylang.ids`](../polylang.ids).
+Each build's responses were captured twice and matched. Each cell compares that build's response with `main`'s for the same query:
 
-| Query | What it checks | node-context vs `main` | original-pr vs `main` |
+- **Same as `main`**: every value in the response is identical.
+- **Extension output**: values from the extension's own fields that differ, as the value on `main` → the value on that build. Long values show the part around the first difference.
+- **Probe**: test-only fields from [`probe/`](../../probe/zz-ext-matrix-probe.php), selected at a point in the query, that report what WordPress treats as current there: `post` is the global `$post`, `queried` the main query's queried object, `product` WooCommerce's global `$product`, `authordata` the global `$authordata`, and `singular`, `tax`, `isProduct` and the like are conditional tags. They aren't extension output; they show what an extension reading the current object would see. Inside a node the right answer is that node. At the root, after the nodes, it's whatever was current before the query, which on these requests is nothing (`none`).
+- Fixture names such as `EN1`, `FI1`, `DE1` are the ones in [`polylang.ids`](../polylang.ids), shown with their IDs.
+
+The responses are in [`main/`](main), [`original-pr/`](original-pr) and [`node-context/`](node-context), and the queries in [`queries/polylang/`](../../queries/polylang).
+
+| Query | What it checks | #4575 (`node-context`) | First version of #4575 (`original-pr`) |
 | --- | --- | --- | --- |
-| `pll-a-single-language-translations` | one post's `language`, `translations` and `translation(language: FI)`. | identical | identical |
-| `pll-b-list-nine` | nine posts across three languages in a list, each with `language` and `translations`. | identical | identical |
-| `pll-b2-language-filters` | `language`/`languages` where-args on posts, content nodes and categories. | identical | identical |
-| `pll-c-nested-translation-then-parent` | a translation nested under its post (with its categories and their translations), then the parent's own fields. | identical | identical |
-| `pll-d-before-after-model-fields` | the same post with language fields before and after `title`, after another post resolved. | identical | identical |
-| `pll-e-root-after-node` | root `defaultLanguage`, `languages` and `translateString` after a post, plus `debugLateObject`. | probe only | probe only |
+| `pll-a-single-language-translations` | one post's `language`, `translations` and `translation(language: FI)`. | Same as `main`. | Same as `main`. |
+| `pll-b-list-nine` | nine posts across three languages in a list, each with `language` and `translations`. | Same as `main`. | Same as `main`. |
+| `pll-b2-language-filters` | `language`/`languages` where-args on posts, content nodes and categories. | Same as `main`. | Same as `main`. |
+| `pll-c-nested-translation-then-parent` | a translation nested under its post (with its categories and their translations), then the parent's own fields. | Same as `main`. | Same as `main`. |
+| `pll-d-before-after-model-fields` | the same post with language fields before and after `title`, after another post resolved. | Same as `main`. | Same as `main`. |
+| `pll-e-root-after-node` | root `defaultLanguage`, `languages` and `translateString` after a post, plus `debugLateObject`. | **Extension output:** same as `main`<br>**Probe** `lateObj`: post FI2 (523) → none, queried FI2 (523) → none, singular true → false | **Extension output:** same as `main`<br>**Probe** `lateObj`: queried FI2 (523) → none, singular true → false |
