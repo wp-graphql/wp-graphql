@@ -8,7 +8,7 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 **No changes needed** for WooGraphQL's own fields, whose output is identical on `main` and with #4575.
 
-Worth considering: WPGraphQL doesn't know about the global `$product`, so it isn't restored when resolution leaves a nested product (variations, related or upsell products), and code from other plugins that reads `$product` can see the inner product for the outer product's later fields. On `main`, the outer product's next model field set it up again, which happened to put `$product` back. [IDEAS.md](../../IDEAS.md), "WPGraphQL WooCommerce: restoring `$product`", shows the fix: a filter and a short method in `includes/class-woocommerce.php`. These queries can't show its effect, since WooGraphQL doesn't read `$product`.
+Worth considering: WPGraphQL doesn't know about WooCommerce's global `$product`, so it isn't restored when resolution leaves a product. After the products in a query resolve, `$product` is left on one of them (`woo-q5` and `woo-q7` below: no current post at the root, but `$product` still a product). That's true on `main` too, so it isn't new, and WooGraphQL's own fields don't read `$product`. Code from other plugins that reads `$product` outside a product's part of the query would see it. [IDEAS.md](../../IDEAS.md), "WPGraphQL WooCommerce: restoring `$product`", shows the fix: a filter and a short method in `includes/class-woocommerce.php`. I ran these queries with that filter, and the root probes reported no `$product`, with nothing else changing.
 
 ## Findings
 

@@ -45,7 +45,7 @@ The corrected values, which no issue we could find had reported:
 
 Not tested: WPGraphQL for Gravity Forms (paid base plugin), authenticated requests (previews, restricted fields), multisite, and other PHP and WordPress versions.
 
-[IDEAS.md](IDEAS.md) has some ideas for how particular extensions could build on node context, including the WooCommerce `$product` global, which these queries can't show because WooGraphQL's own fields don't read it.
+[IDEAS.md](IDEAS.md) has some ideas for how particular extensions could build on node context, including restoring WooCommerce's `$product` global, which the WooCommerce probes show is left on a product after the query's products resolve.
 
 ## Environment
 

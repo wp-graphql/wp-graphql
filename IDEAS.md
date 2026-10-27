@@ -10,7 +10,7 @@ The node context APIs these use:
 
 ## WPGraphQL WooCommerce: restoring `$product`
 
-WooCommerce hooks `wc_setup_product_data()` onto the `the_post` action, in its `includes/wc-template-functions.php`. When WPGraphQL sets up a post, `the_post` fires, and that function sets the global `$product` for a product, or unsets it for a post that isn't one. WPGraphQL restores the post data globals when resolution leaves a node, but it doesn't know about `$product`. So after a nested product resolves (a variable product's `variations`, or its `related` or `upsell` products), `$post` and the main query go back to the outer product, but `$product` stays on the inner one, and code that reads `$product` (a price or stock filter from another plugin, a WooCommerce template function) sees the wrong product for the outer product's later fields. WooGraphQL's own fields don't read `$product`, which is why its responses in [`results/woo/`](results/woo/SUMMARY.md) are unaffected.
+WooCommerce hooks `wc_setup_product_data()` onto the `the_post` action, in its `includes/wc-template-functions.php`. When WPGraphQL sets up a post, `the_post` fires, and that function sets the global `$product` for a product, or unsets it for a post that isn't one. WPGraphQL restores the post data globals when resolution leaves a node, but it doesn't know about `$product`, so `$product` stays on the last product set up. In `woo-q5` and `woo-q7` ([`results/woo/`](results/woo/SUMMARY.md)), the late root probe reports no current post, but `$product` still on a product. That isn't new: on `main`, `$product` is left on whichever product was set up last too. WooGraphQL's own fields don't read `$product`, so its responses are unaffected. Code from other plugins that reads `$product` outside a product's part of the query is what would see the leftover product.
 
 Where the fix could go: WPGraphQL WooCommerce 1.0.3 registers its WooCommerce-related hooks in `WooCommerce::init()`, in `includes/class-woocommerce.php` (namespace `WPGraphQL\WooCommerce`). That method currently adds filters such as `woocommerce_session_handler`, `retrieve_password_message` and `wc_order_attribution_origin_label`. A sketch of the addition:
 
@@ -41,7 +41,9 @@ public static function restore_global_product( $globals, $model ) {
 }
 ```
 
-It's harmless on WPGraphQL versions without node context, which never apply the filter, so no version check is needed. With it, any field under a product, including nested objects, can also call WooCommerce template functions that read `$product`.
+It's harmless on WPGraphQL versions without node context, which never apply the filter, so no version check is needed. I ran the WooCommerce queries with this filter on the `node-context` build: the late root probe in `woo-q5` and `woo-q7` reported no `$product`, and nothing else in the 10 responses changed.
+
+One thing it doesn't cover: WooCommerce's `[products]` shortcode loop restores `$post` when it finishes but leaves `$product` on the last product it rendered, for the rest of the product whose field ran it (`woo-q4c`, on every build). That's inside the shortcode, not something WPGraphQL sets up.
 
 ## WPGraphQL for Rank Math: less duplicated setup
 
