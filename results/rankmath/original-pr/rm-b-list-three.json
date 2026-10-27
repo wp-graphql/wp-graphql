@@ -3,7 +3,7 @@
     "posts": {
       "nodes": [
         {
-          "databaseId": 302,
+          "databaseId": 529,
           "seo": {
             "breadcrumbs": [
               {
@@ -13,23 +13,23 @@
                 "text": "[ext-matrix] Child Cat"
               },
               {
-                "text": "[ext-matrix] RM Alpha"
+                "text": "Alpha Crumb"
               }
             ],
             "canonicalUrl": "http://localhost:8888/ext-matrix-rm-alpha/",
             "jsonLd": {
-              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/\",\"name\":\"[ext-matrix] Child Cat\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/\",\"name\":\"[ext-matrix] RM Alpha\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-alpha/\",\"name\":\"[ext-matrix] RM Alpha - wp-graphql\",\"datePublished\":\"2026-10-24T00:22:19+00:00\",\"dateModified\":\"2026-10-24T00:22:19+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/extmx-rmauthor/\",\"name\":\"[ext-matrix] RM Author\",\"url\":\"http://localhost:8888/author/extmx-rmauthor/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/078bd547fd5dae96a88e3d8d8c5279d4c797f91c2fed56485cab7c45afe68b7a?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/078bd547fd5dae96a88e3d8d8c5279d4c797f91c2fed56485cab7c45afe68b7a?s=96&amp;d=mm&amp;r=g\",\"caption\":\"[ext-matrix] RM Author\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"https://twitter.com/extmxrmauthor\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] RM Alpha - wp-graphql\",\"datePublished\":\"2026-10-24T00:22:19+00:00\",\"dateModified\":\"2026-10-24T00:22:19+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/extmx-rmauthor/\",\"name\":\"[ext-matrix] RM Author\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Alpha body\",\"name\":\"[ext-matrix] RM Alpha - wp-graphql\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\"}}]}</script>\n"
+              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/extmx-parent-cat/extmx-child-cat/\",\"name\":\"[ext-matrix] Child Cat\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/\",\"name\":\"Alpha Crumb\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-alpha/\",\"name\":\"[ext-matrix] Alpha SEO Title\",\"datePublished\":\"2026-10-26T22:24:47+00:00\",\"dateModified\":\"2026-10-26T22:24:47+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/extmx-rmauthor/\",\"name\":\"[ext-matrix] RM Author\",\"url\":\"http://localhost:8888/author/extmx-rmauthor/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/078bd547fd5dae96a88e3d8d8c5279d4c797f91c2fed56485cab7c45afe68b7a?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/078bd547fd5dae96a88e3d8d8c5279d4c797f91c2fed56485cab7c45afe68b7a?s=96&amp;d=mm&amp;r=g\",\"caption\":\"[ext-matrix] RM Author\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"https://twitter.com/extmxrmauthor\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] Alpha SEO Title\",\"keywords\":\"alpha,kw\",\"datePublished\":\"2026-10-26T22:24:47+00:00\",\"dateModified\":\"2026-10-26T22:24:47+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/extmx-rmauthor/\",\"name\":\"[ext-matrix] RM Author\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Alpha meta description\",\"name\":\"[ext-matrix] Alpha SEO Title\",\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-alpha/#webpage\"}}]}</script>\n"
             },
             "seoScore": {
               "badgeHtml": null,
-              "score": 0
+              "score": 81
             },
-            "title": "[ext-matrix] RM Alpha - wp-graphql"
+            "title": "[ext-matrix] Alpha SEO Title"
           },
           "title": "[ext-matrix] RM Alpha"
         },
         {
-          "databaseId": 303,
+          "databaseId": 530,
           "seo": {
             "breadcrumbs": [
               {
@@ -44,7 +44,7 @@
             ],
             "canonicalUrl": "http://localhost:8888/ext-matrix-rm-beta/",
             "jsonLd": {
-              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/uncategorized/\",\"name\":\"Uncategorized\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/\",\"name\":\"Beta Crumb\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-beta/\",\"name\":\"[ext-matrix] Beta SEO Title\",\"datePublished\":\"2026-10-24T00:22:20+00:00\",\"dateModified\":\"2026-10-24T00:22:20+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\",\"url\":\"http://localhost:8888/author/admin/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"caption\":\"admin\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"http://localhost:8888\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] Beta SEO Title\",\"datePublished\":\"2026-10-24T00:22:20+00:00\",\"dateModified\":\"2026-10-24T00:22:20+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Beta meta description\",\"name\":\"[ext-matrix] Beta SEO Title\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\"}}]}</script>\n"
+              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/uncategorized/\",\"name\":\"Uncategorized\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/\",\"name\":\"Beta Crumb\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-beta/\",\"name\":\"[ext-matrix] Beta SEO Title\",\"datePublished\":\"2026-10-26T22:24:49+00:00\",\"dateModified\":\"2026-10-26T22:24:49+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\",\"url\":\"http://localhost:8888/author/admin/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"caption\":\"admin\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"http://localhost:8888\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] Beta SEO Title\",\"keywords\":\"alpha,kw\",\"datePublished\":\"2026-10-26T22:24:49+00:00\",\"dateModified\":\"2026-10-26T22:24:49+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Beta meta description\",\"name\":\"[ext-matrix] Beta SEO Title\",\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-beta/#webpage\"}}]}</script>\n"
             },
             "seoScore": {
               "badgeHtml": null,
@@ -55,7 +55,7 @@
           "title": "[ext-matrix] RM Beta"
         },
         {
-          "databaseId": 304,
+          "databaseId": 531,
           "seo": {
             "breadcrumbs": [
               {
@@ -70,7 +70,7 @@
             ],
             "canonicalUrl": "http://localhost:8888/ext-matrix-rm-gamma/",
             "jsonLd": {
-              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/uncategorized/\",\"name\":\"Uncategorized\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/\",\"name\":\"Gamma Crumb\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-gamma/\",\"name\":\"[ext-matrix] Gamma SEO Title\",\"datePublished\":\"2026-10-24T00:22:21+00:00\",\"dateModified\":\"2026-10-24T00:22:21+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\",\"url\":\"http://localhost:8888/author/admin/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"caption\":\"admin\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"http://localhost:8888\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] Gamma SEO Title\",\"datePublished\":\"2026-10-24T00:22:21+00:00\",\"dateModified\":\"2026-10-24T00:22:21+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Gamma meta description\",\"name\":\"[ext-matrix] Gamma SEO Title\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\"}}]}</script>\n"
+              "raw": "<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"http://localhost:8888/#person\",\"name\":\"wp-graphql\"},{\"@type\":\"WebSite\",\"@id\":\"http://localhost:8888/#website\",\"url\":\"http://localhost:8888\",\"name\":\"wp-graphql\",\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"inLanguage\":\"en-US\"},{\"@type\":\"BreadcrumbList\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#breadcrumb\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":\"1\",\"item\":{\"@id\":\"http://localhost:8888\",\"name\":\"Home\"}},{\"@type\":\"ListItem\",\"position\":\"2\",\"item\":{\"@id\":\"http://localhost:8888/category/uncategorized/\",\"name\":\"Uncategorized\"}},{\"@type\":\"ListItem\",\"position\":\"3\",\"item\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/\",\"name\":\"Gamma Crumb\"}}]},{\"@type\":\"WebPage\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\",\"url\":\"http://localhost:8888/ext-matrix-rm-gamma/\",\"name\":\"[ext-matrix] Gamma SEO Title\",\"datePublished\":\"2026-10-26T22:24:50+00:00\",\"dateModified\":\"2026-10-26T22:24:50+00:00\",\"isPartOf\":{\"@id\":\"http://localhost:8888/#website\"},\"inLanguage\":\"en-US\",\"breadcrumb\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#breadcrumb\"}},{\"@type\":\"Person\",\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\",\"url\":\"http://localhost:8888/author/admin/\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/be3221a6fac131657111728b4d912a877ec158b123d5db3afef3bd8a59784ece?s=96&amp;d=mm&amp;r=g\",\"caption\":\"admin\",\"inLanguage\":\"en-US\"},\"sameAs\":[\"http://localhost:8888\"]},{\"@type\":\"BlogPosting\",\"headline\":\"[ext-matrix] Gamma SEO Title\",\"keywords\":\"alpha,kw\",\"datePublished\":\"2026-10-26T22:24:50+00:00\",\"dateModified\":\"2026-10-26T22:24:50+00:00\",\"articleSection\":\"[ext-matrix] Child Cat\",\"author\":{\"@id\":\"http://localhost:8888/author/admin/\",\"name\":\"admin\"},\"publisher\":{\"@id\":\"http://localhost:8888/#person\"},\"description\":\"Gamma meta description\",\"name\":\"[ext-matrix] Gamma SEO Title\",\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#richSnippet\",\"isPartOf\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"http://localhost:8888/ext-matrix-rm-gamma/#webpage\"}}]}</script>\n"
             },
             "seoScore": {
               "badgeHtml": null,
@@ -84,6 +84,26 @@
     }
   },
   "errors": [
+    {
+      "extensions": {
+        "debugMessage": "str_replace(): Argument #3 ($subject) must be of type array|string, int given"
+      },
+      "locations": [
+        {
+          "column": 102,
+          "line": 5
+        }
+      ],
+      "message": "Internal server error",
+      "path": [
+        "posts",
+        "nodes",
+        0,
+        "seo",
+        "seoScore",
+        "badgeHtml"
+      ]
+    },
     {
       "extensions": {
         "debugMessage": "str_replace(): Argument #3 ($subject) must be of type array|string, int given"

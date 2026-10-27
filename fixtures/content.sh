@@ -1,11 +1,11 @@
 #!/bin/zsh
-# Group A fixtures: Content Blocks + Faust + ACF canaries. Run against a test site with WP-CLI.
+# Group A fixtures: Content Blocks + Faust + ACF canaries. Run through bin/setup.sh.
 # WP-CLI against the test site. Set WP to override (it can include arguments), e.g. WP="wp --path=/srv/site".
 W=(${=WP:-wp})
 F=$(cd "$(dirname "$0")" && pwd)
 IDS=$F/content.ids
 : > $IDS
-rec() { echo "$1=$3" >> $IDS; echo "$2 $3 content:$1" >> $F/created-ids.txt; }
+rec() { echo "$1=$3" >> $IDS; }
 
 # ---- Content Blocks ----
 HOSTCAT=$($W term create category "[ext-matrix] Host Cat" --slug=extmx-host-cat --porcelain); rec HOSTCAT term $HOSTCAT
@@ -33,7 +33,6 @@ P2=$($W post create --post_title="[ext-matrix] Second P2" --post_status=publish 
 P3=$($W post create --post_title="[ext-matrix] Third P3" --post_status=publish --post_date="2001-01-03 00:00:00" --post_category=$CAT3 --post_content='<!-- wp:post-title {"level":2} /--><!-- wp:post-terms {"term":"category"} /-->' --porcelain); rec P3 post $P3
 
 # ---- Faust ----
-$W eval '$i=imagecreatetruecolor(40,30); imagefill($i,0,0,imagecolorallocate($i,30,90,160)); imagepng($i,"/tmp/extmx.png");'
 FU=$($W user create extmx-fauthor extmx-fauthor@example.com --role=author --display_name="[ext-matrix] F Author" --porcelain); rec FU user $FU
 FA=$($W post create --post_title='[ext-matrix] Alpha' --post_name=extmx-alpha --post_status=publish --post_author=$FU --post_content='<a href="http://localhost:8888/extmx-beta/">beta</a> <img src="http://localhost:8888/wp-content/uploads/x.png">' --porcelain); rec FA post $FA
 FB=$($W post create --post_title='[ext-matrix] Beta' --post_name=extmx-beta --post_status=publish --porcelain); rec FB post $FB
@@ -44,8 +43,8 @@ FCAT2=$($W term create category "[ext-matrix] Events" --slug=extmx-events --porc
 FCAT3=$($W term create category "[ext-matrix] Guides" --slug=extmx-guides --porcelain); rec FCAT3 term $FCAT3
 $W post term set $FA category $FCAT1 $FCAT2 $FCAT3 --by=id
 FMEDIA=$($W media import /tmp/extmx.png --post_id=$FA --title='[ext-matrix] Alpha image' --featured_image --porcelain); rec FMEDIA post $FMEDIA
-$W option update sticky_posts "[$FB]" --format=json      # restore to [] at the end
-$W option patch insert faustwp_settings frontend_uri http://localhost:3000   # restore at the end
+$W option update sticky_posts "[$FB]" --format=json
+$W option patch insert faustwp_settings frontend_uri http://localhost:3000
 
 # ---- ACF canaries (field groups are local, in the probe mu-plugin) ----
 AP1=$($W post create --post_title='[ext-matrix] ACF Post One' --post_status=publish --post_date="2001-02-01 00:00:00" --porcelain); rec AP1 post $AP1
@@ -65,7 +64,6 @@ for P in $AP1 $AP2 $AP3; do
 done
 $W eval "update_field( 'field_extmx_term_body', '[gallery]', 'term_$ACAT' ); update_field( 'field_extmx_user_body', '[gallery]', 'user_$AU' );"
 $W eval "update_field( 'field_extmx_site_body', \"<p>Options</p>\n[gallery]\", 'options' );"
-echo "option options_extmx_site_body (ACF options value) content:ACF" >> $F/created-ids.txt
 cat $IDS
 # (added) give the Faust media item a description so MediaItem.description renders through the_content
 $W post update $FMEDIA --post_content='[ext-matrix] media description'

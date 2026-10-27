@@ -1,10 +1,10 @@
 {
   "data": {
     "product": {
-      "databaseId": 313,
+      "databaseId": 513,
       "description": null,
       "price": "$20.00",
-      "probeGlobals": "{\"post\":313,\"product\":313,\"queried\":313,\"isProduct\":true}",
+      "probeGlobals": "{\"post\":513,\"product\":513,\"queried\":513,\"isProduct\":true}",
       "regularPrice": "20",
       "salePrice": null,
       "shortDescription": ""

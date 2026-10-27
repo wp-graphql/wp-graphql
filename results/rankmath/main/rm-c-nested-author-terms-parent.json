@@ -40,15 +40,15 @@
             "text": "[ext-matrix] Child Cat"
           },
           {
-            "text": "[ext-matrix] RM Alpha"
+            "text": "Alpha Crumb"
           }
         ],
         "canonicalUrl": "http://localhost:8888/ext-matrix-rm-alpha/",
-        "title": "[ext-matrix] RM Alpha - wp-graphql"
+        "title": "[ext-matrix] Alpha SEO Title"
       },
       "author": {
         "node": {
-          "databaseId": 17,
+          "databaseId": 31,
           "seo": {
             "breadcrumbs": [
               {
@@ -66,7 +66,7 @@
       "categories": {
         "nodes": [
           {
-            "databaseId": 237,
+            "databaseId": 319,
             "seo": {
               "breadcrumbs": [
                 {
@@ -84,7 +84,7 @@
         ]
       },
       "seo": {
-        "title": "[ext-matrix] RM Alpha - wp-graphql"
+        "title": "[ext-matrix] Alpha SEO Title"
       }
     }
   }

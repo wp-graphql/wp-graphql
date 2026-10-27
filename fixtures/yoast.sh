@@ -2,7 +2,7 @@
 # Group B fixtures: Yoast SEO + WPGraphQL for Yoast. CPTs book/movie + taxonomy genre are registered by the probe mu-plugin.
 # WP-CLI against the test site. Set WP to override (it can include arguments), e.g. WP="wp --path=/srv/site".
 W=(${=WP:-wp}); F=$(cd "$(dirname "$0")" && pwd); IDS=$F/yoast.ids; : > $IDS
-rec() { echo "$1=$3" >> $IDS; echo "$2 $3 yoast:$1" >> $F/created-ids.txt; }
+rec() { echo "$1=$3" >> $IDS; }
 ALICE=$($W user create extmx-alice extmx-alice@example.com --role=author --display_name="[ext-matrix] Alice Author" --porcelain); rec ALICE user $ALICE
 BOB=$($W user create extmx-bob extmx-bob@example.com --role=author --display_name="[ext-matrix] Bob Builder" --porcelain); rec BOB user $BOB
 IMG1=$($W media import /tmp/extmx.png --title="[ext-matrix] Image One" --porcelain); rec IMG1 post $IMG1
@@ -24,11 +24,9 @@ FRONT=$($W post create --post_type=page --post_title="[ext-matrix] Home Page" --
 BLOG=$($W post create --post_type=page --post_title="[ext-matrix] Blog" --post_status=publish --porcelain); rec BLOG post $BLOG
 PARENT=$($W post create --post_type=page --post_title="[ext-matrix] Parent" --post_status=publish --porcelain); rec PARENT post $PARENT
 CHILD=$($W post create --post_type=page --post_title="[ext-matrix] Child" --post_parent=$PARENT --post_status=publish --porcelain); rec CHILD post $CHILD
-# Reading settings: restore from reading-settings.orig at the end (show_on_front=posts, page_on_front=0, page_for_posts=0)
 $W option update show_on_front page
 $W option update page_on_front $FRONT
 $W option update page_for_posts $BLOG
-$W option get wpseo_titles --format=json > $F/wpseo_titles.orig.json
 $W option patch update wpseo_titles breadcrumbs-enable true --format=json
 $W option patch update wpseo_titles breadcrumbs-display-blog-page true --format=json
 $W rewrite flush

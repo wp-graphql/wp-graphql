@@ -10,7 +10,7 @@
           "name": "[ext-matrix] Events",
           "templates": [
             "category-extmx-news",
-            "category-229",
+            "category-299",
             "category",
             "archive",
             "index"
@@ -24,7 +24,7 @@
           "name": "[ext-matrix] Guides",
           "templates": [
             "category-extmx-events",
-            "category-230",
+            "category-300",
             "category",
             "archive",
             "index"
@@ -38,7 +38,7 @@
           "name": "[ext-matrix] News",
           "templates": [
             "category-extmx-guides",
-            "category-231",
+            "category-301",
             "category",
             "archive",
             "index"

@@ -5,7 +5,7 @@
 # those are recorded by diffing term ids before/after.
 # WP-CLI against the test site. Set WP to override (it can include arguments), e.g. WP="wp --path=/srv/site".
 W=(${=WP:-wp}); F=$(cd "$(dirname "$0")" && pwd); IDS=$F/polylang.ids; : > $IDS
-rec() { echo "$1=$3" >> $IDS; echo "$2 $3 polylang:$1" >> $F/created-ids.txt; }
+rec() { echo "$1=$3" >> $IDS; }
 $W eval 'foreach ([["en_US","en","English",0],["fi","fi","Suomi",1],["de_DE","de","Deutsch",2]] as $l) { $r = PLL()->model->languages->add(["locale"=>$l[0],"slug"=>$l[1],"name"=>$l[2],"term_group"=>$l[3]]); if (is_wp_error($r)) { echo $r->get_error_message(), "\n"; } }'
 for N in 1 2 3; do
   EN=$($W post create --post_title="[ext-matrix] PLL Post $N EN" --post_status=publish --porcelain); rec EN$N post $EN

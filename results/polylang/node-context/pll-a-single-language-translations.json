@@ -15,14 +15,14 @@
       },
       "translations": [
         {
-          "databaseId": 320,
+          "databaseId": 520,
           "language": {
             "code": "FI"
           },
           "title": "[ext-matrix] PLL Post 1 FI"
         },
         {
-          "databaseId": 321,
+          "databaseId": 521,
           "language": {
             "code": "DE"
           },

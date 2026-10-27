@@ -7,8 +7,8 @@
       "cartItem": {
         "product": {
           "node": {
-            "databaseId": 313,
-            "probeGlobals": "{\"post\":313,\"product\":313,\"queried\":313,\"isProduct\":true}"
+            "databaseId": 513,
+            "probeGlobals": "{\"post\":513,\"product\":513,\"queried\":513,\"isProduct\":true}"
           }
         },
         "quantity": 1
