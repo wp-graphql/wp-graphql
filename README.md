@@ -20,7 +20,9 @@ To test a build yourself, install WPGraphQL from that commit or the PR branch (t
 
 ## Results
 
-85 queries in 8 groups, each run twice per build (both runs matched). Every group's `results/<group>/SUMMARY.md` lists each query and exactly which values differ from `main`.
+85 queries in 8 groups, each run twice per build (both runs matched). Each extension's `results/<group>/SUMMARY.md` opens with its findings: what in the extension reads the current object (with file and line references), what was right and wrong on `main` and why, what's different with #4575, what the first version of #4575 got wrong, and whether the maintainer needs to do anything. Below that, a table lists every query, what it checks, and exactly which values differ from `main`.
+
+[ACF](results/acf/SUMMARY.md) · [Content Blocks](results/content-blocks/SUMMARY.md) · [Faust](results/faust/SUMMARY.md) · [Yoast SEO](results/yoast/SUMMARY.md) · [Rank Math](results/rankmath/SUMMARY.md) · [WooCommerce](results/woo/SUMMARY.md) · [Polylang](results/polylang/SUMMARY.md) · [Headless Login](results/headless-login/SUMMARY.md)
 
 | Extension | Version | Queries | `node-context` vs `main` |
 | --- | --- | --- | --- |
@@ -86,6 +88,8 @@ IDEAS.md            ideas for building on node context in existing extensions
 ## Notes
 
 - **Normalized noise:** WooCommerce quantity input IDs, WooCommerce's shuffled "Related products" (replaced by the sorted list of product IDs) and Headless Login tokens. `normalize.py` is safe to run more than once.
+- **The `debugGlobalsLate` probe** takes its snapshot inside a bare, unbound `Deferred` callback at the root of the query. That callback runs after the nodes' fields, so it still reports a leftover node on every build, including `node-context`. That's the case `graphql_bind_node_context()` exists for (see "Deferred resolvers" in the docs): a callback that needs a node's context should be bound in the resolver that creates it. The `debugLateObject` probe, which reads the state from a field resolved late instead, reports no current object on `node-context`.
+- **The test site was shared across groups**, so content one plugin created on its own can show up in another group's results. For example, WooCommerce's placeholder image appears among the unattached media in some ACF gallery responses on `node-context`.
 - **Rank Math `seoScore.badgeHtml`** returns an error on every build, including `main`: the resolver passes `rank_math_get_seo_score()`'s return value to `str_replace()`, which fails on PHP 8 when that value is an integer. It's unrelated to this change.
 - **Content Blocks and query loops:** our early research predicted a Query Loop block could leave the global post on the loop's last post for later blocks. On WordPress 7.0 that doesn't happen on any build, because `WP_Block::render()` restores `$post` around each dynamic block.
 - **zsh:** the scripts are zsh. One fixture bug we hit: in zsh, `"$P1:Alpha"` applies the `:A` path modifier to `$P1`, so the scripts use braces (`"${P1}:Alpha"`).

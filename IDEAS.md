@@ -10,26 +10,38 @@ The node context APIs these use:
 
 ## WPGraphQL WooCommerce: restoring `$product`
 
-WooCommerce sets the global `$product` on the `the_post` action (`wc_setup_product_data()`), so WPGraphQL sets it whenever it sets up a product. Nothing resets it when resolution leaves the product, though, and WPGraphQL doesn't know about it. After a nested product resolves (a variable product's `variations`, `related` or `upsell` products), `$post` and the main query go back to the outer product, but `$product` stays on the inner one. WooGraphQL's own fields don't read `$product`, so its responses are unaffected, but code that does (a price or stock filter from another plugin, say) can see the wrong product for the outer product's later fields.
+WooCommerce hooks `wc_setup_product_data()` onto the `the_post` action, in its `includes/wc-template-functions.php`. When WPGraphQL sets up a post, `the_post` fires, and that function sets the global `$product` for a product, or unsets it for a post that isn't one. WPGraphQL restores the post data globals when resolution leaves a node, but it doesn't know about `$product`. So after a nested product resolves (a variable product's `variations`, or its `related` or `upsell` products), `$post` and the main query go back to the outer product, but `$product` stays on the inner one, and code that reads `$product` (a price or stock filter from another plugin, a WooCommerce template function) sees the wrong product for the outer product's later fields. WooGraphQL's own fields don't read `$product`, which is why its responses in [`results/woo/`](results/woo/SUMMARY.md) are unaffected.
 
-Adding `product` to the restored globals fixes that:
+Where the fix could go: WPGraphQL WooCommerce 1.0.3 registers its WooCommerce-related hooks in `WooCommerce::init()`, in `includes/class-woocommerce.php` (namespace `WPGraphQL\WooCommerce`). That method currently adds filters such as `woocommerce_session_handler`, `retrieve_password_message` and `wc_order_attribution_origin_label`. A sketch of the addition:
 
 ```php
-add_filter(
-	'graphql_model_node_context_globals',
-	static function ( $globals, $model ) {
-		if ( is_array( $globals ) && $model instanceof \WPGraphQL\Model\Post ) {
-			$globals[] = 'product';
-		}
-
-		return $globals;
-	},
-	10,
-	2
-);
+// includes/class-woocommerce.php, in WooCommerce::init(), alongside the other add_filter() calls:
+add_filter( 'graphql_model_node_context_globals', [ self::class, 'restore_global_product' ], 10, 2 );
 ```
 
-It's harmless on WPGraphQL versions without node context, which never apply the filter. With it, any field under a product, including nested objects, can also call WooCommerce template functions that read `$product`.
+```php
+// includes/class-woocommerce.php, a new method on the WooCommerce class:
+
+/**
+ * Adds the global $product to the globals WPGraphQL restores when resolution leaves a post.
+ *
+ * @param mixed                  $globals The names of the globals WPGraphQL restores.
+ * @param \WPGraphQL\Model\Model $model   The model being set up.
+ *
+ * @return mixed
+ */
+public static function restore_global_product( $globals, $model ) {
+	// Every post, not only products: wc_setup_product_data() also unsets $product when a post that
+	// isn't a product is set up, so that needs undoing too.
+	if ( is_array( $globals ) && $model instanceof \WPGraphQL\Model\Post ) {
+		$globals[] = 'product';
+	}
+
+	return $globals;
+}
+```
+
+It's harmless on WPGraphQL versions without node context, which never apply the filter, so no version check is needed. With it, any field under a product, including nested objects, can also call WooCommerce template functions that read `$product`.
 
 ## WPGraphQL for Rank Math: less duplicated setup
 
