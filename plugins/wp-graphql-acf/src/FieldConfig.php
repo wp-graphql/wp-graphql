@@ -358,6 +358,9 @@ class FieldConfig {
 			'taxonomy',
 			'user',
 			'link',
+			'date_picker',
+			'date_time_picker',
+			'time_picker',
 		];
 
 		return in_array( $field_type, $types_to_resolve_raw, true );
@@ -674,15 +677,7 @@ class FieldConfig {
 			$value = \apply_filters( 'the_content', $value );
 		}
 
-		if ( ! empty( $acf_field_config['type'] ) && in_array(
-			$acf_field_config['type'],
-			[
-				'date_picker',
-				'time_picker',
-				'date_time_picker',
-			],
-			true
-		) ) {
+		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
 			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
 				$value = gmdate( $acf_field_config['return_format'], strtotime( $value ) );
 			}
