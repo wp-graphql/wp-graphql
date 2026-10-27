@@ -4,6 +4,10 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 11 queries. Against `main`: **node-context** (#4575 as it stands) has 4 identical, 0 changed only in test probe fields, 7 with changed extension output; **original-pr** (the first version of #4575) has 2 identical, 0 probe only, 9 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** `templates` and `conditionalTags` now describe the node they're selected under, with no change to Faust. On `main` they described the previous node in lists, a page read after a post, and the site root. See [IDEAS.md](../../IDEAS.md), "Faust and WPGraphQL Content Blocks: correct results with no changes".
+
 ## Findings
 
 **What in the extension reads the current object.** Both resolvers ignore `$root`, and both live in `includes/graphql/callbacks.php` (Faust 1.9.0):
@@ -24,8 +28,6 @@ Single posts (`faust-a`) and the user under a post (`faust-c`) were already righ
 **After (`node-context`).** Each node's own templates: `single-post-extmx-alpha/beta/gamma` in order, `category-extmx-events`/`guides`/`news`, `page-extmx-about`, and `isSticky: true` for Beta. A ContentType isn't a node, so `nodeByUri(uri: "/")` starts from the request's original state. Faust's `parse_query()` then makes it the home query: `["front-page","home","index"]`, and `isHome`/`isFrontPage` true (`templates` ran first). That is the right hierarchy for `/` with posts on the front page. Content replacement and the mutation are identical.
 
 **First version of #4575 (`original-pr`).** Every node returned `["front-page","home","index"]` (posts, categories, the user, pages). In lists, `isCategory` and `isSingle` were false. The node's state had been restored before `templates` ran.
-
-**Anything to do.** Nothing. See [IDEAS.md](../../IDEAS.md), "Faust and WPGraphQL Content Blocks: correct results with no changes".
 
 ## Results by query
 

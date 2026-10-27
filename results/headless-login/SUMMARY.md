@@ -4,6 +4,10 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 3 queries. Against `main`: **node-context** (#4575 as it stands) has 2 identical, 1 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 2 identical, 1 probe only, 0 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** Extension output is identical on `main` and with #4575.
+
 ## Findings
 
 **What in the extension reads the current object.** Nothing. `User.auth` re-wraps the user from `$source->ID` (`src/Type/WPObject/AuthenticationData.php:42-50`). Token fields check the current user, not the current object (`TokenManager::current_user_can()`, `src/Auth/TokenManager.php:554-570`). The `login` mutation sets the current user (`src/Auth/Auth.php:79`). (Version 0.4.4.)
@@ -11,8 +15,6 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 **What was tested.** A post's author `auth` with `viewer`, and the `login` payload's user with `auth` and with a `posts` connection.
 
 **Results.** Extension output is identical on all builds: `authToken` returned, `isUserSecretRevoked: false`, the user's posts listed, `viewer` null for these guest requests. The only change is the `debugLateObject` probe in `hl-c-nested-author-viewer`: on `main` it reported the post and author (`"post":528`, `"queried":30`), and on `node-context` nothing.
-
-**Anything to do.** Nothing.
 
 ## Results by query
 

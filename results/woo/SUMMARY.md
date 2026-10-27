@@ -4,6 +4,12 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 10 queries. Against `main`: **node-context** (#4575 as it stands) has 6 identical, 4 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 0 identical, 10 probe only, 0 with changed extension output.
 
+## Anything to do?
+
+**No changes needed** for WooGraphQL's own fields, whose output is identical on `main` and with #4575.
+
+Worth considering: WPGraphQL doesn't know about the global `$product`, so it isn't restored when resolution leaves a nested product (variations, related or upsell products), and code from other plugins that reads `$product` can see the inner product for the outer product's later fields. On `main`, the outer product's next model field set it up again, which happened to put `$product` back. [IDEAS.md](../../IDEAS.md), "WPGraphQL WooCommerce: restoring `$product`", shows the fix: a filter and a short method in `includes/class-woocommerce.php`. These queries can't show its effect, since WooGraphQL doesn't read `$product`.
+
 ## Findings
 
 **What in the extension reads the current object.** WooGraphQL's own fields don't read `$post` or `$product` (version 1.0.3, with WooCommerce 10.4.3):
@@ -22,8 +28,6 @@ The product models extend core's Post model (`includes/model/class-wc-post.php:2
 - **Under P3** (`woo-q4c`), on every build, the `[products]` loop restores `$post` but leaves `$product` on P2 (`{"post":515,"product":513}`).
 
 **First version of #4575 (`original-pr`).** No extension values changed. All 10 queries showed probe changes: inside products `is_product()` was false and the queried object 0, and both variations' probes reported P2 (`"post":513`).
-
-**Anything to do.** Nothing for correctness of WooGraphQL's own fields. [IDEAS.md](../../IDEAS.md), "WPGraphQL WooCommerce: restoring `$product`", shows adding `product` to the restored globals with the `graphql_model_node_context_globals` filter. These queries can't show its effect on WooGraphQL output, since WooGraphQL doesn't read `$product`.
 
 ## Results by query
 

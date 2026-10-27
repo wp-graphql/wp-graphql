@@ -4,6 +4,12 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 10 queries. Against `main`: **node-context** (#4575 as it stands) has 8 identical, 2 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 7 identical, 3 probe only, 0 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** Extension output is identical on `main` and with #4575.
+
+Optional: [IDEAS.md](../../IDEAS.md), "WPGraphQL for Rank Math: less duplicated setup", sketches how the SEO models could stop repeating core's setup on WPGraphQL versions with node context. It shows the file, its current code, and a sketch that keeps working on older WPGraphQL versions.
+
 ## Findings
 
 **What in the extension reads the current object.** Every `seo` object is one of the extension's own models (WPGraphQL for Rank Math 0.3.4). They extend `WPGraphQL\Model\Model` through `Seo` (`src/Model/Seo.php:22`), and their `setup()` makes the object current for Rank Math:
@@ -19,8 +25,6 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 **After (`node-context`).** Extension output is identical in all 10 queries, which is expected. Your models don't opt in to node scope (`is_node_scoped()` defaults to false), so core still runs their `setup()` around each field read and restores the main query and post globals afterwards. That's also why the research's predicted regression, two JSON-LD blocks in `fullHead` when `jsonLd` is selected first, didn't occur: `fullHead` has one `application/ld+json` block on every build (`rm-d1`, `rm-d4`). Only probes changed (`rm-e`, `rm-f`), and they now report each post inside its own node and no current post at the root.
 
 **First version of #4575 (`original-pr`).** No extension values changed. Probes inside nodes showed `"queried":null` and `"singular":false`.
-
-**Anything to do.** Nothing required. [IDEAS.md](../../IDEAS.md), "WPGraphQL for Rank Math: less duplicated setup", sketches how the SEO models could skip repeating core's setup on WPGraphQL versions with node context.
 
 `seoScore.badgeHtml` errors on every build, including `main` (`str_replace(): Argument #3 ($subject) must be of type array|string, int given`). `ContentNodeSeo.php:171` passes `rank_math_get_seo_score()`'s integer return to `str_replace()` on PHP 8. That is unrelated to this change.
 

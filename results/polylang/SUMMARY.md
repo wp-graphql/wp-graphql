@@ -4,6 +4,10 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 6 queries. Against `main`: **node-context** (#4575 as it stands) has 5 identical, 1 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 5 identical, 1 probe only, 0 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** Extension output is identical on `main` and with #4575.
+
 ## Findings
 
 **What in the extension reads the current object.** Nothing. The fields use explicit IDs: `language` calls `pll_get_post_language( $post_id )` (`src/PostObject.php:143-151`), and `translation` calls `pll_get_post_translations( $post->ID )` (`:200`), returning a `Model\Post` built directly (`:207-209`). For GraphQL requests the extension puts Polylang in admin context (`src/Loader.php:86-95`), so the current language never comes from the queried object. (Branch snapshot, header 0.7.1, with Polylang 3.9.1.)
@@ -11,8 +15,6 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 **What was tested.** Single, a list of nine posts across three languages, language filters, a translation nested under its post, field order, and root `defaultLanguage`, `languages` and `translateString` after a post.
 
 **Results.** Extension output is identical on all three builds in all 6 queries. For example, `defaultLanguage.homeUrl` is `"http://localhost:8888/"` everywhere, and nested translations keep their own categories. The only change is the `debugLateObject` probe in `pll-e`: on `main` it reported the post (`"post":523`), and on `node-context` there is no current post. That's expected, since nothing here depends on the current object.
-
-**Anything to do.** Nothing.
 
 ## Results by query
 

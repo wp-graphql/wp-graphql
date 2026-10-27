@@ -4,6 +4,10 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 21 queries. Against `main`: **node-context** (#4575 as it stands) has 19 identical, 1 changed only in test probe fields, 1 with changed extension output; **original-pr** (the first version of #4575) has 13 identical, 0 probe only, 8 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** One value is corrected with no change to WPGraphQL for Yoast SEO: after a media item, a custom taxonomy term's `canonical` and `opengraphUrl` read `/graphql/` on `main`, and now read the term's link. Everything else is identical.
+
 ## Findings
 
 **What in the extension reads the current object.** The resolvers call Yoast's surfaces with explicit objects (WPGraphQL for Yoast SEO 5.1.0, wp.org build):
@@ -26,8 +30,6 @@ The research predicted root `seo` would pick up leaked author, post type, image 
 **After (`node-context`).** The genre term link is `http://localhost:8888/genre/extmx-fantasy/` for both fields. The term's part of the query starts from the request's state, not the media item's. Everything else is identical, apart from the probe in `yoast-g`.
 
 **First version of #4575 (`original-pr`).** Every post's `seo` (8 queries) lost its primary image: `thumbnailUrl`, `primaryImageOfPage` and the `ImageObject` were gone from `schema.raw` and `fullHead`. The Blog crumb was dropped too (`"[ext-matrix] Alice Post"` as the second crumb). `seo` isn't a model field, so the post was no longer set up when Yoast ran.
-
-**Anything to do.** Nothing.
 
 ## Results by query
 

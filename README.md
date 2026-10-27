@@ -20,7 +20,7 @@ To test a build yourself, install WPGraphQL from that commit or the PR branch (t
 
 ## Results
 
-85 queries in 8 groups, each run twice per build (both runs matched). Each extension's `results/<group>/SUMMARY.md` opens with its findings: what in the extension reads the current object (with file and line references), what was right and wrong on `main` and why, what's different with #4575, what the first version of #4575 got wrong, and whether the maintainer needs to do anything. Below that, a table lists every query, what it checks, and exactly which values differ from `main`.
+85 queries in 8 groups, each run twice per build (both runs matched). Each extension's `results/<group>/SUMMARY.md` opens with "Anything to do?", whether the extension's maintainer needs to change anything (none do), and any optional ideas. Then its findings: what in the extension reads the current object (with file and line references), what was right and wrong on `main` and why, what's different with #4575, and what the first version of #4575 got wrong. Below that, a table lists every query, what it checks, and exactly which values differ from `main`.
 
 [ACF](results/acf/SUMMARY.md) · [Content Blocks](results/content-blocks/SUMMARY.md) · [Faust](results/faust/SUMMARY.md) · [Yoast SEO](results/yoast/SUMMARY.md) · [Rank Math](results/rankmath/SUMMARY.md) · [WooCommerce](results/woo/SUMMARY.md) · [Polylang](results/polylang/SUMMARY.md) · [Headless Login](results/headless-login/SUMMARY.md)
 

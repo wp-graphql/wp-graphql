@@ -4,6 +4,10 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 11 queries. Against `main`: **node-context** (#4575 as it stands) has 8 identical, 3 changed only in test probe fields, 0 with changed extension output; **original-pr** (the first version of #4575) has 6 identical, 4 probe only, 1 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** Extension output is identical on `main` and with #4575. Blocks already rendered against their own post on `main` in every shape tested, and still do. See [IDEAS.md](../../IDEAS.md), "Faust and WPGraphQL Content Blocks: correct results with no changes".
+
 ## Findings
 
 **What in the extension reads the current object.** Blocks render later, in child fields whose source is a plain block array:
@@ -19,8 +23,6 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 **After (`node-context`).** Extension output is identical in all 11 queries. That's expected, since blocks were already rendering against their own post. Only the root probes changed (`cb-e`, `cb-e2`, `cb-g`), and they now report no current post. The predicted `after` regression in `cb-d` did not occur.
 
 **First version of #4575 (`original-pr`).** In a list (`cb-b`), Host P1's and Second P2's blocks rendered the third post: `"[ext-matrix] Third P3"` and terms `"[ext-matrix] Cat Three"`. The post's state was restored after each model field, so the blocks rendered against whatever post was left current.
-
-**Anything to do.** Nothing. See [IDEAS.md](../../IDEAS.md), "Faust and WPGraphQL Content Blocks: correct results with no changes".
 
 ## Results by query
 

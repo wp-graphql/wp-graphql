@@ -4,6 +4,12 @@ Part of the compatibility tests for [wp-graphql/wp-graphql#4575](https://github.
 
 13 queries. Against `main`: **node-context** (#4575 as it stands) has 3 identical, 0 changed only in test probe fields, 10 with changed extension output; **original-pr** (the first version of #4575) has 12 identical, 1 probe only, 0 with changed extension output.
 
+## Anything to do?
+
+**No changes needed.** WYSIWYG fields now render `[gallery]` with no `ids` against the node the field belongs to, with no change to WPGraphQL for ACF.
+
+One thing to tell site owners: options page, term and user fields used to pick up whichever post resolved before them. They now get WordPress's no-current-post result, unattached media. A site that relied on that, knowingly or not, should pass explicit `ids` to the shortcode.
+
 ## Findings
 
 **What in the extension reads the current object.** Each ACF field resolves in `FieldConfig::resolve_field()` (`src/FieldConfig.php:449`). It gets the node's ID from `Utils::get_node_acf_id()` (`src/Utils.php:24`, which reads `databaseId` for posts at `:44`) and reads the value with `get_field()` and an explicit ID (`:589`). WYSIWYG fields are fetched formatted (`should_format_field_value()`, `:323`), which runs shortcodes. `prepare_acf_field_value()` then applies `the_content` to them (`:673-675`). WordPress's `[gallery]` with no `ids` lists the attachments of `get_post()`, the global post (`gallery_shortcode()`, `wp-includes/media.php`). The field group field returns `['node' => $node, ...]` to its fields (`src/Registry.php:839-846`). Options pages are root fields resolved through a deferred loader (`src/Registry.php:425-433`). Their `AcfOptionsPage` model (`src/Model/AcfOptionsPage.php:22`) has no `setup()`, so it isn't a node.
@@ -20,8 +26,6 @@ Moving the options page first (`acf-e2rev`) didn't help, because its deferred lo
 **After (`node-context`).** Each post's fields see that post: `galleryid-490` for Post One, `galleryid-491` for Post Two, empty for Post Three. Options, term and user fields at the root no longer see an earlier post. They get WordPress's no-current-post result (`galleryid-0`, unattached media, including a `woocommerce-placeholder` image left on the shared test site). That result is the same whatever ran first. A user nested under a post still sees that post (`acf-c2`, identical on all builds).
 
 **First version of #4575 (`original-pr`).** Extension values were identical to `main` in all 13 queries, so it fixed none of these.
-
-**Anything to do.** Nothing. Sites that relied on an options page's `[gallery]` picking up a post will now get unattached media, and can pass explicit `ids`.
 
 ## Results by query
 
