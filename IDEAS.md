@@ -33,27 +33,80 @@ It's harmless on WPGraphQL versions without node context, which never apply the 
 
 ## WPGraphQL for Rank Math: less duplicated setup
 
-The extension's SEO models repeat the matching core model's `setup()` before adding their own state:
+WPGraphQL for Rank Math (0.3.4) gives each node an `seo` field backed by its own models in `src/Model/`. Before those models' fields resolve, each model's `setup()` repeats the matching core model's `setup()` and then adds Rank Math's own state:
 
 - `ContentNodeSeo` repeats the Post model's setup almost line for line: the `parse_query()` call for each post type, the global `$post`, the queried object.
 - `TermNodeSeo` repeats the Term model's, and also adds a filter for Rank Math's replacement variables.
 - `UserSeo` repeats the User model's, and also sets the global `$author`, which core doesn't.
 
-The `seo` field is resolved from its node, so the node is already set up when an SEO model's fields resolve, and only the additions are still needed. A sketch:
+The `seo` field is resolved from its node, so with node context the node is already set up as the current object when an SEO model's fields resolve. Only Rank Math's additions would still be needed. Taking `TermNodeSeo` as the example, here's its `setup()` and `tear_down()` today, abbreviated:
 
 ```php
-// TermNodeSeo, sketched for WPGraphQL versions with node context.
+// src/Model/TermNodeSeo.php in WPGraphQL for Rank Math 0.3.4, abbreviated.
 public function setup(): void {
-	// Rank Math's own addition, still needed.
+	global $wp_query, $post;
+
+	$this->global_post = $post;
+
+	// Rank Math's own addition: this class's non_cacheable_replacements() method (unchanged below)
+	// adds `term_description` to the replacement variables Rank Math shouldn't cache.
 	add_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
 
-	// No parse_query(), global $post or queried object here: the term this SEO object
-	// belongs to is already set up as the current object, because `seo` is selected under it.
+	if ( $this->data instanceof WP_Term ) {
+		// The same as core's Term model: reset the global post, and parse the main query for the
+		// term's archive (category_name, tag, or the taxonomy) and set the queried object.
+		$GLOBALS['post'] = get_post( 0 );
+		$wp_query->parse_query( [ 'category_name' => $this->data->slug ] ); // or tag / taxonomy
+		$wp_query->queried_object_id = $this->data->term_id;
+		$wp_query->queried_object    = $this->data;
+	}
+
+	// Seo::setup(): resets Rank Math's Paper object and its head output for this term.
 	parent::setup();
+}
+
+public function tear_down() {
+	remove_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
+	$GLOBALS['post'] = $this->global_post;
+	wp_reset_postdata();
 }
 ```
 
-`UserSeo` would keep setting `$author`, and could add `author` to the restored globals with the filter instead of restoring it in `tear_down()`. The models would still be set up around each of their fields (they don't need `is_node_scoped()`), because the parent `setup()` resets Rank Math's head output before each field. Reading an SEO model's fields from anywhere other than under its node would need the old setup, so this only fits code paths that always resolve the model through the `seo` field.
+A sketch of the same methods on WPGraphQL versions with node context, keeping the old path for older versions (`graphql_bind_node_context()` only exists from 2.27.0, so it works as a version check):
+
+```php
+public function setup(): void {
+	add_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
+
+	if ( ! function_exists( 'graphql_bind_node_context' ) ) {
+		// Older WPGraphQL: set the term up as the current object here, as today.
+		// The `$this->global_post = $post;` line and the `if ( $this->data instanceof WP_Term )`
+		// block above, moved into a method of their own.
+		$this->setup_term_globals();
+	}
+
+	// On WPGraphQL 2.27.0 and later there's nothing to set up for the term itself: `seo` is
+	// selected under the term, so WPGraphQL already has it set up as the current object, and
+	// restores the globals afterwards.
+	parent::setup();
+}
+
+public function tear_down() {
+	remove_filter( 'rank_math/replacements/non_cacheable', [ $this, 'non_cacheable_replacements' ] );
+
+	if ( ! function_exists( 'graphql_bind_node_context' ) ) {
+		$GLOBALS['post'] = $this->global_post;
+		wp_reset_postdata();
+	}
+}
+```
+
+The same shape would apply to `ContentNodeSeo` (which has no additions of its own to keep) and `UserSeo` (which would keep setting `$author`, and could add `author` to the restored globals with the `graphql_model_node_context_globals` filter instead of restoring it in `tear_down()`).
+
+A few things that stay as they are:
+
+- **The models are still set up around each of their fields.** They don't opt in to node scope with `is_node_scoped()`, because `Seo::setup()` resets Rank Math's head output before each field, which fields like `fullHead` rely on.
+- **This only fits the `seo` field.** Reading an SEO model's fields from anywhere other than under its node (from PHP, say) would still need the old setup, so code paths like that would keep it.
 
 ## Faust and WPGraphQL Content Blocks: correct results with no changes
 
