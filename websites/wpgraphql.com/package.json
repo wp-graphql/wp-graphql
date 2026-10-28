@@ -64,17 +64,17 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.10",
-    "@playwright/test": "^1.64.0",
+    "@next/eslint-plugin-next": "^16.4.2",
+    "@playwright/test": "^1.64.1",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "postcss": "^8.5.29",
+    "postcss": "^8.5.31",
     "postcss-focus-visible": "^11.0.0",
-    "postcss-import": "^17.0.0",
+    "postcss-import": "^17.0.1",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3"
