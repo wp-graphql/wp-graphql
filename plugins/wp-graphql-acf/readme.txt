@@ -32,7 +32,7 @@ If you are updating from WPGraphQL for ACF v0.6.* or older, check out the [Upgra
 
 For non-major version updates, automatic updates usually should work smoothly, but we still recommend you back up your site and test on a staging site.
 
-Before updating WPGraphQL for ACF, review the release notes on [GitHub](https://github.com/wp-graphql/wpgraphql-acf/releases).
+Before updating WPGraphQL for ACF, review the [release notes on GitHub](https://github.com/wp-graphql/wp-graphql/releases). Look for releases tagged with `wp-graphql-acf/v*`.
 
 We follow Semantic Versioning (Semver) for meaningful releases:
 
@@ -63,11 +63,15 @@ At this time WPGraphQL for ACF does not support filtering or sorting queries by 
 
 **I think I found a bug, where do I report it?**
 
-If you think you found a bug, please open an issue on [GitHub](https://github.com/wp-graphql/wpgraphql-acf). The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
+If you think you found a bug, please [open a bug report](https://github.com/wp-graphql/wp-graphql/issues/new?template=bug_report.yml) in the WPGraphQL monorepo and pick "WPGraphQL for ACF" from the plugin dropdown. The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
 
 **Can I use ACF Free or Pro with WPGraphQL for ACF?**
 
 Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF has some additional features, such as Flexible Content Fields, Repeater Fields and Options Pages that are supported by WPGraphQL for ACF.
+
+**Does WPGraphQL for ACF work with Secure Custom Fields?**
+
+Yes. [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF), the WordPress.org fork of ACF, is supported the same way as ACF Pro: it includes the Pro field types (such as Repeater, Flexible Content and Clone fields), Options Pages and ACF Blocks, and WPGraphQL for ACF exposes them all. The full test suite runs against SCF in CI. Install either ACF or SCF, not both.
 
 **Do I have to use Faust.js to use WPGraphQL for ACF?**
 
@@ -87,7 +91,7 @@ WPGraphQL for ACF is a FREE open-source plugin. The development is sponsored by 
 
 **Does WPGraphQL for ACF support GraphQL Mutations?**
 
-Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wpgraphql-acf/issues/109) for progress.
+Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wp-graphql/issues/4551) for progress.
 
 **Does this work with Field Groups registered in PHP or JSON?**
 
@@ -112,13 +116,21 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
-= 3.0.1 =
+= 3.1.0 =
 
 **Schema change**: this release fixes ACF location rules that use "is not equal to". Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
 
 This reaches more than just field groups using "Post Type is not equal to". Removals were also cancelled for every field group processed after one that had nothing to remove, so a site with any exclusion rule may see several field groups move.
 
 If a query relies on one of these fields, check that field group's location rules, since the field group is now on exactly the types those rules describe. To keep a field group on types its location rules exclude, enable "Manually Set GraphQL Types for Field Group" on the field group and choose the types directly, which bypasses location rules entirely.
+
+The "All" value of the Block location rule is also fixed. A field group set to "Block is equal to All" was added to no ACF block type, and now appears on every ACF block type shown in GraphQL. A field group set to "Block is not equal to All" was added to every ACF block type, and now, like ACF itself, matches none, so its fields disappear from blocks after updating.
+
+**Single-value select fields set to "Both (Array)" return just the value.** A select field that allows one value and uses the "Both (Array)" return format resolved as `["red", "Red"]`, the chosen option's value followed by its label. It now resolves as `["red"]`, the same as a select set to "Value", and the same as a multi-value select already did. If a client read the label from that second entry, set the field's return format to "Label" instead. See #4561.
+
+**Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
+
+**Date Time Picker seconds, and nested dates, now resolve from the stored value.** A Date Time Picker whose return format has no seconds resolved with the seconds set to 00, and one whose return format has only a date picked up the time of the request. They now return the stored date and time, seconds included. Date Picker and Date Time Picker fields inside repeater and flexible content rows could also resolve as 1970-01-01, or with the day and month swapped, when the return format used slashes (such as `d/m/Y`). They now resolve from the stored date too. If a client worked around either, for example by ignoring the seconds, check it against the corrected values. See #4564 and #4524.
 
 = 3.0.0 =
 
@@ -130,7 +142,7 @@ Please review these changes before upgrading.
 
 = 2.3.0 =
 
-This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
+This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wp-graphql/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
 
 = 2.1.0 =
 

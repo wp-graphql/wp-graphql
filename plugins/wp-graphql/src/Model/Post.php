@@ -82,6 +82,14 @@ use WP_Post;
  * @extends \WPGraphQL\Model\Model<\WP_Post>
  */
 class Post extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'post';
+
 	/**
 	 * Store the global post to reset during model tear down
 	 *
@@ -587,7 +595,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_password );
 				},
 				'id'                        => function () {
-					return ! empty( $this->data->post_type && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
+					return ! empty( $this->data->post_type && ! empty( $this->databaseId ) ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'isFrontPage'               => function () {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Model;
 
 use Exception;
+use GraphQLRelay\Relay;
 
 /**
  * Class Model - Abstract class for modeling data for all core types
@@ -14,6 +15,16 @@ use Exception;
  * @template TData
  */
 abstract class Model {
+
+	/**
+	 * The type name encoded into the global ID of objects of this model. Empty for models without a global ID.
+	 *
+	 * Subclasses inherit their parent's value, so a subclass whose `id` field encodes a different type
+	 * must set this as well, or to_global_id() returns an ID with the parent's type.
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = '';
 
 	/**
 	 * Stores the name of the type the child class extending this one represents
@@ -101,6 +112,22 @@ abstract class Model {
 
 		$this->init();
 		$this->prepare_fields();
+	}
+
+	/**
+	 * Returns the global ID for an object of this model, e.g. `\WPGraphQL\Model\Post::to_global_id( 1 )`.
+	 *
+	 * @param int|string $id The database ID (or other identifier, such as a slug or name) of the object.
+	 *
+	 * @throws \LogicException If the model does not have a global ID.
+	 * @since x-release-please-version
+	 */
+	public static function to_global_id( $id ): string {
+		if ( '' === static::$global_id_type ) {
+			throw new \LogicException( esc_html( sprintf( '%s does not have a global ID.', static::class ) ) );
+		}
+
+		return Relay::toGlobalId( static::$global_id_type, (string) $id );
 	}
 
 	/**

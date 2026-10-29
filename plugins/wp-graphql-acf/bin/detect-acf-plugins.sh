@@ -4,12 +4,15 @@
 # This runs inside the wp-env container and outputs environment variable exports
 # WPLoader will activate the plugins, so we just need to check if they're installed
 
-# Detect ACF plugin (Free or Pro) - check if plugin file exists
+# Detect ACF plugin (Pro, Free, or Secure Custom Fields) - check if plugin file exists
 ACF_PLUGIN_SLUG=""
 if [ -f "/var/www/html/wp-content/plugins/advanced-custom-fields-pro/acf.php" ]; then
   ACF_PLUGIN_SLUG="advanced-custom-fields-pro/acf.php"
 elif [ -f "/var/www/html/wp-content/plugins/advanced-custom-fields/acf.php" ]; then
   ACF_PLUGIN_SLUG="advanced-custom-fields/acf.php"
+elif [ -f "/var/www/html/wp-content/plugins/secure-custom-fields/secure-custom-fields.php" ]; then
+  # Secure Custom Fields, the WordPress.org fork of ACF
+  ACF_PLUGIN_SLUG="secure-custom-fields/secure-custom-fields.php"
 fi
 
 # Detect ACF Extended plugin (Free or Pro)

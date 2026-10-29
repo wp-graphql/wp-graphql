@@ -218,6 +218,11 @@ class TaxonomyRegistration {
 	 * @param int    $post_id     The ID of the post the column is being displayed for
 	 */
 	public function render_graphql_columns( string $column_name, int $post_id ): void {
+		// acf_get_internal_post_type() was added in ACF 6.1, before which there are no internal post types to render.
+		if ( ! function_exists( 'acf_get_internal_post_type' ) ) {
+			return;
+		}
+
 		$post_type = acf_get_internal_post_type( $post_id, 'acf-taxonomy' );
 
 		// if there's no post type, bail early

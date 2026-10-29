@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class SettingGroup - Models the data for a settings group
  *
@@ -20,6 +18,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<array<string,array<string,mixed>>>
  */
 class SettingGroup extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'setting_group';
+
 	/**
 	 * The normalized settings group key (e.g. "general", "permalink").
 	 *
@@ -81,7 +87,7 @@ class SettingGroup extends Model {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id' => function () {
-					return Relay::toGlobalId( 'setting_group', $this->group_key );
+					return self::to_global_id( $this->group_key );
 				},
 			];
 

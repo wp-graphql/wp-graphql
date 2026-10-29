@@ -146,11 +146,15 @@ At this time WPGraphQL for ACF does not support filtering or sorting queries by 
 
 ### I think I found a bug, where do I report it?
 
-If you think you found a bug, please open an issue on [GitHub](https://github.com/wp-graphql/wpgraphql-acf). The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
+If you think you found a bug, please [open a bug report](https://github.com/wp-graphql/wp-graphql/issues/new?template=bug_report.yml) in the WPGraphQL monorepo and pick "WPGraphQL for ACF" from the plugin dropdown. The more details you provide in the issue, and the more clear your steps to reproduce are, the higher chances we will be able to help.
 
 ### Can I use ACF Free or Pro with WPGraphQL for ACF?
 
 Yes! WPGraphQL for ACF works great with ACF Free and Pro. The Pro version of ACF has some additional features, such as Flexible Content Fields, Repeater Fields and Options Pages that are supported by WPGraphQL for ACF.
+
+### Does WPGraphQL for ACF work with Secure Custom Fields?
+
+Yes. [Secure Custom Fields](https://wordpress.org/plugins/secure-custom-fields/) (SCF), the WordPress.org fork of ACF, is supported the same way as ACF Pro: it includes the Pro field types (such as Repeater, Flexible Content and Clone fields), Options Pages and ACF Blocks, and WPGraphQL for ACF exposes them all. The full test suite runs against SCF in CI. Install either ACF or SCF, not both.
 
 ### Do I have to use Faust.js to use WPGraphQL for ACF?
 
@@ -170,7 +174,7 @@ WPGraphQL for ACF is a FREE open-source plugin. The development is sponsored by 
 
 ### Does WPGraphQL for ACF support GraphQL Mutations?
 
-Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wpgraphql-acf/issues/109) for progress.
+Not yet. WPGraphQL for ACF exposes ACF fields for reading today, but creating and updating field values through GraphQL mutations isn't built yet. Follow the [mutation support feature request](https://github.com/wp-graphql/wp-graphql/issues/4551) for progress.
 
 ### Does this work with Field Groups registered in PHP or JSON?
 

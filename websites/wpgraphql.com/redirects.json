@@ -73,7 +73,7 @@
         "value": "acf.wpgraphql.com"
       }
     ],
-    "destination": "https://www.wpgraphql.com/docs/acf",
+    "destination": "https://www.wpgraphql.com/extensions/wp-graphql-acf",
     "permanent": true
   },
   {
@@ -94,7 +94,7 @@
   },
   {
     "source": "/acf",
-    "destination": "/docs/acf",
+    "destination": "/extensions/wp-graphql-acf",
     "permanent": true
   },
   {

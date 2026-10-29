@@ -291,7 +291,7 @@ class FieldConfig {
 					$field_config['resolve'] = function ( $node, array $args, AppContext $context, ResolveInfo $info ) {
 						$value = $this->resolve_field( $node, $args, $context, $info );
 
-						if ( empty( $value ) && ! is_array( $value ) ) {
+						if ( ! is_array( $value ) && self::is_empty_value( $value ) ) {
 							return null;
 						}
 
@@ -339,9 +339,13 @@ class FieldConfig {
 	 * Determine if a field nested in a row (of a repeater, flexible content or group field)
 	 * should resolve from the row's stored (unformatted) value instead of its formatted value.
 	 *
-	 * These fields resolve connections by ID. Depending on the field's return format, ACF formats
-	 * their value as a URL (and always does for page_link), which can't be resolved back to a node.
-	 * Top-level fields of these types are already read unformatted.
+	 * Most of these fields resolve connections by ID. Depending on the field's return format, ACF
+	 * formats their value as a URL (and always does for page_link), which can't be resolved back to
+	 * a node. A link field resolves the AcfLink type from the stored title, url and target, which
+	 * ACF reduces to just the URL with the "url" return format. Date, date time and time picker
+	 * fields parse the stored value, because a formatted one can drop its seconds or be ambiguous
+	 * (strtotime() reads "05/06/2026" as May 6). Top-level fields of these types are already read
+	 * unformatted.
 	 *
 	 * @param string $field_type The ACF Field Type of field being resolved
 	 */
@@ -355,6 +359,10 @@ class FieldConfig {
 			'gallery',
 			'taxonomy',
 			'user',
+			'link',
+			'date_picker',
+			'date_time_picker',
+			'time_picker',
 		];
 
 		return in_array( $field_type, $types_to_resolve_raw, true );
@@ -487,7 +495,8 @@ class FieldConfig {
 		$field_config = ! empty( $field_config ) ? $field_config : [];
 
 		// Rows of repeater and flexible content fields are passed down formatted, but may carry
-		// their stored values too. Fields that resolve by ID use the stored value, like top-level fields do.
+		// their stored values too. Fields that resolve by ID, and date fields, use the stored value,
+		// like top-level fields do. See should_resolve_raw_row_value().
 		$raw_row       = $this->get_raw_row( $root );
 		$raw_row_value = null;
 		if ( null !== $raw_row && isset( $field_config['key'] ) && isset( $raw_row[ $field_config['key'] ] ) ) {
@@ -500,22 +509,22 @@ class FieldConfig {
 
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
-		if ( isset( $field_config['key'] ) && ! empty( $root[ $field_config['key'] ] ) ) {
+		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
-		if ( isset( $field_config['__key'] ) && ! empty( $root[ $field_config['__key'] ] ) ) {
+		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['__key'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
-		if ( isset( $field_config['name'] ) && ! empty( $root[ '_' . $field_config['name'] ] ) ) {
+		if ( isset( $field_config['name'] ) && isset( $root[ '_' . $field_config['name'] ] ) && ! self::is_empty_value( $root[ '_' . $field_config['name'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ '_' . $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
-		if ( isset( $field_config['name'] ) && ! empty( $root[ $field_config['name'] ] ) ) {
+		if ( isset( $field_config['name'] ) && isset( $root[ $field_config['name'] ] ) && ! self::is_empty_value( $root[ $field_config['name'] ] ) ) {
 			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
@@ -565,11 +574,11 @@ class FieldConfig {
 			}
 			acf_reset_meta( $block_id );
 
-			if ( empty( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
+			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
 				$return_value = $node['attrs']['data'][ $field_config['name'] ];
 			}
 
-			if ( empty( $return_value ) && ( ! empty( $parent_field_name ) && ! empty( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
+			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
 				$return_value = $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ];
 			}
 		}
@@ -577,12 +586,12 @@ class FieldConfig {
 
 
 		// If there's no node_id at this point, we can return null
-		if ( empty( $return_value ) && empty( $node_id ) ) {
+		if ( self::is_empty_value( $return_value ) && empty( $node_id ) ) {
 			return null;
 		}
 
 		// if a value hasn't been set yet, use the get_field() function to get the value
-		if ( empty( $return_value ) ) {
+		if ( self::is_empty_value( $return_value ) ) {
 			$return_value = $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
 			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
 				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_key, $parent_field_name, $node_id, false ), $field_config );
@@ -591,8 +600,8 @@ class FieldConfig {
 
 		// Prepare the value for response
 		$prepared_value = $this->prepare_acf_field_value( $return_value, $root, $node_id, $field_config );
-		// Empty values are set to null
-		if ( empty( $prepared_value ) ) {
+		// Empty values are set to null (0 and "0" are values, not empty)
+		if ( self::is_empty_value( $prepared_value ) ) {
 			$prepared_value = null;
 		}
 
@@ -605,6 +614,18 @@ class FieldConfig {
 		 * @param mixed $node_id The ID of the node being resolved
 		 */
 		return \apply_filters( 'wpgraphql/acf/field_value', $prepared_value, $field_config, $root, $node_id );
+	}
+
+	/**
+	 * Whether a field value counts as "no value".
+	 *
+	 * Like empty(), except that the number 0 and the string "0" are values: a field that stores 0
+	 * should resolve as 0, not null.
+	 *
+	 * @param mixed $value The field value.
+	 */
+	protected static function is_empty_value( $value ): bool {
+		return null === $value || false === $value || '' === $value || [] === $value;
 	}
 
 	/**
@@ -623,19 +644,25 @@ class FieldConfig {
 			return $value;
 		}
 
-		// if the value is an array and the field return format is set to array,
-		// map over the array to get the return values
+		// If the field's return format is "array" (ACF's "Both (Array)"), ACF formats each chosen
+		// option as [ 'value' => ..., 'label' => ... ]. Resolve the values.
 		if ( isset( $acf_field_config['return_format'] ) && 'array' === $acf_field_config['return_format'] && is_array( $value ) ) {
-			$value = array_map(
-				static function ( $opt ) {
-					if ( ! is_array( $opt ) ) {
-						return $opt;
-					}
+			if ( array_key_exists( 'value', $value ) && array_key_exists( 'label', $value ) ) {
+				// A single choice (a select that allows one value, a radio, a button group) is one
+				// such array, rather than a list of them.
+				$value = $value['value'];
+			} else {
+				$value = array_map(
+					static function ( $opt ) {
+						if ( ! is_array( $opt ) ) {
+							return $opt;
+						}
 
-					return $opt['value'] ?? null;
-				},
-				$value
-			);
+						return $opt['value'] ?? null;
+					},
+					$value
+				);
+			}
 		}
 
 		if ( isset( $acf_field_config['new_lines'] ) ) {
@@ -653,22 +680,14 @@ class FieldConfig {
 			$value = \apply_filters( 'the_content', $value );
 		}
 
-		if ( ! empty( $acf_field_config['type'] ) && in_array(
-			$acf_field_config['type'],
-			[
-				'date_picker',
-				'time_picker',
-				'date_time_picker',
-			],
-			true
-		) ) {
+		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
 			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
 				$value = gmdate( $acf_field_config['return_format'], strtotime( $value ) );
 			}
 		}
 
 		if ( ! empty( $acf_field_config['type'] ) && in_array( $acf_field_config['type'], [ 'number', 'range' ], true ) ) {
-			$value = (float) $value ?: null;
+			$value = is_numeric( $value ) ? (float) $value : null;
 		}
 
 		return $value;
