@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class Theme - Models data for themes
  *
@@ -23,6 +21,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<\WP_Theme>
  */
 class Theme extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'theme';
+
 	/**
 	 * Theme constructor.
 	 *
@@ -69,7 +75,7 @@ class Theme extends Model {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'id'          => function () {
-					return ! empty( $this->slug ) ? Relay::toGlobalId( 'theme', $this->slug ) : null;
+					return ! empty( $this->slug ) ? self::to_global_id( $this->slug ) : null;
 				},
 				'name'        => function () {
 					$name = $this->data->get( 'Name' );

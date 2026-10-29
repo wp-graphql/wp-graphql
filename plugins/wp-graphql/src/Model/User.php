@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
 use WP_User;
 
 /**
@@ -39,6 +38,14 @@ use WP_User;
  * @extends \WPGraphQL\Model\Model<\WP_User>
  */
 class User extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'user';
+
 	/**
 	 * The Global Post at time of Model generation
 	 *
@@ -207,7 +214,7 @@ class User extends Model {
 					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
 				},
 				'id'                           => function () {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
+					return ( ! empty( $this->data->ID ) ) ? self::to_global_id( (string) $this->data->ID ) : null;
 				},
 				'lastName'                     => function () {
 					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;

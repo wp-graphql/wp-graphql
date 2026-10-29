@@ -28,16 +28,22 @@ class DatePicker {
 						return null;
 					}
 
-					$acf_field = $field_config->get_acf_field();
+					// Stored date values are 'Ymd' or 'Y-m-d'. Appending '|' resets time to 00:00:00.
+					$date_time = \DateTime::createFromFormat( 'Ymd|', $value );
 
-					// Get the return format from the ACF Field
-					$return_format = $acf_field['return_format'] ?? null;
-
-					if ( empty( $return_format ) ) {
-						return $value;
+					if ( false === $date_time ) {
+						$date_time = \DateTime::createFromFormat( 'Y-m-d|', $value );
 					}
 
-					$date_time = \DateTime::createFromFormat( $return_format . '|', $value );
+					if ( false === $date_time ) {
+						// Fallback: in case value was modified or formatted by a custom filter or return format.
+						$acf_field     = $field_config->get_acf_field();
+						$return_format = $acf_field['return_format'] ?? null;
+
+						if ( ! empty( $return_format ) ) {
+							$date_time = \DateTime::createFromFormat( $return_format . '|', $value );
+						}
+					}
 
 					if ( empty( $date_time ) ) {
 						return null;

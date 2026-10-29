@@ -130,6 +130,8 @@ The "All" value of the Block location rule is also fixed. A field group set to "
 
 **Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
 
+**Date Time Picker seconds, and nested dates, now resolve from the stored value.** A Date Time Picker whose return format has no seconds resolved with the seconds set to 00, and one whose return format has only a date picked up the time of the request. They now return the stored date and time, seconds included. Date Picker and Date Time Picker fields inside repeater and flexible content rows could also resolve as 1970-01-01, or with the day and month swapped, when the return format used slashes (such as `d/m/Y`). They now resolve from the stored date too. If a client worked around either, for example by ignoring the seconds, check it against the corrected values. See #4564 and #4524.
+
 = 3.0.0 =
 
 **⚠️ BREAKING CHANGES**: This release contains breaking changes that may require updates to your code.
