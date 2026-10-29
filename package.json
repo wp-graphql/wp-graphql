@@ -43,7 +43,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^17.6.0",
 		"patch-package": "8.0.1",
-		"turbo": "^2.11.7",
+		"turbo": "^2.11.10",
 		"turndown": "^7.2.4"
 	}
 }
