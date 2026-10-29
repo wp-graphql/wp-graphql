@@ -697,6 +697,29 @@ class FieldConfig {
 			}
 		}
 
+		// ACF's formatting (acf_the_content) leaves out do_blocks, but WYSIWYG values used to be run
+		// through the_content as well, which rendered any block markup in them. Keep rendering it.
+		if ( 'wysiwyg' === ( $acf_field_config['type'] ?? null ) && is_string( $value ) && \has_blocks( $value ) ) {
+			/**
+			 * Filters whether block markup in a WYSIWYG field's value is rendered.
+			 *
+			 * ACF's own formatting (the acf_the_content filter) doesn't render blocks. Without this,
+			 * block markup in a WYSIWYG value is returned as stored: static blocks keep their block
+			 * comments, and dynamic blocks return only their block comment.
+			 *
+			 * @param bool             $render_blocks    Whether to render the blocks. Default true.
+			 * @param string           $value            The field's value, after ACF's formatting.
+			 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved.
+			 * @param mixed            $root             The root node/object the field belongs to.
+			 * @param mixed|string|int $node_id          The ID of the node the field belongs to.
+			 *
+			 * @since x-release-please-version
+			 */
+			if ( \apply_filters( 'wpgraphql/acf/wysiwyg/render_blocks', true, $value, $acf_field_config, $root, $node_id ) ) {
+				$value = \do_blocks( $value );
+			}
+		}
+
 		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
 			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
 				$value = gmdate( $acf_field_config['return_format'], strtotime( $value ) );

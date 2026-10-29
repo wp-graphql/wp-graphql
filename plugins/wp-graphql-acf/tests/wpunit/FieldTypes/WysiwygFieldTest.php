@@ -192,6 +192,118 @@ class WysiwygFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 		);
 	}
 
+	/**
+	 * The markup a dynamic block stores: just its block comment, rendered by its callback.
+	 */
+	private const DYNAMIC_BLOCK = '<!-- wp:wpgraphql-acf-test/dynamic /-->';
+
+	/**
+	 * What the dynamic block's callback renders.
+	 */
+	private const DYNAMIC_BLOCK_OUTPUT = '<div class="dynamic-block-output">Rendered</div>';
+
+	/**
+	 * Registers a dynamic block for the duration of a test.
+	 */
+	private function register_dynamic_block(): void {
+		register_block_type(
+			'wpgraphql-acf-test/dynamic',
+			[
+				'render_callback' => static function () {
+					return self::DYNAMIC_BLOCK_OUTPUT;
+				},
+			]
+		);
+	}
+
+	private function unregister_dynamic_block(): void {
+		if ( WP_Block_Type_Registry::get_instance()->is_registered( 'wpgraphql-acf-test/dynamic' ) ) {
+			unregister_block_type( 'wpgraphql-acf-test/dynamic' );
+		}
+	}
+
+	/**
+	 * ACF's formatting doesn't render blocks, but WYSIWYG values were run through the_content
+	 * before 3.1.0, which did, so block markup in a WYSIWYG value is still rendered.
+	 */
+	public function testBlockMarkupInWysiwygIsRendered(): void {
+		$this->register_dynamic_block();
+
+		$field_key = $this->register_acf_field(
+			[
+				'name'               => 'wysiwyg_blocks',
+				'graphql_field_name' => 'wysiwygBlocks',
+			]
+		);
+		update_field( $field_key, self::DYNAMIC_BLOCK, $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocks' );
+
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocks', self::NOT_NULL ) ] );
+		$this->assertStringContainsString( self::DYNAMIC_BLOCK_OUTPUT, $actual['data']['post']['acfTestGroup']['wysiwygBlocks'] );
+		$this->assertStringNotContainsString( 'wp:wpgraphql-acf-test/dynamic', $actual['data']['post']['acfTestGroup']['wysiwygBlocks'] );
+	}
+
+	/**
+	 * Block markup is rendered on every path, including sub fields resolved from their stored values.
+	 */
+	public function testBlockMarkupInWysiwygInGroupIsRendered(): void {
+		$this->register_dynamic_block();
+
+		$group_key = $this->register_acf_field(
+			[
+				'key'                => 'field_wysiwyg_blocks_group',
+				'type'               => 'group',
+				'name'               => 'wysiwyg_blocks_group',
+				'graphql_field_name' => 'wysiwygBlocksGroup',
+				'sub_fields'         => [
+					[
+						'key'                => 'field_wysiwyg_blocks_group_wysiwyg',
+						'type'               => 'wysiwyg',
+						'name'               => 'wysiwyg',
+						'show_in_graphql'    => 1,
+						'graphql_field_name' => 'wysiwyg',
+					],
+				],
+			]
+		);
+		update_field( $group_key, [ 'field_wysiwyg_blocks_group_wysiwyg' => self::DYNAMIC_BLOCK ], $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksGroup { wysiwyg }' );
+
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocksGroup.wysiwyg', self::NOT_NULL ) ] );
+		$this->assertStringContainsString( self::DYNAMIC_BLOCK_OUTPUT, $actual['data']['post']['acfTestGroup']['wysiwygBlocksGroup']['wysiwyg'] );
+	}
+
+	/**
+	 * The wpgraphql/acf/wysiwyg/render_blocks filter turns block rendering off.
+	 */
+	public function testBlockRenderingCanBeTurnedOff(): void {
+		$this->register_dynamic_block();
+		add_filter( 'wpgraphql/acf/wysiwyg/render_blocks', '__return_false' );
+
+		$field_key = $this->register_acf_field(
+			[
+				'name'               => 'wysiwyg_blocks_off',
+				'graphql_field_name' => 'wysiwygBlocksOff',
+			]
+		);
+		update_field( $field_key, self::DYNAMIC_BLOCK, $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksOff' );
+
+		remove_filter( 'wpgraphql/acf/wysiwyg/render_blocks', '__return_false' );
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocksOff', self::NOT_NULL ) ] );
+		$this->assertStringContainsString( 'wp:wpgraphql-acf-test/dynamic', $actual['data']['post']['acfTestGroup']['wysiwygBlocksOff'] );
+		$this->assertStringNotContainsString( self::DYNAMIC_BLOCK_OUTPUT, $actual['data']['post']['acfTestGroup']['wysiwygBlocksOff'] );
+	}
+
 	public function testWysiwygInRepeaterIsNotRunThroughTheContent(): void {
 		if ( ! defined( 'ACF_PRO' ) ) {
 			$this->markTestSkipped( 'ACF Pro is not active so this test will not run.' );
