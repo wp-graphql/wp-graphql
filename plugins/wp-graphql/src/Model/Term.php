@@ -30,6 +30,14 @@ use WP_Term;
  * @extends \WPGraphQL\Model\Model<\WP_Term>
  */
 class Term extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'term';
+
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
@@ -142,7 +150,7 @@ class Term extends Model {
 					return $queue;
 				},
 				'id'                       => function () {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'term', (string) $this->databaseId ) : null;
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->databaseId ) ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'link'                     => function () {
 					$link = get_term_link( $this->data->term_id );
