@@ -342,8 +342,10 @@ class FieldConfig {
 	 * Most of these fields resolve connections by ID. Depending on the field's return format, ACF
 	 * formats their value as a URL (and always does for page_link), which can't be resolved back to
 	 * a node. A link field resolves the AcfLink type from the stored title, url and target, which
-	 * ACF reduces to just the URL with the "url" return format. Top-level fields of these types are
-	 * already read unformatted.
+	 * ACF reduces to just the URL with the "url" return format. Date, date time and time picker
+	 * fields parse the stored value, because a formatted one can drop its seconds or be ambiguous
+	 * (strtotime() reads "05/06/2026" as May 6). Top-level fields of these types are already read
+	 * unformatted.
 	 *
 	 * @param string $field_type The ACF Field Type of field being resolved
 	 */
@@ -358,6 +360,9 @@ class FieldConfig {
 			'taxonomy',
 			'user',
 			'link',
+			'date_picker',
+			'date_time_picker',
+			'time_picker',
 		];
 
 		return in_array( $field_type, $types_to_resolve_raw, true );
@@ -490,7 +495,8 @@ class FieldConfig {
 		$field_config = ! empty( $field_config ) ? $field_config : [];
 
 		// Rows of repeater and flexible content fields are passed down formatted, but may carry
-		// their stored values too. Fields that resolve by ID use the stored value, like top-level fields do.
+		// their stored values too. Fields that resolve by ID, and date fields, use the stored value,
+		// like top-level fields do. See should_resolve_raw_row_value().
 		$raw_row       = $this->get_raw_row( $root );
 		$raw_row_value = null;
 		if ( null !== $raw_row && isset( $field_config['key'] ) && isset( $raw_row[ $field_config['key'] ] ) ) {
@@ -674,15 +680,7 @@ class FieldConfig {
 			$value = \apply_filters( 'the_content', $value );
 		}
 
-		if ( ! empty( $acf_field_config['type'] ) && in_array(
-			$acf_field_config['type'],
-			[
-				'date_picker',
-				'time_picker',
-				'date_time_picker',
-			],
-			true
-		) ) {
+		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
 			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
 				$value = gmdate( $acf_field_config['return_format'], strtotime( $value ) );
 			}
