@@ -15,6 +15,7 @@ namespace WPGraphQL\Admin\SiteHealth;
  * differently can remove any of them by its identifier.
  *
  * @package WPGraphQL\Admin\SiteHealth
+ * @since x-release-please-version
  *
  * phpcs:disable -- For phpstan type hinting
  * @phpstan-type SiteHealthResult array{
@@ -36,6 +37,8 @@ class SiteHealth {
 
 	/**
 	 * Initializes the Site Health tests.
+	 *
+	 * @since x-release-please-version
 	 */
 	public function init(): void {
 		add_filter( 'site_status_tests', [ $this, 'register_tests' ] );
@@ -47,6 +50,8 @@ class SiteHealth {
 	 * @param array<string,array<string,mixed>> $tests The Site Health tests, keyed by type.
 	 *
 	 * @return array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
 	 */
 	public function register_tests( $tests ) {
 		// Another callback on the filter may have returned something unexpected. Leave it alone.
@@ -81,11 +86,13 @@ class SiteHealth {
 	 * only accepts requests from logged-in users, since logged-out visitors then can't run any query.
 	 *
 	 * @return SiteHealthResult
+	 *
+	 * @since x-release-please-version
 	 */
 	public function test_public_introspection(): array {
 		$restricted = $this->is_restricted_to_logged_in_users();
 		$debug      = \WPGraphQL::debug();
-		$setting_on = 'on' === get_graphql_setting( 'public_introspection_enabled', 'off' );
+		$setting_on = 'off' !== get_graphql_setting( 'public_introspection_enabled', 'off' );
 
 		if ( $restricted || ( ! $debug && ! $setting_on ) ) {
 			return $this->result(
@@ -128,6 +135,8 @@ class SiteHealth {
 	 * Checks whether GraphQL debug mode is on.
 	 *
 	 * @return SiteHealthResult
+	 *
+	 * @since x-release-please-version
 	 */
 	public function test_debug_mode(): array {
 		if ( ! \WPGraphQL::debug() ) {
@@ -141,8 +150,16 @@ class SiteHealth {
 
 		$description  = '<p>' . __( 'Debug mode makes problems easier to find while building an app, but it has costs on a live site:', 'wp-graphql' ) . '</p>';
 		$description .= '<ul>';
-		$description .= '<li>' . __( 'Errors include internal messages meant for developers, for anyone who sends a request. Logged-in users also get stack traces with file paths.', 'wp-graphql' ) . '</li>';
-		$description .= '<li>' . __( 'Logged-out visitors can read the schema, even when public introspection is off.', 'wp-graphql' ) . '</li>';
+
+		// When only logged-in users can use the API, logged-out visitors can't read the schema, and can
+		// only query the root fields a site allows without logging in, so don't say errors reach anyone.
+		if ( $this->is_restricted_to_logged_in_users() ) {
+			$description .= '<li>' . __( 'Errors include internal messages meant for developers, and logged-in users also get stack traces with file paths.', 'wp-graphql' ) . '</li>';
+		} else {
+			$description .= '<li>' . __( 'Errors include internal messages meant for developers, for anyone who sends a request. Logged-in users also get stack traces with file paths.', 'wp-graphql' ) . '</li>';
+			$description .= '<li>' . __( 'Logged-out visitors can read the schema, even when public introspection is off.', 'wp-graphql' ) . '</li>';
+		}
+
 		$description .= '</ul>';
 
 		$source = $this->get_debug_mode_source();
@@ -177,6 +194,8 @@ class SiteHealth {
 	 * asking, so it isn't evaluated here.
 	 *
 	 * @return SiteHealthResult
+	 *
+	 * @since x-release-please-version
 	 */
 	public function test_query_depth(): array {
 		if ( 'on' === get_graphql_setting( 'query_depth_enabled', 'off' ) ) {
@@ -210,6 +229,8 @@ class SiteHealth {
 	 * Checks whether tracing or query logs are added to responses for any user.
 	 *
 	 * @return SiteHealthResult
+	 *
+	 * @since x-release-please-version
 	 */
 	public function test_debug_output(): array {
 		$items = [];
@@ -264,6 +285,8 @@ class SiteHealth {
 
 	/**
 	 * Returns the value of the GRAPHQL_DEBUG constant, or null when it isn't defined.
+	 *
+	 * @since x-release-please-version
 	 */
 	protected function get_debug_constant(): ?bool {
 		return defined( 'GRAPHQL_DEBUG' ) ? (bool) GRAPHQL_DEBUG : null;
@@ -296,6 +319,8 @@ class SiteHealth {
 
 	/**
 	 * Returns the site's environment type.
+	 *
+	 * @since x-release-please-version
 	 */
 	protected function get_environment_type(): string {
 		return wp_get_environment_type();

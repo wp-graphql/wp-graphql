@@ -34,6 +34,7 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		delete_option( 'graphql_general_settings' );
 		remove_all_filters( 'graphql_debug_enabled' );
 		remove_all_filters( 'graphql_pre_restrict_endpoint' );
+		remove_all_filters( 'graphql_get_setting_section_field_value' );
 
 		parent::tearDown();
 	}
@@ -350,6 +351,20 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'recommended', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
 	}
 
+	public function testPublicIntrospectionIsRecommendedWhenTheSettingIsFilteredToAValueOtherThanOff(): void {
+		// The DisableIntrospection rule only blocks introspection when the setting is exactly 'off'.
+		add_filter(
+			'graphql_get_setting_section_field_value',
+			static function ( $value, $default_value, $option_name ) {
+				return 'public_introspection_enabled' === $option_name ? true : $value;
+			},
+			10,
+			3
+		);
+
+		$this->assertSame( 'recommended', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
+	}
+
 	public function testDebugModeIsGoodByDefault(): void {
 		$this->assertSame( 'good', $this->run_test( 'wpgraphql_debug_mode' )['status'] );
 	}
@@ -363,6 +378,33 @@ class SiteHealthTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'page=graphql-settings', $result['actions'] );
 		// The test config turns debug mode on with the GRAPHQL_DEBUG constant.
 		$this->assertStringContainsString( 'GRAPHQL_DEBUG', $result['description'] );
+		// The API is open to logged-out visitors, so the description says what they can see.
+		$this->assertStringContainsString( 'for anyone who sends a request', $result['description'] );
+		$this->assertStringContainsString( 'Logged-out visitors can read the schema', $result['description'] );
+	}
+
+	public function testDebugModeDoesNotMentionLoggedOutVisitorsWhenOnlyLoggedInUsersCanUseTheApi(): void {
+		$this->set_debug_mode( true );
+		$this->save_settings( [ 'restrict_endpoint_to_logged_in_users' => 'on' ] );
+
+		$result = $this->run_test( 'wpgraphql_debug_mode' );
+
+		// Still recommended, since logged-in users get internal messages and stack traces.
+		$this->assertSame( 'recommended', $result['status'] );
+		$this->assertStringContainsString( 'stack traces', $result['description'] );
+		// Matches the introspection test, which passes when only logged-in users can use the API.
+		$this->assertSame( 'good', $this->run_test( 'wpgraphql_public_introspection' )['status'] );
+		$this->assertStringNotContainsString( 'for anyone who sends a request', $result['description'] );
+		$this->assertStringNotContainsString( 'Logged-out visitors can read the schema', $result['description'] );
+	}
+
+	public function testDebugModeFollowsTheRestrictEndpointFilter(): void {
+		$this->set_debug_mode( true );
+		add_filter( 'graphql_pre_restrict_endpoint', '__return_true' );
+
+		$result = $this->run_test( 'wpgraphql_debug_mode' );
+
+		$this->assertStringNotContainsString( 'Logged-out visitors can read the schema', $result['description'] );
 	}
 
 	public function testDebugModeSaysWhenTheFilterTurnedItOn(): void {
