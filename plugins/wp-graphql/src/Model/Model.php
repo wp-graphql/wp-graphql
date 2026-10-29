@@ -120,7 +120,7 @@ abstract class Model {
 	 * @param int|string $id The database ID (or other identifier, such as a slug or name) of the object.
 	 *
 	 * @throws \LogicException If the model does not have a global ID.
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public static function to_global_id( $id ): string {
 		if ( '' === static::$global_id_type ) {
