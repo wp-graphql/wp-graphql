@@ -30,11 +30,7 @@ class DateTimePicker {
 					}
 
 					// Stored values are typically 'Y-m-d H:i:s'. Parse directly without relying on return_format.
-					$date_time = \DateTime::createFromFormat( 'Y-m-d H:i:s', $value );
-
-					if ( false === $date_time ) {
-						$date_time = \DateTime::createFromFormat( 'Y-m-d H:i:s|', $value );
-					}
+					$date_time = \DateTime::createFromFormat( 'Y-m-d H:i:s|', $value );
 
 					if ( false === $date_time ) {
 						// Stored without seconds: reset seconds to 00.
@@ -57,16 +53,6 @@ class DateTimePicker {
 
 						if ( ! empty( $return_format ) ) {
 							$date_time = \DateTime::createFromFormat( $return_format . '|', $value );
-							if ( false === $date_time ) {
-								$date_time = \DateTime::createFromFormat( $return_format, $value );
-							}
-						}
-					}
-
-					if ( false === $date_time && is_string( $value ) ) {
-						$timestamp = strtotime( $value );
-						if ( false !== $timestamp ) {
-							$date_time = ( new \DateTime() )->setTimestamp( $timestamp );
 						}
 					}
 
