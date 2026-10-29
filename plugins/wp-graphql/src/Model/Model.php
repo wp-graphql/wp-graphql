@@ -19,6 +19,9 @@ abstract class Model {
 	/**
 	 * The type name encoded into the global ID of objects of this model. Empty for models without a global ID.
 	 *
+	 * Subclasses inherit their parent's value, so a subclass whose `id` field encodes a different type
+	 * must set this as well, or to_global_id() returns an ID with the parent's type.
+	 *
 	 * @var string
 	 */
 	protected static $global_id_type = '';
