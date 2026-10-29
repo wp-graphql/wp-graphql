@@ -32,6 +32,14 @@ use WP_Post;
  * @extends \WPGraphQL\Model\Model<object|mixed>
  */
 class MenuItem extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'post';
+
 	/**
 	 * MenuItem constructor.
 	 *
@@ -111,7 +119,7 @@ class MenuItem extends Model {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'id'               => function () {
-					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
+					return ! empty( $this->databaseId ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'label'            => function () {
 					return ! empty( $this->data->title ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
