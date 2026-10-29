@@ -15,7 +15,7 @@ namespace WPGraphQL\Admin;
  *
  * @package WPGraphQL\Admin
  *
- * @since x-release-please-version
+ * @since 2.26.0
  */
 class UsageTracking {
 
@@ -65,7 +65,7 @@ class UsageTracking {
 	 * @param string            $section      The settings section to add the toggle to.
 	 * @param string            $product_name The product name shown in the toggle's description.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function __construct( $insights, string $slug, string $section = 'graphql_general_settings', string $product_name = 'WPGraphQL' ) {
 		$this->insights     = $insights;
