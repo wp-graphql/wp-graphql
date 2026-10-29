@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.26.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.25.0...wp-graphql/v2.26.0) (2026-10-29)
+
+
+### New Features
+
+* add Site Health recommendations for WPGraphQL security settings ([#4536](https://github.com/wp-graphql/wp-graphql/issues/4536)) ([75d5d1b](https://github.com/wp-graphql/wp-graphql/commit/75d5d1b8d0360a029610948499d1c6c37330bca7))
+* add static to_global_id() helper to models ([#4586](https://github.com/wp-graphql/wp-graphql/issues/4586)) ([6a0a9d6](https://github.com/wp-graphql/wp-graphql/commit/6a0a9d6d883931b13645f061eba4ecad6b292a94))
+* **deps:** bump the npm-prod-minor-patch group with 6 updates ([#4592](https://github.com/wp-graphql/wp-graphql/issues/4592)) ([22810df](https://github.com/wp-graphql/wp-graphql/commit/22810dff5e483e594a4170bd31d32c68c820da7f))
+* let sites opt out of usage tracking from settings ([#4508](https://github.com/wp-graphql/wp-graphql/issues/4508)) ([0e61787](https://github.com/wp-graphql/wp-graphql/commit/0e61787e1278219ee3794e48e6be25c3635610d0))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql ([#4599](https://github.com/wp-graphql/wp-graphql/issues/4599)) ([1fc8e45](https://github.com/wp-graphql/wp-graphql/commit/1fc8e458a66d83b8bfb40d1c46ba83ddbce6cf6d))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 4 updates ([#4601](https://github.com/wp-graphql/wp-graphql/issues/4601)) ([e877515](https://github.com/wp-graphql/wp-graphql/commit/e877515f918f5b00127e44b8020b43bfebf44b49))
+* **deps-dev:** bump the npm-dev-minor-patch group with 8 updates ([#4591](https://github.com/wp-graphql/wp-graphql/issues/4591)) ([bb3c381](https://github.com/wp-graphql/wp-graphql/commit/bb3c3814c87043c18d5f98982310baab6dd46b78))
+* show a readable error when installing or activating an extension fails ([#4568](https://github.com/wp-graphql/wp-graphql/issues/4568)) ([67aab29](https://github.com/wp-graphql/wp-graphql/commit/67aab29e5c17154c80486101c065d06fce3b927d))
+
 ## [2.25.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.2...wp-graphql/v2.25.0) (2026-10-20)
 
 
