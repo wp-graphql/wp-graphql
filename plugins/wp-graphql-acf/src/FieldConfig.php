@@ -425,8 +425,8 @@ class FieldConfig {
 	}
 
 	/**
-	 * Apply ACF's WYSIWYG formatting (the acf_the_content filter, which get_field() runs when it
-	 * formats the value) to the stored value of a WYSIWYG field.
+	 * Apply ACF's WYSIWYG formatting (the acf_the_content filter and the "]]>" escape, which
+	 * get_field() runs when it formats the value) to the stored value of a WYSIWYG field.
 	 *
 	 * Values passed down by field key, like the sub fields of a group field, and values read from a
 	 * block's data are stored values.
@@ -441,7 +441,10 @@ class FieldConfig {
 			return $value;
 		}
 
-		return \apply_filters( 'acf_the_content', $value );
+		$value = \apply_filters( 'acf_the_content', $value );
+
+		// ACF's WYSIWYG field escapes this after acf_the_content too, the same as the_content does.
+		return str_replace( ']]>', ']]&gt;', $value );
 	}
 
 	/**

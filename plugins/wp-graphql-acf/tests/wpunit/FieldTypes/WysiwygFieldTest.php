@@ -154,6 +154,44 @@ class WysiwygFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 		);
 	}
 
+	/**
+	 * A WYSIWYG sub field of a group resolves to the same value get_field() returns for it,
+	 * including the "]]>" escape ACF applies after acf_the_content.
+	 */
+	public function testWysiwygInGroupMatchesGetField(): void {
+		$value     = "First paragraph\n\nA ]]> in the text";
+		$group_key = $this->register_acf_field(
+			[
+				'key'                => 'field_wysiwyg_group_parity',
+				'type'               => 'group',
+				'name'               => 'wysiwyg_group_parity',
+				'graphql_field_name' => 'wysiwygGroupParity',
+				'sub_fields'         => [
+					[
+						'key'                => 'field_wysiwyg_group_parity_wysiwyg',
+						'type'               => 'wysiwyg',
+						'name'               => 'wysiwyg',
+						'show_in_graphql'    => 1,
+						'graphql_field_name' => 'wysiwyg',
+					],
+				],
+			]
+		);
+		update_field( $group_key, [ 'field_wysiwyg_group_parity_wysiwyg' => $value ], $this->published_post->ID );
+
+		$expected = get_field( 'wysiwyg_group_parity', $this->published_post->ID )['wysiwyg'];
+		$this->assertStringContainsString( ']]&gt;', $expected );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygGroupParity { wysiwyg }' );
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.acfTestGroup.wysiwygGroupParity.wysiwyg', $expected ),
+			]
+		);
+	}
+
 	public function testWysiwygInRepeaterIsNotRunThroughTheContent(): void {
 		if ( ! defined( 'ACF_PRO' ) ) {
 			$this->markTestSkipped( 'ACF Pro is not active so this test will not run.' );
