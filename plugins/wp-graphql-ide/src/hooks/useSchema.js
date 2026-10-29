@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
+import hooks from '../wordpress-hooks';
 
 /**
  * Runs schema introspection and manages the schema in the app store.
@@ -10,12 +11,14 @@ import { buildClientSchema, getIntrospectionQuery } from 'graphql';
  * caller drives refetches by invoking the returned `refetch` — same pattern
  * Apollo, GraphiQL, and urql expose. The schema stays in place during a
  * refetch (stale-while-revalidate), so the Docs Explorer doesn't flicker.
+ * `load` runs the same fetch and also raises an error notice when it fails.
  *
  * @param {Function} fetcher - GraphQL fetcher function. Receives { query }.
  * @return {{
  *   schema: Object|undefined,
  *   isLoading: boolean,
- *   refetch: () => Promise<{ ok: boolean, error?: Error }>
+ *   refetch: () => Promise<{ ok: boolean, error?: Error }>,
+ *   load: () => Promise<{ ok: boolean, error?: Error }>
  * }}
  */
 export function useSchema(fetcher) {
@@ -69,12 +72,33 @@ export function useSchema(fetcher) {
 		}
 	}, [fetcher, setSchema]);
 
+	// Loads the IDE starts on its own (on mount, and when a query runs
+	// before a schema has loaded) have no caller to report a failure to,
+	// so raise the error notice here. The Refresh Schema button raises
+	// its own (registry/index.js).
+	const load = useCallback(async () => {
+		const result = await fetchSchema();
+		if (!result.ok) {
+			hooks.doAction(
+				'wpgraphql-ide.notice',
+				sprintf(
+					/* translators: %s: error message from the GraphQL schema introspection */
+					__('Failed to load schema: %s', 'wpgraphql-ide'),
+					result.error?.message ??
+						__('Unknown error', 'wpgraphql-ide')
+				),
+				'error'
+			);
+		}
+		return result;
+	}, [fetchSchema]);
+
 	// Kick off the first fetch on mount if the store is empty. The
 	// `hasMounted` ref makes this run exactly once for the lifetime of
 	// the component — subsequent loads go through `refetch`.
 	const hasMounted = useRef(false);
-	const fetchSchemaRef = useRef(fetchSchema);
-	fetchSchemaRef.current = fetchSchema;
+	const loadRef = useRef(load);
+	loadRef.current = load;
 
 	useEffect(() => {
 		if (hasMounted.current) {
@@ -82,7 +106,7 @@ export function useSchema(fetcher) {
 		}
 		hasMounted.current = true;
 		if (schema === undefined) {
-			fetchSchemaRef.current();
+			loadRef.current();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -91,5 +115,6 @@ export function useSchema(fetcher) {
 		schema,
 		isLoading,
 		refetch: fetchSchema,
+		load,
 	};
 }
