@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.7.0
+Stable tag: 5.8.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -121,6 +121,20 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.8.0 =
+
+**New Features**
+
+* **deps:** bump the npm-prod-minor-patch group with 6 updates ([#4592](https://github.com/wp-graphql/wp-graphql/issues/4592))
+* let sites opt out of usage tracking from settings ([#4508](https://github.com/wp-graphql/wp-graphql/issues/4508))
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-ide in the wp-graphql-ide-composer-dev-minor-patch group ([#4589](https://github.com/wp-graphql/wp-graphql/issues/4589))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-ide ([#4597](https://github.com/wp-graphql/wp-graphql/issues/4597))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 4 updates ([#4601](https://github.com/wp-graphql/wp-graphql/issues/4601))
+* **deps-dev:** bump the npm-dev-minor-patch group with 8 updates ([#4591](https://github.com/wp-graphql/wp-graphql/issues/4591))
 
 = 5.7.0 =
 
