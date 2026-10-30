@@ -304,6 +304,181 @@ class WysiwygFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 		$this->assertStringNotContainsString( self::DYNAMIC_BLOCK_OUTPUT, $actual['data']['post']['acfTestGroup']['wysiwygBlocksOff'] );
 	}
 
+	/**
+	 * A static block followed by a dynamic block, as a WYSIWYG field stores them.
+	 */
+	private const BLOCK_MARKUP = "<!-- wp:paragraph -->\n<p>First paragraph</p>\n<!-- /wp:paragraph -->\n\n" . self::DYNAMIC_BLOCK;
+
+	/**
+	 * Regression test for wp-graphql/wp-graphql#4605: blocks were rendered after ACF's formatting,
+	 * so ACF's wpautop ran over the block markup and wrapped the rendered blocks in paragraphs.
+	 * They now render the way the_content renders them.
+	 */
+	public function testBlockMarkupIsNotWrappedInParagraphs(): void {
+		$this->register_dynamic_block();
+		$expected = apply_filters( 'the_content', self::BLOCK_MARKUP );
+
+		$field_key = $this->register_acf_field(
+			[
+				'name'               => 'wysiwyg_blocks_autop',
+				'graphql_field_name' => 'wysiwygBlocksAutop',
+			]
+		);
+		update_field( $field_key, self::BLOCK_MARKUP, $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksAutop' );
+
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocksAutop', $expected ) ] );
+	}
+
+	/**
+	 * Sub fields of a group are formatted from their stored values, and render blocks the same way.
+	 */
+	public function testBlockMarkupInGroupIsNotWrappedInParagraphs(): void {
+		$this->register_dynamic_block();
+		$expected = apply_filters( 'the_content', self::BLOCK_MARKUP );
+
+		$group_key = $this->register_acf_field(
+			[
+				'key'                => 'field_wysiwyg_blocks_autop_group',
+				'type'               => 'group',
+				'name'               => 'wysiwyg_blocks_autop_group',
+				'graphql_field_name' => 'wysiwygBlocksAutopGroup',
+				'sub_fields'         => [
+					[
+						'key'                => 'field_wysiwyg_blocks_autop_group_wysiwyg',
+						'type'               => 'wysiwyg',
+						'name'               => 'wysiwyg',
+						'show_in_graphql'    => 1,
+						'graphql_field_name' => 'wysiwyg',
+					],
+				],
+			]
+		);
+		update_field( $group_key, [ 'field_wysiwyg_blocks_autop_group_wysiwyg' => self::BLOCK_MARKUP ], $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksAutopGroup { wysiwyg }' );
+
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocksAutopGroup.wysiwyg', $expected ) ] );
+	}
+
+	/**
+	 * Rows of a repeater are formatted by ACF when it formats the repeater, and render blocks the
+	 * same way.
+	 */
+	public function testBlockMarkupInRepeaterIsNotWrappedInParagraphs(): void {
+		if ( ! defined( 'ACF_PRO' ) ) {
+			$this->markTestSkipped( 'ACF Pro is not active so this test will not run.' );
+		}
+
+		$this->register_dynamic_block();
+		$expected = apply_filters( 'the_content', self::BLOCK_MARKUP );
+
+		$repeater_key = $this->register_acf_field(
+			[
+				'key'                => 'field_wysiwyg_blocks_autop_repeater',
+				'type'               => 'repeater',
+				'name'               => 'wysiwyg_blocks_autop_repeater',
+				'graphql_field_name' => 'wysiwygBlocksAutopRepeater',
+				'sub_fields'         => [
+					[
+						'key'                => 'field_wysiwyg_blocks_autop_repeater_wysiwyg',
+						'type'               => 'wysiwyg',
+						'name'               => 'wysiwyg',
+						'show_in_graphql'    => 1,
+						'graphql_field_name' => 'wysiwyg',
+					],
+				],
+			]
+		);
+		update_field( $repeater_key, [ [ 'field_wysiwyg_blocks_autop_repeater_wysiwyg' => self::BLOCK_MARKUP ] ], $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksAutopRepeater { wysiwyg }' );
+
+		$this->unregister_dynamic_block();
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygBlocksAutopRepeater.0.wysiwyg', $expected ) ] );
+	}
+
+	/**
+	 * Skipping wpautop for a value with blocks leaves ACF's acf_the_content callbacks as they were,
+	 * in the same order, so a field formatted later in the request gets ACF's usual formatting.
+	 * wpautop has to run before shortcode_unautop, or a shortcode on its own line ends up in a
+	 * paragraph.
+	 */
+	public function testBlockMarkupDoesNotChangeFormattingOfLaterFields(): void {
+		global $wp_filter;
+
+		$this->register_dynamic_block();
+		add_shortcode(
+			'wpgraphql_acf_test_shortcode',
+			static function () {
+				return '<div class="shortcode-output">Shortcode</div>';
+			}
+		);
+		$shortcode_value = "[wpgraphql_acf_test_shortcode]\n\nAfter the shortcode";
+		$expected        = apply_filters( 'acf_the_content', $shortcode_value );
+		$callbacks       = array_map( 'array_keys', $wp_filter['acf_the_content']->callbacks );
+
+		$blocks_key = $this->register_acf_field(
+			[
+				'name'               => 'wysiwyg_blocks_first',
+				'graphql_field_name' => 'wysiwygBlocksFirst',
+			]
+		);
+		update_field( $blocks_key, self::BLOCK_MARKUP, $this->published_post->ID );
+		// Registering a second field with register_acf_field() would register the field group again,
+		// without the first field, so add it to the same group directly.
+		acf_add_local_field(
+			array_merge(
+				acf_get_local_field( $blocks_key ),
+				[
+					'key'                => 'field_wysiwyg_shortcode_after',
+					'name'               => 'wysiwyg_shortcode_after',
+					'graphql_field_name' => 'wysiwygShortcodeAfter',
+				]
+			)
+		);
+		update_field( 'field_wysiwyg_shortcode_after', $shortcode_value, $this->published_post->ID );
+
+		$actual = $this->query_test_group_with_the_content_marker( 'wysiwygBlocksFirst wysiwygShortcodeAfter' );
+
+		$callbacks_after = array_map( 'array_keys', $wp_filter['acf_the_content']->callbacks );
+		remove_shortcode( 'wpgraphql_acf_test_shortcode' );
+		$this->unregister_dynamic_block();
+
+		$this->assertSame( $callbacks, $callbacks_after );
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.acfTestGroup.wysiwygShortcodeAfter', $expected ) ] );
+	}
+
+	/**
+	 * Rendering blocks before ACF's wpautop only applies to GraphQL responses. get_field() still
+	 * returns ACF's formatting, and isn't served a value formatted for GraphQL from ACF's cache.
+	 */
+	public function testBlockRenderingDoesNotChangeGetField(): void {
+		$this->register_dynamic_block();
+		$expected = str_replace( ']]>', ']]&gt;', apply_filters( 'acf_the_content', self::BLOCK_MARKUP ) );
+
+		$field_key = $this->register_acf_field(
+			[
+				'name'               => 'wysiwyg_blocks_get_field',
+				'graphql_field_name' => 'wysiwygBlocksGetField',
+			]
+		);
+		update_field( $field_key, self::BLOCK_MARKUP, $this->published_post->ID );
+
+		$this->query_test_group_with_the_content_marker( 'wysiwygBlocksGetField' );
+		$actual = get_field( 'wysiwyg_blocks_get_field', $this->published_post->ID );
+
+		$this->unregister_dynamic_block();
+
+		$this->assertSame( $expected, $actual );
+	}
+
 	public function testWysiwygInRepeaterIsNotRunThroughTheContent(): void {
 		if ( ! defined( 'ACF_PRO' ) ) {
 			$this->markTestSkipped( 'ACF Pro is not active so this test will not run.' );

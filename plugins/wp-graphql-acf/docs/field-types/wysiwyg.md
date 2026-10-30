@@ -81,7 +81,9 @@ add_filter( 'acf_the_content', 'my_plugin_add_markup' );
 
 ### Block markup
 
-ACF's formatting doesn't render blocks, but WPGraphQL for ACF renders block markup found in a WYSIWYG value, so static blocks lose their block comments and dynamic blocks return their rendered output. To return block markup as it is stored instead, return `false` from the `wpgraphql/acf/wysiwyg/render_blocks` filter:
+ACF's formatting doesn't render blocks, but WPGraphQL for ACF renders block markup found in a WYSIWYG value the way `the_content` renders it: the blocks are rendered first, and ACF's paragraph formatting then skips the value, so the rendered blocks aren't wrapped in `<p>` tags. Static blocks lose their block comments, and dynamic blocks return their rendered output. This applies to GraphQL responses only, `get_field()` still returns ACF's own formatting.
+
+To return block markup with ACF's formatting only instead, return `false` from the `wpgraphql/acf/wysiwyg/render_blocks` filter:
 
 ```php
 add_filter( 'wpgraphql/acf/wysiwyg/render_blocks', '__return_false' );

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Acf;
 
 use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\Acf\FieldType\Wysiwyg;
 use WPGraphQL\AppContext;
 
 class FieldConfig {
@@ -431,20 +432,101 @@ class FieldConfig {
 	 * Values passed down by field key, like the sub fields of a group field, and values read from a
 	 * block's data are stored values.
 	 *
-	 * @param mixed        $value        The stored value of the field
-	 * @param array<mixed> $field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $value        The stored value of the field
+	 * @param array<mixed>     $field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root         The root node/object the field belongs to
+	 * @param mixed|string|int $node_id      The ID of the node the field belongs to
 	 *
 	 * @return mixed
 	 */
-	protected function format_stored_wysiwyg_value( $value, array $field_config ) {
+	protected function format_stored_wysiwyg_value( $value, array $field_config, $root, $node_id ) {
 		if ( 'wysiwyg' !== ( $field_config['type'] ?? null ) || ! is_string( $value ) ) {
 			return $value;
 		}
 
-		$value = \apply_filters( 'acf_the_content', $value );
+		if ( \has_blocks( $value ) && self::should_render_wysiwyg_blocks( $value, $field_config, $root, $node_id ) ) {
+			$value = Wysiwyg::format_with_blocks_rendered(
+				static function () use ( $value ) {
+					return \apply_filters( 'acf_the_content', $value );
+				}
+			);
+		} else {
+			$value = \apply_filters( 'acf_the_content', $value );
+		}
 
 		// ACF's WYSIWYG field escapes this after acf_the_content too, the same as the_content does.
 		return str_replace( ']]>', ']]&gt;', $value );
+	}
+
+	/**
+	 * Calls $get_value, which reads a field with get_field() or get_sub_field(), so that block
+	 * markup in the WYSIWYG values ACF formats renders the way the_content renders it. That
+	 * includes the WYSIWYG sub fields of repeater, flexible content and clone fields, which ACF
+	 * formats along with their parent.
+	 *
+	 * The values are formatted without ACF's cache of formatted values, so get_field() doesn't
+	 * return a value formatted for GraphQL later in the request, and the other way around.
+	 *
+	 * @param callable         $get_value Reads the field's formatted value.
+	 * @param mixed            $root      The root node/object the field belongs to
+	 * @param mixed|string|int $node_id   The ID of the node the field belongs to
+	 *
+	 * @return mixed What $get_value returns.
+	 */
+	protected function with_wysiwyg_blocks_rendered( callable $get_value, $root, $node_id ) {
+		$pre_format = static function ( $check, $value, $post_id, $field, $escape_html = false ) use ( $root, $node_id ) {
+			if ( null !== $check || ! is_array( $field ) || 'wysiwyg' !== ( $field['type'] ?? null ) || ! is_string( $value ) || ! \has_blocks( $value ) ) {
+				return $check;
+			}
+
+			if ( ! self::should_render_wysiwyg_blocks( $value, $field, $root, $node_id ) ) {
+				return $check;
+			}
+
+			// The same filter acf_format_value() applies, without reading or writing its cache.
+			return Wysiwyg::format_with_blocks_rendered(
+				static function () use ( $value, $post_id, $field, $escape_html ) {
+					return \apply_filters( 'acf/format_value', $value, $post_id, $field, $escape_html );
+				}
+			);
+		};
+
+		\add_filter( 'acf/pre_format_value', $pre_format, 10, 5 );
+
+		try {
+			return $get_value();
+		} finally {
+			\remove_filter( 'acf/pre_format_value', $pre_format, 10 );
+		}
+	}
+
+	/**
+	 * Whether to render the block markup in a WYSIWYG field's value.
+	 *
+	 * @param string           $value            The field's value
+	 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root             The root node/object the field belongs to
+	 * @param mixed|string|int $node_id          The ID of the node the field belongs to
+	 */
+	protected static function should_render_wysiwyg_blocks( string $value, array $acf_field_config, $root, $node_id ): bool {
+		/**
+		 * Filters whether block markup in a WYSIWYG field's value is rendered.
+		 *
+		 * ACF's own formatting (the acf_the_content filter) doesn't render blocks. By default, block
+		 * markup in a WYSIWYG value is rendered the way the_content renders it: the blocks are
+		 * rendered before ACF's wpautop, which then skips the value. Without this, block markup in
+		 * a WYSIWYG value is returned with ACF's formatting only: static blocks keep their block
+		 * comments, and dynamic blocks return only their block comment.
+		 *
+		 * @param bool             $render_blocks    Whether to render the blocks. Default true.
+		 * @param string           $value            The field's value, with its block markup.
+		 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved.
+		 * @param mixed            $root             The root node/object the field belongs to.
+		 * @param mixed|string|int $node_id          The ID of the node the field belongs to.
+		 *
+		 * @since x-release-please-version
+		 */
+		return (bool) \apply_filters( 'wpgraphql/acf/wysiwyg/render_blocks', true, $value, $acf_field_config, $root, $node_id );
 	}
 
 	/**
@@ -533,12 +615,12 @@ class FieldConfig {
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
 		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['key'] ], $field_config ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
 		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['__key'] ], $field_config ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['__key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
@@ -591,18 +673,24 @@ class FieldConfig {
 
 			acf_setup_meta( $block['data'] ?? [], $block_id, true );
 
-			$return_value = $this->get_field( $field_config['name'], $parent_field_name, $block_id, $should_format_value );
+			$return_value = $this->with_wysiwyg_blocks_rendered(
+				function () use ( $field_config, $parent_field_name, $block_id, $should_format_value ) {
+					return $this->get_field( $field_config['name'], $parent_field_name, $block_id, $should_format_value );
+				},
+				$root,
+				$node_id
+			);
 			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
 				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_config['name'], $parent_field_name, $block_id, false ), $field_config );
 			}
 			acf_reset_meta( $block_id );
 
 			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
-				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $field_config['name'] ], $field_config );
+				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $field_config['name'] ], $field_config, $root, $node_id );
 			}
 
 			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
-				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config );
+				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config, $root, $node_id );
 			}
 		}
 
@@ -615,7 +703,13 @@ class FieldConfig {
 
 		// if a value hasn't been set yet, use the get_field() function to get the value
 		if ( self::is_empty_value( $return_value ) ) {
-			$return_value = $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
+			$return_value = $this->with_wysiwyg_blocks_rendered(
+				function () use ( $field_key, $parent_field_name, $node_id, $should_format_value ) {
+					return $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
+				},
+				$root,
+				$node_id
+			);
 			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
 				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_key, $parent_field_name, $node_id, false ), $field_config );
 			}
@@ -697,27 +791,12 @@ class FieldConfig {
 			}
 		}
 
-		// ACF's formatting (acf_the_content) leaves out do_blocks, but WYSIWYG values used to be run
-		// through the_content as well, which rendered any block markup in them. Keep rendering it.
-		if ( 'wysiwyg' === ( $acf_field_config['type'] ?? null ) && is_string( $value ) && \has_blocks( $value ) ) {
-			/**
-			 * Filters whether block markup in a WYSIWYG field's value is rendered.
-			 *
-			 * ACF's own formatting (the acf_the_content filter) doesn't render blocks. Without this,
-			 * block markup in a WYSIWYG value is returned as stored: static blocks keep their block
-			 * comments, and dynamic blocks return only their block comment.
-			 *
-			 * @param bool             $render_blocks    Whether to render the blocks. Default true.
-			 * @param string           $value            The field's value, after ACF's formatting.
-			 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved.
-			 * @param mixed            $root             The root node/object the field belongs to.
-			 * @param mixed|string|int $node_id          The ID of the node the field belongs to.
-			 *
-			 * @since x-release-please-version
-			 */
-			if ( \apply_filters( 'wpgraphql/acf/wysiwyg/render_blocks', true, $value, $acf_field_config, $root, $node_id ) ) {
-				$value = \do_blocks( $value );
-			}
+		// Block markup in a WYSIWYG value is rendered while the value is formatted (see
+		// with_wysiwyg_blocks_rendered() and format_stored_wysiwyg_value()). If a value still has
+		// block markup, it was formatted some other way, like by a version of ACF without the
+		// acf/pre_format_value filter, or rendering was turned off. Render it after ACF's formatting.
+		if ( 'wysiwyg' === ( $acf_field_config['type'] ?? null ) && is_string( $value ) && \has_blocks( $value ) && self::should_render_wysiwyg_blocks( $value, $acf_field_config, $root, $node_id ) ) {
+			$value = \do_blocks( $value );
 		}
 
 		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
