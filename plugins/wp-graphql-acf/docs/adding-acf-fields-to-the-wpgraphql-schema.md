@@ -81,6 +81,14 @@ If you’ve created an ACF Field Group and have set it to “Show in GraphQL” 
 
 If you have ideas on how to better handle automatic mapping of ACF Field Groups to the GraphQL Schema, [let us know](https://github.com/wp-graphql/wp-graphql/issues)!
 
+### Rules that use "All" or "is not equal to"
+
+A rule set to "All", such as "Post Type is equal to All", "Taxonomy is equal to All" or "Block is equal to All", adds the field group to every type of that kind that is shown in GraphQL: every content type, every taxonomy, or every ACF block type.
+
+A rule that excludes one value, such as "Post Type is not equal to Page", adds the field group to every other type of that kind that is shown in GraphQL, and not to the excluded one. Here, that's every content type except Page. A rule that excludes "All", such as "Block is not equal to All", matches nothing, the same as in ACF, so it doesn't add the field group to any type.
+
+To show a field group on a type its location rules exclude, map its types manually, as described below. Manually mapped types replace the types the location rules would map to.
+
 ### Manually Mapping ACF Field Groups to the Schema
 
 When ACF Location Rules cannot be automatically mapped to the Schema, based on complex rules as described above, you can manually map an ACF Field Group to the GraphQL Schema.
