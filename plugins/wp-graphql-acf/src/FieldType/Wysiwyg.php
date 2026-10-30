@@ -33,7 +33,7 @@ class Wysiwyg {
 	 *
 	 * @return mixed What $format returns.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.1.0
 	 */
 	public static function format_with_blocks_rendered( callable $format ) {
 		$depth = count( self::$removed_wpautop );
@@ -62,7 +62,7 @@ class Wysiwyg {
 	 *
 	 * @return mixed
 	 *
-	 * @since x-release-please-version
+	 * @since 3.1.0
 	 */
 	public static function render_blocks( $content ) {
 		if ( ! is_string( $content ) || ! \has_blocks( $content ) ) {
@@ -110,7 +110,7 @@ class Wysiwyg {
 	 *
 	 * @return mixed
 	 *
-	 * @since x-release-please-version
+	 * @since 3.1.0
 	 */
 	public static function restore_wpautop( $content = null ) {
 		$removed = array_pop( self::$removed_wpautop );

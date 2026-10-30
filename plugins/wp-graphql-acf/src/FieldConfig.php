@@ -524,7 +524,7 @@ class FieldConfig {
 		 * @param mixed            $root             The root node/object the field belongs to.
 		 * @param mixed|string|int $node_id          The ID of the node the field belongs to.
 		 *
-		 * @since x-release-please-version
+		 * @since 3.1.0
 		 */
 		return (bool) \apply_filters( 'wpgraphql/acf/wysiwyg/render_blocks', true, $value, $acf_field_config, $root, $node_id );
 	}
