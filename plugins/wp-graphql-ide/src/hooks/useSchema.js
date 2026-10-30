@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 import hooks from '../wordpress-hooks';
+
+// One id for the notice a failed load raises, so a load that fails again
+// replaces it instead of stacking another, and a load that succeeds can
+// dismiss it.
+const SCHEMA_LOAD_ERROR_NOTICE_ID = 'wpgraphql-ide-schema-load-error';
 
 /**
  * Runs schema introspection and manages the schema in the app store.
@@ -11,7 +16,8 @@ import hooks from '../wordpress-hooks';
  * caller drives refetches by invoking the returned `refetch` — same pattern
  * Apollo, GraphiQL, and urql expose. The schema stays in place during a
  * refetch (stale-while-revalidate), so the Docs Explorer doesn't flicker.
- * `load` runs the same fetch and also raises an error notice when it fails.
+ * `load` runs the same fetch and also raises an error notice when it fails,
+ * and any fetch that succeeds dismisses that notice.
  *
  * @param {Function} fetcher - GraphQL fetcher function. Receives { query }.
  * @return {{
@@ -62,6 +68,10 @@ export function useSchema(fetcher) {
 			}
 
 			setSchema(buildClientSchema(result.data));
+			hooks.doAction(
+				'wpgraphql-ide.notice.dismiss',
+				SCHEMA_LOAD_ERROR_NOTICE_ID
+			);
 			return { ok: true };
 		} catch (error) {
 			// eslint-disable-next-line no-console
@@ -79,14 +89,24 @@ export function useSchema(fetcher) {
 	const load = useCallback(async () => {
 		const result = await fetchSchema();
 		if (!result.ok) {
-			hooks.doAction(
-				'wpgraphql-ide.notice',
-				sprintf(
+			// Signed-out visitors (`isAuthenticated()` is false, as on the
+			// public IDE) get a general message. With public introspection
+			// off, the raw error would only be the introspection rule's.
+			let message = __(
+				"The schema couldn't be loaded. If you think this is a mistake, contact the site administrator.",
+				'wpgraphql-ide'
+			);
+			if (wpSelect('wpgraphql-ide/app').isAuthenticated()) {
+				message = sprintf(
 					/* translators: %s: error message from the GraphQL schema introspection */
 					__('Failed to load schema: %s', 'wpgraphql-ide'),
 					result.error?.message ??
 						__('Unknown error', 'wpgraphql-ide')
-				),
+				);
+			}
+			hooks.doAction(
+				'wpgraphql-ide.notice',
+				{ id: SCHEMA_LOAD_ERROR_NOTICE_ID, content: message },
 				'error'
 			);
 		}
@@ -95,7 +115,9 @@ export function useSchema(fetcher) {
 
 	// Kick off the first fetch on mount if the store is empty. The
 	// `hasMounted` ref makes this run exactly once for the lifetime of
-	// the component — subsequent loads go through `refetch`.
+	// the component. Later loads go through `load` (the retry in
+	// IDELayout.jsx when a query runs without a schema) or `refetch`
+	// (the Refresh Schema button).
 	const hasMounted = useRef(false);
 	const loadRef = useRef(load);
 	loadRef.current = load;
