@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class Menu - Models data for Menus
  *
@@ -19,6 +17,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<\WP_Term>
  */
 class Menu extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'term';
+
 	/**
 	 * Menu constructor.
 	 *
@@ -69,7 +75,7 @@ class Menu extends Model {
 					return ! empty( $this->data->term_id ) ? absint( $this->data->term_id ) : null;
 				},
 				'id'         => function () {
-					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'term', (string) $this->databaseId ) : null;
+					return ! empty( $this->databaseId ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'locations'  => function () {
 					$menu_locations = get_theme_mod( 'nav_menu_locations' );

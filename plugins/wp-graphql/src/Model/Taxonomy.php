@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class Taxonomy - Models data for taxonomies
  *
@@ -36,6 +34,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<\WP_Taxonomy>
  */
 class Taxonomy extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'taxonomy';
+
 	/**
 	 * Taxonomy constructor.
 	 *
@@ -101,7 +107,7 @@ class Taxonomy extends Model {
 					return true === $this->data->hierarchical;
 				},
 				'id'                  => function () {
-					return ! empty( $this->name ) ? Relay::toGlobalId( 'taxonomy', $this->name ) : null;
+					return ! empty( $this->name ) ? self::to_global_id( $this->name ) : null;
 				},
 				'label'               => function () {
 					return ! empty( $this->data->label ) ? $this->data->label : null;

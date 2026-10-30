@@ -29,16 +29,32 @@ class DateTimePicker {
 						return null;
 					}
 
-					$acf_field = $field_config->get_acf_field();
+					// Stored values are typically 'Y-m-d H:i:s'. Parse directly without relying on return_format.
+					$date_time = \DateTime::createFromFormat( 'Y-m-d H:i:s|', $value );
 
-					// Get the return format from the ACF Field
-					$return_format = $acf_field['return_format'] ?? null;
-
-					if ( empty( $return_format ) ) {
-						return $value;
+					if ( false === $date_time ) {
+						// Stored without seconds: reset seconds to 00.
+						$date_time = \DateTime::createFromFormat( 'Y-m-d H:i|', $value );
 					}
 
-					$date_time = \DateTime::createFromFormat( $return_format, $value );
+					if ( false === $date_time ) {
+						// Stored date only: reset time to 00:00:00.
+						$date_time = \DateTime::createFromFormat( 'Y-m-d|', $value );
+					}
+
+					if ( false === $date_time ) {
+						$date_time = \DateTime::createFromFormat( 'Ymd|', $value );
+					}
+
+					if ( false === $date_time ) {
+						// Fallback: in case value was modified or formatted by a custom filter or return format.
+						$acf_field     = $field_config->get_acf_field();
+						$return_format = $acf_field['return_format'] ?? null;
+
+						if ( ! empty( $return_format ) ) {
+							$date_time = \DateTime::createFromFormat( $return_format . '|', $value );
+						}
+					}
 
 					if ( empty( $date_time ) ) {
 						return null;
