@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\NodeContext;
 
 /**
  * Class InstrumentSchema
@@ -102,6 +103,10 @@ class InstrumentSchema {
 			 * @since 0.0.1
 			 */
 			$field->resolveFn = static function ( $source, array $args, AppContext $context, ResolveInfo $info ) use ( $field_resolver, $type_name, $field_key, $field ) {
+
+				// Set up the context of the nodes this field is selected under (or restore the
+				// request's original state if there are none) before anything runs for it.
+				NodeContext::for_request( $context )->enter( $source, $info );
 
 				/**
 				 * Fire an action BEFORE the field resolves

@@ -185,7 +185,13 @@ abstract class Model {
 	}
 
 	/**
-	 * Setup the global state before each field is resolved so the Model has the necessary context.
+	 * Sets up the global state so WordPress treats the modeled object as the current one.
+	 *
+	 * For models whose is_node_scoped() returns true (Post, Term and User), this runs when
+	 * resolution enters the part of the query under the model's node, so every field selected there
+	 * (including fields other plugins register, and fields of nested values that are not models)
+	 * resolves with this context. For other models it runs around each field that is read, and the
+	 * previous state is restored afterwards. See NodeContext.
 	 *
 	 * @return void
 	 */
@@ -193,9 +199,45 @@ abstract class Model {
 	}
 
 	/**
-	 * Tear-down call that runs after each field is resolved.
+	 * Whether the model's setup() applies to its whole part of a query, rather than around each
+	 * field read.
 	 *
-	 * This can be used to reset state to where it was before the model was setup.
+	 * Return true from a model that represents a node whose context every field selected under it
+	 * should see: fields other plugins register on its type, and fields of nested values that are
+	 * not models themselves. The model is then set up once when resolution enters its part of the
+	 * query, set up again if a field leaves the global post, author or queried object pointing
+	 * somewhere else, and torn down (with the previous state restored) when resolution leaves it.
+	 * Its fields read anywhere else, such as from PHP, are still set up around each read.
+	 *
+	 * Post, Term and User return true, and so do subclasses that don't override this. A subclass
+	 * whose setup() has to run before each field should return false.
+	 *
+	 * Node-scoped models nest: another node's setup() can run while this one's is in effect, and
+	 * tear_down() runs in the reverse order, so setup() and tear_down() must not depend on running
+	 * once at a time (for example, by adding and removing a filter with a shared callback).
+	 *
+	 * Return false (the default) for a model whose setup() expects to run before each field.
+	 *
+	 * Either way, the main query and the globals listed by the graphql_model_node_context_globals
+	 * filter are saved before setup() and restored after tear_down().
+	 *
+	 * @return bool
+	 *
+	 * @since x-release-please-version
+	 */
+	public function is_node_scoped() {
+		return false;
+	}
+
+	/**
+	 * Resets state that setup() changed.
+	 *
+	 * Runs when resolution leaves the model's part of the query, for models whose
+	 * is_node_scoped() returns true, and after each field read otherwise (including a node-scoped
+	 * model's fields read outside its part of the query). The global
+	 * main query ($wp_query), the post data globals (such as $post and $authordata) and any globals
+	 * added with the graphql_model_node_context_globals filter are restored after this runs, so
+	 * subclasses only need to undo other changes their setup() makes, such as filters it adds.
 	 *
 	 * @return void
 	 */
@@ -448,26 +490,39 @@ abstract class Model {
 		// not a resolver we registered (for example a value that happens to match a PHP
 		// function name), so it must be returned rather than invoked. This mirrors the
 		// Closure gate in __get(). Defense in depth for GHSA-7922 / CVE-2026-18944.
-		if ( is_callable( $field ) && ! is_string( $field ) ) {
-			$this->setup();
-			$field = call_user_func( $field );
-			$this->tear_down();
+		$is_resolver = is_callable( $field ) && ! is_string( $field );
+
+		$resolve = function () use ( $field, $field_name, $is_resolver ) {
+			if ( $is_resolver ) {
+				$field = call_user_func( $field );
+			}
+
+			/**
+			 * Filter the data returned by the default callback for the field
+			 *
+			 * @param mixed    $field        The data returned from the callback
+			 * @param string   $field_name   The name of the field on the type
+			 * @param string   $model_name   Name of the model the filter is currently being executed in
+			 * @param TData    $data         The un-modeled incoming data
+			 * @param string   $visibility   The visibility setting for this piece of data
+			 * @param int|null $owner        The user ID for the owner of this piece of data
+			 * @param \WP_User $current_user The current user for the session
+			 * @hookGroup models
+			 * @since 0.3.0
+			 */
+			return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+		};
+
+		// Resolvers run with the model set up as the current object. Within the model's part of
+		// the query it already is; anywhere else it is set up around this field and the previous
+		// state is restored afterwards, even if the field throws. A node's identifiers are worked
+		// out from its data alone, and are often read outside its part of the query (the query
+		// analyzer reads every node's ID to build cache keys), so reading them doesn't set it up.
+		if ( ! $is_resolver || ( in_array( $field_name, [ 'id', 'ID', 'databaseId' ], true ) && $this->is_node_scoped() ) ) {
+			return $resolve();
 		}
 
-		/**
-		 * Filter the data returned by the default callback for the field
-		 *
-		 * @param mixed    $field        The data returned from the callback
-		 * @param string   $field_name   The name of the field on the type
-		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param TData    $data         The un-modeled incoming data
-		 * @param string   $visibility   The visibility setting for this piece of data
-		 * @param int|null $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
-		 * @hookGroup models
-		 * @since 0.3.0
-		 */
-		return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+		return NodeContext::run_as( $this, $resolve );
 	}
 
 	/**

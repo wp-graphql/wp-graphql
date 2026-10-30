@@ -49,12 +49,18 @@ class User extends Model {
 	/**
 	 * The Global Post at time of Model generation
 	 *
+	 * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+	 * saved and restored around setup() and tear_down(). See NodeContext.
+	 *
 	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * The global authordata at time of Model generation
+	 *
+	 * Still set by setup() for subclasses that read it, but no longer read here: the global state is
+	 * saved and restored around setup() and tear_down(). See NodeContext.
 	 *
 	 * @var \WP_User
 	 */
@@ -94,6 +100,17 @@ class User extends Model {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @return bool
+	 *
+	 * @since x-release-please-version
+	 */
+	public function is_node_scoped() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function setup() {
 		global $wp_query, $post, $authordata;
@@ -120,15 +137,6 @@ class User extends Model {
 			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function tear_down() {
-		$GLOBALS['authordata'] = $this->global_authordata; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		$GLOBALS['post']       = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		wp_reset_postdata();
 	}
 
 	/**

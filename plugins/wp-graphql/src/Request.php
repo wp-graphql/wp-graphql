@@ -8,6 +8,7 @@ use GraphQL\GraphQL;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use WPGraphQL\Model\NodeContext;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
 use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
@@ -664,6 +665,10 @@ class Request {
 		 * @since 2.6.0 Auth check moved to before_execute()
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/3447
 		 */
+
+		// Tear down the nodes the request set up as the current object, restoring the global state
+		// from before execution, so the hooks that run on the response see the request's own state.
+		NodeContext::end_request( $this->app_context );
 
 		/**
 		 * If the params and the $response are both arrays
