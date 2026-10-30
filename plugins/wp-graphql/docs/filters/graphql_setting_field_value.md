@@ -30,7 +30,7 @@ Filters the resolved value of a single settings field before it is returned in t
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/SettingGroup.php:174`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/SettingGroup.php#L174)
+- [`plugins/wp-graphql/src/Model/SettingGroup.php:180`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/SettingGroup.php#L180)
 
 ```php
 apply_filters( 'graphql_setting_field_value', $value, $setting_field, $this->group_key );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_setting_field_value', $value, $setting_field, $this->gro
 
 ## Related
 
-- `SettingGroup::resolve_setting_value()` in [`plugins/wp-graphql/src/Model/SettingGroup.php:174`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/SettingGroup.php#L174)
+- `SettingGroup::resolve_setting_value()` in [`plugins/wp-graphql/src/Model/SettingGroup.php:180`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/SettingGroup.php#L180)

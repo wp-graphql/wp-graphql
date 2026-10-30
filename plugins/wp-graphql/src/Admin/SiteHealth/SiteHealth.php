@@ -15,7 +15,7 @@ namespace WPGraphQL\Admin\SiteHealth;
  * differently can remove any of them by its identifier.
  *
  * @package WPGraphQL\Admin\SiteHealth
- * @since x-release-please-version
+ * @since 2.26.0
  *
  * phpcs:disable -- For phpstan type hinting
  * @phpstan-type SiteHealthResult array{
@@ -38,7 +38,7 @@ class SiteHealth {
 	/**
 	 * Initializes the Site Health tests.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function init(): void {
 		add_filter( 'site_status_tests', [ $this, 'register_tests' ] );
@@ -51,7 +51,7 @@ class SiteHealth {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function register_tests( $tests ) {
 		// Another callback on the filter may have returned something unexpected. Leave it alone.
@@ -87,7 +87,7 @@ class SiteHealth {
 	 *
 	 * @return SiteHealthResult
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function test_public_introspection(): array {
 		$restricted = $this->is_restricted_to_logged_in_users();
@@ -136,7 +136,7 @@ class SiteHealth {
 	 *
 	 * @return SiteHealthResult
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function test_debug_mode(): array {
 		if ( ! \WPGraphQL::debug() ) {
@@ -195,7 +195,7 @@ class SiteHealth {
 	 *
 	 * @return SiteHealthResult
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function test_query_depth(): array {
 		if ( 'on' === get_graphql_setting( 'query_depth_enabled', 'off' ) ) {
@@ -230,7 +230,7 @@ class SiteHealth {
 	 *
 	 * @return SiteHealthResult
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	public function test_debug_output(): array {
 		$items = [];
@@ -286,7 +286,7 @@ class SiteHealth {
 	/**
 	 * Returns the value of the GRAPHQL_DEBUG constant, or null when it isn't defined.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	protected function get_debug_constant(): ?bool {
 		return defined( 'GRAPHQL_DEBUG' ) ? (bool) GRAPHQL_DEBUG : null;
@@ -320,7 +320,7 @@ class SiteHealth {
 	/**
 	 * Returns the site's environment type.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.0
 	 */
 	protected function get_environment_type(): string {
 		return wp_get_environment_type();
