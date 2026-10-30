@@ -64,7 +64,7 @@ This guide provides developers with information on how to add support for custom
 
 By default, a field resolves the value ACF stored for it, not the value `get_field()` returns after ACF formats it. For many field types those are the same. Some field types store one shape and format it into another, for example a field that stores JSON and formats it into an array. A field like that resolves the stored string unless its field type asks for the formatted value.
 
-Set `format_value` to `true` to resolve the formatted value:
+`format_value` is a boolean. Set it to `true` to resolve the formatted value:
 
 ```php
 register_graphql_acf_field_type(
@@ -75,6 +75,8 @@ register_graphql_acf_field_type(
     ]
 );
 ```
+
+The formatting is the field type's own: the same formatting ACF applies when `get_field()` formats the value (the field type's `format_value()` method, or the `acf/format_value` filter). `format_value` only decides whether it's applied. It doesn't take a callback, and any value other than `true` or `false` (like a callable, `1` or `'true'`) is ignored, leaving the default. To change the value yourself, use a `resolve` callback (see [Custom Resolvers](#registering-custom-acf-field-types)) or the `wpgraphql/acf/field_value` filter.
 
 The field then resolves the formatted value wherever it's used: at the top level of a field group, in a group, in repeater and flexible content rows, and in ACF blocks. Fields in repeater and flexible content rows already resolved formatted values, because ACF formats the rows.
 

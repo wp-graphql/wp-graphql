@@ -132,6 +132,43 @@ class CustomFieldTypeFormatValueTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraph
 		$this->assertSame( $this->stored_icon, $group['icon'] );
 	}
 
+	public function testCallableFormatValueIsIgnored(): void {
+		// `format_value` is a boolean. A callable is not called and doesn't opt in, and neither does
+		// a truthy non-boolean like 1. The field resolves the stored value, as without the option.
+		$callable_called = false;
+		$this->register_icon_field_type(
+			[
+				'graphql_type' => 'String',
+				'format_value' => static function () use ( &$callable_called ) {
+					$callable_called = true;
+					return true;
+				},
+			]
+		);
+		$this->register_acf_field( $this->icon_field() );
+		update_field( 'field_test_icon', $this->stored_icon, $this->published_post->ID );
+
+		$group = $this->query_test_group( 'icon' );
+
+		$this->assertSame( $this->stored_icon, $group['icon'] );
+		$this->assertFalse( $callable_called );
+	}
+
+	public function testTruthyNonBooleanFormatValueIsIgnored(): void {
+		$this->register_icon_field_type(
+			[
+				'graphql_type' => 'String',
+				'format_value' => 1,
+			]
+		);
+		$this->register_acf_field( $this->icon_field() );
+		update_field( 'field_test_icon', $this->stored_icon, $this->published_post->ID );
+
+		$group = $this->query_test_group( 'icon' );
+
+		$this->assertSame( $this->stored_icon, $group['icon'] );
+	}
+
 	public function testFieldInGroupResolvesFormattedValueWhenFieldTypeOptsIn(): void {
 		$this->register_icon_field_type( [ 'format_value' => true ] );
 		$this->register_acf_field(

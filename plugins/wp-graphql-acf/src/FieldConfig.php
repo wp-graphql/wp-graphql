@@ -319,8 +319,10 @@ class FieldConfig {
 	 * Determine if the field should ask ACF to format the response when retrieving
 	 * the field using get_field()
 	 *
-	 * A field type decides this with the `format_value` option of its register_graphql_acf_field_type()
-	 * config. Field types that don't set it fall back to the built-in list below.
+	 * A field type decides this with the boolean `format_value` option of its
+	 * register_graphql_acf_field_type() config: `true` formats, `false` doesn't. Only a boolean is
+	 * used. Field types that don't set it, or set it to anything else (like a callable or `1`), fall
+	 * back to the built-in list below.
 	 *
 	 * @param string $field_type The ACF Field Type of field being resolved
 	 */
@@ -439,10 +441,10 @@ class FieldConfig {
 	 *
 	 * Values passed down by field key, like the sub fields of a group field, and values read from a
 	 * block's data are stored values. WYSIWYG values get ACF's WYSIWYG formatting (see
-	 * format_stored_wysiwyg_value()). A field type that opts into formatted values with the
-	 * `format_value` option of its register_graphql_acf_field_type() config gets ACF's formatting
-	 * for its type. Built-in field types that are formatted without setting the option, like
-	 * select, keep resolving the stored value here.
+	 * format_stored_wysiwyg_value()). A field type that opts into formatted values by setting the
+	 * boolean `format_value` option of its register_graphql_acf_field_type() config to `true` gets
+	 * ACF's formatting for its type. Built-in field types that are formatted without setting the
+	 * option, like select, keep resolving the stored value here.
 	 *
 	 * @param mixed            $value        The stored value of the field
 	 * @param array<mixed>     $field_config The ACF Field Config for the field being resolved
