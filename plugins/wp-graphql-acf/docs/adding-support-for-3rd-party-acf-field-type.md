@@ -60,6 +60,26 @@ This guide provides developers with information on how to add support for custom
 
 ## Advanced Usage
 
+### Resolving the Formatted Value
+
+By default, a field resolves the value ACF stored for it, not the value `get_field()` returns after ACF formats it. For many field types those are the same. Some field types store one shape and format it into another, for example a field that stores JSON and formats it into an array. A field like that resolves the stored string unless its field type asks for the formatted value.
+
+Set `format_value` to `true` to resolve the formatted value:
+
+```php
+register_graphql_acf_field_type(
+    'your_custom_field_type',
+    [
+        'graphql_type' => 'YourCustomFieldValue',
+        'format_value' => true,
+    ]
+);
+```
+
+The field then resolves the formatted value wherever it's used: at the top level of a field group, in a group, in repeater and flexible content rows, and in ACF blocks. Fields in repeater and flexible content rows already resolved formatted values, because ACF formats the rows.
+
+The built-in select, WYSIWYG, oEmbed, repeater, flexible content and clone field types resolve their formatted value without setting `format_value`. Setting it to `false`, for example with the `wpgraphql/acf/field_type_config` filter, makes a top-level field of that type resolve its stored value instead. Fields in repeater and flexible content rows are formatted along with their row either way.
+
 ### Excluding Admin Fields
 
 The `register_graphql_acf_field_type` function allows for the exclusion of certain admin fields from appearing under the “GraphQL” tab in the field settings. This can be achieved by using the `exclude_admin_fields` key.
