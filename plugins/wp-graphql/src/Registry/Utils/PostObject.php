@@ -212,6 +212,25 @@ class PostObject {
 					return $resolver->get_connection();
 				},
 			];
+
+			// WordPress previews the post format from a request param rather than storing it
+			// (`_wp_preview_terms_filter()`), so derive it from the request's preview context.
+			if ( 'post_format' === $tax_object->name ) {
+				$resolve = $connections[ $tax_object->graphql_plural_name ]['resolve'];
+
+				$connections[ $tax_object->graphql_plural_name ]['previewResolve'] = static function ( Post $post, $args, AppContext $context, ResolveInfo $info, array $preview ) use ( $resolve, $tax_object ) {
+					if ( ! isset( $preview['postFormat'] ) ) {
+						return $resolve( $post, $args, $context, $info );
+					}
+
+					// `standard` has no term, so `post-format-standard` matches nothing, as intended.
+					// The slug is always non-empty: an empty one would be ignored and match every term.
+					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
+					$resolver->set_query_arg( 'slug', 'post-format-' . $preview['postFormat'] );
+
+					return $resolver->get_connection();
+				};
+			}
 		}
 
 		// Merge with connections set in register_post_type.
