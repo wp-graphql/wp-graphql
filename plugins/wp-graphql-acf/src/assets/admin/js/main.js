@@ -44,6 +44,25 @@ $j(document).ready(function () {
 		},
 	});
 
+	// A duplicated field is a copy of the original's settings, including its
+	// "graphql_field_name", and lands next to the original in the same parent.
+	// Two fields with the same GraphQL field name replace each other in the
+	// schema, so give the copy a GraphQL field name from its new name (ACF
+	// renames the copy, e.g. "test_1" to "test_2").
+	new acf.Model({
+		actions: {
+			duplicate_field_object: 'updateDuplicatedGraphqlFieldName',
+		},
+		updateDuplicatedGraphqlFieldName(_field, newField) {
+			const name = newField?.prop('name') ?? '';
+
+			newField?.prop(
+				'graphql_field_name',
+				'' === name ? '' : acf.strCamelCase(acf.strSanitize(name))
+			);
+		},
+	});
+
 	const GraphqlLocationManager = new acf.Model({
 		id: 'graphqlLocationManager',
 		wait: 'ready',
