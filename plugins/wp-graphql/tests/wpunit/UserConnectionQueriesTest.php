@@ -925,6 +925,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEmpty( $actual['data']['users']['edges'] );
+		$this->assertStringContainsString( 'hasPublishedContent', wp_json_encode( $actual['extensions']['debug'] ) );
 
 		// Delete the post and ensure the the attachment still doesnt return a user.
 		wp_delete_post( $post_id );
@@ -942,6 +943,84 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEmpty( $actual['data']['users']['edges'] );
+	}
+
+	public function testWithHasPublishedContentFilter() {
+		$user_id = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$this->factory()->post->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'page',
+			]
+		);
+
+		$query = '
+			query UsersWithPublishedContent( $hasPublishedContent: [PublishableContentTypeEnum] ){
+				users(first:1 where: { hasPublishedContent: $hasPublishedContent } ) {
+					nodes {
+						databaseId
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'hasPublishedContent' => [ 'PAGE' ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $user_id, $actual['data']['users']['nodes'][0]['databaseId'] );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'hasPublishedContent' => [ 'POST' ] ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['nodes'] );
+
+		// Attachments are never published, so ATTACHMENT is not a valid value.
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'hasPublishedContent' => [ 'ATTACHMENT' ] ],
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// hasPublishedPosts is deprecated in favor of hasPublishedContent.
+		// Deprecation reasons are only resolved when the schema is built for an introspection query.
+		$this->clearSchema();
+		$actual = $this->graphql(
+			[
+				'query' => '
+					{
+						__type(name: "RootQueryToUserConnectionWhereArgs") {
+							inputFields(includeDeprecated: true) {
+								name
+								isDeprecated
+							}
+						}
+					}
+				',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$fields = wp_list_pluck( $actual['data']['__type']['inputFields'], 'isDeprecated', 'name' );
+		$this->assertTrue( $fields['hasPublishedPosts'] );
+		$this->assertFalse( $fields['hasPublishedContent'] );
 	}
 
 	public function testWithSearchColumns() {

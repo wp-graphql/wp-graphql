@@ -91,20 +91,15 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * If `has_published_posts` is set to `attachment`, throw a warning.
+		 * If `has_published_posts` includes `attachment`, throw a warning.
 		 *
-		 * @todo Remove this when the `hasPublishedPosts` enum type changes.
+		 * @todo Remove this when the deprecated `hasPublishedPosts` arg is removed.
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/2963
 		 */
-		if ( ! empty( $query_args['has_published_posts'] ) && 'attachment' === $query_args['has_published_posts'] ) {
+		if ( ! empty( $query_args['has_published_posts'] ) && in_array( 'attachment', (array) $query_args['has_published_posts'], true ) ) {
 			graphql_debug(
-				__( 'The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value, and will be removed from the possible enum values in a future release.', 'wp-graphql' ),
-				[
-					'operationName' => $this->context->operationName ?? '',
-					'query'         => $this->context->query ?? '',
-					'variables'     => $this->context->variables ?? '',
-				]
+				__( 'The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value. Use `hasPublishedContent` instead.', 'wp-graphql' )
 			);
 		}
 
@@ -227,14 +222,15 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$arg_mapping = [
-			'roleIn'            => 'role__in',
-			'roleNotIn'         => 'role__not_in',
-			'searchColumns'     => 'search_columns',
-			'hasPublishedPosts' => 'has_published_posts',
-			'nicenameIn'        => 'nicename__in',
-			'nicenameNotIn'     => 'nicename__not_in',
-			'loginIn'           => 'login__in',
-			'loginNotIn'        => 'login__not_in',
+			'roleIn'              => 'role__in',
+			'roleNotIn'           => 'role__not_in',
+			'searchColumns'       => 'search_columns',
+			'hasPublishedPosts'   => 'has_published_posts',
+			'hasPublishedContent' => 'has_published_posts',
+			'nicenameIn'          => 'nicename__in',
+			'nicenameNotIn'       => 'nicename__not_in',
+			'loginIn'             => 'login__in',
+			'loginNotIn'          => 'login__not_in',
 		];
 
 		/**

@@ -41,6 +41,22 @@ class ContentTypeEnum {
 			]
 		);
 
+		// Attachments are never published (they use the `inherit` status), so they can't be filtered by published status.
+		register_graphql_enum_type(
+			'PublishableContentTypeEnum',
+			[
+				'description' => static function () {
+					return __( 'Content types that can have published content. Unlike ContentTypeEnum, media items are excluded since they are never published.', 'wp-graphql' );
+				},
+				'values'      => array_filter(
+					$values,
+					static function ( $value ) {
+						return 'attachment' !== $value['value'];
+					}
+				),
+			]
+		);
+
 		/**
 		 * Register a ContentTypesOf${taxonomyName}Enum for each taxonomy.
 		 */
