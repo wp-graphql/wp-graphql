@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.5](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.4...wp-graphql-smart-cache/v2.3.5) (2026-10-31)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4588](https://github.com/wp-graphql/wp-graphql/issues/4588)) ([ba4181a](https://github.com/wp-graphql/wp-graphql/commit/ba4181a9216e38764f233970992203e36c3d552c))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-smart-cache ([#4598](https://github.com/wp-graphql/wp-graphql/issues/4598)) ([0b0bca9](https://github.com/wp-graphql/wp-graphql/commit/0b0bca99609c7a0c7c3e175e3cbebed13ccc3cb6))
+
 ## [2.3.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.3...wp-graphql-smart-cache/v2.3.4) (2026-10-21)
 
 
