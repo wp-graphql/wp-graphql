@@ -170,6 +170,13 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.8.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.8.0...wp-graphql-ide/v5.8.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **ide:** show an error notice when the schema fails to load ([#4604](https://github.com/wp-graphql/wp-graphql/issues/4604)) ([01b8c3a](https://github.com/wp-graphql/wp-graphql/commit/01b8c3a4e230d9bff22679b620bca0e1f86956d8))
+
 ## [5.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.7.0...wp-graphql-ide/v5.8.0) (2026-10-30)
 
 
