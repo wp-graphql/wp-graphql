@@ -401,7 +401,10 @@ class Request {
 	 * contract in docs/previews.md, pinned by
 	 * PreviewTest::testNonceIsAcceptedButNotVerifiedToday.
 	 *
-	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 * Members registered with register_graphql_preview_context_member() are added under
+	 * their camelCase names (null when absent or invalid).
+	 *
+	 * @return array<string,mixed>|null
 	 */
 	private function get_preview_context(): ?array {
 		$preview = $this->get_preview_input();
@@ -430,7 +433,7 @@ class Request {
 			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
 		}
 
-		return [
+		$context = [
 			'databaseId'              => $database_id,
 			// The post's newest autosave (a revision) to overlay previewable fields from.
 			'revisionDatabaseId'      => $revision_database_id,
@@ -439,6 +442,13 @@ class Request {
 			'featuredImageDatabaseId' => $this->get_non_negative_int_input( $preview['featuredImageDatabaseId'] ?? null ),
 			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
 		];
+
+		// Members registered by extensions (register_graphql_preview_context_member()).
+		foreach ( Preview::get_context_members() as $name => $member ) {
+			$context[ $name ] = Preview::normalize_context_member( $name, $member, $preview[ $name ] ?? null );
+		}
+
+		return $context;
 	}
 
 	/**
@@ -539,8 +549,10 @@ class Request {
 	 * The full dictionary syntax is parsed (see Utils\StructuredFields), and the preview
 	 * profile is applied on top: only the keys this feature defines are recognized, and
 	 * their members must be Integers or Strings; members of any other type, and unknown
-	 * keys, are ignored. The recognized keys are mapped to the same shape as the JSON
-	 * `extensions.preview` object so both transports normalize identically.
+	 * keys, are ignored. Members registered with register_graphql_preview_context_member()
+	 * are recognized by their header key and must match their declared type. The
+	 * recognized keys are mapped to the same shape as the JSON `extensions.preview`
+	 * object so both transports normalize identically.
 	 *
 	 * As RFC 8941 requires, a value that fails to parse is discarded in its entirety,
 	 * in which case (as with an empty parse) the `extensions.preview` fallback applies.
@@ -577,7 +589,17 @@ class Request {
 
 		$parsed = [];
 
+		$registered = [];
+		foreach ( Preview::get_context_members() as $name => $config ) {
+			$registered[ $config['header_key'] ] = $name;
+		}
+
 		foreach ( $dictionary as $key => $member ) {
+			if ( isset( $registered[ $key ] ) ) {
+				$parsed[ $registered[ $key ] ] = $this->get_preview_header_member_value( $registered[ $key ], $member );
+				continue;
+			}
+
 			if ( ! isset( $key_map[ $key ] ) ) {
 				continue;
 			}
@@ -600,6 +622,40 @@ class Request {
 		}
 
 		return $parsed;
+	}
+
+	/**
+	 * Returns the bare value of a header member for a registered preview context member,
+	 * enforcing the RFC 8941 type it declares (an inner list's items must all be of the
+	 * declared item type). A mismatch surfaces a debug notice and yields null (absent).
+	 *
+	 * @param string                         $name   The camelCase member name.
+	 * @param array{type:string,value:mixed} $member The parsed header member.
+	 *
+	 * @return mixed The bare value (a list of bare values for an inner list), or null.
+	 */
+	private function get_preview_header_member_value( string $name, array $member ) {
+		$config = Preview::get_context_members()[ $name ];
+		$valid  = $member['type'] === $config['type'];
+
+		if ( $valid && 'inner-list' === $member['type'] ) {
+			$valid = [] === array_diff( wp_list_pluck( $member['value'], 'type' ), [ $config['items'] ] );
+		}
+
+		if ( ! $valid ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: the header key, 2: the expected type */
+					__( 'The `X-GraphQL-Preview` header member `%1$s` was ignored because it is not of the expected type `%2$s`.', 'wp-graphql' ),
+					$config['header_key'],
+					'inner-list' === $config['type'] ? 'inner-list of ' . $config['items'] : $config['type']
+				),
+				[ 'type' => 'PREVIEW_CONTEXT_MEMBER_INVALID' ]
+			);
+			return null;
+		}
+
+		return 'inner-list' === $member['type'] ? wp_list_pluck( $member['value'], 'value' ) : $member['value'];
 	}
 
 	/**

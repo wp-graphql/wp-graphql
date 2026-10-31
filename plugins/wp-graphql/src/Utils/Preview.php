@@ -11,6 +11,186 @@ use WPGraphQL\Model\Post;
 class Preview {
 
 	/**
+	 * The preview context keys core defines. Third-party members may not use these
+	 * names (or their header keys): the overlay is keyed on `databaseId` and
+	 * `revisionDatabaseId`, so letting a member shadow them is a hard refusal.
+	 */
+	private const RESERVED_CONTEXT_MEMBERS = [
+		'databaseId'              => 'database_id',
+		'revisionDatabaseId'      => 'revision_database_id',
+		'featuredImageDatabaseId' => 'featured_image_database_id',
+		'nonce'                   => 'nonce',
+	];
+
+	/**
+	 * The member types a third-party preview context member may declare.
+	 */
+	private const CONTEXT_MEMBER_TYPES = [ 'integer', 'string', 'boolean', 'inner-list' ];
+
+	/**
+	 * The item types an `inner-list` member may declare.
+	 */
+	private const CONTEXT_MEMBER_ITEM_TYPES = [ 'integer', 'string', 'boolean' ];
+
+	/**
+	 * The preview context members registered by extensions, keyed by camelCase name.
+	 *
+	 * @var array<string,array{type:string,items:?string,header_key:string,description:string,sanitize:callable}>
+	 */
+	private static $context_members = [];
+
+	/**
+	 * Registers a third-party member of the request preview context.
+	 *
+	 * See register_graphql_preview_context_member() for the config contract.
+	 *
+	 * @param string              $name   The camelCase member name.
+	 * @param array<string,mixed> $config The member config.
+	 */
+	public static function register_context_member( string $name, array $config ): void {
+		if ( isset( self::RESERVED_CONTEXT_MEMBERS[ $name ] ) ) {
+			self::debug_context_member_not_registered( $name, __( 'it is reserved by WPGraphQL core', 'wp-graphql' ) );
+			return;
+		}
+
+		if ( ! preg_match( '/^[a-z][a-zA-Z0-9]*$/', $name ) ) {
+			self::debug_context_member_not_registered( $name, __( 'the name must be camelCase (a lowercase letter followed by letters and digits)', 'wp-graphql' ) );
+			return;
+		}
+
+		$type  = $config['type'] ?? null;
+		$items = 'inner-list' === $type ? ( $config['items'] ?? null ) : null;
+
+		if ( ! in_array( $type, self::CONTEXT_MEMBER_TYPES, true ) ) {
+			self::debug_context_member_not_registered( $name, __( 'the type must be one of `integer`, `string`, `boolean` or `inner-list`', 'wp-graphql' ) );
+			return;
+		}
+
+		if ( 'inner-list' === $type && ! in_array( $items, self::CONTEXT_MEMBER_ITEM_TYPES, true ) ) {
+			self::debug_context_member_not_registered( $name, __( 'an `inner-list` member must declare `items` as one of `integer`, `string` or `boolean`', 'wp-graphql' ) );
+			return;
+		}
+
+		if ( ! isset( $config['sanitize'] ) || ! is_callable( $config['sanitize'] ) ) {
+			self::debug_context_member_not_registered( $name, __( 'a `sanitize` callback is required', 'wp-graphql' ) );
+			return;
+		}
+
+		// The header key is derived from the name so the two transports cannot drift.
+		$header_key = $config['header_key'] ?? strtolower( (string) preg_replace( '/[A-Z]/', '_$0', $name ) );
+
+		// RFC 8941 dictionary keys: a lowercase letter or "*", then lowercase letters, digits, "_", "-", "." or "*".
+		if ( ! is_string( $header_key ) || ! preg_match( '/^[a-z*][a-z0-9_\-.*]*$/', $header_key ) ) {
+			self::debug_context_member_not_registered( $name, __( 'the `header_key` must be a valid lowercase RFC 8941 dictionary key', 'wp-graphql' ) );
+			return;
+		}
+
+		if ( in_array( $header_key, self::RESERVED_CONTEXT_MEMBERS, true ) ) {
+			self::debug_context_member_not_registered( $name, __( 'its header key is reserved by WPGraphQL core', 'wp-graphql' ) );
+			return;
+		}
+
+		// First wins, so behavior never depends on plugin load order.
+		if ( isset( self::$context_members[ $name ] ) || in_array( $header_key, wp_list_pluck( self::$context_members, 'header_key' ), true ) ) {
+			self::debug_context_member_not_registered( $name, __( 'a member with the same name or header key is already registered', 'wp-graphql' ) );
+			return;
+		}
+
+		self::$context_members[ $name ] = [
+			'type'        => $type,
+			'items'       => $items,
+			'header_key'  => $header_key,
+			'description' => isset( $config['description'] ) && is_string( $config['description'] ) ? $config['description'] : '',
+			'sanitize'    => $config['sanitize'],
+		];
+	}
+
+	/**
+	 * Returns the preview context members registered by extensions.
+	 *
+	 * @return array<string,array{type:string,items:?string,header_key:string,description:string,sanitize:callable}>
+	 */
+	public static function get_context_members(): array {
+		return self::$context_members;
+	}
+
+	/**
+	 * Normalizes a client-supplied value for a registered preview context member.
+	 *
+	 * The value must match the declared type exactly (no coercion); the member's
+	 * sanitizer then runs on the type-checked value, and its return is used as is.
+	 * A value that fails the type check surfaces a debug notice and is treated as absent.
+	 *
+	 * @param string                                                                                  $name   The camelCase member name.
+	 * @param array{type:string,items:?string,header_key:string,description:string,sanitize:callable} $member The registered member.
+	 * @param mixed                                                                                   $value  The raw client-supplied value.
+	 *
+	 * @return mixed The sanitized value, or null when absent or invalid.
+	 */
+	public static function normalize_context_member( string $name, array $member, $value ) {
+		if ( null === $value ) {
+			return null;
+		}
+
+		$is_valid = 'inner-list' === $member['type']
+			? is_array( $value ) && array_values( $value ) === $value && count( array_filter( $value, static fn ( $item ) => self::is_context_value_of_type( $item, (string) $member['items'] ) ) ) === count( $value )
+			: self::is_context_value_of_type( $value, $member['type'] );
+
+		if ( ! $is_valid ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: the preview context member name, 2: the header key, 3: the expected type */
+					__( 'The preview context member `%1$s` (header key `%2$s`) was ignored because its value is not of the expected type `%3$s`.', 'wp-graphql' ),
+					$name,
+					$member['header_key'],
+					'inner-list' === $member['type'] ? 'inner-list of ' . $member['items'] : $member['type']
+				),
+				[ 'type' => 'PREVIEW_CONTEXT_MEMBER_INVALID' ]
+			);
+			return null;
+		}
+
+		return call_user_func( $member['sanitize'], $value );
+	}
+
+	/**
+	 * Whether a value is of the given preview context member (or item) type.
+	 *
+	 * @param mixed  $value The value.
+	 * @param string $type  One of `integer`, `string` or `boolean`.
+	 */
+	private static function is_context_value_of_type( $value, string $type ): bool {
+		switch ( $type ) {
+			case 'integer':
+				return is_int( $value );
+			case 'string':
+				return is_string( $value );
+			case 'boolean':
+				return is_bool( $value );
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Surfaces a debug notice for a preview context member registration that was refused.
+	 *
+	 * @param string $name   The member name.
+	 * @param string $reason Why the member was not registered.
+	 */
+	private static function debug_context_member_not_registered( string $name, string $reason ): void {
+		graphql_debug(
+			sprintf(
+				/* translators: 1: the preview context member name, 2: the reason it was not registered */
+				__( 'The preview context member `%1$s` was not registered: %2$s.', 'wp-graphql' ),
+				$name,
+				$reason
+			),
+			[ 'type' => 'PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED' ]
+		);
+	}
+
+	/**
 	 * Returns the schema deprecation reason for the `asPreview` argument.
 	 *
 	 * Single-sourced so the schema's guidance cannot drift from the runtime behavior:
