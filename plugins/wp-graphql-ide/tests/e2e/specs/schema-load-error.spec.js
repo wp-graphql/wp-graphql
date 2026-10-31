@@ -165,6 +165,38 @@ test.describe('Schema load errors', () => {
 		await runQueryAndWaitForLoad(page);
 		await expect(notice).toBeHidden({ timeout: 1000 });
 	});
+
+	test('keeps the detailed notice for a signed-in user in public mode', async ({
+		page,
+	}) => {
+		await visitDedicatedIde(page);
+		const notices = page.locator('.components-snackbar.is-error');
+		const notice = notices.filter({ hasText: FAILURE_NOTICE });
+		await expect(notice).toBeVisible({ timeout: 10000 });
+		await notice.click();
+		await expect(notice).toBeHidden();
+
+		// Queries now go out as a public visitor, but the schema load still
+		// sends the nonce and runs as the signed-in user.
+		await page
+			.getByRole('button', {
+				name: /Send as authenticated user/i,
+			})
+			.click();
+		await expect(
+			page.getByRole('button', {
+				name: /Send as public visitor/i,
+			})
+		).toBeVisible();
+
+		await ensureDocumentOpen(page);
+		await typeQuery(page, '{ __typename }');
+		await runQueryAndWaitForLoad(page);
+		// Check right away: snackbars time out after a few seconds.
+		await expect(notice).toBeVisible({ timeout: 1000 });
+		const general = notices.filter({ hasText: SIGNED_OUT_NOTICE });
+		await expect(general).toHaveCount(0);
+	});
 });
 
 test.describe('Schema load errors for signed-out visitors', () => {

@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { useDispatch, useSelect, select as wpSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 import hooks from '../wordpress-hooks';
+import { isUserLoggedIn } from '../bootstrap';
 
 // One id for the notice a failed load raises, so a load that fails again
 // replaces it instead of stacking another, and a load that succeeds can
@@ -89,14 +90,16 @@ export function useSchema(fetcher) {
 	const load = useCallback(async () => {
 		const result = await fetchSchema();
 		if (!result.ok) {
-			// Signed-out visitors (`isAuthenticated()` is false, as on the
-			// public IDE) get a general message. With public introspection
-			// off, the raw error would only be the introspection rule's.
+			// Signed-out visitors, as on the public IDE, get a general
+			// message: with public introspection off, the raw error would
+			// only be the introspection rule's. The schema load always
+			// sends the nonce (App.jsx), whatever the auth toggle says, so
+			// a signed-in user keeps the detailed message in public mode.
 			let message = __(
 				"The schema couldn't be loaded. If you think this is a mistake, contact the site administrator.",
 				'wpgraphql-ide'
 			);
-			if (wpSelect('wpgraphql-ide/app').isAuthenticated()) {
+			if (isUserLoggedIn) {
 				message = sprintf(
 					/* translators: %s: error message from the GraphQL schema introspection */
 					__('Failed to load schema: %s', 'wpgraphql-ide'),
