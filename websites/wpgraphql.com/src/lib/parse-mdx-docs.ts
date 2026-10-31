@@ -451,10 +451,33 @@ export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
   }
 }
 
+// Search results cut meta descriptions off at about this many characters.
+const MAX_DESCRIPTION_LENGTH = 160
+
 /**
- * Plain text of the doc's first paragraph, for use as its meta description.
- * The generated reference docs (actions, filters, functions) and recipes have
- * no `description` frontmatter, but each opens with a one-line summary.
+ * The first sentence of `text`, shortened at a word boundary if it's still
+ * longer than a meta description should be. In the generated hook and function
+ * docs, the first paragraph is often the whole docblock run together, code
+ * examples included, so the rest of it doesn't belong in a description.
+ */
+function toDescription(text: string): string {
+  // A sentence ends at ".", "!" or "?" followed by a capitalized word, so
+  // "e.g. this" or "2.3.8" don't end one.
+  const sentence = text.match(/^.+?[.!?](?=\s+[A-Z]|$)/)?.[0] ?? text
+  if (sentence.length <= MAX_DESCRIPTION_LENGTH) {
+    return sentence
+  }
+
+  const cut = sentence.slice(0, MAX_DESCRIPTION_LENGTH - 1)
+  const atWord = cut.slice(0, cut.lastIndexOf(" ")) || cut
+  return `${atWord.replace(/[\s,;:.-]+$/, "")}…`
+}
+
+/**
+ * The first sentence of the doc's first paragraph, as plain text, for use as
+ * its meta description. The generated reference docs (actions, filters,
+ * functions) and recipes have no `description` frontmatter, but each opens
+ * with a summary.
  */
 function getDescriptionFromMd(mdContent: string): string | null {
   const tree = unified()
@@ -473,7 +496,7 @@ function getDescriptionFromMd(mdContent: string): string | null {
         : (node.children ?? []).map(toText).join("")
 
   const text = paragraph ? toText(paragraph).replace(/\s+/g, " ").trim() : ""
-  return text || null
+  return text ? toDescription(text) : null
 }
 
 /**

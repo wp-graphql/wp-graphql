@@ -28,8 +28,10 @@ const routes = [
     description: /^Fire off init action/,
   },
   {
+    // Its first paragraph is the whole docblock, usage example included.
     path: "/filters/graphql_request_results",
     title: /^graphql_request_results - WPGraphQL Developer Reference$/,
+    description: /^Filter the \$response of the GraphQL execution\.$/,
   },
   {
     path: "/functions/deregister_graphql_field",
@@ -62,6 +64,10 @@ test.describe("SEO tags", () => {
         "content",
         route.description ?? /\S/
       )
+      // Search results cut descriptions off at about 160 characters.
+      expect(
+        (await description.getAttribute("content")).length
+      ).toBeLessThanOrEqual(160)
 
       const canonical = page.locator('link[rel="canonical"]')
       await expect(canonical).toHaveAttribute(
