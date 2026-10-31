@@ -319,11 +319,21 @@ class FieldConfig {
 	 * Determine if the field should ask ACF to format the response when retrieving
 	 * the field using get_field()
 	 *
+	 * A field type decides this with the boolean `format_value` option of its
+	 * register_graphql_acf_field_type() config: `true` formats, `false` doesn't. Only a boolean is
+	 * used. Field types that don't set it, or set it to anything else (like a callable or `1`), fall
+	 * back to the built-in list below.
+	 *
 	 * @param string $field_type The ACF Field Type of field being resolved
 	 */
 	public function should_format_field_value( string $field_type ): bool {
+		$graphql_field_type = Utils::get_graphql_field_type( $field_type );
+		$format_value       = $graphql_field_type ? $graphql_field_type->get_config( 'format_value' ) : null;
 
-		// @todo: filter this? And it should be done at the registry level once, not the per-field level
+		if ( is_bool( $format_value ) ) {
+			return $format_value;
+		}
+
 		$types_to_format = [
 			'select',
 			'wysiwyg',
@@ -423,6 +433,47 @@ class FieldConfig {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Format the stored value of a field the way get_field() formats it, for the field types that
+	 * resolve formatted values from stored values passed down to them.
+	 *
+	 * Values passed down by field key, like the sub fields of a group field, and values read from a
+	 * block's data are stored values. WYSIWYG values get ACF's WYSIWYG formatting (see
+	 * format_stored_wysiwyg_value()). A field type that opts into formatted values by setting the
+	 * boolean `format_value` option of its register_graphql_acf_field_type() config to `true` gets
+	 * ACF's formatting for its type. Built-in field types that are formatted without setting the
+	 * option, like select, keep resolving the stored value here.
+	 *
+	 * @param mixed            $value        The stored value of the field
+	 * @param array<mixed>     $field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root         The root node/object the field belongs to
+	 * @param mixed|string|int $node_id      The ID of the node the field belongs to
+	 *
+	 * @return mixed
+	 */
+	protected function format_stored_value( $value, array $field_config, $root, $node_id ) {
+		$field_type = $field_config['type'] ?? null;
+
+		if ( 'wysiwyg' === $field_type ) {
+			return $this->format_stored_wysiwyg_value( $value, $field_config, $root, $node_id );
+		}
+
+		if ( ! is_string( $field_type ) || self::is_empty_value( $value ) ) {
+			return $value;
+		}
+
+		$graphql_field_type = Utils::get_graphql_field_type( $field_type );
+
+		if ( ! $graphql_field_type || true !== $graphql_field_type->get_config( 'format_value' ) ) {
+			return $value;
+		}
+
+		// The same filter acf_format_value() applies, without reading or writing its cache, which is
+		// keyed by field name, so a sub field could read the formatted value of a top-level field
+		// with the same name.
+		return \apply_filters( 'acf/format_value', $value, $node_id, $field_config, false );
 	}
 
 	/**
@@ -615,12 +666,12 @@ class FieldConfig {
 		// If the root being passed down already has a value
 		// for the field key, let's use it to resolve
 		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_value( $root[ $field_config['key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Check if the cloned field key is being used to pass values down
 		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
-			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_wysiwyg_value( $root[ $field_config['__key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_value( $root[ $field_config['__key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
 		}
 
 		// Else check if the values are being passed down via the name
@@ -686,11 +737,11 @@ class FieldConfig {
 			acf_reset_meta( $block_id );
 
 			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
-				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $field_config['name'] ], $field_config, $root, $node_id );
+				$return_value = $this->format_stored_value( $node['attrs']['data'][ $field_config['name'] ], $field_config, $root, $node_id );
 			}
 
 			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
-				$return_value = $this->format_stored_wysiwyg_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config, $root, $node_id );
+				$return_value = $this->format_stored_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config, $root, $node_id );
 			}
 		}
 
