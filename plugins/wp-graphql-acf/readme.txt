@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -118,9 +118,11 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 = 3.1.0 =
 
-**Schema change**: this release fixes ACF location rules that use "is not equal to". Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
+**Read before updating.** This release fixes a long list of bugs. Five of the fixes can change results a client depends on, either what a query returns or which types a field group appears on, and one asks sites on ACF older than 6.1 to check their field groups. Each of those is described below, followed by the other fixes. If you rely on any of these areas, test the update on a staging site first.
 
-This reaches more than just field groups using "Post Type is not equal to". Removals were also cancelled for every field group processed after one that had nothing to remove, so a site with any exclusion rule may see several field groups move.
+**Field groups now leave the types their "is not equal to" location rules exclude.** Field groups matched by such a rule were not being removed from the GraphQL Schema, so they appeared on types they were configured to be excluded from. After updating, those field groups are correctly absent, which means fields may disappear from types where they should not have been available.
+
+This reaches more than just field groups using "Post Type is not equal to". Exclusions were also skipped for every field group processed after one whose exclusion had nothing to remove, so a site with any exclusion rule may see several field groups move.
 
 If a query relies on one of these fields, check that field group's location rules, since the field group is now on exactly the types those rules describe. To keep a field group on types its location rules exclude, enable "Manually Set GraphQL Types for Field Group" on the field group and choose the types directly, which bypasses location rules entirely.
 
@@ -129,6 +131,14 @@ The "All" value of the Block location rule is also fixed. A field group set to "
 **Single-value select fields set to "Both (Array)" return just the value.** A select field that allows one value and uses the "Both (Array)" return format resolved as `["red", "Red"]`, the chosen option's value followed by its label. It now resolves as `["red"]`, the same as a select set to "Value", and the same as a multi-value select already did. If a client read the label from that second entry, set the field's return format to "Label" instead. See #4561.
 
 **Zero values now resolve.** A number, range or text field that stores 0 or "0", and a select or checkbox field whose chosen value is "0", used to resolve as null, at the top level and inside repeater and flexible content rows. They now return 0 (or "0"). If a client treats null as "not set" for one of these fields, check that it also handles 0. See #4540.
+
+**Field group settings on ACF before 6.1.** On ACF versions older than 6.1, saving a field group could rewrite a "Taxonomy is equal to" location rule as "Post Taxonomy is equal to", give the field group a new key, and reset its GraphQL settings (Show in GraphQL, GraphQL Type Name and the rest) to their defaults. That no longer happens, but field groups already saved this way aren't repaired by updating. If your site runs an ACF version older than 6.1, open your field groups and check their location rules and GraphQL settings. See #4527.
+
+**Date Time Picker seconds, and nested dates, now resolve from the stored value.** A Date Time Picker whose return format has no seconds resolved with the seconds set to 00, and one whose return format has only a date picked up the time of the request. They now return the stored date and time, seconds included. Date Picker and Date Time Picker fields inside repeater and flexible content rows could also resolve as 1970-01-01, or with the day and month swapped, when the return format used slashes (such as `d/m/Y`). They now resolve from the stored date too. If a client worked around either, for example by ignoring the seconds, check it against the corrected values. See #4564 and #4524.
+
+**WYSIWYG fields are no longer run through `the_content`.** ACF formats a WYSIWYG value with its own `acf_the_content` filter, and the value was then run through WordPress's `the_content` filter as well, so anything a plugin or theme adds to post content through `the_content` (sharing buttons, related posts, newsletter forms) was added to WYSIWYG field values too. They now get ACF's formatting only, as they do from `get_field()`, so paragraphs, shortcodes and embeds still apply. If a client relied on markup added by a `the_content` filter, add that callback to `acf_the_content` instead, which runs for WYSIWYG fields everywhere, including templates that use `get_field()`. Block markup in a WYSIWYG field is still rendered, even though `acf_the_content` doesn't render blocks, and it is now rendered the way `the_content` renders it. The blocks used to be rendered after ACF added paragraphs, so the output had empty `<p></p>` tags between blocks and `<p>` tags around block-level elements. Those are gone. If a client stripped or relied on them, check it against the new output. To return block markup with ACF's formatting only instead, return false from the new `wpgraphql/acf/wysiwyg/render_blocks` filter. See #4562 and #4605.
+
+**Also fixed.** Connection fields inside repeater and flexible content rows (Page Link fields, and Image, File and Gallery fields set to the URL return format) returned null or an empty list, and Link fields set to "Link URL" returned null inside rows. They now resolve the same as at the top level. `fieldGroupName` is no longer deprecated, so tools that leave deprecated fields out when they introspect the Schema, like Gatsby, can build it again. Secure Custom Fields, the WordPress.org fork of ACF, is now tested and supported. Opening a field group no longer prompts "Leave site?" when nothing was changed, and the plugin no longer loads its translations too early, which with `WP_DEBUG` on could put a PHP notice in front of REST API responses. See #4380, #4541, #4526, #4513, #4560 and #4567.
 
 = 3.0.0 =
 
@@ -153,6 +163,35 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
+
+= 3.1.0 =
+
+**New Features**
+
+* **acf:** test and document Secure Custom Fields support ([#4573](https://github.com/wp-graphql/wp-graphql/issues/4573))
+
+**Bug Fixes**
+
+* **acf:** apply field groups located on "All" blocks to every ACF block type ([#4565](https://github.com/wp-graphql/wp-graphql/issues/4565))
+* **acf:** don't run WYSIWYG field values through the_content ([#4585](https://github.com/wp-graphql/wp-graphql/issues/4585))
+* **acf:** don't warn about unsaved changes after opening a field group ([#4579](https://github.com/wp-graphql/wp-graphql/issues/4579))
+* **acf:** exclude types matched by "not equal to" location rules ([#4431](https://github.com/wp-graphql/wp-graphql/issues/4431))
+* **acf:** keep a field group's key and GraphQL settings when saving on ACF before 6.1 ([#4571](https://github.com/wp-graphql/wp-graphql/issues/4571))
+* **acf:** preserve Date Time Picker seconds and resolve nested row dates from stored values ([#4594](https://github.com/wp-graphql/wp-graphql/issues/4594))
+* **acf:** render blocks in WYSIWYG values before ACF's wpautop ([#4606](https://github.com/wp-graphql/wp-graphql/issues/4606))
+* **acf:** resolve a single "Both (Array)" choice as its value ([#4583](https://github.com/wp-graphql/wp-graphql/issues/4583))
+* **acf:** resolve connection fields nested in repeater, flexible content and group rows ([#4380](https://github.com/wp-graphql/wp-graphql/issues/4380))
+* **acf:** resolve link fields with the URL return format inside rows ([#4580](https://github.com/wp-graphql/wp-graphql/issues/4580))
+* **acf:** resolve stored 0 values as 0 instead of null ([#4581](https://github.com/wp-graphql/wp-graphql/issues/4581))
+* **acf:** stop deprecating fieldGroupName ([#4582](https://github.com/wp-graphql/wp-graphql/issues/4582))
+* **acf:** update the Appsero client so telemetry no longer loads translations too early ([#4567](https://github.com/wp-graphql/wp-graphql/issues/4567))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4324](https://github.com/wp-graphql/wp-graphql/issues/4324))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4349](https://github.com/wp-graphql/wp-graphql/issues/4349))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4590](https://github.com/wp-graphql/wp-graphql/issues/4590))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-acf ([#4596](https://github.com/wp-graphql/wp-graphql/issues/4596))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478))
 
 = 3.0.0 =
 

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.25.0\n"
+"Project-Id-Version: WPGraphQL 2.26.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T23:00:59+00:00\n"
+"POT-Creation-Date: 2026-10-29T21:19:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -125,12 +125,12 @@ msgid "The Extensions page requires JavaScript assets that need to be built. Ple
 msgstr ""
 
 #. translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
-#: src/Admin/Extensions/Extensions.php:295
+#: src/Admin/Extensions/Extensions.php:299
 #, php-format
 msgid "Invalid extension %1$s is missing a valid value for %2$s."
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:299
+#: src/Admin/Extensions/Extensions.php:303
 msgid "Invalid extension. All extensions must have a `name`."
 msgstr ""
 
@@ -323,6 +323,7 @@ msgid "Makes problems easier to find while building an app."
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:291
+#: src/Admin/SiteHealth/SiteHealth.php:159
 msgid "Errors include internal messages meant for developers, for anyone who sends a request. Logged-in users also get stack traces with file paths."
 msgstr ""
 
@@ -544,6 +545,180 @@ msgstr ""
 msgid "Choose which debugging information is added to responses, and who can see it."
 msgstr ""
 
+#: src/Admin/SiteHealth/SiteHealth.php:63
+msgid "WPGraphQL public introspection"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:67
+msgid "WPGraphQL debug mode"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:71
+msgid "WPGraphQL query depth limit"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:75
+msgid "WPGraphQL tracing and query logs"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:101
+msgid "WPGraphQL only shows the schema to logged-in users"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:102
+msgid "Logged-out visitors can't ask the GraphQL API for its schema, the list of every type, field and argument it offers."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:106
+msgid "Anyone can ask the GraphQL API for its schema: the names and descriptions of every type, field and argument it offers, including ones added by other plugins. What each field returns still depends on who is asking."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:109
+msgid "Both debug mode and the introspection setting let logged-out visitors read the schema, so both have to be off to stop it."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:111
+msgid "The introspection setting is off, but debug mode is on, and debug mode lets logged-out visitors read the schema whatever that setting is."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:114
+msgid "Keeping the schema private doesn't have to break apps or builds that need it. They can:"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:116
+msgid "send introspection queries with credentials, such as an application password, since logged-in users can always read the schema"
+msgstr ""
+
+#. translators: %s: the WP-CLI command that writes the schema to a file
+#: src/Admin/SiteHealth/SiteHealth.php:119
+#, php-format
+msgid "or generate the schema at build time with %s, and point code generators at that file"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:127
+msgid "WPGraphQL shows the schema to logged-out visitors"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:129
+#: src/Admin/SiteHealth/SiteHealth.php:186
+msgid "Review debug mode"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:129
+msgid "Review the introspection setting"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:146
+msgid "WPGraphQL debug mode is off"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:147
+msgid "GraphQL errors don't include internal details meant for developers."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:151
+msgid "Debug mode makes problems easier to find while building an app, but it has costs on a live site:"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:157
+msgid "Errors include internal messages meant for developers, and logged-in users also get stack traces with file paths."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:160
+msgid "Logged-out visitors can read the schema, even when public introspection is off."
+msgstr ""
+
+#. translators: %s: the GRAPHQL_DEBUG constant
+#: src/Admin/SiteHealth/SiteHealth.php:170
+#, php-format
+msgid "Debug mode is turned on in code with the %s constant, usually in wp-config.php, so it has to be turned off there."
+msgstr ""
+
+#. translators: %s: the name of the filter that turns debug mode on in code
+#: src/Admin/SiteHealth/SiteHealth.php:176
+#, php-format
+msgid "Debug mode is turned on in code with the %s filter, so it has to be turned off there. The debug mode setting is off."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:184
+msgid "WPGraphQL debug mode is on"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:205
+msgid "WPGraphQL limits query depth"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:206
+msgid "Queries nested deeper than the maximum depth are rejected before they run."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:210
+msgid "A query can nest fields inside fields, such as posts, then their authors, then those authors' posts, over and over. Every level adds work, so a deeply nested query can use a lot of memory and CPU."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:211
+msgid "Limiting query depth rejects those queries before they run. Apps that send queries deeper than the limit get errors instead of data, so check the queries your apps send before turning it on."
+msgstr ""
+
+#. translators: %s: the name of the filter that sets the query depth limit in code
+#: src/Admin/SiteHealth/SiteHealth.php:214
+#, php-format
+msgid "This checks the query depth setting. If your site limits depth in code with the %s filter instead, you can ignore this recommendation."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:221
+msgid "WPGraphQL does not limit query depth"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:223
+msgid "Review the query depth limit"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:239
+msgid "Tracing adds timing information for each field, and makes every traced response larger."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:243
+msgid "Query logs add the SQL for every database query, with table names and the values used, and slow down every logged request."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:250
+msgid "WPGraphQL tracing and query logs are not shown to everyone"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:251
+msgid "Tracing and query logs are off, or only added to responses for users with a chosen role."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:255
+msgid "These debugging details are added to GraphQL responses for any user, including logged-out visitors:"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:257
+msgid "Limit them to a role, such as administrators, or turn them off when you're not debugging."
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:262
+msgid "WPGraphQL shows tracing or query logs to any user"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:264
+msgid "Review tracing and query logs"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:352
+msgid "Learn more about WPGraphQL security"
+msgstr ""
+
+#. translators: Hidden accessibility text.
+#: src/Admin/SiteHealth/SiteHealth.php:354
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: src/Admin/SiteHealth/SiteHealth.php:362
+msgid "Security"
+msgstr ""
+
 #: src/Admin/Updates/PluginsScreenLoader.php:84
 msgid "Untested Plugins:"
 msgstr ""
@@ -604,6 +779,20 @@ msgstr ""
 
 #: src/Admin/Updates/Updates.php:191
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
+msgstr ""
+
+#: src/Admin/UsageTracking.php:109
+msgid "Share Usage Data"
+msgstr ""
+
+#. translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
+#: src/Admin/UsageTracking.php:112
+#, php-format
+msgid "Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and the name and email address of a site administrator. Uncheck to stop sharing at any time. %2$s"
+msgstr ""
+
+#: src/Admin/UsageTracking.php:114
+msgid "Learn more"
 msgstr ""
 
 #: src/AppContext.php:241
@@ -1346,20 +1535,20 @@ msgid "Experiment classes must extend the %s class."
 msgstr ""
 
 #. translators: %s is the menu item ID.
-#: src/Model/MenuItem.php:81
+#: src/Model/MenuItem.php:89
 #, php-format
 msgid "No menus could be found for menu item %s"
 msgstr ""
 
 #. translators: %s is the name of the model.
-#: src/Model/Model.php:90
+#: src/Model/Model.php:101
 #, php-format
 msgid "An empty data set was used to initialize the modeling of this %s object"
 msgstr ""
 
 #. translators: 1: model + field name, 2: required WordPress capability.
 #. translators: 1: GraphQL field name, 2: required WordPress capability.
-#: src/Model/Model.php:491
+#: src/Model/Model.php:518
 #: src/Type/ObjectType/Settings.php:102
 #, php-format
 msgid "The \"%1$s\" field requires the \"%2$s\" capability and resolved to null."
@@ -5729,8 +5918,18 @@ msgstr ""
 msgid "WPGraphQL appears to have been installed without it's dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`."
 msgstr ""
 
+#. translators: %s is a link to the WPGraphQL settings page.
+#: wp-graphql.php:186
+#, php-format
+msgid "Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s."
+msgstr ""
+
+#: wp-graphql.php:187
+msgid "GraphQL → Settings"
+msgstr ""
+
 #. translators: %s is the error message
-#: wp-graphql.php:184
+#: wp-graphql.php:201
 #, php-format
 msgid "Error initializing Appsero: %s"
 msgstr ""

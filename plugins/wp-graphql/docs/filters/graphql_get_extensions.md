@@ -28,7 +28,7 @@ Filter the list of extensions, allowing other plugins to add or remove extension
 
 ## Source
 
-- [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:445`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L445)
+- [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:449`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L449)
 
 ```php
 apply_filters( 'graphql_get_extensions', $extensions );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_get_extensions', $extensions );
 
 ## Related
 
-- `Extensions::get_extensions()` in [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:445`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L445)
+- `Extensions::get_extensions()` in [`plugins/wp-graphql/src/Admin/Extensions/Extensions.php:449`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/Extensions/Extensions.php#L449)

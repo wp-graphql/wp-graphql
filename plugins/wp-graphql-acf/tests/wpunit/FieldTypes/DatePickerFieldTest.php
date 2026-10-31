@@ -9,7 +9,6 @@ class DatePickerFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 		parent::setUp();
 	}
 
-
 	/**
 	 * @return void
 	 */
@@ -25,12 +24,28 @@ class DatePickerFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 		return 'String';
 	}
 
+	public function get_data_to_store() {
+		return '20230928';
+	}
+
+	public function get_expected_value() {
+		return '2023-09-28T00:00:00+00:00';
+	}
+
+	public function get_query_fragment(): string {
+		return '
+		fragment AcfTestGroupFragment on AcfTestGroup {
+			testDatePicker
+		}
+		';
+	}
+
 	public function get_expected_clone_value(): string {
 		return '2023-06-22T00:00:00+00:00';
 	}
 
 	public function get_clone_value_to_save(): string {
-		return "2023-06-22";
+		return '2023-06-22';
 	}
 
 	public function get_acf_clone_fragment(): string {
@@ -56,5 +71,4 @@ class DatePickerFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase {
 	public function get_expected_block_fragment_response() {
 		return '2023-09-28T00:00:00+00:00';
 	}
-
 }
