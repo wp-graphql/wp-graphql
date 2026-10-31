@@ -443,7 +443,37 @@ export async function getParsedDoc(url, product: DocsProduct = CORE_PRODUCT) {
     getTOCFromMd(normalizedContent),
   ])
 
-  return { source, toc, hasMarkdownH1 }
+  return {
+    source,
+    toc,
+    hasMarkdownH1,
+    description: getDescriptionFromMd(normalizedContent),
+  }
+}
+
+/**
+ * Plain text of the doc's first paragraph, for use as its meta description.
+ * The generated reference docs (actions, filters, functions) and recipes have
+ * no `description` frontmatter, but each opens with a one-line summary.
+ */
+function getDescriptionFromMd(mdContent: string): string | null {
+  const tree = unified()
+    .use(remarkParse)
+    .use(remarkFm)
+    .use(remarkGfm)
+    .parse(mdContent)
+
+  const paragraph = tree.children.find((node) => node.type === "paragraph")
+  // Raw HTML nodes are skipped so markup never leaks into the description.
+  const toText = (node: any): string =>
+    node.type === "html"
+      ? ""
+      : typeof node.value === "string"
+        ? node.value
+        : (node.children ?? []).map(toText).join("")
+
+  const text = paragraph ? toText(paragraph).replace(/\s+/g, " ").trim() : ""
+  return text || null
 }
 
 /**

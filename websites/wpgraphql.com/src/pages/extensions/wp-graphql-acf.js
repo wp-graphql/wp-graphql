@@ -1,6 +1,7 @@
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 import SiteLayout from "../../components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import Link from "next/link"
 import { Disclosure } from "@headlessui/react"
 import {
@@ -16,6 +17,12 @@ import {
   VisualPanel,
 } from "@/components/extensions/SectionHeading"
 import Constellation from "@/components/extensions/Constellation"
+
+const META = {
+  title: "WPGraphQL for ACF - Advanced Custom Fields in GraphQL",
+  description:
+    'Expose your Advanced Custom Fields groups and fields to the WPGraphQL schema with a single "Show in GraphQL" toggle, with no resolvers or glue code.',
+}
 
 const WP_ORG_URL = "https://wordpress.org/plugins/wpgraphql-acf/"
 // Repo root — issues / security policy live at the monorepo level.
@@ -491,6 +498,11 @@ function WpGraphQLAcf({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <SiteLayout>
+        <Seo
+          title={META.title}
+          description={META.description}
+          uri="/extensions/wp-graphql-acf"
+        />
         {/* Sibling-brand scope: emerald accent for the page body only.
             The shared SiteHeader/SiteFooter remain WPGraphQL-orange. */}
         <div className="theme-acf">

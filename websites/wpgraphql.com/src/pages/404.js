@@ -4,6 +4,7 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid"
 import DynamicHeroIcon from "components/DynamicHeroIcon"
 import { getIconNameFromMenuItem } from "lib/menu-helpers"
 import SiteLogo from "components/Site/SiteLogo"
+import Seo from "components/Seo/Seo"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -30,6 +31,11 @@ export default function NotFound({ menu }) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-20 sm:py-28">
+      <Seo
+        title="Page not found - WPGraphQL"
+        description="The page you are looking for could not be found."
+        noindex
+      />
       <div className="flex justify-center pt-4">
         <SiteLogo size={56} />
       </div>
