@@ -1,9 +1,16 @@
 import SiteLayout from "../components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 import { FaDiscord, FaGithub, FaTwitter, FaYoutube } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+
+const META = {
+  title: "Community - WPGraphQL",
+  description:
+    "Communities, tools, and resources around WPGraphQL: places to ask questions, share work, and stay current with the ecosystem.",
+}
 
 const communities = [
   {
@@ -40,6 +47,11 @@ function Community({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <SiteLayout>
+        <Seo
+          title={META.title}
+          description={META.description}
+          uri="/community"
+        />
         <header className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20">
           <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
             Community
