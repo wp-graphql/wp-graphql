@@ -360,6 +360,13 @@ abstract class AbstractConnectionResolver {
 			$should_execute = false;
 		}
 
+		// A cursor that doesn't decode to an offset is malformed, so there is nothing to paginate from.
+		foreach ( [ 'after', 'before' ] as $cursor ) {
+			if ( ! empty( $args[ $cursor ] ) && empty( $this->get_offset_for_cursor( $args[ $cursor ] ) ) ) {
+				$should_execute = false;
+			}
+		}
+
 		return $should_execute;
 	}
 
