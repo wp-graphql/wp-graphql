@@ -310,6 +310,28 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
+	 * Malformed cursors should return no results instead of the first page.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2795
+	 */
+	public function testMalformedCursorReturnsNoResults() {
+		$query = $this->getQuery();
+
+		foreach ( [ 'after', 'before' ] as $cursor_arg ) {
+			$variables = [
+				'first'     => 'after' === $cursor_arg ? 5 : null,
+				'last'      => 'before' === $cursor_arg ? 5 : null,
+				$cursor_arg => 'foo',
+			];
+
+			$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertEmpty( $actual['data']['posts']['nodes'], sprintf( 'A malformed `%s` cursor should return no nodes', $cursor_arg ) );
+		}
+	}
+
+	/**
 	 * Test to assert that the global post object is being set correctly
 	 */
 	public function testPostExcerptsAreDifferent() {
