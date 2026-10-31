@@ -77,6 +77,231 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_delete_user( $this->editor );
 		wp_delete_term( $this->category, 'category' );
 		WPGraphQL::clear_schema();
+
+		// Preview context members are a static registry; reset it between tests.
+		$members = new \ReflectionProperty( \WPGraphQL\Utils\Preview::class, 'context_members' );
+		$members->setAccessible( true );
+		$members->setValue( null, [] );
+	}
+
+	/**
+	 * Registers a String field on Post that reports the given preview context members,
+	 * the way an extension's `previewResolve` callback would read them.
+	 *
+	 * @param string[] $names The member names to report.
+	 */
+	private function register_preview_context_member_field( array $names ): void {
+		register_graphql_field(
+			'Post',
+			'previewContextMembers',
+			[
+				'type'           => 'String',
+				'resolve'        => static function () {
+					return 'published';
+				},
+				'previewResolve' => static function ( $post, $args, $context, $info, array $preview ) use ( $names ) {
+					return wp_json_encode( array_intersect_key( $preview, array_flip( $names ) ) );
+				},
+			]
+		);
+	}
+
+	/**
+	 * Extensions can register their own preview context members, which arrive on
+	 * AppContext::$preview from both transports, type-checked and sanitized.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4378
+	 */
+	public function testRegisteredPreviewContextMemberArrivesFromBothTransports() {
+		register_graphql_preview_context_member(
+			'translationLocale',
+			[
+				'type'        => 'string',
+				'description' => 'The locale of the translation being previewed.',
+				'sanitize'    => static function ( $value ) {
+					return 'en_US' === $value ? null : sanitize_text_field( $value );
+				},
+			]
+		);
+		register_graphql_preview_context_member(
+			'translationIds',
+			[
+				'type'     => 'inner-list',
+				'items'    => 'integer',
+				'sanitize' => static function ( $value ) {
+					return array_map( 'absint', $value );
+				},
+			]
+		);
+		register_graphql_preview_context_member(
+			'showDraftNotes',
+			[
+				'type'       => 'boolean',
+				'header_key' => 'draft_notes',
+				'sanitize'   => static function ( $value ) {
+					return $value;
+				},
+			]
+		);
+		$this->register_preview_context_member_field( [ 'translationLocale', 'translationIds', 'showDraftNotes' ] );
+
+		wp_set_current_user( $this->admin );
+
+		$query = 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { previewContextMembers } }';
+
+		// extensions.preview
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'        => $this->post,
+						'translationLocale' => 'fr_FR',
+						'translationIds'    => [ 3, 4 ],
+						'showDraftNotes'    => true,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[
+				'translationLocale' => 'fr_FR',
+				'translationIds'    => [ 3, 4 ],
+				'showDraftNotes'    => true,
+			],
+			json_decode( $actual['data']['post']['previewContextMembers'], true )
+		);
+
+		// The header, with a derived key, an inner list and an explicit header_key override.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, translation_locale="de_DE", translation_ids=(5 6), draft_notes', $this->post );
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [ 'id' => $this->post ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[
+				'translationLocale' => 'de_DE',
+				'translationIds'    => [ 5, 6 ],
+				'showDraftNotes'    => true,
+			],
+			json_decode( $actual['data']['post']['previewContextMembers'], true )
+		);
+
+		// Wrong types are discarded (with a debug notice) rather than coerced, a token is
+		// not a String, a mixed inner list is rejected whole, and a sanitizer returning
+		// null treats the member as absent.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, translation_locale=de_DE, translation_ids=(5 "6"), draft_notes=1', $this->post );
+
+		try {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [ 'id' => $this->post ],
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[
+				'translationLocale' => null,
+				'translationIds'    => null,
+				'showDraftNotes'    => null,
+			],
+			json_decode( $actual['data']['post']['previewContextMembers'], true )
+		);
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_MEMBER_INVALID', $debug_types, 'A member of the wrong type must surface a debug notice' );
+
+		$actual = $this->graphql(
+			[
+				'query'      => $query,
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId'        => $this->post,
+						'translationLocale' => 'en_US',
+						'translationIds'    => [ 'a' => 3 ],
+						'showDraftNotes'    => 'true',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[
+				'translationLocale' => null,
+				'translationIds'    => null,
+				'showDraftNotes'    => null,
+			],
+			json_decode( $actual['data']['post']['previewContextMembers'], true )
+		);
+	}
+
+	/**
+	 * Core's keys are reserved, a sanitizer and an allowed type are required, and on a
+	 * name or header key collision the first registration wins.
+	 */
+	public function testPreviewContextMemberRegistrationRefusals() {
+		$sanitize = static function ( $value ) {
+			return $value;
+		};
+
+		register_graphql_preview_context_member( 'databaseId', [ 'type' => 'integer', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'postId', [ 'type' => 'integer', 'header_key' => 'database_id', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'noSanitizer', [ 'type' => 'string' ] );
+		register_graphql_preview_context_member( 'aDecimal', [ 'type' => 'decimal', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'untypedList', [ 'type' => 'inner-list', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'snake_case', [ 'type' => 'string', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'locale', [ 'type' => 'string', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'locale', [ 'type' => 'integer', 'sanitize' => $sanitize ] );
+		register_graphql_preview_context_member( 'otherLocale', [ 'type' => 'integer', 'header_key' => 'locale', 'sanitize' => $sanitize ] );
+
+		$members = \WPGraphQL\Utils\Preview::get_context_members();
+		$this->assertSame( [ 'locale' ], array_keys( $members ) );
+		$this->assertSame( 'string', $members['locale']['type'], 'The first registration wins' );
+
+		$this->register_preview_context_member_field( [ 'databaseId', 'locale' ] );
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql(
+			[
+				'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { previewContextMembers } }',
+				'variables'  => [ 'id' => $this->post ],
+				'extensions' => [
+					'preview' => [
+						'databaseId' => $this->post,
+						'locale'     => 'fr_FR',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame(
+			[
+				'databaseId' => $this->post,
+				'locale'     => 'fr_FR',
+			],
+			json_decode( $actual['data']['post']['previewContextMembers'], true )
+		);
+		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
+		$this->assertContains( 'PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED', $debug_types, 'A refused registration must surface a debug notice' );
 	}
 
 	public function get_query() {

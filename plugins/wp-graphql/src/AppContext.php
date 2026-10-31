@@ -89,7 +89,11 @@ class AppContext {
 	 * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
 	 * Null when the request does not carry preview context.
 	 *
-	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 * Core's keys are `databaseId` (int), `revisionDatabaseId` (int), `featuredImageDatabaseId`
+	 * (?int) and `nonce` (?string); members registered with register_graphql_preview_context_member()
+	 * are added under their camelCase names.
+	 *
+	 * @var array<string,mixed>|null
 	 */
 	public $preview = null;
 

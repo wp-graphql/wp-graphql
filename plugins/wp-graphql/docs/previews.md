@@ -187,6 +187,32 @@ query Preview($id: ID!) {
 
 With the preview context set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }` (via the header or `extensions.preview`), the query above returns attachment `456` as the featured image.
 
+### Adding your own preview context members
+
+An extension that needs a client-supplied preview value core doesn't know about (for example, the locale of the translation being previewed) can register its own member of the preview context:
+
+```php
+register_graphql_preview_context_member(
+	'translationLocale',
+	[
+		'type'        => 'string',
+		'description' => 'The locale of the translation being previewed.',
+		'sanitize'    => static function ( $value ) {
+			return sanitize_text_field( $value );
+		},
+	]
+);
+```
+
+The member is then accepted from both transports: as `translationLocale` in `extensions.preview`, and as `translation_locale` in the `X-GraphQL-Preview` header. The header key is derived from the camelCase name; pass `header_key` to override it. It arrives on `AppContext::$preview` under its camelCase name (`null` when it was not sent or was invalid), so a field's `previewResolve` callback reads it from its `$preview` argument, just like `featuredImageDatabaseId`.
+
+- **`type`** (required) is one of `integer`, `string`, `boolean` or `inner-list`. An `inner-list` also declares its item type in `items` (`integer`, `string` or `boolean`), for example `[ 'type' => 'inner-list', 'items' => 'integer' ]`, sent as `translation_ids=(1 2)` in the header or `[1, 2]` in JSON.
+- Values must match the declared type exactly; nothing is coerced. A value of the wrong type is discarded, with a `PREVIEW_CONTEXT_MEMBER_INVALID` debug notice naming the key and the expected type.
+- **`sanitize`** (required) runs after the type check and receives the type-checked value. Whatever it returns lands on the context; return `null` to treat the value as absent.
+- Core's keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `nonce`, and their header keys) are reserved and can't be registered. If two extensions register the same name or header key, the first registration wins. Refused registrations surface a `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` debug notice.
+
+Declaring a member grants no access by itself. As with core's own members, previewed values only apply to a viewer who is allowed to preview the post.
+
 ### The preview flow, end to end
 
 The goal is to reproduce, in a headless app, what happens when an author clicks **Preview** in wp-admin. Here is how the pieces line up.

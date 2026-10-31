@@ -1083,3 +1083,39 @@ function get_graphql_admin_notices(): array {
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
 	return $admin_notices->get_admin_notices();
 }
+
+/**
+ * Registers a member of the request preview context, so an extension can receive its own
+ * client-supplied preview values through the `X-GraphQL-Preview` header or `extensions.preview`.
+ *
+ * The member arrives on `AppContext::$preview` under its camelCase name (null when absent
+ * or invalid), where a field's `previewResolve` callback can read it. The header key is
+ * derived from the name (`translationLocale` becomes `translation_locale`) unless
+ * `header_key` overrides it.
+ *
+ * The value must match the declared type exactly; anything else is discarded with a debug
+ * notice. The required `sanitize` callback then receives the type-checked value, and its
+ * return value is what lands on the context; returning null treats the member as absent.
+ *
+ * Core's own keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `nonce`)
+ * are reserved, and when two extensions register the same name or header key the first
+ * registration wins; refused registrations surface a debug notice. Declaring a member
+ * grants no access by itself: previewed values only apply for a viewer allowed to preview
+ * the post.
+ *
+ * @param string              $name   The camelCase member name, e.g. `locale`.
+ * @param array<string,mixed> $config The member config.
+ *
+ * @phpstan-param array{
+ *  type: 'integer'|'string'|'boolean'|'inner-list',
+ *  items?: 'integer'|'string'|'boolean',
+ *  description?: string,
+ *  sanitize: callable(mixed):mixed,
+ *  header_key?: string
+ * } $config
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_preview_context_member( string $name, array $config ): void {
+	\WPGraphQL\Utils\Preview::register_context_member( $name, $config );
+}
