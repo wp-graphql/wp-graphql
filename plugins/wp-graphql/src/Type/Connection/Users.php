@@ -126,13 +126,13 @@ class Users {
 	 */
 	public static function get_connection_args() {
 		return [
-			'role'              => [
+			'role'                => [
 				'type'        => 'UserRoleEnum',
 				'description' => static function () {
 					return __( 'An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role.', 'wp-graphql' );
 				},
 			],
-			'roleIn'            => [
+			'roleIn'              => [
 				'type'        => [
 					'list_of' => 'UserRoleEnum',
 				],
@@ -140,7 +140,7 @@ class Users {
 					return __( 'An array of role names. Matched users must have at least one of these roles.', 'wp-graphql' );
 				},
 			],
-			'roleNotIn'         => [
+			'roleNotIn'           => [
 				'type'        => [
 					'list_of' => 'UserRoleEnum',
 				],
@@ -148,7 +148,7 @@ class Users {
 					return __( 'An array of role names to exclude. Users matching one or more of these roles will not be included in results.', 'wp-graphql' );
 				},
 			],
-			'include'           => [
+			'include'             => [
 				'type'        => [
 					'list_of' => 'Int',
 				],
@@ -156,7 +156,7 @@ class Users {
 					return __( 'Array of userIds to include.', 'wp-graphql' );
 				},
 			],
-			'exclude'           => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+			'exclude'             => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				'type'        => [
 					'list_of' => 'Int',
 				],
@@ -164,13 +164,13 @@ class Users {
 					return __( 'Array of userIds to exclude.', 'wp-graphql' );
 				},
 			],
-			'search'            => [
+			'search'              => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'Search keyword. Searches for possible string matches on columns. When "searchColumns" is left empty, it tries to determine which column to search in based on search string.', 'wp-graphql' );
 				},
 			],
-			'searchColumns'     => [
+			'searchColumns'       => [
 				'type'        => [
 					'list_of' => 'UsersConnectionSearchColumnEnum',
 				],
@@ -178,21 +178,32 @@ class Users {
 					return __( 'Array of column names to be searched. Accepts \'ID\', \'login\', \'nicename\', \'email\', \'url\'.', 'wp-graphql' );
 				},
 			],
-			'hasPublishedPosts' => [
-				'type'        => [
+			'hasPublishedPosts'   => [
+				'type'              => [
 					'list_of' => 'ContentTypeEnum',
 				],
-				'description' => static function () {
+				'description'       => static function () {
 					return __( 'Pass an array of post types to filter results to users who have published posts in those post types.', 'wp-graphql' );
 				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of hasPublishedContent, which does not accept media items since they are never published.', 'wp-graphql' );
+				},
 			],
-			'nicename'          => [
+			'hasPublishedContent' => [
+				'type'        => [
+					'list_of' => 'PublishableContentTypeEnum',
+				],
+				'description' => static function () {
+					return __( 'Limit results to users who have published content of at least one of the given content types.', 'wp-graphql' );
+				},
+			],
+			'nicename'            => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The user nicename.', 'wp-graphql' );
 				},
 			],
-			'nicenameIn'        => [
+			'nicenameIn'          => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -200,7 +211,7 @@ class Users {
 					return __( 'An array of nicenames to include. Users matching one of these nicenames will be included in results.', 'wp-graphql' );
 				},
 			],
-			'nicenameNotIn'     => [
+			'nicenameNotIn'       => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -208,13 +219,13 @@ class Users {
 					return __( 'An array of nicenames to exclude. Users matching one of these nicenames will not be included in results.', 'wp-graphql' );
 				},
 			],
-			'login'             => [
+			'login'               => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The user login.', 'wp-graphql' );
 				},
 			],
-			'loginIn'           => [
+			'loginIn'             => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -222,7 +233,7 @@ class Users {
 					return __( 'An array of logins to include. Users matching one of these logins will be included in results.', 'wp-graphql' );
 				},
 			],
-			'loginNotIn'        => [
+			'loginNotIn'          => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -230,7 +241,7 @@ class Users {
 					return __( 'An array of logins to exclude. Users matching one of these logins will not be included in results.', 'wp-graphql' );
 				},
 			],
-			'orderby'           => [
+			'orderby'             => [
 				'type'        => [
 					'list_of' => 'UsersConnectionOrderbyInput',
 				],
