@@ -236,8 +236,17 @@ describe('SmartCachePanelView', () => {
 	});
 
 	describe('TTL card', () => {
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
 		it('shows time remaining and age on a HIT with transient diagnostics', () => {
-			const nowSec = Math.floor(Date.now() / 1000);
+			// TtlCard reads the clock again when it renders. Pin it, so a
+			// second boundary between that read and this one can't turn the
+			// expected "8m remaining" into "7m 59s remaining".
+			const nowMs = Date.now();
+			jest.spyOn(Date, 'now').mockReturnValue(nowMs);
+			const nowSec = Math.floor(nowMs / 1000);
 			const { container } = renderView({
 				data: {
 					graphqlObjectCache: { cacheKey: 'k' },
