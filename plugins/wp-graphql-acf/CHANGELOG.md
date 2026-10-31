@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.1.0...wp-graphql-acf/v3.2.0) (2026-10-31)
+
+
+### New Features
+
+* **acf:** let custom field types resolve ACF's formatted value ([#4609](https://github.com/wp-graphql/wp-graphql/issues/4609)) ([6013ed6](https://github.com/wp-graphql/wp-graphql/commit/6013ed6f734886f76e3b82c35beb055219172aa0))
+
+
+### Bug Fixes
+
+* **acf:** give a duplicated field its own GraphQL field name ([#4610](https://github.com/wp-graphql/wp-graphql/issues/4610)) ([e385f72](https://github.com/wp-graphql/wp-graphql/commit/e385f72bf1db01a06113413c0db695110d365411))
+
 ## [3.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.1.0) (2026-10-30)
 
 
