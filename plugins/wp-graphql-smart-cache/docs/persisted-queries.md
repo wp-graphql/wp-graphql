@@ -107,6 +107,8 @@ Custom Alias Names are assigned by authorized users only: through the GraphQL Do
 
 Persisted queries support GraphQL variables which can passed in the query string, e.g. `?queryId=getPostById&variables={"id":"yourId"}`
 
+Values that change between requests must be sent as variables. A request that sends a `query` with a `queryId` to register a new document is rejected, and nothing is stored, when the query has string or number values written into its arguments, such as `post(id: 123)` or `post(id: "hello-world", idType: SLUG)`. Building those values into the query string would store a separate document for every value. Declare a variable instead, e.g. `query ($id: ID!) { post(id: $id) { title } }`. Enum and boolean values, and variable default values, are allowed. Documents saved by an authorized user are not affected, and nothing is rejected when automatic registration is turned off.
+
 #### Allow / Deny Rules
 
 Saved GraphQL Documents can have allow/deny rules applied to them.
