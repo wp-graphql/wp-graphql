@@ -185,7 +185,9 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Version numbers are updated automatically by release-please
 - `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
 - Changelogs are generated from PR titles (via squash merge commits)
-- **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+- **Upgrade Notices** are automatically added to `readme.txt` and included in GitHub Release notes when there are breaking changes or migration requirements:
+  - **Breaking changes & migration notes** (`feat!:`, `fix!:`, `perf!:`) populate the changelog breaking changes section, which automatically updates `readme.txt` upgrade notices and GitHub release notes.
+  - **Hand-written notices** in `readme.txt` (without the generated provenance marker) are preserved and never overwritten.
 - Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
 - Function docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
 - `x-release-please-version` placeholders in `scripts/hooks/legacy-hooks.json` are automatically replaced for the releasing component (`update-release-pr.yml`)

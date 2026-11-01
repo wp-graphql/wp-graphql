@@ -73,9 +73,15 @@ The following are handled automatically by our CI/CD workflows. **Please do not 
 
 When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `perf!:` prefix):
 
-1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md`
+1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md` under `### ⚠ BREAKING CHANGES`
 2. **update-release-pr.yml** workflow automatically updates the `== Upgrade Notice ==` section in `readme.txt`
-3. WordPress.org displays this notice to users before they update
+3. **Release workflow** automatically extracts upgrade notices and prepends them to GitHub release notes
+4. WordPress.org displays this notice to users before they update
+
+**Guidelines for breaking vs behavioral/migration changes:**
+- **Breaking changes** (API deprecations, removed fields, signature changes requiring code updates) must be marked with `!` in conventional commit titles so they populate the changelog breaking changes section and generate upgrade notices.
+- **Migration & behavioral notes** that require user action or awareness upon upgrading should also be included in breaking change sections so they appear in both `readme.txt` upgrade notices and GitHub release notes.
+- **Hand-written notices**: Upgrade notices in `readme.txt` containing hand-written prose (without our generated provenance marker) are automatically preserved and left untouched by automated scripts.
 
 **⚠️ Do not manually add upgrade notices** - they will be automatically generated from breaking changes in the changelog.
 

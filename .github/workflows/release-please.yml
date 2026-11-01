@@ -648,6 +648,39 @@ jobs:
           ZIP_PATH: plugin-build/${{ matrix.component }}.zip
         run: gh release upload "$TAG_NAME" "$ZIP_PATH" --clobber --repo "$GITHUB_REPOSITORY"
 
+      - name: Include upgrade notice in GitHub release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.plugin_info.outputs.tag_name }}
+          PACKAGE_PATH: ${{ steps.plugin_info.outputs.package_path }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
+        run: |
+          echo "Checking for upgrade notice for version ${PLUGIN_VERSION} in ${PACKAGE_PATH}/readme.txt..."
+          UPGRADE_NOTICE=$(node scripts/extract-upgrade-notice.js --version="${PLUGIN_VERSION}" --plugin-dir="${PACKAGE_PATH}")
+
+          if [[ -n "$UPGRADE_NOTICE" ]]; then
+            echo "Found upgrade notice:"
+            echo "$UPGRADE_NOTICE"
+
+            # Fetch current release notes body
+            CURRENT_NOTES=$(gh release view "$TAG_NAME" --json body --jq .body --repo "$GITHUB_REPOSITORY")
+
+            # Construct updated notes with upgrade notice prepended
+            UPDATED_NOTES="### ⚠️ Upgrade Notice
+
+${UPGRADE_NOTICE}
+
+---
+
+${CURRENT_NOTES}"
+
+            # Update release notes
+            gh release edit "$TAG_NAME" --notes "$UPDATED_NOTES" --repo "$GITHUB_REPOSITORY"
+            echo "✅ Successfully added upgrade notice to GitHub release notes."
+          else
+            echo "ℹ️ No upgrade notice found for version ${PLUGIN_VERSION} - release notes unchanged."
+          fi
+
       - name: Release Summary
         env:
           MATRIX_COMPONENT: ${{ matrix.component }}
