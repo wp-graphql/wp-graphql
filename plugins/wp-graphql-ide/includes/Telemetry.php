@@ -52,26 +52,34 @@ class Telemetry {
 			add_action(
 				'admin_notices',
 				static function () use ( $insights ): void {
-					$insights->notice(
-						sprintf(
-							// translators: %s is a link to the IDE settings tab.
-							__( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information. You can change this at any time under %s.', 'wpgraphql-ide' ),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#graphql_ide_settings' ) ) . '">' . esc_html__( 'GraphQL → Settings → IDE Settings', 'wpgraphql-ide' ) . '</a>'
-						)
-					);
+					$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#graphql_ide_settings' ) ) . '">' . esc_html__( 'GraphQL → Settings → IDE Settings', 'wpgraphql-ide' ) . '</a>';
+
+					// The email updates opt-in lives in WPGraphQL core, so older core versions don't offer it.
+					$notice = class_exists( '\WPGraphQL\Admin\EmailUpdates' )
+						// translators: %s is a link to the IDE settings tab.
+						? __( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. Email updates are a separate choice under %s, where you can also stop sharing at any time.', 'wpgraphql-ide' )
+						// translators: %s is a link to the IDE settings tab.
+						: __( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wpgraphql-ide' );
+
+					$insights->notice( sprintf( $notice, $settings_link ) );
 				},
 				9
 			);
 
 			$insights->init();
 
-			// The settings toggle lives in WPGraphQL core, which loads after this plugin. Older core
-			// versions without it simply don't show one.
+			// The settings toggle and the email updates opt-in live in WPGraphQL core, which loads after
+			// this plugin. Older core versions without them simply don't show them.
 			add_action(
 				'plugins_loaded',
 				static function () use ( $insights, $client ): void {
 					if ( class_exists( '\WPGraphQL\Admin\UsageTracking' ) ) {
 						( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug, 'graphql_ide_settings', 'WPGraphQL IDE' ) )->init();
+					}
+
+					// A separate choice from usage data, registered after its toggle so it shows next to it.
+					if ( class_exists( '\WPGraphQL\Admin\EmailUpdates' ) ) {
+						( new \WPGraphQL\Admin\EmailUpdates( self::APPSERO_HASH, $client->slug, WPGRAPHQL_IDE_VERSION, 'graphql_ide_settings', 'WPGraphQL IDE' ) )->init();
 					}
 				}
 			);
