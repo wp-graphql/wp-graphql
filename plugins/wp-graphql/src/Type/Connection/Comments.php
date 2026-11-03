@@ -115,7 +115,7 @@ class Comments {
 			'authorEmail'        => [
 				'type'        => 'String',
 				'description' => static function () {
-					return __( 'Comment author email address.', 'wp-graphql' );
+					return __( 'Comment author email address. Only users who can moderate comments can filter by this; for other users it matches no comments.', 'wp-graphql' );
 				},
 			],
 			'authorUrl'          => [
@@ -159,7 +159,7 @@ class Comments {
 			'commentType'        => [
 				'type'        => 'String',
 				'description' => static function () {
-					return __( 'Include comments of a given type.', 'wp-graphql' );
+					return __( 'Include comments of a given type. Notes are only returned to users who can edit them.', 'wp-graphql' );
 				},
 			],
 			'commentTypeIn'      => [
@@ -167,7 +167,7 @@ class Comments {
 					'list_of' => 'String',
 				],
 				'description' => static function () {
-					return __( 'Include comments from a given array of comment types.', 'wp-graphql' );
+					return __( 'Include comments from a given array of comment types. Notes are only returned to users who can edit them.', 'wp-graphql' );
 				},
 			],
 			'commentTypeNotIn'   => [
@@ -203,7 +203,7 @@ class Comments {
 			'contentId'          => [
 				'type'        => 'ID',
 				'description' => static function () {
-					return __( 'Limit results to those affiliated with a given content object ID.', 'wp-graphql' );
+					return __( 'Limit results to those affiliated with a given content object ID. For users who cannot moderate comments, content they cannot see matches no comments.', 'wp-graphql' );
 				},
 			],
 			'contentIdIn'        => [
@@ -211,7 +211,7 @@ class Comments {
 					'list_of' => 'ID',
 				],
 				'description' => static function () {
-					return __( 'Array of content object IDs to include affiliated comments for.', 'wp-graphql' );
+					return __( 'Array of content object IDs to include affiliated comments for. For users who cannot moderate comments, content they cannot see is ignored.', 'wp-graphql' );
 				},
 			],
 			'contentIdNotIn'     => [
@@ -227,7 +227,7 @@ class Comments {
 					'list_of' => 'PostStatusEnum',
 				],
 				'description' => static function () {
-					return __( 'Array of content object statuses to retrieve affiliated comments for. Pass \'any\' to match any value.', 'wp-graphql' );
+					return __( 'Array of content object statuses to retrieve affiliated comments for. Users who cannot moderate comments can only filter by published statuses: other statuses are ignored, and when none remain no comments are returned.', 'wp-graphql' );
 				},
 			],
 			'contentType'        => [
@@ -267,7 +267,7 @@ class Comments {
 			'orderby'            => [
 				'type'        => 'CommentsConnectionOrderbyEnum',
 				'description' => static function () {
-					return __( 'Field to order the comments by.', 'wp-graphql' );
+					return __( 'Field to order the comments by. Ordering by the author email, the author IP address or the user agent requires permission to moderate comments; for other users, comments are ordered by date instead.', 'wp-graphql' );
 				},
 			],
 			'order'              => [
@@ -301,13 +301,13 @@ class Comments {
 			'search'             => [
 				'type'        => 'String',
 				'description' => static function () {
-					return __( 'Search term(s) to retrieve matching comments for.', 'wp-graphql' );
+					return __( 'Search term(s) to retrieve matching comments for. For users who cannot moderate comments, only the comment content and the author name and URL are searched.', 'wp-graphql' );
 				},
 			],
 			'status'             => [
 				'type'              => 'String',
 				'description'       => static function () {
-					return __( 'Comment status to limit results by.', 'wp-graphql' );
+					return __( 'Comment status to limit results by. Users who cannot moderate comments can only filter by approved comments.', 'wp-graphql' );
 				},
 				'deprecationReason' => static function () {
 					return __( 'Deprecated in favor of statusIn which accepts a list of one or more CommentStatusEnum values instead of a string', 'wp-graphql' );
@@ -316,7 +316,7 @@ class Comments {
 			'statusIn'           => [
 				'type'        => [ 'list_of' => 'CommentStatusEnum' ],
 				'description' => static function () {
-					return __( 'One or more Comment Statuses to limit results by', 'wp-graphql' );
+					return __( 'One or more Comment Statuses to limit results by. Users who cannot moderate comments can only filter by APPROVE: other statuses are ignored, and when none remain no comments are returned.', 'wp-graphql' );
 				},
 			],
 			'userId'             => [
