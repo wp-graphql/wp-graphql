@@ -86,6 +86,16 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 **Connector API keys are masked.** On WordPress 7.0 and later, the settings that hold connector API keys (such as Akismet's) always require `manage_options` and are returned masked, showing only the last four characters, as the REST API does. Saving the masked value back through `updateSettings` leaves the stored key unchanged.
 
+**Comment queries now only return and count comments the requesting user can see.** Moderators (users with `moderate_comments`) see no change. For everyone else:
+
+**Comment lists that aren't limited to specific content only include comments on published content.** The root `comments` list and `user { comments }` only return comments on published content of public content types, which leaves out comments on media items and on the user's own drafts. Comments on a media item stay available by item, through `mediaItem { comments }` or the `contentId` and `contentIdIn` arguments, which now match nothing for content the user can't see. A media item is visible when the content it's attached to is, or when it isn't attached to anything.
+
+**Filters, search and ordering only use what the user can see.** Filtering by `authorEmail` matches no comments, so filter by `authorIn` or `userId` instead. `search` no longer matches the author's email or IP address, and ordering by them, or by the user agent, orders by date. `statusIn`, the deprecated `status`, and `contentStatus` ignore the statuses the user can't view, and when none are left the query returns no comments. That includes a logged-in user's own pending comments when they filter by `statusIn: [HOLD]`; those still appear in the default, unfiltered query.
+
+**Notes are only visible to users who can edit them.** On WordPress 6.9 and later, the notes editors leave on content aren't returned to other users, by ID or in lists, including when `commentType` or `commentTypeIn` asks for them.
+
+None of this returns an error.
+
 = 2.24.2 =
 
 **Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.
