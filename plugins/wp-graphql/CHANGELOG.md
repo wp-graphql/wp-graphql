@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.26.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.0...wp-graphql/v2.26.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4630](https://github.com/wp-graphql/wp-graphql/issues/4630)) ([c78e619](https://github.com/wp-graphql/wp-graphql/commit/c78e61959fe4d081409b472cbc8a04e4dbe9adc7))
+* **deps:** bump webonyx/graphql-php from 15.38.1 to 15.39.0 in /plugins/wp-graphql ([#4633](https://github.com/wp-graphql/wp-graphql/issues/4633)) ([16729d1](https://github.com/wp-graphql/wp-graphql/commit/16729d1a85033af333d96648a8bf0565d2acaabf))
+* limit comment connection filters and counts to comments the requester can see ([#4642](https://github.com/wp-graphql/wp-graphql/issues/4642)) ([505ba4d](https://github.com/wp-graphql/wp-graphql/commit/505ba4d2314da19cd4b60ecff2854f0acd6c445f))
+* require manage_options to read settings exposed only through the REST API ([#4641](https://github.com/wp-graphql/wp-graphql/issues/4641)) ([fbd40fd](https://github.com/wp-graphql/wp-graphql/commit/fbd40fd7e4197881b1e2932342a93d97b5b4b70b))
+
 ## [2.26.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.25.0...wp-graphql/v2.26.0) (2026-10-29)
 
 
