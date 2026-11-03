@@ -27,7 +27,7 @@ namespace WPGraphQL\Data;
  *
  * @package WPGraphQL\Data
  *
- * @since x-release-please-version
+ * @since 2.26.1
  */
 final class ConnectorCredentials {
 

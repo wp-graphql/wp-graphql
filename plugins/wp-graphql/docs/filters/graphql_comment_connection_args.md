@@ -29,7 +29,7 @@ Filters the GraphQL args before they are used in get_query_args().
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:240`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L240)
+- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L243)
 
 ```php
 apply_filters( 'graphql_comment_connection_args', $args, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_comment_connection_args', $args, $this );
 
 ## Related
 
-- `CommentConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:240`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L240)
+- `CommentConnectionResolver::prepare_args()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L243)
