@@ -144,6 +144,22 @@ class AcfGraphQLFieldType {
 			],
 		];
 
+		$default_admin_settings['graphql_capability'] = [
+			'label'         => __( 'GraphQL Capability', 'wpgraphql-acf' ),
+			'instructions'  => __( 'The capability a user needs to read this field\'s value in GraphQL, such as "edit_posts" or "manage_options". Users without it get null. Leave empty to let anyone read it. The field stays in the GraphQL Schema either way, and the capability of the field group is checked too.', 'wpgraphql-acf' ),
+			'name'          => 'graphql_capability',
+			'type'          => 'text',
+			'ui'            => true,
+			'required'      => false,
+			'placeholder'   => __( 'manage_options', 'wpgraphql-acf' ),
+			'default_value' => '',
+			'conditions'    => [
+				'field'    => 'show_in_graphql',
+				'operator' => '==',
+				'value'    => '1',
+			],
+		];
+
 		$default_admin_settings['graphql_non_null'] = [
 			'label'         => __( 'GraphQL Non-Null', 'wpgraphql-acf' ),
 			'instructions'  => __( 'Whether the field should be Non-Null in the GraphQL Schema. <br/><br/><strong>Use with caution.</strong> Only check this if you can guarantee there will be data stored for this field on all objects that have this field. i.e. the field should be required and should have data entered for all previous entries with this field. Unchecking this, if already checked, is considered a breaking change to the GraphQL Schema.', 'wpgraphql-acf' ),

@@ -253,6 +253,22 @@ class Settings {
 			true
 		);
 
+		// Render a field in the Field Group settings to set the capability needed to read the field group.
+		acf_render_field_wrap(
+			[
+				'label'        => __( 'GraphQL Capability', 'wpgraphql-acf' ),
+				'instructions' => __( 'The capability a user needs to read this field group in GraphQL, such as "edit_posts" or "manage_options". Users without it get null for the field group, and none of its fields resolve. Leave empty to let anyone read it. The field group stays in the GraphQL Schema either way.', 'wpgraphql-acf' ),
+				'type'         => 'text',
+				'prefix'       => 'acf_field_group',
+				'name'         => 'graphql_capability',
+				'placeholder'  => __( 'manage_options', 'wpgraphql-acf' ),
+				'value'        => ! empty( $field_group['graphql_capability'] ) && is_string( $field_group['graphql_capability'] ) ? $field_group['graphql_capability'] : '',
+			],
+			'div',
+			'label',
+			true
+		);
+
 		acf_render_field_wrap(
 			[
 				'label'        => __( 'Manually Set GraphQL Types for Field Group', 'wpgraphql-acf' ),

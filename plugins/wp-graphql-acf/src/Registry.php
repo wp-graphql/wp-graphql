@@ -836,7 +836,14 @@ class Registry {
 									// the legacy asPreview node swap produced). On WPGraphQL versions
 									// without the overlay this key is inert.
 									'isPreviewable' => true,
-									'resolve'       => static function ( $node ) use ( $acf_field_group ) {
+									'resolve'       => static function ( $node, $args, AppContext $context, ResolveInfo $info ) use ( $acf_field_group ) {
+
+										// Every field of the group, including connection fields and
+										// fields of ACF blocks, resolves beneath this field, so a
+										// field group that doesn't resolve leaves all of them unresolved.
+										if ( ! AccessControl::can_resolve_field_group( $acf_field_group, $node, $context, $info ) ) {
+											return null;
+										}
 
 										// Pass the $root node and the $acf_field_group down
 										// to the resolving field
