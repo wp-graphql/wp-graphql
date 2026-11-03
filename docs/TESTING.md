@@ -105,9 +105,12 @@ npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
 You can provide the license key in three ways:
 
 **Option A: Using a .env file (Recommended)**
+
+The install script reads `plugins/wp-graphql-acf/.env` first, then the monorepo's root `.env`, so put the key in whichever you already use. Both are gitignored.
+
 ```bash
-# Create or edit plugins/wp-graphql-acf/.env
-echo "ACF_LICENSE_KEY=your_license_key_here" >> plugins/wp-graphql-acf/.env
+# In the root .env (or in plugins/wp-graphql-acf/.env)
+echo "ACF_LICENSE_KEY=your_license_key_here" >> .env
 
 # Install ACF Pro + ACF Extended Free
 npm run -w @wpgraphql/wp-graphql-acf install-acf:pro
