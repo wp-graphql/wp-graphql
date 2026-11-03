@@ -80,6 +80,12 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.26.1 =
+
+**Settings registered only for the REST API now require `manage_options`.** A setting registered with `show_in_rest => true` but without `show_in_graphql` is still in the Schema, but users without `manage_options` now get `null` for it on `<group>Settings` and `allSettings`. With debugging enabled, the response names each field that resolved to `null` this way. WordPress core's own settings (site title, tagline, URL, timezone, reading settings and the rest) are unchanged and stay public. To make one of your settings public again, register it with `show_in_graphql => true`, or remove its `graphql_capability` with the `graphql_normalized_settings` filter.
+
+**Connector API keys are masked.** On WordPress 7.0 and later, the settings that hold connector API keys (such as Akismet's) always require `manage_options` and are returned masked, showing only the last four characters, as the REST API does. Saving the masked value back through `updateSettings` leaves the stored key unchanged.
+
 = 2.24.2 =
 
 **Security release.** Fixes four follow-ups to the issues addressed in 2.24.1. Updating is recommended. Three of them change behavior you may be relying on.
