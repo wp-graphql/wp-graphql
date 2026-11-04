@@ -1,0 +1,76 @@
+[
+    {
+        "key": "group_6aec0a1f2c0de",
+        "title": "Capability Test",
+        "fields": [
+            {
+                "key": "field_6aec0a1f2c0e1",
+                "label": "Public Note",
+                "name": "public_note",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "show_in_graphql": 1,
+                "graphql_field_name": "publicNote",
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_6aec0a1f2c0e2",
+                "label": "Staff Note",
+                "name": "staff_note",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "show_in_graphql": 1,
+                "graphql_field_name": "staffNote",
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "post"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 1,
+        "show_in_graphql": 1,
+        "graphql_field_name": "capabilityTest",
+        "map_graphql_types_from_location_rules": 0,
+        "graphql_types": [
+            "Post"
+        ]
+    }
+]
