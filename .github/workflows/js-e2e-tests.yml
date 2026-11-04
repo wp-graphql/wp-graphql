@@ -114,6 +114,9 @@ jobs:
               - .github/workflows/js-e2e-tests-reusable.yml
               - .github/workflows/js-e2e-tests.yml
               - plugins/wp-graphql-acf/src/**
+              - plugins/wp-graphql-acf/*.php
+              - plugins/wp-graphql-acf/composer.json
+              - plugins/wp-graphql-acf/composer.lock
               - plugins/wp-graphql-acf/tests/e2e/**
               - plugins/wp-graphql-acf/tests/_data/**
               - plugins/wp-graphql-acf/bin/**
