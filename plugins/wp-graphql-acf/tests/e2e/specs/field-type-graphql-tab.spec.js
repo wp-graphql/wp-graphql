@@ -115,8 +115,8 @@ async function openNewFieldGroup(page) {
 }
 
 /**
- * For every type in the new field's type dropdown, requests the type's settings the way the
- * editor does when an admin picks it, and reports what its GraphQL section contains: which of
+ * For every type an admin can pick in the new field's type dropdown, requests the type's
+ * settings the way the editor does when an admin picks it, and reports what its GraphQL section contains: which of
  * the GraphQL settings it has, and its text.
  *
  * @param {import('@playwright/test').Page} page The page, on a new field group.
@@ -127,8 +127,10 @@ async function getGraphqlSectionByType(page) {
 		const acf = globalThis.acf;
 		const $field = jQuery('.acf-field-object').first();
 		const field = acf.getFieldObject($field);
+		// ACF Free also lists the PRO-only types, as disabled "(PRO Only)" options with the
+		// value "null", so only take the options an admin can pick.
 		const types = $field
-			.find('select.field-type option')
+			.find('select.field-type option:not(:disabled)')
 			.map((i, option) => option.value)
 			.get()
 			.filter(Boolean);
