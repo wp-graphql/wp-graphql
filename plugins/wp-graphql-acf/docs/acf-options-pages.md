@@ -15,6 +15,7 @@ ACF PRO 6.2+ lets you register Options Pages from the WordPress admin (ACF > Opt
 
 - **Show in GraphQL (show_in_graphql):** Whether the Options Page should be added to the GraphQL Schema. Defaults to **off** for Options Pages registered via the UI.
 - **GraphQL Type Name (graphql_type_name):** How the Options Page should be referenced in the GraphQL Schema. Defaults to a formatted version of the Page Title.
+- **GraphQL Capability (graphql_capability):** The capability a user needs to read the Options Page in GraphQL. Leave empty to let anyone read it. See [Restricting Options Page data](#restricting-options-page-data).
 
 ### Using PHP
 
@@ -84,13 +85,13 @@ This can then be queried like so:
 
 ## Who can query Options Page data?
 
-**Adding an Options Page to the GraphQL Schema makes its data publicly queryable.** The GraphQL endpoint is public, and Options Page data (the page's metadata and the values of any field groups assigned to it that are shown in GraphQL) resolves for any request, including unauthenticated ones.
+**Adding an Options Page to the GraphQL Schema makes its data publicly queryable**, unless it [requires a capability](#restricting-options-page-data). The GraphQL endpoint is public, and Options Page data (the page's metadata and the values of any field groups assigned to it that are shown in GraphQL) resolves for any request, including unauthenticated ones.
 
 This is consistent with how ACF Options data works elsewhere: any theme or plugin can read the values with `get_field()` and render them on the public front end, which is the primary use case for Options Pages (global site settings, header/footer content, etc.).
 
 ### The `capability` setting does not restrict GraphQL queries
 
-The `capability` argument on `acf_add_options_page()` controls who can see the admin menu page and **edit** the options in wp-admin. It is not a read restriction, in GraphQL or anywhere else in ACF. Setting `capability => 'manage_options'` on an Options Page does not prevent its data from being queried once the page is shown in GraphQL.
+The `capability` argument on `acf_add_options_page()` controls who can see the admin menu page and **edit** the options in wp-admin. It is not a read restriction, in GraphQL or anywhere else in ACF. Setting `capability => 'manage_options'` on an Options Page does not prevent its data from being queried once the page is shown in GraphQL. Use `graphql_capability` for that.
 
 ### Do not expose sensitive data
 
@@ -98,8 +99,31 @@ Note the difference in defaults: Options Pages require an explicit `show_in_grap
 
 - Don't register the Options Page with `show_in_graphql => true` (pages that don't opt in are excluded).
 - If the page must be in the schema, exclude a sensitive field group (`show_in_graphql => false` on the field group) or an individual field (`show_in_graphql => false` on the field).
+- Or restrict who can read it, with `graphql_capability` (below).
 
-More granular, capability-based access control for fields, field groups, and Options Pages (a `graphql_capability` setting, enforced when values resolve) is being designed in [wp-graphql/wp-graphql#4275](https://github.com/wp-graphql/wp-graphql/issues/4275).
+### Restricting Options Page data
+
+The `graphql_capability` setting restricts reading an Options Page to users with a capability. Users without it get `null` for the page, and so for every field group on it, while the page stays in the schema. It's checked wherever the page is queried from, its root field or the `node` field.
+
+```php
+acf_add_options_page( [
+	'page_title'         => 'Integration Settings',
+	'menu_slug'          => 'integration-settings',
+	'capability'         => 'manage_options', // Who can see and edit the page in the admin.
+	'show_in_graphql'    => true,
+	'graphql_capability' => 'manage_options', // Who can read the page in GraphQL.
+] );
+```
+
+An unauthenticated request for the page then gets:
+
+```json
+{ "data": { "integrationSettings": null } }
+```
+
+Options Pages defined in the ACF UI, or in local JSON, keep the setting when they're exported, imported and registered.
+
+Field groups and fields on the page can have their own `graphql_capability` too, checked in addition to the page's. See [Restricting who can read ACF data](/adding-acf-fields-to-the-wpgraphql-schema/#restricting-who-can-read-acf-data) for how the settings combine, the debug messages users without the capability get, and the filters (`wpgraphql/acf/options_page_should_resolve` for Options Pages).
 
 ## Breaking change considerations
 

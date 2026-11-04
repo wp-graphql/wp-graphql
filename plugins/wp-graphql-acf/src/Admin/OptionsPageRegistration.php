@@ -58,6 +58,30 @@ class OptionsPageRegistration {
 		// if a graphql_single_name exists, use it, otherwise use the formatted version of the singular_name label
 		$args['graphql_type_name'] = $graphql_type_name;
 
+		// ACF builds these args from the saved settings and leaves out the ones it doesn't know, so
+		// the capability has to be added back here. Without it, an options page that requires a
+		// capability would be registered without one, and resolve for everyone.
+		$graphql_capability = null;
+
+		if ( isset( $args['graphql_capability'] ) ) {
+			$graphql_capability = $args['graphql_capability'];
+		} elseif ( isset( $post['graphql_capability'] ) ) {
+			$graphql_capability = $post['graphql_capability'];
+		}
+
+		if ( is_string( $graphql_capability ) ) {
+			$graphql_capability = trim( $graphql_capability );
+		}
+
+		// An unset or empty capability is left out, as ACF leaves out settings at their defaults.
+		// Anything else is kept as it is, so a value that isn't a valid capability fails closed
+		// when the options page resolves, rather than being dropped and failing open.
+		if ( null === $graphql_capability || false === $graphql_capability || '' === $graphql_capability ) {
+			unset( $args['graphql_capability'] );
+		} else {
+			$args['graphql_capability'] = $graphql_capability;
+		}
+
 		return $args;
 	}
 
@@ -84,7 +108,7 @@ class OptionsPageRegistration {
 				'value'        => isset( $acf_ui_options_page['show_in_graphql'] ) && true === (bool) $acf_ui_options_page['show_in_graphql'] ? 1 : 0,
 				'ui'           => true,
 				'label'        => __( 'Show in GraphQL', 'wpgraphql-acf' ),
-				'instructions' => __( 'Whether to show the Post Type in the WPGraphQL Schema.', 'wpgraphql-acf' ),
+				'instructions' => __( 'Whether to show the Options Page in the WPGraphQL Schema.', 'wpgraphql-acf' ),
 				'default'      => false,
 			]
 		);
@@ -108,6 +132,27 @@ class OptionsPageRegistration {
 				'instructions' => __( 'How the Options Page should be referenced in the GraphQL Schema.', 'wpgraphql-acf' ),
 				'default'      => $graphql_type_name,
 				'required'     => 1,
+				'conditions'   => [
+					'field'    => 'show_in_graphql',
+					'operator' => '==',
+					'value'    => '1',
+				],
+			],
+			'div',
+			'field'
+		);
+
+		acf_render_field_wrap(
+			[
+				'type'         => 'text',
+				'name'         => 'graphql_capability',
+				'key'          => 'graphql_capability',
+				'prefix'       => 'acf_ui_options_page',
+				'value'        => isset( $acf_ui_options_page['graphql_capability'] ) && is_string( $acf_ui_options_page['graphql_capability'] ) ? $acf_ui_options_page['graphql_capability'] : '',
+				'label'        => __( 'GraphQL Capability', 'wpgraphql-acf' ),
+				'instructions' => __( 'The capability a user needs to read this Options Page in GraphQL, such as "manage_options". Users without it get null for the Options Page and its fields. Leave empty to let anyone read it. This is separate from the capability needed to edit the Options Page in the admin.', 'wpgraphql-acf' ),
+				'placeholder'  => __( 'e.g. manage_options', 'wpgraphql-acf' ),
+				'default'      => '',
 				'conditions'   => [
 					'field'    => 'show_in_graphql',
 					'operator' => '==',

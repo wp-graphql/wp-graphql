@@ -8,6 +8,7 @@ import {
 import {
 	loginToWordPressAdmin,
 	visitAdminFacingPage,
+	deleteAcfUiEntity,
 	wpAdminUrl,
 } from '../utils.js';
 import { skipWhenNotAcfPro } from '../env.js';
@@ -22,45 +23,6 @@ import { skipWhenNotAcfPro } from '../env.js';
 const describeAcfUi = skipWhenNotAcfPro() ? describe.skip : describe;
 
 const TOOLS_URL = `${wpAdminUrl}/edit.php?post_type=acf-field-group&page=acf-tools`;
-
-/**
- * Delete one ACF UI entity (post type, taxonomy, or options page) by its list label.
- * Goes to list, finds row by label text, bulk trashes, then empties from trash.
- * @param page
- * @param listUrl
- * @param rowLabel
- */
-async function deleteAcfUiEntity(page, listUrl, rowLabel) {
-	await visitAdminFacingPage(page, `${wpAdminUrl}/${listUrl}`);
-	const table = page.locator('.wp-list-table').first();
-	const row = table
-		.locator('tbody tr:not(.no-items)')
-		.filter({ hasText: rowLabel })
-		.first();
-	if ((await row.count()) === 0) {
-		return;
-	}
-	await row.locator('.check-column input[type="checkbox"]').check();
-	await page.locator('#bulk-action-selector-bottom').selectOption('trash');
-	await page.locator('#doaction2').click();
-	await page.waitForLoadState('networkidle');
-	await visitAdminFacingPage(
-		page,
-		`${wpAdminUrl}/${listUrl}&post_status=trash`
-	);
-	const trashTable = page.locator('.wp-list-table').first();
-	const trashRow = trashTable
-		.locator('tbody tr:not(.no-items)')
-		.filter({ hasText: rowLabel })
-		.first();
-	if ((await trashRow.count()) === 0) {
-		return;
-	}
-	await trashRow.locator('.check-column input[type="checkbox"]').check();
-	await page.locator('#bulk-action-selector-bottom').selectOption('delete');
-	await page.locator('#doaction2').click();
-	await page.waitForLoadState('networkidle');
-}
 
 describeAcfUi('ACF UI Registration – Custom Post Type', () => {
 	beforeEach(async ({ page }) => {

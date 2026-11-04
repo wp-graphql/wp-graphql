@@ -147,6 +147,45 @@ export async function deleteAllAcfFieldGroups(page) {
 }
 
 /**
+ * Delete one ACF UI entity (post type, taxonomy, or options page) by its list label.
+ * Goes to list, finds row by label text, bulk trashes, then empties from trash.
+ * @param {import('@playwright/test').Page} page
+ * @param {string}                          listUrl  - List screen path relative to wp-admin (e.g. edit.php?post_type=acf-ui-options-page).
+ * @param {string}                          rowLabel - Text that identifies the row.
+ */
+export async function deleteAcfUiEntity(page, listUrl, rowLabel) {
+	await visitAdminFacingPage(page, `${wpAdminUrl}/${listUrl}`);
+	const table = page.locator('.wp-list-table').first();
+	const row = table
+		.locator('tbody tr:not(.no-items)')
+		.filter({ hasText: rowLabel })
+		.first();
+	if ((await row.count()) === 0) {
+		return;
+	}
+	await row.locator('.check-column input[type="checkbox"]').check();
+	await page.locator('#bulk-action-selector-bottom').selectOption('trash');
+	await page.locator('#doaction2').click();
+	await page.waitForLoadState('networkidle');
+	await visitAdminFacingPage(
+		page,
+		`${wpAdminUrl}/${listUrl}&post_status=trash`
+	);
+	const trashTable = page.locator('.wp-list-table').first();
+	const trashRow = trashTable
+		.locator('tbody tr:not(.no-items)')
+		.filter({ hasText: rowLabel })
+		.first();
+	if ((await trashRow.count()) === 0) {
+		return;
+	}
+	await trashRow.locator('.check-column input[type="checkbox"]').check();
+	await page.locator('#bulk-action-selector-bottom').selectOption('delete');
+	await page.locator('#doaction2').click();
+	await page.waitForLoadState('networkidle');
+}
+
+/**
  * Execute a GraphQL request (POST /graphql). Use from specs that need to assert on schema or query results.
  *
  * @param {import('@playwright/test').APIRequestContext} request     - Playwright request fixture (uses project baseURL).

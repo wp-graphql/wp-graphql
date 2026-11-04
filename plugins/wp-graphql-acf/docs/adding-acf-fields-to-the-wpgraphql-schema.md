@@ -34,6 +34,7 @@ Within this tab are the following settings that impact how the field group is ad
 -   **Show in GraphQL (show\_in\_graphql):** Checked (`true`), if the field group should be shown in the GraphQL Schema. Unchecked (`false`) if the field group should not be shown in the GraphQL Schema.
     -   **NOTE**: Field Groups that are “inactive” but set to Show in GraphQL will be exposed to the Schema. i.e. inactive field groups that are then used to “[clone](./field-types/clone-field.md)” onto other field groups.
 -   **GraphQL Type Name** (**graphql\_type\_name):** The Type name that should be used in the GraphQL Schema to represent the field group. This must be unique across the entire GraphQL Schema. The Type cannot be already be present in the GraphQL Schema. It’s recommended to use Pascal casing to name the type (i.e. MyFieldGroupTypeName). This will also serve as the field name (with a lowercase first letter) to access the fields from.
+-   **GraphQL Capability (graphql\_capability):** The capability a user needs to read the field group, such as `edit_posts`. Users without it get `null` for the field group, so none of its fields resolve. Leave empty to let anyone read it. See [Restricting who can read ACF data](#restricting-who-can-read-acf-data).
 -   **Manually Set GraphQL Types for Field Group (map\_graphql\_types\_from\_location\_rules**): Checked (true) to use the “graphql\_types” value to add the field group to the Schema. Unchecked (false) to let WPGraphQL for ACF map the Field Group to the Schema based on the Location Rules (read more about how [location rules](#location-rules) work below)
 -   **GraphQL Types (graphql\_types):** Array of Type Names the ACF Field Group should be accessible from in the Schema.
     -   The type(s) should correspond with the location rules for the field group. For example, if the ACF Field Group is shown on pages in the admin, the field group should be associated with the “Page” type in GraphQL.
@@ -51,7 +52,146 @@ Each [field type](./field-types/index.md) might have different settings, but the
 -   **Show in GraphQL (show\_in\_graphql)**: Whether the field should show in the GraphQL Schema. If the Field Group is not shown in the GraphQL Schema, the individual fields will also not be. If the Field Group is shown in the GraphQL Schema, fields are default to “true” and will be shown in the schema unless disabled.
 -   **GraphQL Description (graphql\_description):** This is how the field is documented in the Schema and will show in tools such as the GraphiQL IDE.
 -   **GraphQL Field Name (graphql\_field\_name):** The name of the field shown in the Schema. The field _must_ start with a letter. Recommended to use “snakeCase”. The Field Name must be unique across the field group. (i.e. you cannot have multiple fields in the same field group with the same “graphql\_field\_name”).
+-   **GraphQL Capability (graphql\_capability):** The capability a user needs to read the field’s value, such as `manage_options`. Users without it get `null` for the field. Leave empty to let anyone read it. See [Restricting who can read ACF data](#restricting-who-can-read-acf-data).
 -   **GraphQL Non-Null** **(graphql\_non\_null):** Whether the field should be Non-Null in the Schema. If checked and the field doesn’t have a value, errors will be thrown when the field is queried for. Also changing this value in the future can cause breaking changes, so use with caution.
+
+## Restricting who can read ACF data
+
+By default, every field group and field in the GraphQL Schema can be read by anyone who can query the node it belongs to, including unauthenticated requests. The `graphql_capability` setting restricts reading a field group, a field or an [Options Page](./acf-options-pages.md) to users with a [capability](https://wordpress.org/documentation/article/roles-and-capabilities/).
+
+-   **Unset, `null` or an empty string means public.** This is the default, so existing field groups, fields and Options Pages are unaffected.
+-   **It is checked when the data is resolved.** The schema is the same for every user: a restricted field group or field is still in the schema, and resolves `null` for users without the capability.
+-   **It only controls GraphQL.** It doesn't change who can edit the data in the WordPress admin, and isn't related to the `capability` setting of ACF Options Pages, which controls who can see and edit the page in the admin.
+
+### Setting a capability
+
+In the ACF admin, the “GraphQL” tab of a field group, a field, and an Options Page each have a “GraphQL Capability” setting.
+
+In PHP, set `graphql_capability` on the field group or field config:
+
+```php
+acf_add_local_field_group( [
+	'key'                => 'group_site_settings',
+	'title'              => 'Site Settings',
+	'show_in_graphql'    => true,
+	'graphql_field_name' => 'siteSettings',
+	'fields'             => [
+		[
+			'key'  => 'field_tagline',
+			'name' => 'tagline',
+			'type' => 'text',
+		],
+		[
+			'key'                => 'field_api_secret',
+			'name'               => 'api_secret',
+			'type'               => 'text',
+			// Only users who can manage options can read this field.
+			'graphql_capability' => 'manage_options',
+		],
+	],
+	'location'           => [
+		[
+			[
+				'param'    => 'post_type',
+				'operator' => '==',
+				'value'    => 'page',
+			],
+		],
+	],
+] );
+```
+
+In [local JSON](https://www.advancedcustomfields.com/resources/local-json/), the setting is saved with the rest of the field group’s settings, and is kept when the field group is exported and imported:
+
+```json
+{
+	"key": "group_internal_notes",
+	"title": "Internal Notes",
+	"show_in_graphql": 1,
+	"graphql_field_name": "internalNotes",
+	"graphql_capability": "edit_posts",
+	"fields": [
+		{
+			"key": "field_note",
+			"name": "note",
+			"type": "text",
+			"graphql_capability": "manage_options"
+		}
+	]
+}
+```
+
+### What users without the capability get
+
+A user without the capability gets `null`. With the field above, an unauthenticated request gets:
+
+```json
+{
+	"data": {
+		"page": {
+			"siteSettings": {
+				"tagline": "Hello World",
+				"apiSecret": null
+			}
+		}
+	}
+}
+```
+
+When [`GRAPHQL_DEBUG`](./debugging.md) is enabled, the response also has a debug message with the type `RESTRICTED_FIELD` naming the field and the capability it requires:
+
+```json
+{
+	"type": "RESTRICTED_FIELD",
+	"message": "The \"SiteSettings.apiSecret\" field requires the \"manage_options\" capability and resolved to null.",
+	"field": "SiteSettings.apiSecret",
+	"required_capability": "manage_options"
+}
+```
+
+A user with the capability gets the value, and no debug message.
+
+A value that isn’t a string (such as an array) is a misconfiguration, and is treated as a capability no one has: the field group or field resolves `null` for every user.
+
+### How field group and field capabilities combine
+
+Each level is checked on its own, and a user needs every capability that applies:
+
+-   A field group’s capability applies to every field in it. A user without it gets `null` for the whole field group, whatever its fields are set to.
+-   A field’s capability is checked as well as its field group’s. A field can be more restrictive than its field group, but never less: a field without a capability in a restricted field group is still only readable with the field group’s capability.
+-   The fields of a field group that is [cloned](./field-types/clone-field.md) into another field group keep the capability of the field group they were cloned from.
+-   On an Options Page with a capability, the field groups on the page are only readable with the page’s capability, because the page itself resolves `null` without it.
+
+For example, with a field group set to `edit_posts` and one of its fields set to `manage_options`, an unauthenticated user gets `null` for the field group, an author gets the field group with `null` for that field, and an administrator gets everything.
+
+### Non-Null fields
+
+A field that is both Non-Null (`graphql_non_null`) and restricted can’t resolve `null` for users without the capability: GraphQL reports an error for the field, and its parent (the field group, or the field it's nested in) resolves `null` instead, along with every other field in it. With `GRAPHQL_DEBUG` enabled, a debug message warns about fields with this combination. To return `null` for only the restricted field, turn off its “GraphQL Non-Null” setting.
+
+### Filters
+
+Each level has a filter that runs after the capability check, to restrict (or allow) reading based on anything else. Return `false` to resolve `null`, or `true` to resolve the data even when the capability check failed.
+
+-   `wpgraphql/acf/field_group_should_resolve` filters `( bool $should_resolve, mixed $node, array $acf_field_group, AppContext $context, ResolveInfo $info )`. `$node` is the node the field group belongs to, such as a `\WPGraphQL\Model\Post`.
+-   `wpgraphql/acf/field_should_resolve` filters `( bool $should_resolve, mixed $root, array $acf_field, AppContext $context, ResolveInfo $info )`. A field’s filter runs only once its field group has resolved, so it can’t make a field resolve in a field group that didn’t.
+-   `wpgraphql/acf/options_page_should_resolve` filters `( bool $should_resolve, array $options_page )`.
+
+For example, to hide a field group on posts in a members-only category from visitors who aren't logged in:
+
+```php
+add_filter( 'wpgraphql/acf/field_group_should_resolve', function ( $should_resolve, $node, $acf_field_group ) {
+	if (
+		'group_member_details' === ( $acf_field_group['key'] ?? '' ) &&
+		! is_user_logged_in() &&
+		$node instanceof \WPGraphQL\Model\Post &&
+		has_term( 'members-only', 'category', $node->databaseId )
+	) {
+		return false;
+	}
+
+	return $should_resolve;
+}, 10, 3 );
+```
 
 ## ACF Field Group Location Rules
 

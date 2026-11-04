@@ -56,6 +56,13 @@ class FieldConfig {
 	protected $graphql_parent_type_name;
 
 	/**
+	 * The field group the field was defined in, once determined. False until then.
+	 *
+	 * @var array<mixed>|false|null
+	 */
+	protected $defining_field_group = false;
+
+	/**
 	 * @param array<mixed>            $acf_field The ACF Field being mapped to the GraphQL Schema
 	 * @param array<mixed>            $acf_field_group The ACF Field Group the field belongs to
 	 * @param \WPGraphQL\Acf\Registry $registry The WPGraphQL for ACF Type Registry
@@ -312,7 +319,115 @@ class FieldConfig {
 		 * @param array|null                 $field_config   The field config array passed to the schema registration
 		 * @param \WPGraphQL\Acf\FieldConfig $instance       Instance of the FieldConfig class
 		 */
-		return \apply_filters( 'wpgraphql/acf/get_graphql_field_config', $field_config, $this );
+		$field_config = \apply_filters( 'wpgraphql/acf/get_graphql_field_config', $field_config, $this );
+
+		// Gate the resolver after the filter, so a resolver replaced by the filter is gated too.
+		if ( is_array( $field_config ) && isset( $field_config['resolve'] ) && is_callable( $field_config['resolve'] ) ) {
+			$field_config['resolve'] = $this->gate_resolver( $field_config['resolve'] );
+			$this->maybe_warn_non_null_with_capability( $field_config );
+		}
+
+		return $field_config;
+	}
+
+	/**
+	 * The field group the field was defined in, when its parent is a field group.
+	 *
+	 * Null for fields defined in another field (a group, repeater or flexible content field),
+	 * which are only reachable through that field.
+	 *
+	 * @return array<mixed>|null
+	 */
+	public function get_defining_field_group(): ?array {
+		if ( false === $this->defining_field_group ) {
+			$parent = $this->acf_field['parent'] ?? null;
+			$group  = ! empty( $parent ) && ( is_string( $parent ) || is_int( $parent ) ) ? acf_get_field_group( $parent ) : false;
+
+			$this->defining_field_group = is_array( $group ) ? $group : null;
+		}
+
+		return $this->defining_field_group;
+	}
+
+	/**
+	 * The capabilities a field requires besides its own.
+	 *
+	 * A field group's capability gates every field in it, wherever the field is used. Where the
+	 * field resolves as part of the field group it was defined in, the field group's own resolver
+	 * has already checked the field group, so it isn't checked again. Where the field resolves
+	 * somewhere else, because it was cloned into another field group, the field group it was
+	 * defined in is checked here.
+	 *
+	 * @param mixed $root The root the field is resolving for.
+	 *
+	 * @return array<int,string|false|null>
+	 */
+	protected function get_field_group_capabilities( $root ): array {
+		$defining_group = $this->get_defining_field_group();
+
+		if ( null === $defining_group ) {
+			return [];
+		}
+
+		$resolving_group_key = is_array( $root ) && isset( $root['acf_field_group']['key'] ) ? $root['acf_field_group']['key'] : null;
+
+		if ( null !== $resolving_group_key && ( $defining_group['key'] ?? null ) === $resolving_group_key ) {
+			return [];
+		}
+
+		return [ AccessControl::get_required_capability( $defining_group ) ];
+	}
+
+	/**
+	 * Wrap a resolver of the field so it resolves null when the field may not be read.
+	 *
+	 * @see \WPGraphQL\Acf\AccessControl::can_resolve_field()
+	 *
+	 * @param callable $resolve The resolver to wrap.
+	 */
+	public function gate_resolver( callable $resolve ): callable {
+		return function ( $root, $args, AppContext $context, ResolveInfo $info ) use ( $resolve ) {
+			if ( ! AccessControl::can_resolve_field( $this->acf_field, $this->get_field_group_capabilities( $root ), $root, $context, $info ) ) {
+				return null;
+			}
+
+			return $resolve( $root, $args, $context, $info );
+		};
+	}
+
+	/**
+	 * Warn when a Non-Null field requires a capability.
+	 *
+	 * A Non-Null field that resolves null for a viewer without the capability is a GraphQL error,
+	 * which makes its parent (the field group, or the field it's nested in) resolve null too.
+	 *
+	 * @param array<mixed> $field_config The GraphQL field config.
+	 */
+	protected function maybe_warn_non_null_with_capability( array $field_config ): void {
+		if ( ! isset( $field_config['type'] ) || ! is_array( $field_config['type'] ) || ! isset( $field_config['type']['non_null'] ) ) {
+			return;
+		}
+
+		// Only the field's own capability. A field group's capability nulls the field group before
+		// the field is reached, so it doesn't cause an error.
+		$capability = AccessControl::get_required_capability( $this->acf_field );
+
+		if ( null === $capability ) {
+			return;
+		}
+
+		graphql_debug(
+			sprintf(
+				// translators: 1: the GraphQL field name, 2: the GraphQL type name of the field group, 3: the required capability.
+				__( 'The "%1$s" field of "%2$s" is Non-Null and requires the "%3$s" capability. For viewers without the capability it resolves null, which is an error for a Non-Null field, so its parent resolves null too. Turn off the field\'s "GraphQL Non-Null" setting to resolve only the field as null.', 'wpgraphql-acf' ),
+				$this->graphql_field_name,
+				(string) $this->graphql_field_group_type_name,
+				false === $capability ? '' : $capability
+			),
+			[
+				'field' => $this->graphql_field_group_type_name . '.' . $this->graphql_field_name,
+			]
+		);
 	}
 
 	/**
@@ -899,6 +1014,12 @@ class FieldConfig {
 			],
 			$config
 		);
+
+		// Connection fields resolve with the connection's resolver rather than the field's, so
+		// gate it the same way.
+		if ( isset( $connection_config['resolve'] ) && is_callable( $connection_config['resolve'] ) ) {
+			$connection_config['resolve'] = $this->gate_resolver( $connection_config['resolve'] );
+		}
 
 		$connection_key = $this->get_graphql_field_name() . ':' . $type_name . ':' . $to_type;
 
