@@ -23,7 +23,12 @@ setup_wp() {
 	if [ "$ENV_NAME" = "tests-cli" ]; then
 		echo "Installing test themes..."
 		install_test_theme "$ENV_NAME" twentytwentyone || return 1
-		install_test_theme "$ENV_NAME" twentytwentyfive || return 1
+		# Twenty Twenty-Five needs WordPress 6.7, and the CI matrix still tests older versions.
+		if npm run --silent wp-env run "$ENV_NAME" -- wp eval 'exit( version_compare( get_bloginfo( "version" ), "6.7", ">=" ) ? 0 : 1 );' 2>/dev/null; then
+			install_test_theme "$ENV_NAME" twentytwentyfive || return 1
+		else
+			echo "Skipping twentytwentyfive, which needs WordPress 6.7 or later."
+		fi
 	fi
 
 	# Activate wp-graphql-smart-cache in tests-cli environment (where all tests run)
