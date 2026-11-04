@@ -105,9 +105,12 @@ npm run -w @wpgraphql/wp-graphql-acf test:codecept:wpunit
 You can provide the license key in three ways:
 
 **Option A: Using a .env file (Recommended)**
+
+The install script reads `plugins/wp-graphql-acf/.env` first, then the monorepo's root `.env`, so put the key in whichever you already use. Both are gitignored.
+
 ```bash
-# Create or edit plugins/wp-graphql-acf/.env
-echo "ACF_LICENSE_KEY=your_license_key_here" >> plugins/wp-graphql-acf/.env
+# In the root .env (or in plugins/wp-graphql-acf/.env)
+echo "ACF_LICENSE_KEY=your_license_key_here" >> .env
 
 # Install ACF Pro + ACF Extended Free
 npm run -w @wpgraphql/wp-graphql-acf install-acf:pro
@@ -193,7 +196,23 @@ wp-graphql-acf has Playwright E2E tests. Install ACF first (e.g. `npm run instal
 npm run -w @wpgraphql/wp-graphql-acf test:e2e
 ```
 
-Tests skip Pro-only or ACF Extended–only specs when running with ACF Free (set `INSTALL_ACF_PRO` / `INSTALL_ACF_EXTENDED_PRO` to match your install so skips match CI).
+Tests skip Pro-only or ACF Extended–only specs when running with ACF Free (set `INSTALL_ACF_PRO` / `INSTALL_ACF_EXTENDED_PRO` to match your install, so the right specs skip).
+
+CI doesn't run these specs at the moment (the `wp-graphql-acf` job in `.github/workflows/js-e2e-tests.yml` is disabled), so run them locally when a change touches the admin UI or anything the specs cover.
+
+Some specs introspect the schema as a logged-out visitor, so the test site (localhost:8889) needs public introspection enabled. A fresh `wp-env start` doesn't enable it, so turn it on once:
+
+```bash
+npm run wp-env run tests-cli -- wp option update graphql_general_settings '{"public_introspection_enabled":"on"}' --format=json
+```
+
+**After running WPUnit tests, reset the test site before running E2E.** WPUnit reinstalls WordPress into the test site's database, which deactivates every plugin, sets permalinks back to plain (so `/graphql` returns a 404), resets WPGraphQL's settings, and drops the ACF PRO license. The E2E specs then fail in ways that look unrelated to your change. To restore it:
+
+```bash
+npm run wp-env start                                   # re-runs the setup: activates WPGraphQL and sets pretty permalinks
+npm run -w @wpgraphql/wp-graphql-acf install-acf:pro   # or install-acf for ACF Free; reinstalling ACF PRO activates its license again
+npm run wp-env run tests-cli -- wp option update graphql_general_settings '{"public_introspection_enabled":"on"}' --format=json
+```
 
 **Local-only: full CI-like run** (build, wp-env, install ACF, run E2E, stop) from repo root:
 

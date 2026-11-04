@@ -12,14 +12,15 @@
 #   2. Build wp-graphql and plugins
 #   3. Start wp-env (dev :8888, test :8889)
 #   4. Wait for test site at localhost:8889
-#   5. Install ACF/Extended via install-test-deps (respects env below)
+#   5. Install ACF/Extended via install-test-deps (respects env below), and enable
+#      public introspection, which some specs need
 #   6. Run Playwright E2E for wp-graphql-acf
 #   7. Stop wp-env
 #
 # Environment (optional; controls ACF variant and test skips):
 #   INSTALL_ACF_PRO         'true' = ACF Pro, 'false' = ACF Free (default: unset)
 #   INSTALL_ACF_EXTENDED_PRO 'true' = ACF Extended Pro when using ACF Pro (default: unset)
-#   ACF_LICENSE_KEY         From env or plugins/wp-graphql-acf/.env (needed for Pro)
+#   ACF_LICENSE_KEY         From env, plugins/wp-graphql-acf/.env or the root .env (needed for Pro)
 #   ACF_EXTENDED_LICENSE_KEY From env or .env (needed for Extended Pro)
 #
 # Examples (run from repo root):
@@ -60,8 +61,12 @@ for i in $(seq 1 30); do
 done
 curl -f -s "http://localhost:8889/wp-admin/install.php" > /dev/null || curl -f -s "http://localhost:8889/wp-admin" > /dev/null || { echo "WordPress test site did not become ready at :8889."; exit 1; }
 
-echo "=== 6. Install plugin test deps (ACF/Extended) ==="
+echo "=== 6. Install plugin test deps (ACF/Extended) and enable public introspection ==="
 ( cd plugins/wp-graphql-acf && npm run install-test-deps )
+
+# Some specs introspect the schema as a logged-out visitor, and a fresh test site has public
+# introspection off.
+npm run wp-env run tests-cli -- wp option update graphql_general_settings '{"public_introspection_enabled":"on"}' --format=json
 
 echo "=== 7. Run wp-graphql-acf E2E tests ==="
 npm run -w @wpgraphql/wp-graphql-acf test:e2e
