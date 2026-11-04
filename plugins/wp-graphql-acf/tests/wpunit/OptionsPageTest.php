@@ -302,4 +302,33 @@ class OptionsPageTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 
 	}
 
+	public function testOptionsPageResolvesNullWhenItsLoaderIsReplaced() {
+
+		$this->registerOptionsPage();
+
+		// Another plugin assigns a loader of a different class to the options page loader key.
+		$replace_loader = static function ( $loaders ) {
+			$loaders['acf_options_page'] = \WPGraphQL\Data\Loader\PostObjectLoader::class;
+			return $loaders;
+		};
+
+		add_filter( 'graphql_data_loader_classes', $replace_loader, 20 );
+
+		$actual = $this->graphql( [
+			'query' => '
+			{
+			  myOptionsPage {
+			    id
+			    pageTitle
+			  }
+			}
+			',
+		] );
+
+		remove_filter( 'graphql_data_loader_classes', $replace_loader, 20 );
+
+		self::assertArrayNotHasKey( 'errors', $actual, wp_json_encode( $actual ) );
+		self::assertNull( $actual['data']['myOptionsPage'] );
+	}
+
 }
