@@ -284,6 +284,9 @@ test.describe('Field types GraphQL UI', () => {
 					);
 					await fieldNameInputStep2.scrollIntoViewIfNeeded();
 					await fieldNameInputStep2.fill('newFieldName');
+					// fill() fires only an input event, and ACF marks a field as changed (so its settings
+					// are saved) on change. Fire it now, instead of relying on the blur when Save is clicked.
+					await fieldNameInputStep2.dispatchEvent('change');
 					await submitFieldGroupForm(page);
 					await expect(
 						page.locator('#message.notice-error')
@@ -345,6 +348,7 @@ test.describe('Field types GraphQL UI', () => {
 					await descInput.fill('test description...', {
 						force: true,
 					});
+					await descInput.dispatchEvent('change');
 					await submitFieldGroupForm(page);
 					await expect(
 						page.locator('#message.notice-error')
@@ -384,6 +388,7 @@ test.describe('Field types GraphQL UI', () => {
 					);
 					await fieldNameInput.scrollIntoViewIfNeeded();
 					await fieldNameInput.fill('newFieldName');
+					await fieldNameInput.dispatchEvent('change');
 					await submitFieldGroupForm(page);
 					await expect(
 						page.locator('#message.notice-error')

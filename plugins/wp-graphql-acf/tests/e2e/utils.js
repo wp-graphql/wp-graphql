@@ -265,7 +265,12 @@ export async function openFieldByKeyAndGraphQLTab(
 
 	if (fieldType) {
 		const typeSelect = panel.locator('select.field-type').first();
-		if ((await typeSelect.count()) > 0) {
+		// Only change the type when it differs. Selecting the type the field already has still
+		// makes ACF swap its settings out and back in, which can drop a change made meanwhile.
+		if (
+			(await typeSelect.count()) > 0 &&
+			(await typeSelect.inputValue()) !== fieldType
+		) {
 			const isSelect2 = await typeSelect.evaluate((el) =>
 				el.classList.contains('select2-hidden-accessible')
 			);
@@ -287,6 +292,28 @@ export async function openFieldByKeyAndGraphQLTab(
 			} else {
 				await typeSelect.selectOption(fieldType);
 			}
+			// ACF waits 300ms after the type changes, then swaps the old type's settings for the
+			// new type's (from the cache, or over AJAX). Until it does, the old settings are still
+			// on the page, and anything changed in them is lost when they're swapped out. Wait for
+			// ACF to report the new type, which it sets once the new settings are in place.
+			await page.waitForFunction(
+				({ key, type }) => {
+					const $field = jQuery(
+						`.acf-field-object[data-key="${key}"]`
+					);
+					const field = globalThis.acf?.getFieldObject?.($field.first());
+					if (!field) {
+						return true;
+					}
+					const xhr = field.get('xhr');
+					return (
+						field.get('type') === type &&
+						(!xhr || xhr.state() !== 'pending')
+					);
+				},
+				{ key: fieldKey, type: fieldType },
+				{ timeout: process.env.CI ? 20000 : 10000 }
+			);
 			await panel
 				.locator('.acf-tab-button')
 				.first()
