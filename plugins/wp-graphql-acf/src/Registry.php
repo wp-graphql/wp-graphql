@@ -427,7 +427,7 @@ class Registry {
 								$loader = $context->get_loader( 'acf_options_page' );
 
 								if ( ! $loader instanceof AcfOptionsPageLoader ) {
-									return 'null';
+									return null;
 								}
 
 								return $loader->load_deferred( $graphql_options_page['menu_slug'] );

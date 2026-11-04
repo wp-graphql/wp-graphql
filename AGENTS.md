@@ -103,7 +103,7 @@ The pattern the release scripts follow (`scripts/update-*.js`, `scripts/reconcil
 
 ### Hook conventions
 
-- Prefer canonical `graphql_*` hook names for new actions/filters.
+- Prefer canonical `graphql_*` hook names for new actions/filters. The exception is a plugin with its own established prefix, which keeps using it so its hooks stay consistent: WPGraphQL for ACF names every hook `wpgraphql/acf/...` (see [its `AGENTS.md`](plugins/wp-graphql-acf/AGENTS.md#hooks)).
 - Do not introduce new hooks with `wpgraphql_*` or `wp_graphql_*` prefixes.
 - Every `do_action()` / `apply_filters()` call site needs a complete docblock: a description, a typed `@param` (with a description) for each passed arg, `@since x-release-please-version` (for a genuinely new hook), and `@hookGroup <group>` using `scripts/hooks/groups.json`. This is the contract the hook linter checks.
 - For hook migrations, keep backward compatibility with:
