@@ -168,7 +168,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} || { echo "::warning::wp-env start failed"; exit 1; }
             # wp-env intermittently reports a successful start but leaves the
             # instance uninitialized: the next `wp-env run` then fails with
             # "Environment not initialized. Run `wp-env start` first." for the
