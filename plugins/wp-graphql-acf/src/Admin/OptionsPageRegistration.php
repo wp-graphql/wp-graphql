@@ -108,7 +108,7 @@ class OptionsPageRegistration {
 				'value'        => isset( $acf_ui_options_page['show_in_graphql'] ) && true === (bool) $acf_ui_options_page['show_in_graphql'] ? 1 : 0,
 				'ui'           => true,
 				'label'        => __( 'Show in GraphQL', 'wpgraphql-acf' ),
-				'instructions' => __( 'Whether to show the Post Type in the WPGraphQL Schema.', 'wpgraphql-acf' ),
+				'instructions' => __( 'Whether to show the Options Page in the WPGraphQL Schema.', 'wpgraphql-acf' ),
 				'default'      => false,
 			]
 		);
@@ -151,7 +151,7 @@ class OptionsPageRegistration {
 				'value'        => isset( $acf_ui_options_page['graphql_capability'] ) && is_string( $acf_ui_options_page['graphql_capability'] ) ? $acf_ui_options_page['graphql_capability'] : '',
 				'label'        => __( 'GraphQL Capability', 'wpgraphql-acf' ),
 				'instructions' => __( 'The capability a user needs to read this Options Page in GraphQL, such as "manage_options". Users without it get null for the Options Page and its fields. Leave empty to let anyone read it. This is separate from the capability needed to edit the Options Page in the admin.', 'wpgraphql-acf' ),
-				'placeholder'  => __( 'manage_options', 'wpgraphql-acf' ),
+				'placeholder'  => __( 'e.g. manage_options', 'wpgraphql-acf' ),
 				'default'      => '',
 				'conditions'   => [
 					'field'    => 'show_in_graphql',

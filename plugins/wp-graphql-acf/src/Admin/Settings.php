@@ -261,7 +261,7 @@ class Settings {
 				'type'         => 'text',
 				'prefix'       => 'acf_field_group',
 				'name'         => 'graphql_capability',
-				'placeholder'  => __( 'manage_options', 'wpgraphql-acf' ),
+				'placeholder'  => __( 'e.g. manage_options', 'wpgraphql-acf' ),
 				'value'        => ! empty( $field_group['graphql_capability'] ) && is_string( $field_group['graphql_capability'] ) ? $field_group['graphql_capability'] : '',
 			],
 			'div',

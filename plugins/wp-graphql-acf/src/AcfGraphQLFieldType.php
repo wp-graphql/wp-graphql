@@ -151,7 +151,7 @@ class AcfGraphQLFieldType {
 			'type'          => 'text',
 			'ui'            => true,
 			'required'      => false,
-			'placeholder'   => __( 'manage_options', 'wpgraphql-acf' ),
+			'placeholder'   => __( 'e.g. manage_options', 'wpgraphql-acf' ),
 			'default_value' => '',
 			'conditions'    => [
 				'field'    => 'show_in_graphql',

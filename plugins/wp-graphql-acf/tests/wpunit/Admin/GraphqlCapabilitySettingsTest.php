@@ -53,5 +53,9 @@ class GraphqlCapabilitySettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQ
 
 		$this->assertStringContainsString( 'acf_ui_options_page[graphql_capability]', $output );
 		$this->assertStringContainsString( 'value="manage_options"', $output );
+
+		// The "Show in GraphQL" instructions describe an options page, not a post type.
+		$this->assertStringContainsString( 'Whether to show the Options Page in the WPGraphQL Schema.', $output );
+		$this->assertStringNotContainsString( 'Post Type', $output );
 	}
 }
