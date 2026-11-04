@@ -251,6 +251,21 @@ function appsero_init_tracker_wpgraphql_smart_cache() {
 	}
 
 	$insights->init();
+
+	// Hide the deactivation feedback form (and block its AJAX submit) unless the site opted in.
+	// Core's UsageTracking may not be loaded yet if this file runs before WPGraphQL.
+	if ( class_exists( '\WPGraphQL\Admin\UsageTracking' ) ) {
+		( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug ) )->gate_deactivation_feedback();
+	} else {
+		add_action(
+			'plugins_loaded',
+			static function () use ( $insights, $client ): void {
+				if ( class_exists( '\WPGraphQL\Admin\UsageTracking' ) ) {
+					( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug ) )->gate_deactivation_feedback();
+				}
+			}
+		);
+	}
 }
 
 appsero_init_tracker_wpgraphql_smart_cache();

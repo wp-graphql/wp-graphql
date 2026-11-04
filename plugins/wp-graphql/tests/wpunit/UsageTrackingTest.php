@@ -65,6 +65,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_filter( 'pre_http_request', [ $this, 'record_request' ], 1 );
 		$this->unhook_tracker();
 
+		unset( $_POST['nonce'], $_POST['reason_id'], $_REQUEST['reason_info'] );
+
 		delete_option( self::SECTION );
 		delete_option( $this->slug . '_allow_tracking' );
 		wp_clear_scheduled_hook( $this->slug . '_tracker_send_event' );
@@ -103,6 +105,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( 'graphql_register_settings', [ $this->tracker, 'register_field' ] );
+		remove_action( 'admin_footer', [ $this->tracker, 'maybe_deactivate_scripts' ] );
+		remove_action( 'wp_ajax_' . $this->slug . '_submit-uninstall-reason', [ $this->tracker, 'maybe_uninstall_reason_submission' ] );
 	}
 
 	private function opt_in_via_notice(): void {
@@ -425,5 +429,94 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$names = wp_list_pluck( $registry->get_settings_fields()['graphql_general_settings'] ?? [], 'name' );
 
 		$this->assertContains( UsageTracking::FIELD_NAME, $names );
+	}
+
+	public function testDeactivationFeedbackHooksReplaceAppseroWhenTrackingIsOff(): void {
+		$client   = new \Appsero\Client( 'usage-tracking-test-hash', 'Usage Tracking Test', WPGRAPHQL_PLUGIN_FILE );
+		$insights = $client->insights();
+		$insights->init();
+
+		$this->unhook_tracker();
+		$this->tracker = new UsageTracking( $insights, $client->slug, self::SECTION );
+		$this->tracker->init();
+		$this->slug = $client->slug;
+
+		$this->assertFalse(
+			has_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] ),
+			'Appsero should no longer render the form unconditionally.'
+		);
+		$this->assertNotFalse( has_action( 'admin_footer', [ $this->tracker, 'maybe_deactivate_scripts' ] ) );
+
+		$ajax_hook = 'wp_ajax_' . $client->slug . '_submit-uninstall-reason';
+		$this->assertFalse( has_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] ) );
+		$this->assertNotFalse( has_action( $ajax_hook, [ $this->tracker, 'maybe_uninstall_reason_submission' ] ) );
+	}
+
+	public function testDeactivationFormIsNotRenderedWhenTrackingIsOff(): void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		ob_start();
+		$this->tracker->maybe_deactivate_scripts();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	public function testDeactivationFormIsRenderedWhenTrackingIsOn(): void {
+		$this->opt_in_via_notice();
+
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		ob_start();
+		$this->tracker->maybe_deactivate_scripts();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Goodbyes are always hard', $output );
+		$this->assertStringContainsString( $this->slug . '-wd-dr-modal', $output );
+	}
+
+	public function testUninstallReasonSubmissionIsBlockedWhenTrackingIsOff(): void {
+		$_POST['nonce']     = wp_create_nonce( 'appsero-security-nonce' );
+		$_POST['reason_id'] = 'other';
+		$this->requests     = [];
+
+		try {
+			$this->tracker->maybe_uninstall_reason_submission();
+			$this->fail( 'Expected the submission to be rejected when tracking is off.' );
+		} catch ( \WPDieException $e ) {
+			// wp_send_json_error() ends the request before any telemetry is sent.
+		}
+
+		$this->assertSame( [], $this->requests );
+	}
+
+	public function testUninstallReasonSubmissionSendsWhenTrackingIsOn(): void {
+		$this->opt_in_via_notice();
+
+		$_POST['nonce']       = wp_create_nonce( 'appsero-security-nonce' );
+		$_POST['reason_id']   = 'other';
+		$this->requests       = [];
+		$this->request_bodies = [];
+
+		try {
+			$this->tracker->maybe_uninstall_reason_submission();
+			$this->fail( 'Expected wp_send_json_success to end the request.' );
+		} catch ( \WPDieException $e ) {
+			// Appsero ends with wp_send_json_success().
+		}
+
+		$deactivate_index = null;
+		foreach ( $this->requests as $i => $url ) {
+			if ( false !== strpos( $url, '/deactivate' ) ) {
+				$deactivate_index = $i;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $deactivate_index, 'Expected a deactivate request to Appsero.' );
+		$this->assertSame( 'other', $this->request_bodies[ $deactivate_index ]['reason_id'] ?? null );
+		$this->assertArrayHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
 	}
 }
