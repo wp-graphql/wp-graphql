@@ -170,7 +170,12 @@ export function IDELayout({ fetcher, onClose }) {
 		reorderTabs,
 	} = useDispatch('wpgraphql-ide/document-editor');
 
-	const { schema, isLoading: isSchemaLoading, refetch } = useSchema(fetcher);
+	const {
+		schema,
+		isLoading: isSchemaLoading,
+		refetch,
+		load: loadSchema,
+	} = useSchema(fetcher);
 
 	const activeDocRef = useRef(null);
 	activeDocRef.current = activeDocument;
@@ -765,7 +770,7 @@ export function IDELayout({ fetcher, onClose }) {
 			stop();
 		} else {
 			if (!schema) {
-				refetch();
+				loadSchema();
 			}
 			executingDocIdRef.current = activeDocument?.id || null;
 			executingQueryRef.current = query;
