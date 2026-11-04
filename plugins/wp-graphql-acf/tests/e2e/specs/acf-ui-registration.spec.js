@@ -10,7 +10,7 @@ import {
 	visitAdminFacingPage,
 	wpAdminUrl,
 } from '../utils.js';
-import { skipWhenNotAcfPro } from '../env.js';
+import { acfExtendedPro, isCI, skipWhenNotAcfPro } from '../env.js';
 
 /**
  * E2E tests for ACF UI Registration: Custom Post Types, Taxonomies, and Options Pages.
@@ -255,6 +255,14 @@ describeAcfUi('ACF UI Registration – Custom Taxonomy', () => {
 });
 
 describeAcfUi('ACF UI Registration – Options Page', () => {
+	// Quarantined in CI with ACF Extended Pro, where the page navigates again while the
+	// test is still clicking ("navigation interrupted"). It passes with ACF Extended Free
+	// and locally. Tracked in #4652.
+	test.skip(
+		isCI && acfExtendedPro,
+		'Quarantined in CI with ACF Extended Pro, see #4652'
+	);
+
 	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 	});
