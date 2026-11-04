@@ -198,7 +198,7 @@ npm run -w @wpgraphql/wp-graphql-acf test:e2e
 
 Tests skip Pro-only or ACF Extended–only specs when running with ACF Free (set `INSTALL_ACF_PRO` / `INSTALL_ACF_EXTENDED_PRO` to match your install, so the right specs skip).
 
-CI runs these specs on PRs that change the plugin, against ACF Free, ACF PRO with ACF Extended Free, and ACF PRO with ACF Extended Pro (fork PRs can't use the license keys, so they run ACF Free only). Two are skipped in CI until they're replaced (#4652): `field-types-graphql.spec.js`, and the options page UI test with ACF Extended Pro. Run those locally when a change touches the field group editor or the options page UI.
+CI runs these specs on PRs that change the plugin, against ACF Free, ACF PRO with ACF Extended Free, and ACF PRO with ACF Extended Pro (fork PRs can't use the license keys, so they run ACF Free only).
 
 **After running WPUnit tests, reset the test site before running E2E.** WPUnit reinstalls WordPress into the test site's database, which deactivates every plugin, sets permalinks back to plain (so `/graphql` returns a 404), resets WPGraphQL's settings, and drops the ACF PRO license. The E2E specs then fail in ways that look unrelated to your change. To restore it:
 
