@@ -220,27 +220,38 @@ export async function graphqlRequest(request, query, variables = null) {
  * @return {Promise<{ data?: unknown; errors?: unknown }>} The parsed response.
  */
 export async function graphqlRequestAsAdmin(page, query, variables = null) {
-	return page.evaluate(async ({ graphqlQuery, graphqlVariables }) => {
-		const nonce = await (
-			await fetch('/wp-admin/admin-ajax.php?action=rest-nonce', {
+	const { status, text } = await page.evaluate(
+		async ({ graphqlQuery, graphqlVariables }) => {
+			const nonce = await (
+				await fetch('/wp-admin/admin-ajax.php?action=rest-nonce', {
+					credentials: 'same-origin',
+				})
+			).text();
+			const response = await fetch('/graphql', {
+				method: 'POST',
 				credentials: 'same-origin',
-			})
-		).text();
-		const response = await fetch('/graphql', {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-WP-Nonce': nonce,
-			},
-			body: JSON.stringify(
-				graphqlVariables
-					? { query: graphqlQuery, variables: graphqlVariables }
-					: { query: graphqlQuery }
-			),
-		});
-		return response.json();
-	}, { graphqlQuery: query, graphqlVariables: variables });
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce,
+				},
+				body: JSON.stringify(
+					graphqlVariables
+						? { query: graphqlQuery, variables: graphqlVariables }
+						: { query: graphqlQuery }
+				),
+			});
+			return { status: response.status, text: await response.text() };
+		},
+		{ graphqlQuery: query, graphqlVariables: variables }
+	);
+	// Same error as graphqlRequest(), so callers can handle a failed request either way.
+	if (status < 200 || status >= 300) {
+		const excerpt = text.length > 2000 ? `${text.slice(0, 2000)}...` : text;
+		throw new Error(
+			`GraphQL request failed: ${status} ${excerpt || '(empty body)'}`
+		);
+	}
+	return JSON.parse(text);
 }
 
 // --- Field group / field edit helpers (Suite 3 – Field types GraphQL UI) ---
