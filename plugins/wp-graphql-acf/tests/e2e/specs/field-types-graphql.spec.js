@@ -8,7 +8,7 @@ import {
 	openFieldByKeyAndGraphQLTab,
 	submitFieldGroupForm,
 } from '../utils.js';
-import { acfPro, acfExtendedPro } from '../env.js';
+import { acfPro, acfExtendedPro, isCI } from '../env.js';
 
 /**
  * E2E tests for Field Types GraphQL UI: each ACF field type shows GraphQL tab fields
@@ -153,6 +153,11 @@ function getStorageStatePath() {
 }
 
 test.describe('Field types GraphQL UI', () => {
+	// Quarantined in CI, where it has never passed: it clicks through the field group
+	// editor for every field type, races ACF's admin JS under CI's slower runners, and
+	// runs the job past its timeout. It still runs locally. A replacement is tracked in #4652.
+	test.skip(isCI, 'Quarantined in CI, see #4652');
+
 	for (const config of FIELD_TYPE_CONFIGS) {
 		const isAcfeType = config.type.startsWith('acfe_');
 		const needsAcfPro =
