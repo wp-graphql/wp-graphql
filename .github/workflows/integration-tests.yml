@@ -411,7 +411,7 @@ jobs:
         id: set-matrix
         run: |
           FULL_MATRIX='{"include":[
-            {"name":"wp-graphql-acf / WP 7.0 / PHP 8.4 / ACF Pro + ACF Extended Pro","php":"8.4","wp":"7.0","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"experimental":false},
+            {"name":"wp-graphql-acf / WP 7.0 / PHP 8.4 / ACF Pro + ACF Extended Pro + Content Blocks","php":"8.4","wp":"7.0","theme":"twentytwentyfive","multisite":false,"coverage":true,"acf_pro":true,"acf_extended":true,"acf_extended_pro":true,"content_blocks":true,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":false,"acf_extended_pro":false,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Pro + Content Blocks","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":true,"acf_extended":false,"acf_extended_pro":false,"content_blocks":true,"experimental":false},
             {"name":"wp-graphql-acf / WP 6.8 / PHP 8.3 / ACF Free + ACF Extended Free","php":"8.3","wp":"6.8","theme":"twentytwentyfive","multisite":false,"coverage":false,"acf_pro":false,"acf_extended":true,"acf_extended_pro":false,"experimental":false},
