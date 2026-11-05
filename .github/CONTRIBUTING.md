@@ -75,14 +75,11 @@ When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `pe
 
 1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md` under `### ⚠ BREAKING CHANGES`
 2. **update-release-pr.yml** workflow automatically updates the `== Upgrade Notice ==` section in `readme.txt`
-3. **Release workflow** automatically extracts upgrade notices and prepends them to GitHub release notes
+3. **The release workflow** adds the release's upgrade notice to the top of its GitHub release notes
 4. WordPress.org displays this notice to users before they update
 
-**Guidelines for breaking vs behavioral/migration changes:**
-- **Breaking changes** (API deprecations, removed fields, signature changes requiring code updates) must be marked with `!` in conventional commit titles so they populate the changelog breaking changes section and generate upgrade notices.
-- **Migration & behavioral notes** that require user action or awareness upon upgrading should also be included in breaking change sections so they appear in both `readme.txt` upgrade notices and GitHub release notes.
-- **Hand-written notices**: Upgrade notices in `readme.txt` containing hand-written prose (without our generated provenance marker) are automatically preserved and left untouched by automated scripts.
+**Fixes that change behavior someone may rely on** are not breaking changes, so they use `fix:`, not `fix!:`, and no notice is generated for them. Write one by hand in the fix PR instead: add a `= X.Y.Z =` entry under `== Upgrade Notice ==` in the plugin's `readme.txt`, using the version from the plugin's open release PR, and say in the PR description which version it targets, since it has to move if that release goes out first. Add it on `main`, never on the release-please branch, which is force-pushed. The automation leaves hand-written notices alone, and they are added to the GitHub release notes the same way.
 
-**⚠️ Do not manually add upgrade notices** - they will be automatically generated from breaking changes in the changelog.
+**⚠️ Don't hand-write notices for breaking changes** - those are generated from the changelog.
 
 > **NOTE:** This CONTRIBUTING.md file was forked from [Easy Digital Downloads](https://github.com/easydigitaldownloads/easy-digital-downloads/blob/main/CONTRIBUTING.md)

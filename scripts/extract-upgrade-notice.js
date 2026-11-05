@@ -1,44 +1,53 @@
 #!/usr/bin/env node
 
 /**
- * Script to extract upgrade notice for a specific version from readme.txt
+ * Extracts a release's upgrade notice from a plugin's readme.txt, and optionally adds it to the
+ * top of that release's GitHub release notes.
  *
  * Usage:
  *   node scripts/extract-upgrade-notice.js --version=2.1.0 --plugin-dir=plugins/wp-graphql
- *   node scripts/extract-upgrade-notice.js 2.1.0 plugins/wp-graphql/readme.txt
+ *   node scripts/extract-upgrade-notice.js --version=2.1.0 --plugin-dir=plugins/wp-graphql \
+ *     --release-notes=current-notes.md --output=updated-notes.md
  *
  * Options:
- *   --version     Version number to extract (required, leading 'v' is stripped)
- *   --readme      Path to readme.txt file
- *   --plugin-dir  Path to plugin directory containing readme.txt
+ *   --version        Version to extract (required, a leading `v` is stripped)
+ *   --plugin-dir     Plugin directory containing readme.txt (default: plugins/wp-graphql)
+ *   --readme         Path to readme.txt, instead of --plugin-dir
+ *   --release-notes  File holding the release's current notes. With --output, writes the notes
+ *                    with the upgrade notice added to --output, and writes nothing when there is
+ *                    no notice or the notes already include it.
+ *   --output         Where to write the updated release notes (requires --release-notes)
+ *
+ * Without --release-notes, prints the notice to stdout, or nothing when there isn't one.
+ *
+ * The notices in our readme.txt files use Markdown that GitHub renders the same way (bold, code,
+ * links, lists and `#1234` issue references), so the text is used as written.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-function parseArgs() {
+const NOTICE_HEADING = '### ⚠️ Upgrade Notice';
+
+/**
+ * Parses `--key=value` arguments, splitting on the first `=` only, since values can contain one.
+ *
+ * @param {string[]} argv Arguments after the script name.
+ * @returns {Object<string, string|boolean>} The parsed arguments.
+ */
+function parseArgs(argv) {
 	const args = {};
-	const positionals = [];
-	process.argv.slice(2).forEach((arg) => {
-		if (arg.startsWith('--')) {
-			const eq = arg.indexOf('=');
-			if (eq !== -1) {
-				args[arg.slice(2, eq)] = arg.slice(eq + 1);
-			} else {
-				args[arg.slice(2)] = true;
-			}
-		} else {
-			positionals.push(arg);
+	for (const arg of argv) {
+		if (!arg.startsWith('--')) {
+			continue;
 		}
-	});
-
-	if (positionals.length > 0 && !args.version) {
-		args.version = positionals[0];
+		const eq = arg.indexOf('=');
+		if (eq === -1) {
+			args[arg.slice(2)] = true;
+		} else {
+			args[arg.slice(2, eq)] = arg.slice(eq + 1);
+		}
 	}
-	if (positionals.length > 1 && !args.readme && !args['plugin-dir']) {
-		args.readme = positionals[1];
-	}
-
 	return args;
 }
 
@@ -47,122 +56,103 @@ function escapeRegExp(string) {
 }
 
 /**
- * Extract upgrade notice for a version from readme.txt content or file path
+ * Returns the upgrade notice for a version, the text of the `= X.Y.Z =` entry under
+ * `== Upgrade Notice ==`, without its heading. Entries with the same version in other sections,
+ * like the changelog, are ignored.
  *
- * @param {string} readmeContentOrVersion - Content of readme.txt, file path, or version
- * @param {string} versionOrPath - Version number or file path
- * @returns {string} Extracted upgrade notice content or empty string
+ * @param {string} readmeContent The contents of readme.txt.
+ * @param {string} version       The version, with or without a leading `v`.
+ * @returns {string} The notice, or an empty string when the version has none.
  */
-function extractUpgradeNotice(readmeContentOrVersion, versionOrPath) {
-	if (!readmeContentOrVersion || !versionOrPath) {
+function extractUpgradeNotice(readmeContent, version) {
+	if (typeof readmeContent !== 'string' || !readmeContent || !version) {
 		return '';
 	}
 
-	let readmeContent = '';
-	let version = '';
+	const content = readmeContent.replace(/\r\n/g, '\n');
+	const section = content.match(/(?:^|\n)== Upgrade Notice ==\n([\s\S]*?)(?=\n== |$)/);
+	if (!section) {
+		return '';
+	}
 
-	// Determine if arguments are (readmeContent, version) or (version, readmePath) or (readmePath, version)
-	const isPath = (val) => {
-		try {
-			return typeof val === 'string' && (fs.existsSync(val) || val.endsWith('readme.txt') || path.isAbsolute(val));
-		} catch (e) {
-			return false;
-		}
+	const escapedVersion = escapeRegExp(String(version).replace(/^v/i, ''));
+	const entry = section[1].match(new RegExp(`(?:^|\\n)=\\s*${escapedVersion}\\s*=\\n([\\s\\S]*?)(?=\\n=\\s*\\d+\\.\\d+\\.\\d+(?:-[\\w.-]+)?\\s*=|$)`));
+
+	return entry ? entry[1].trim() : '';
+}
+
+/**
+ * Adds an upgrade notice to the top of a release's notes.
+ *
+ * @param {string} currentNotes The release's current notes.
+ * @param {string} notice       The upgrade notice.
+ * @returns {{ notes: string, reason: 'added'|'no-notice'|'already-included' }} The updated notes
+ *   and why, so each outcome can be logged on its own.
+ */
+function buildReleaseNotes(currentNotes, notice) {
+	const notes = typeof currentNotes === 'string' ? currentNotes : '';
+
+	if (!notice) {
+		return { notes, reason: 'no-notice' };
+	}
+
+	// A rerun of the release job, or a re-deploy of an existing tag, must not add it twice.
+	if (notes.includes(NOTICE_HEADING)) {
+		return { notes, reason: 'already-included' };
+	}
+
+	return {
+		notes: `${NOTICE_HEADING}\n\n${notice}\n\n---\n\n${notes}`,
+		reason: 'added',
 	};
-
-	if (isPath(readmeContentOrVersion)) {
-		try {
-			readmeContent = fs.readFileSync(readmeContentOrVersion, 'utf8');
-		} catch (e) {
-			readmeContent = '';
-		}
-		version = versionOrPath;
-	} else if (isPath(versionOrPath)) {
-		version = readmeContentOrVersion;
-		try {
-			readmeContent = fs.readFileSync(versionOrPath, 'utf8');
-		} catch (e) {
-			readmeContent = '';
-		}
-	} else if (readmeContentOrVersion.includes('== Upgrade Notice ==') || readmeContentOrVersion.includes('===')) {
-		readmeContent = readmeContentOrVersion;
-		version = versionOrPath;
-	} else {
-		version = readmeContentOrVersion;
-		readmeContent = versionOrPath;
-	}
-
-	if (!readmeContent || !version) {
-		return '';
-	}
-
-	const cleanVersion = version.replace(/^v/i, '');
-	const escapedVersion = escapeRegExp(cleanVersion);
-
-	// Find Upgrade Notice section
-	const upgradeNoticeMatch = readmeContent.match(
-		/== Upgrade Notice ==\n\n?([\s\S]*?)(?=\n==|$)/
-	);
-	if (!upgradeNoticeMatch) {
-		return '';
-	}
-
-	const sectionBody = upgradeNoticeMatch[1];
-
-	// Find version block starting with `= X.Y.Z =` up to next version heading or section or EOF
-	const versionPattern = new RegExp(
-		`(^|\\n)=\\s*${escapedVersion}\\s*=[\\s\\S]*?(?=\\n+\\s*=\\s*[0-9]+\\.[0-9]+\\.[0-9]+(?:-[\\w.-]+)?\\s*=|\\n+==|$)`,
-		'i'
-	);
-
-	const match = sectionBody.match(versionPattern);
-	if (!match) {
-		return '';
-	}
-
-	let block = match[0].trim();
-	block = block.replace(/^\n/, '');
-
-	// Remove the `= X.Y.Z =` heading line
-	const headingRegex = new RegExp(`^=\\s*${escapedVersion}\\s*=\\s*\\n*`, 'i');
-	block = block.replace(headingRegex, '').trim();
-
-	return block;
 }
 
 function main() {
-	const args = parseArgs();
+	const args = parseArgs(process.argv.slice(2));
 
-	if (!args.version) {
-		console.error('Error: --version is required');
-		console.error('Usage: node scripts/extract-upgrade-notice.js <version> [path-to-readme.txt]');
+	if (!args.version || args.version === true) {
+		console.error('Error: --version is required.');
 		process.exit(1);
 	}
 
-	let readmePath = args.readme || args['path-to-readme'];
-	if (!readmePath) {
-		const pluginDir = args['plugin-dir'] || 'plugins/wp-graphql';
-		readmePath = path.join(process.cwd(), pluginDir, 'readme.txt');
-	} else {
-		readmePath = path.resolve(process.cwd(), readmePath);
+	if (args.output && !args['release-notes']) {
+		console.error('Error: --output requires --release-notes.');
+		process.exit(1);
 	}
 
+	const readmePath = args.readme
+		? path.resolve(process.cwd(), String(args.readme))
+		: path.resolve(process.cwd(), String(args['plugin-dir'] || 'plugins/wp-graphql'), 'readme.txt');
+
+	// Every plugin we release has a readme.txt, so a missing one means a wrong path, not "no
+	// notice". Say so on its own line, but exit 0: the caller treats the notice as best-effort.
 	if (!fs.existsSync(readmePath)) {
-		process.stdout.write('');
+		console.error(`::warning::No readme.txt at ${readmePath}, so no upgrade notice was added.`);
 		process.exit(0);
 	}
 
-	let readmeContent;
-	try {
-		readmeContent = fs.readFileSync(readmePath, 'utf8');
-	} catch (error) {
-		console.error(`Error reading ${readmePath}: ${error.message}`);
-		process.exit(1);
+	const notice = extractUpgradeNotice(fs.readFileSync(readmePath, 'utf8'), String(args.version));
+
+	if (!args['release-notes']) {
+		if (notice) {
+			process.stdout.write(`${notice}\n`);
+		}
+		process.exit(0);
 	}
 
-	const notice = extractUpgradeNotice(readmeContent, args.version);
-	if (notice) {
-		process.stdout.write(notice + '\n');
+	// The workflow just wrote this file, so failing to read it is unexpected: let it throw.
+	const currentNotes = fs.readFileSync(path.resolve(process.cwd(), String(args['release-notes'])), 'utf8');
+	const { notes, reason } = buildReleaseNotes(currentNotes, notice);
+
+	if (reason === 'no-notice') {
+		console.log(`No upgrade notice for ${args.version} in ${readmePath}, release notes unchanged.`);
+	} else if (reason === 'already-included') {
+		console.log(`The release notes already include the upgrade notice for ${args.version}, left unchanged.`);
+	} else {
+		if (args.output) {
+			fs.writeFileSync(path.resolve(process.cwd(), String(args.output)), notes);
+		}
+		console.log(`Added the upgrade notice for ${args.version} to the release notes.`);
 	}
 	process.exit(0);
 }
@@ -172,6 +162,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+	NOTICE_HEADING,
+	buildReleaseNotes,
 	extractUpgradeNotice,
 	parseArgs,
 };
