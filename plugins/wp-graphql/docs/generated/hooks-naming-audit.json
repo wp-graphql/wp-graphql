@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-11-05T16:49:24.767Z",
+  "generatedAt": "2026-11-05T23:56:20.162Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,11 +31,11 @@
       ]
     },
     "summary": {
-      "totalHooks": 288,
-      "wpgraphqlHooks": 267,
-      "activeWpgraphqlHooks": 263,
+      "totalHooks": 290,
+      "wpgraphqlHooks": 269,
+      "activeWpgraphqlHooks": 265,
       "coreHooks": 21,
-      "staticHooks": 250,
+      "staticHooks": 252,
       "dynamicHooks": 13,
       "flaggedHooks": 31,
       "warnings": 31,
@@ -44,7 +44,7 @@
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 235
+        "count": 237
       },
       {
         "prefix": "wpgraphql_",
@@ -300,7 +300,7 @@
         "hook": "graphql_execute",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 763,
+        "line": 767,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
@@ -310,7 +310,7 @@
         "hook": "do_graphql_request",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 847,
+        "line": 851,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -320,7 +320,7 @@
         "hook": "pre_graphql_execute_request",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 923,
+        "line": 927,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -330,7 +330,7 @@
         "hook": "pre_graphql_execute_request",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 1030,
+        "line": 1034,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",

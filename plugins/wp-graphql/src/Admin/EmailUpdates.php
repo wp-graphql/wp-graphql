@@ -22,7 +22,7 @@ namespace WPGraphQL\Admin;
  *
  * @package WPGraphQL\Admin
  *
- * @since x-release-please-version
+ * @since 2.27.0
  */
 class EmailUpdates {
 
@@ -85,7 +85,7 @@ class EmailUpdates {
 	 * @param string $section        The settings section to add the fields to.
 	 * @param string $product_name   The product name shown in the field descriptions.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.27.0
 	 */
 	public function __construct( string $hash, string $slug, string $plugin_version, string $section = 'graphql_general_settings', string $product_name = 'WPGraphQL' ) {
 		$this->hash           = $hash;
@@ -155,7 +155,7 @@ class EmailUpdates {
 		 * @param string $slug     The telemetry client slug of the plugin making the request.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.27.0
 		 */
 		$endpoint = apply_filters( 'graphql_email_updates_endpoint', self::ENDPOINT, $this->hash, $this->slug );
 
