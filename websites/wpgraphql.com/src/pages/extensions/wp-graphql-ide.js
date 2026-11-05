@@ -1,6 +1,7 @@
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 import SiteLayout from "../../components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import Link from "next/link"
 import { Disclosure } from "@headlessui/react"
 import {
@@ -17,6 +18,12 @@ import {
 } from "@/components/extensions/SectionHeading"
 import Constellation from "@/components/extensions/Constellation"
 import PlaygroundEmbed from "@/components/extensions/PlaygroundEmbed"
+
+const META = {
+  title: "WPGraphQL IDE - A GraphQL IDE native to WordPress",
+  description:
+    "Explore your schema, build and debug queries, and ship headless WordPress faster with a schema-aware GraphQL IDE that lives right in wp-admin.",
+}
 
 const WP_ORG_URL = "https://wordpress.org/plugins/wpgraphql-ide/"
 // Repo root — used for issues / security policy (those live at the monorepo level).
@@ -654,6 +661,11 @@ function WpGraphQLIde({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <SiteLayout>
+        <Seo
+          title={META.title}
+          description={META.description}
+          uri="/extensions/wp-graphql-ide"
+        />
         {/* Sibling-brand scope: violet accent for the page body only.
             The shared SiteHeader/SiteFooter remain WPGraphQL-orange. */}
         <div className="theme-ide">
