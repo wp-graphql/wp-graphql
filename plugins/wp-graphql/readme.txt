@@ -80,6 +80,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.28.0 =
+
+**Fields now see the right post, term or user as the current object.** Values that depend on the current object, such as some SEO, template, block and gallery output, now come from the node a field is selected under, including in lists, where they could come from a different node before. After updating, purge cached GraphQL responses (WPGraphQL Smart Cache, your CDN and your front end) so the corrected values appear. If you have custom resolvers that read the current post with functions like `get_the_ID()` or `is_singular()` in root fields or in Deferred callbacks, check them against https://www.wpgraphql.com/docs/node-context/. Details: https://github.com/wp-graphql/wp-graphql/issues/4572.
+
 = 2.26.2 =
 
 **A malformed pagination cursor now returns no results.** Passing `after` or `before` a value that isn't a cursor WPGraphQL returned, such as `posts(after: "foo")` or a random string taken from a URL, used to return the first page, as if no cursor was passed. Connections now return no results for it. A cursor for an item that no longer exists, an empty string and `null` still return results from the start. If you relied on the old behavior, leave the argument out or pass `null`, or see the [connections guide](https://www.wpgraphql.com/docs/connections#cursors) for a filter that ignores malformed cursors again. See [#2795](https://github.com/wp-graphql/wp-graphql/issues/2795).

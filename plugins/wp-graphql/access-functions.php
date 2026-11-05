@@ -115,6 +115,37 @@ function graphql( array $request_data = [], bool $return_request = false ) {
 }
 
 /**
+ * Wraps a callback so that, whenever it's called, it runs with the global state as it is now.
+ *
+ * While a field resolves, the post, term or user it's selected under is set up as the current
+ * object (see the Node Context and Global State docs). Code that runs later than the resolver,
+ * such as the callback of a Deferred the resolver returns, would otherwise run with whatever node
+ * was set up most recently. Wrap the callback while the resolver runs, and it sees the resolver's
+ * node instead:
+ *
+ *     'resolve' => static function ( $post ) {
+ *         return new \GraphQL\Deferred(
+ *             graphql_bind_node_context(
+ *                 static function () {
+ *                     return get_the_title(); // The title of the post the field is selected under.
+ *                 }
+ *             )
+ *         );
+ *     },
+ *
+ * The state at the time the callback is called is restored afterwards, even if it throws.
+ *
+ * @param callable $callback The callback to wrap.
+ *
+ * @return callable The wrapped callback, which takes the same arguments and returns the same value.
+ *
+ * @since x-release-please-version
+ */
+function graphql_bind_node_context( callable $callback ): callable {
+	return \WPGraphQL\Model\NodeContext::bind( $callback );
+}
+
+/**
  * Previous access function for running GraphQL queries directly. This function will
  * eventually be deprecated in favor of `graphql`.
  *
