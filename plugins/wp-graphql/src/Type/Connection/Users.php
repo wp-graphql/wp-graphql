@@ -125,7 +125,7 @@ class Users {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_connection_args() {
-		return [
+		$args = [
 			'role'                => [
 				'type'        => 'UserRoleEnum',
 				'description' => static function () {
@@ -250,5 +250,12 @@ class Users {
 				},
 			],
 		];
+
+		// PublishableContentTypeEnum is only registered when a content type other than media is exposed.
+		if ( empty( array_diff( \WPGraphQL::get_allowed_post_types(), [ 'attachment' ] ) ) ) {
+			unset( $args['hasPublishedContent'] );
+		}
+
+		return $args;
 	}
 }

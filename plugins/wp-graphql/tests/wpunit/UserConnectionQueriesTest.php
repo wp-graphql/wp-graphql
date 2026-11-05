@@ -1023,6 +1023,25 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertFalse( $fields['hasPublishedContent'] );
 	}
 
+	public function testHasPublishedContentIsOmittedWhenOnlyMediaIsExposed() {
+		$only_media = static function () {
+			return [ 'attachment' ];
+		};
+		add_filter( 'graphql_post_entities_allowed_post_types', $only_media );
+		$this->clearSchema();
+
+		$schema = \WPGraphQL::get_schema();
+		$schema->assertValid();
+
+		$this->assertFalse( $schema->hasType( 'PublishableContentTypeEnum' ) );
+		$fields = $schema->getType( 'RootQueryToUserConnectionWhereArgs' )->getFields();
+		$this->assertArrayHasKey( 'hasPublishedPosts', $fields );
+		$this->assertArrayNotHasKey( 'hasPublishedContent', $fields );
+
+		remove_filter( 'graphql_post_entities_allowed_post_types', $only_media );
+		$this->clearSchema();
+	}
+
 	public function testWithSearchColumns() {
 		$admin_id = $this->factory()->user->create(
 			[
