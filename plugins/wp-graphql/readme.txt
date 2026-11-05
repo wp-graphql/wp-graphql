@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.26.0
+Stable tag: 2.26.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -79,6 +79,22 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 2.26.1 =
+
+**Settings registered only for the REST API now require `manage_options`.** A setting registered with `show_in_rest => true` but without `show_in_graphql` is still in the Schema, but users without `manage_options` now get `null` for it on `<group>Settings` and `allSettings`. With debugging enabled, the response names each field that resolved to `null` this way. WordPress core's own settings (site title, tagline, URL, timezone, reading settings and the rest) are unchanged and stay public. To make one of your settings public again, register it with `show_in_graphql => true`, or remove its `graphql_capability` with the `graphql_normalized_settings` filter.
+
+**Connector API keys are masked.** On WordPress 7.0 and later, the settings that hold connector API keys (such as Akismet's) always require `manage_options` and are returned masked, showing only the last four characters, as the REST API does. Saving the masked value back through `updateSettings` leaves the stored key unchanged.
+
+**Comment queries now only return and count comments the requesting user can see.** Moderators (users with `moderate_comments`) see no change. For everyone else:
+
+**Comment lists that aren't limited to specific content only include comments on published content.** The root `comments` list and `user { comments }` only return comments on published content of public content types, which leaves out comments on media items and on the user's own drafts. Comments on a media item stay available by item, through `mediaItem { comments }` or the `contentId` and `contentIdIn` arguments, which now match nothing for content the user can't see. A media item is visible when the content it's attached to is, or when it isn't attached to anything.
+
+**Filters, search and ordering only use what the user can see.** Filtering by `authorEmail` matches no comments, so filter by `authorIn` or `userId` instead. `search` no longer matches the author's email or IP address, and ordering by them, or by the user agent, orders by date. `statusIn`, the deprecated `status`, and `contentStatus` ignore the statuses the user can't view, and when none are left the query returns no comments. That includes a logged-in user's own pending comments when they filter by `statusIn: [HOLD]`; those still appear in the default, unfiltered query.
+
+**Notes are only visible to users who can edit them.** On WordPress 6.9 and later, the notes editors leave on content aren't returned to other users, by ID or in lists, including when `commentType` or `commentTypeIn` asks for them.
+
+None of this returns an error.
 
 = 2.24.2 =
 
@@ -351,6 +367,15 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.26.1 =
+
+**Bug Fixes**
+
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4630](https://github.com/wp-graphql/wp-graphql/issues/4630))
+* **deps:** bump webonyx/graphql-php from 15.38.1 to 15.39.0 in /plugins/wp-graphql ([#4633](https://github.com/wp-graphql/wp-graphql/issues/4633))
+* limit comment connection filters and counts to comments the requester can see ([#4642](https://github.com/wp-graphql/wp-graphql/issues/4642))
+* require manage_options to read settings exposed only through the REST API ([#4641](https://github.com/wp-graphql/wp-graphql/issues/4641))
 
 = 2.26.0 =
 

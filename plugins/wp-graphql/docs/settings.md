@@ -72,6 +72,60 @@ This could now be queried like so:
 
 > \*\*NOTE: \*\*If a setting is registered without a group defined it will appear under `generalSettings`.
 
+## Who Can Read a Setting
+
+Who can read a setting by default depends on how it reaches the Schema:
+
+- **WordPress core's own settings** (the site title, tagline, URL, timezone, date and time formats, posts per page, front page settings, default comment status, and so on) are public, so front ends can query them without authenticating. The administrator email (`generalSettings { email }`) is the exception: it requires the `manage_options` capability.
+- **A setting registered with `show_in_graphql => true`** is public, unless it declares a `graphql_capability` (see [Per-Setting Configuration](#per-setting-configuration)).
+- **A setting registered with `show_in_rest => true` and no `show_in_graphql`** is added to the Schema too, but requires `manage_options` to read, unless it declares its own `graphql_capability`. Registering a setting for the REST API is a decision about the REST API, where `/wp/v2/settings` already requires `manage_options`, so the setting is not made public in GraphQL as a side effect. An empty `graphql_capability` (`null`, `''` or `false`) counts as not declaring one, so it doesn't make the setting public.
+- **An entry added with the `graphql_normalized_settings` filter** (see [Exposing Options WordPress Doesn't Register](#exposing-options-wordpress-doesnt-register)) is public, unless it declares a `graphql_capability`.
+
+Core's settings are recognized by option name, not by settings group, so a plugin setting registered into the `general` or `reading` group is treated like any other plugin setting.
+
+For a user without the required capability a restricted setting resolves to `null` on both read surfaces (`generalSettings { ... }` and `allSettings { ... }`), and a debug message naming the field and the capability is included when debugging is enabled. The field stays in the Schema either way, so queries that select it keep validating.
+
+To make a setting public, register it with `show_in_graphql => true`:
+
+```php
+register_setting( 'my_options_group', 'my_public_option', [
+    'type'            => 'string',
+    'show_in_rest'    => true,
+    'show_in_graphql' => true,
+] );
+```
+
+For a setting you don't register yourself, use the `graphql_normalized_settings` filter, which runs after these defaults are applied. Removing an entry's `graphql_capability` (or setting it to `null`) makes it public, and setting one restricts it:
+
+```php
+add_filter( 'graphql_normalized_settings', function ( array $settings ) {
+    // Make another plugin's REST-only setting public.
+    if ( isset( $settings['some_plugin_public_option'] ) ) {
+        unset( $settings['some_plugin_public_option']['graphql_capability'] );
+    }
+
+    // Restrict a setting further.
+    if ( isset( $settings['some_plugin_option'] ) ) {
+        $settings['some_plugin_option']['graphql_capability'] = 'manage_network_options';
+    }
+
+    return $settings;
+} );
+```
+
+### Connector API Keys
+
+WordPress 7.0 and later can store API keys for connectors (such as Akismet or AI providers) as settings, registered for the REST API. Every setting a connector names as its credential is handled more strictly than other settings:
+
+- It always requires `manage_options`, however it was registered. A different capability it declares (or one set with the `graphql_normalized_settings` filter) is checked in addition, never instead.
+- Users who can read it get a masked value, in the same format the WordPress REST API uses: the last four characters, preceded by one bullet (`•`) for each other character, up to 16. A key of four characters or fewer is masked entirely. An empty value stays empty. A value that isn't a string, for example one returned by a `graphql_setting_field_value` callback, can't be masked and resolves to `null`.
+- When a masked value (one that starts with `•`) is sent back through the `updateSettings` mutation, as a client that reads settings and saves them back would, the stored key is left unchanged. Sending any other value updates the key as usual, and sending an empty string clears it.
+- The field shows the key stored in the setting. A connector can also read its key from an environment variable or a PHP constant, and a key supplied that way isn't stored in the setting, so the field is empty even though the connector is connected.
+
+On WordPress 7.1 and later a connector can also store application password credentials (a username and a password) as a setting. Those settings aren't in the Schema by default, because the value is an object, which has no matching GraphQL type. If a filter adds one, it's restricted the same way, with the password masked as 16 bullets.
+
+These rules are applied where the value is read and written, after the `graphql_normalized_settings` and `graphql_setting_field_value` filters, so the settings fields never return a stored key.
+
 ## Exposing Options WordPress Doesn't Register
 
 Some options are never registered through `register_setting()`, for example values a plugin saved with `update_option()`, or core options that WordPress simply doesn't register. WPGraphQL can't see those by default.
@@ -93,7 +147,7 @@ add_filter( 'graphql_normalized_settings', function ( array $settings ) {
 } );
 ```
 
-The entry follows the `register_setting()` args shape (`group`, `type`, `description`, …) plus the WPGraphQL-specific config in the next section. It then surfaces on both read surfaces like any registered setting, in this example as `generalSettings { myLegacyOption }` and `allSettings { generalSettingsMyLegacyOption }`.
+The entry follows the `register_setting()` args shape (`group`, `type`, `description`, …) plus the WPGraphQL-specific config in the next section. It then surfaces on both read surfaces like any registered setting, in this example as `generalSettings { myLegacyOption }` and `allSettings { generalSettingsMyLegacyOption }`. Like any entry without a `graphql_capability`, it's public, so add one if the value shouldn't be.
 
 > **NOTE:** Entries are keyed by the **option name**, which is globally unique in WordPress, there is a single row per option in the options table regardless of which group registered it, so the group is never part of the key. The `group` is metadata that places the field under the matching setting-group type. Because this filter runs *after* registered settings are collected, assigning an entry whose key matches an existing option name **overrides** that entry, so use a fresh option name unless you specifically intend to modify an existing setting's configuration.
 
@@ -105,7 +159,7 @@ Beyond the standard `register_setting()` args, WPGraphQL reads the following per
 
 | Field                | Type     | Required | Description                                                                                                                                                                                                             |
 | -------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `graphql_capability` | string   | No       | A capability required to read the setting. For users without the capability the field resolves to `null` on both read surfaces, and a debug message naming the field and the required capability is included when debugging is enabled. Used by core to restrict the administrator email to users who can manage options. |
+| `graphql_capability` | string   | No       | A capability required to read the setting. For users without the capability the field resolves to `null` on both read surfaces, and a debug message naming the field and the required capability is included when debugging is enabled. Used by core to restrict the administrator email to users who can manage options. Defaults to `manage_options` for a setting exposed only through `show_in_rest`, other than WordPress core's own settings (see [Who Can Read a Setting](#who-can-read-a-setting)). |
 | `graphql_purge_all`  | boolean  | No       | Marks a setting whose change has schema-wide impact rather than affecting only its own settings group. Read by cache-invalidation consumers such as WPGraphQL Smart Cache: a change to a setting carrying this flag invalidates all cached queries, not just those that read the setting's group. Core sets it on the permalink options (which drive every `uri` field); set it on your own broadly-impactful settings. Default (omitted) scopes invalidation to the setting's group. |
 | `graphql_field_name` | string   | No       | An explicit field name for the setting. Overrides the default name (which is derived from the `show_in_rest` name or the option key). The value is run through WPGraphQL's standard field-name formatter, the same one applied to every field, so `graphql_field_name => 'homeUrl'` exposes the field as `homeUrl`.                            |
 | `graphql_readonly`   | boolean  | No       | If true, the setting is exposed for reading but cannot be changed through the `updateSettings` mutation. Use for values that must not be writable through the API, such as the site address.                            |
