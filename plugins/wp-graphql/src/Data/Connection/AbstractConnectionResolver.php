@@ -457,6 +457,23 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Whether the `after` or `before` arg holds a cursor that get_offset_for_cursor() can't decode.
+	 *
+	 * Checks the args after the `graphql_connection_args` filter, so a cursor removed there is not checked.
+	 *
+	 * @since 2.26.2
+	 */
+	protected function has_malformed_cursor(): bool {
+		foreach ( [ 'after', 'before' ] as $cursor ) {
+			if ( ! empty( $this->args[ $cursor ] ) && empty( $this->get_offset_for_cursor( $this->args[ $cursor ] ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns the offset for a given cursor.
 	 *
 	 * Connections that use a string-based offset should override this method.
@@ -470,7 +487,12 @@ abstract class AbstractConnectionResolver {
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
 		if ( ! empty( $cursor ) ) {
-			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
+			$decoded = base64_decode( $cursor );
+
+			// A cursor this resolver issued always decodes to `arrayconnection:<offset>`, see get_cursor_for_node().
+			if ( is_string( $decoded ) && 0 === strpos( $decoded, 'arrayconnection:' ) ) {
+				$offset = substr( $decoded, strlen( 'arrayconnection:' ) );
+			}
 		}
 
 		/**
@@ -1078,6 +1100,11 @@ abstract class AbstractConnectionResolver {
 		 * If it's not, we need to call the should_execute() method to execute any situational logic to determine if the connection query should execute.
 		 */
 		$should_execute = false === $this->should_execute ? false : $this->should_execute();
+
+		// A cursor that doesn't decode to an offset is malformed, so there is nothing to paginate from.
+		if ( $should_execute && $this->has_malformed_cursor() ) {
+			$should_execute = false;
+		}
 
 		/**
 		 * Check if the connection should execute. If conditions are met that should prevent
