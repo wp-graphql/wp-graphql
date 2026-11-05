@@ -461,7 +461,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Checks the args after the `graphql_connection_args` filter, so a cursor removed there is not checked.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.26.2
 	 */
 	protected function has_malformed_cursor(): bool {
 		foreach ( [ 'after', 'before' ] as $cursor ) {
