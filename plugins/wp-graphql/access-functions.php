@@ -1083,3 +1083,35 @@ function get_graphql_admin_notices(): array {
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
 	return $admin_notices->get_admin_notices();
 }
+
+
+/**
+ * Registers a GraphQL request extension namespace.
+ *
+ * @param string              $namespace Extension namespace (e.g. 'postPassword', 'preview').
+ * @param array<string,mixed> $config    Extension configuration.
+ */
+function register_graphql_request_extension( string $namespace, array $config ): void {
+	\WPGraphQL::get_request_extension_registry()->register_request_extension( $namespace, $config );
+}
+
+/**
+ * Registers a member on a GraphQL request extension namespace.
+ *
+ * @param string              $namespace   Extension namespace (e.g. 'preview', 'postPassword').
+ * @param string              $member_name Member name (e.g. 'locale').
+ * @param array<string,mixed> $config      Member configuration.
+ */
+function register_graphql_request_extension_member( string $namespace, string $member_name, array $config ): void {
+	\WPGraphQL::get_request_extension_registry()->register_request_extension_member( $namespace, $member_name, $config );
+}
+
+/**
+ * Convenience helper to register a member on the 'preview' context (subsumes #4378).
+ *
+ * @param string              $member_name Member name.
+ * @param array<string,mixed> $config      Member configuration.
+ */
+function register_graphql_preview_context_member( string $member_name, array $config ): void {
+	register_graphql_request_extension_member( 'preview', $member_name, $config );
+}

@@ -43,6 +43,13 @@ final class WPGraphQL {
 	protected static $type_registry;
 
 	/**
+	 * Holds the RequestExtensionRegistry instance
+	 *
+	 * @var ?\WPGraphQL\Registry\RequestExtensionRegistry
+	 */
+	protected static $request_extension_registry;
+
+	/**
 	 * Stores an array of allowed post types
 	 *
 	 * @var ?\WP_Post_Type[] allowed_post_types
@@ -997,6 +1004,50 @@ final class WPGraphQL {
 	 *
 	 * @throws \Exception
 	 */
+	/**
+	 * Returns the Request Extension Registry
+	 *
+	 * @return \WPGraphQL\Registry\RequestExtensionRegistry
+	 */
+	public static function get_request_extension_registry(): \WPGraphQL\Registry\RequestExtensionRegistry {
+		if ( ! isset( self::$request_extension_registry ) ) {
+			self::$request_extension_registry = new \WPGraphQL\Registry\RequestExtensionRegistry();
+
+			// Register core 'preview' extension
+			self::$request_extension_registry->register_request_extension(
+				'preview',
+				[
+					'description' => 'Request-level preview context for draft and revision overlays.',
+					'header'      => 'X-GraphQL-Preview',
+					'cache'       => 'no-store',
+					'members'     => [
+						'databaseId' => [
+							'type'        => 'integer',
+							'description' => 'The database ID of the post being previewed.',
+						],
+						'featuredImageDatabaseId' => [
+							'type'        => 'integer',
+							'description' => 'The database ID of the previewed featured image.',
+						],
+						'nonce' => [
+							'type'        => 'string',
+							'description' => 'Preview nonce.',
+						],
+					],
+				]
+			);
+
+			/**
+			 * Action to register request extensions.
+			 *
+			 * @param \WPGraphQL\Registry\RequestExtensionRegistry $registry
+			 */
+			do_action( 'graphql_register_request_extensions', self::$request_extension_registry );
+		}
+
+		return self::$request_extension_registry;
+	}
+
 	public static function get_type_registry() {
 		if ( ! isset( self::$type_registry ) ) {
 			$type_registry = new TypeRegistry();

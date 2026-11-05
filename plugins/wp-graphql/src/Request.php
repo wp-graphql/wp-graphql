@@ -305,25 +305,10 @@ class Request {
 		$this->app_context->viewer = wp_get_current_user();
 
 		/**
-		 * Set the preview context for the request, if provided (the `X-GraphQL-Preview`
-		 * header, or the `preview` object in the request `extensions`). This carries the
-		 * request-scoped preview params (the post being previewed, and the previewed
-		 * featured image), mirroring the query params WordPress core uses for front-end
-		 * previews.
+		 * Process all registered request extensions (including 'preview'),
+		 * resolving from headers or body extensions, and populating AppContext.
 		 */
-		$this->app_context->preview = $this->get_preview_context();
-
-		/**
-		 * If a preview was requested for a post the current user is not allowed to preview,
-		 * surface a debug-only notice (visible under GRAPHQL_DEBUG). The request still
-		 * resolves the published data, so this never exposes unpublished content.
-		 */
-		if ( is_array( $this->app_context->preview ) && ! Preview::viewer_can_preview( (int) $this->app_context->preview['databaseId'] ) ) {
-			graphql_debug(
-				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
-				[ 'type' => 'PREVIEW_CONTEXT_IGNORED' ]
-			);
-		}
+		$this->process_request_extensions();
 
 		/**
 		 * If the request is a batch request it will come back as an array
@@ -372,6 +357,192 @@ class Request {
 		 * @since 0.0.5
 		 */
 		do_action( 'graphql_before_execute', $this );
+	}
+
+	/**
+	 * Processes all registered request extensions, applying header-wins precedence,
+	 * RFC 8941 parsing, batch semantics, and populating AppContext.
+	 */
+	public function process_request_extensions(): void {
+		$registry   = \WPGraphQL::get_request_extension_registry();
+		$extensions = $registry->get_registered_request_extensions();
+
+		foreach ( $extensions as $namespace => $config ) {
+			$context_data = $this->resolve_request_extension_input( $namespace, $config );
+
+			if ( null !== $context_data ) {
+				$this->app_context->request_extensions[ $namespace ] = $context_data;
+				$this->app_context->set( 'request_extensions', $namespace, $context_data );
+			}
+		}
+
+		// Handle preview specifically for backward compatibility
+		$this->app_context->preview = $this->get_preview_context();
+
+		if ( is_array( $this->app_context->preview ) && ! Preview::viewer_can_preview( (int) $this->app_context->preview['databaseId'] ) ) {
+			graphql_debug(
+				__( 'Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead.', 'wp-graphql' ),
+				[ 'type' => 'PREVIEW_CONTEXT_IGNORED' ]
+			);
+		}
+	}
+
+	/**
+	 * Resolves raw input for a registered extension from HTTP header or operation extensions.
+	 *
+	 * @param string              $namespace The extension namespace.
+	 * @param array<string,mixed> $config    The extension config.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public function resolve_request_extension_input( string $namespace, array $config ): ?array {
+		$header_name = $config['header'] ?? null;
+
+		// 1. Primary: HTTP Header (RFC 8941 Structured Field Dictionary)
+		if ( ! empty( $header_name ) ) {
+			$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header_name ) );
+			if ( ! empty( $_SERVER[ $server_key ] ) ) {
+				$parsed = $this->parse_structured_field_header( sanitize_text_field( wp_unslash( $_SERVER[ $server_key ] ) ), $namespace, $config );
+				if ( ! empty( $parsed ) ) {
+					return $parsed;
+				}
+			}
+		}
+
+		// 2. Fallback: JSON body extensions
+		if ( $this->params instanceof OperationParams ) {
+			$extensions = $this->params->extensions;
+			if ( is_array( $extensions ) && ! empty( $extensions[ $namespace ] ) && is_array( $extensions[ $namespace ] ) ) {
+				return $this->sanitize_extension_members( $extensions[ $namespace ], $config );
+			}
+		}
+
+		// 3. Batch requests notice
+		if ( is_array( $this->params ) ) {
+			foreach ( $this->params as $operation ) {
+				if ( $operation instanceof OperationParams && is_array( $operation->extensions ) && ! empty( $operation->extensions[ $namespace ] ) ) {
+					graphql_debug(
+						sprintf(
+							__( 'The `extensions.%1$s` object is not supported in batch requests and was ignored. Send the `%2$s` header instead; it applies to every operation in the batch.', 'wp-graphql' ),
+							$namespace,
+							$header_name ?: $namespace
+						),
+						[ 'type' => strtoupper( $namespace ) . '_CONTEXT_IGNORED' ]
+					);
+					break;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parses an RFC 8941 Structured Field dictionary header using the registered member spec.
+	 *
+	 * @param string              $raw_header The raw header string.
+	 * @param string              $namespace  The extension namespace.
+	 * @param array<string,mixed> $config     The extension configuration.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function parse_structured_field_header( string $raw_header, string $namespace, array $config ): array {
+		$dictionary = StructuredFields::parse_dictionary( $raw_header );
+
+		if ( null === $dictionary ) {
+			graphql_debug(
+				sprintf(
+					__( 'The `%s` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. The `extensions.%s` fallback applies if present.', 'wp-graphql' ),
+					$config['header'] ?? $namespace,
+					$namespace
+				),
+				[ 'type' => strtoupper( $namespace ) . '_CONTEXT_MALFORMED' ]
+			);
+			return [];
+		}
+
+		if ( empty( $dictionary ) ) {
+			return [];
+		}
+
+		$key_map = [];
+		$members = $config['members'] ?? [];
+		foreach ( array_keys( $members ) as $member_name ) {
+			$member_def = $members[ $member_name ];
+			$header_key = $member_def['header_key'] ?? strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $member_name ) );
+			$key_map[ $header_key ] = $member_name;
+		}
+
+		$parsed = [];
+		foreach ( $dictionary as $key => $member ) {
+			if ( ! isset( $key_map[ $key ] ) ) {
+				continue;
+			}
+
+			$member_name   = $key_map[ $key ];
+			$expected_type = $members[ $member_name ]['type'] ?? null;
+
+			if ( ! empty( $expected_type ) ) {
+				$allowed_types = (array) $expected_type;
+				if ( ! in_array( $member['type'], $allowed_types, true ) ) {
+					continue;
+				}
+			}
+
+			$parsed[ $member_name ] = $member['value'];
+		}
+
+		if ( empty( $parsed ) ) {
+			graphql_debug(
+				sprintf(
+					__( 'The `%s` header parsed as a valid dictionary but contained none of the recognized keys and was ignored. The `extensions.%s` fallback applies if present.', 'wp-graphql' ),
+					$config['header'] ?? $namespace,
+					$namespace
+				),
+				[ 'type' => strtoupper( $namespace ) . '_CONTEXT_UNRECOGNIZED' ]
+			);
+		}
+
+		return $this->sanitize_extension_members( $parsed, $config );
+	}
+
+	/**
+	 * Sanitizes member values based on registered config.
+	 *
+	 * @param array<string,mixed> $values The raw values.
+	 * @param array<string,mixed> $config The extension configuration.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_extension_members( array $values, array $config ): array {
+		$sanitized = [];
+		$members   = $config['members'] ?? [];
+
+		foreach ( $values as $key => $val ) {
+			$member_name = $key;
+			if ( ! isset( $members[ $key ] ) ) {
+				$camel_key = lcfirst( str_replace( ' ', '', ucwords( str_replace( '_', ' ', $key ) ) ) );
+				if ( isset( $members[ $camel_key ] ) ) {
+					$member_name = $camel_key;
+				} else {
+					$sanitized[ $key ] = $val;
+					continue;
+				}
+			}
+
+			$member_def = $members[ $member_name ] ?? [];
+			if ( isset( $member_def['sanitize_callback'] ) && is_callable( $member_def['sanitize_callback'] ) ) {
+				$sanitized[ $member_name ] = call_user_func( $member_def['sanitize_callback'], $val );
+			} elseif ( isset( $member_def['type'] ) && 'integer' === $member_def['type'] ) {
+				$sanitized[ $member_name ] = is_numeric( $val ) ? (int) $val : $val;
+			} elseif ( is_string( $val ) ) {
+				$sanitized[ $member_name ] = sanitize_text_field( $val );
+			} else {
+				$sanitized[ $member_name ] = $val;
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**

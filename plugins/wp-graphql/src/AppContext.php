@@ -94,6 +94,23 @@ class AppContext {
 	public $preview = null;
 
 	/**
+	 * Stores normalized request extensions parsed from headers or body extensions.
+	 *
+	 * @var array<string,array<string,mixed>>
+	 */
+	public $request_extensions = [];
+
+	/**
+	 * Returns the parsed request extension for a namespace, or null if not provided.
+	 *
+	 * @param string $namespace The extension namespace.
+	 * @return array<string,mixed>|null
+	 */
+	public function get_request_extension( string $namespace ): ?array {
+		return $this->request_extensions[ $namespace ] ?? null;
+	}
+
+	/**
 	 * Stores additional $config properties
 	 *
 	 * @var mixed $config
