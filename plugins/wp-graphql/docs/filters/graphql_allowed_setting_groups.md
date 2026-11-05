@@ -28,7 +28,7 @@ Filter the $allowed_settings to allow some to be enabled or disabled from showin
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/DataSource.php:653`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L653)
+- [`plugins/wp-graphql/src/Data/DataSource.php:762`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L762)
 
 ```php
 apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
 
 ## Related
 
-- `DataSource::get_allowed_settings()` in [`plugins/wp-graphql/src/Data/DataSource.php:653`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L653)
+- `DataSource::get_allowed_settings()` in [`plugins/wp-graphql/src/Data/DataSource.php:762`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L762)
