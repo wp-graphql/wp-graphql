@@ -85,6 +85,10 @@
 			"href": "/docs/themes"
 		},
 		{
+			"title": "Scripts and Styles",
+			"href": "/docs/scripts-and-styles"
+		},
+		{
 			"title": "Widgets",
 			"href": "/docs/widgets"
 		}

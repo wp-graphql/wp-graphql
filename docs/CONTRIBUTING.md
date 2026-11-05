@@ -185,13 +185,13 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Version numbers are updated automatically by release-please
 - `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
 - Changelogs are generated from PR titles (via squash merge commits)
-- **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+- **Upgrade Notices** are added to `readme.txt` automatically for breaking changes (`feat!:`, `fix!:`, `perf!:`). A fix that changes behavior someone may rely on gets a hand-written notice in the fix PR instead (see [Breaking Changes & Upgrade Notices](../.github/CONTRIBUTING.md#breaking-changes--upgrade-notices)). Either kind is also added to the top of the release's GitHub release notes.
 - Hook docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
 - Function docs are regenerated on release PR updates for supported components (`update-release-pr.yml`)
 - `x-release-please-version` placeholders in `scripts/hooks/legacy-hooks.json` are automatically replaced for the releasing component (`update-release-pr.yml`)
 - Hook legacy coverage is enforced in CI (`lint.yml` → `wp-graphql-hook-legacy-coverage`)
 
-> **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
+> **⚠️ Do not manually edit**: Version numbers, changelogs, or generated upgrade notices. These are all managed automatically by release-please and our CI workflows.
 
 When adding a new plugin that is deployed to WordPress.org, ensure its entry in `release-please-config.json` includes `"wp_org_slug": "wpgraphql-*"` if the WordPress.org directory slug differs from the repo folder name (e.g. `wp-graphql-acf` → `wpgraphql-acf`). See [Architecture: Future Plugins](./ARCHITECTURE.md#future-plugins) and [Workflows README](../.github/workflows/README.md#when-adding-a-new-plugin).
 

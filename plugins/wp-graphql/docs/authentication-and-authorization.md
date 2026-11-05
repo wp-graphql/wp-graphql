@@ -195,3 +195,20 @@ WPGraphQL implements a granular authorization system:
 - Respects WordPress roles and permissions
 - Examples: 
   - Creating a post checks `publish_posts` capability
+
+### Inputs That Require Permission
+
+Some arguments, `where` filters and mutation input fields can only be used by some users. Their descriptions in the schema say what is required, for example "requires permission to moderate comments".
+
+The schema is the same for every user. Arguments, fields and types are never hidden, added or changed based on who is asking, so tooling, persisted queries and generated types work the same for everyone.
+
+What happens when you use an input you are not allowed to use:
+
+- **List filters** (for example a filter that takes several statuses) drop the values you cannot use. If no values are left, the query does not run and the connection returns no results.
+- **Filters that cannot be narrowed** match nothing.
+- **A filter is never ignored.** You will not get unfiltered results back in place of the filtered results you asked for.
+- **Some inputs already return an error**, for example the role filters on the users connection, and continue to do so.
+
+The decision is based only on who is asking and what they asked for, never on what the stored data contains, so the result does not reveal whether matching data exists.
+
+In the next major release, inputs you are not allowed to use will return an error instead of being narrowed. Output fields you are not allowed to read continue to resolve to `null`. Newly added inputs may already return an error.
