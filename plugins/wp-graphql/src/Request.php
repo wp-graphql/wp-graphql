@@ -378,7 +378,7 @@ class Request {
 	 * Parses and normalizes the preview context for the request.
 	 *
 	 * The context mirrors the query params WordPress core uses for front-end previews
-	 * (`preview_id`, `_thumbnail_id`, `preview_nonce`). Each transport uses its native
+	 * (`preview_id`, `_thumbnail_id`, `post_format`, `preview_nonce`). Each transport uses its native
 	 * structured form:
 	 *
 	 *   - The `X-GraphQL-Preview` request header (an RFC 8941 Structured Field dictionary, with
@@ -401,7 +401,7 @@ class Request {
 	 * contract in docs/previews.md, pinned by
 	 * PreviewTest::testNonceIsAcceptedButNotVerifiedToday.
 	 *
-	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,postFormat:?string,nonce:?string}|null
 	 */
 	private function get_preview_context(): ?array {
 		$preview = $this->get_preview_input();
@@ -437,6 +437,9 @@ class Request {
 			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
 			// in the preview), so only an absent or invalid value means "no override".
 			'featuredImageDatabaseId' => $this->get_non_negative_int_input( $preview['featuredImageDatabaseId'] ?? null ),
+			// As in core, `standard` is accepted and means no format; a value that is not a
+			// registered post format is treated as absent ("no override").
+			'postFormat'              => isset( $preview['postFormat'] ) && is_string( $preview['postFormat'] ) && array_key_exists( $preview['postFormat'], get_post_format_slugs() ) ? $preview['postFormat'] : null,
 			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
 		];
 	}
@@ -485,7 +488,7 @@ class Request {
 
 	/**
 	 * Resolves the raw `preview` input for the request, keyed like the JSON `extensions.preview`
-	 * object (`databaseId`, `featuredImageDatabaseId`, `nonce`).
+	 * object (`databaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`).
 	 *
 	 * The `X-GraphQL-Preview` header (an RFC 8941 Structured Field dictionary) is the primary
 	 * source, since a headers UI is available in every GraphQL IDE. When the header is absent,
@@ -556,6 +559,7 @@ class Request {
 		$key_map = [
 			'database_id'                => 'databaseId',
 			'featured_image_database_id' => 'featuredImageDatabaseId',
+			'post_format'                => 'postFormat',
 			'nonce'                      => 'nonce',
 		];
 
@@ -594,7 +598,7 @@ class Request {
 		// a key-name mistake; say so instead of ignoring it silently.
 		if ( empty( $parsed ) ) {
 			graphql_debug(
-				__( 'The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
+				__( 'The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `post_format`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
 				[ 'type' => 'PREVIEW_CONTEXT_UNRECOGNIZED' ]
 			);
 		}

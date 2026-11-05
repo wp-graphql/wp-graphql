@@ -15,7 +15,7 @@
 #
 # License keys can be provided via:
 #   - Environment variables: export ACF_LICENSE_KEY=your_key
-#   - .env file: ACF_LICENSE_KEY=your_key (in plugins/wp-graphql-acf/.env)
+#   - .env file: ACF_LICENSE_KEY=your_key (in plugins/wp-graphql-acf/.env or the monorepo root .env)
 #
 # CI/matrix (env, no CLI args):
 #   INSTALL_ACF_PRO=false, INSTALL_ACF_EXTENDED_PRO=false - ACF Free only
@@ -28,11 +28,18 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# The monorepo root, two levels up from the plugin directory.
+REPO_ROOT="$(cd "$PLUGIN_DIR/../.." && pwd)"
+
 # Load .env file if it exists (allows users to store license keys in .env)
-# Check both in plugin directory and current directory
+# Check the plugin directory, then the monorepo root, then the current directory.
+# npm runs this script from the plugin directory, so without the root check a
+# key kept in the monorepo's root .env would never be found.
 ENV_FILE=""
 if [ -f "$PLUGIN_DIR/.env" ] && [ -r "$PLUGIN_DIR/.env" ]; then
   ENV_FILE="$PLUGIN_DIR/.env"
+elif [ -f "$REPO_ROOT/.env" ] && [ -r "$REPO_ROOT/.env" ]; then
+  ENV_FILE="$REPO_ROOT/.env"
 elif [ -f .env ] && [ -r .env ]; then
   ENV_FILE=".env"
 fi

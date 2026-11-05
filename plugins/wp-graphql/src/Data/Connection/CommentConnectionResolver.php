@@ -3,6 +3,8 @@
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
+use WPGraphQL\Model\Comment;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -70,13 +72,10 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * If the current user cannot moderate comments, do not include unapproved comments
+		 * Limit what users who can't moderate comments can filter, search and sort by.
 		 */
 		if ( ! current_user_can( 'moderate_comments' ) ) {
-			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
-			if ( empty( $query_args['include_unapproved'] ) ) {
-				unset( $query_args['include_unapproved'] );
-			}
+			$query_args = $this->restrict_query_args_for_non_moderators( $query_args );
 		}
 
 		/**
@@ -100,9 +99,13 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['graphql_cursor_compare'] = ( isset( $last ) ) ? '>' : '<';
 
-		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors
-		$query_args['graphql_after_cursor']  = $this->get_after_offset();
-		$query_args['graphql_before_cursor'] = $this->get_before_offset();
+		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors.
+		// A cursor on a comment the user can't see is ignored, like a cursor on a comment that doesn't exist.
+		$after_offset  = $this->get_after_offset();
+		$before_offset = $this->get_before_offset();
+
+		$query_args['graphql_after_cursor']  = ! empty( $after_offset ) && $this->is_valid_offset( (int) $after_offset ) ? $after_offset : null;
+		$query_args['graphql_before_cursor'] = ! empty( $before_offset ) && $this->is_valid_offset( (int) $before_offset ) ? $before_offset : null;
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -241,6 +244,354 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Limits what a user who can't moderate comments can filter, search and sort comments by.
+	 *
+	 * Each rule keeps the query to comments, and to fields, the user can see. A filter on something only
+	 * moderators can see matches nothing, rather than erroring, and when nothing the user can see is left
+	 * the query isn't run. So results and pagination info only reflect comments the user can see.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args after the where args are merged in.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_query_args_for_non_moderators( array $query_args ): array {
+		$query_args = $this->restrict_author_email( $query_args );
+		$query_args = $this->restrict_comment_status( $query_args );
+		$query_args = $this->restrict_content_status( $query_args );
+		$query_args = $this->restrict_comment_type( $query_args );
+		$query_args = $this->restrict_search( $query_args );
+		$query_args = $this->restrict_orderby( $query_args );
+		$query_args = $this->restrict_content( $query_args );
+
+		// Users still get their own unapproved comments.
+		if ( get_current_user_id() ) {
+			$query_args['include_unapproved'] = [ get_current_user_id() ];
+		} else {
+			unset( $query_args['include_unapproved'] );
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * The author's email is only visible to moderators, so filtering by it matches no comments.
+	 *
+	 * The condition is replaced with one that matches nothing, rather than dropped, since dropping it would
+	 * return every comment if the query ran anyway.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_author_email( array $query_args ): array {
+		if ( empty( $query_args['author_email'] ) ) {
+			return $query_args;
+		}
+
+		unset( $query_args['author_email'] );
+
+		return $this->match_nothing( $query_args );
+	}
+
+	/**
+	 * Only approved comments can be filtered by. Other statuses are ignored, matching how post status
+	 * filters behave, and when none are left the query matches nothing.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_comment_status( array $query_args ): array {
+		if ( ! isset( $query_args['status'] ) || 'approve' === $query_args['status'] ) {
+			return $query_args;
+		}
+
+		$requested = $this->parse_list( $query_args['status'] );
+
+		$query_args['status'] = 'approve';
+
+		// An empty status, "all" and "any" match every status, which for this user means approved comments.
+		if ( ! empty( $requested ) && ! array_intersect( $requested, [ 'approve', '1', 'all', 'any' ] ) ) {
+			$query_args = $this->match_nothing( $query_args );
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * Only public content statuses can be filtered by. Other statuses are ignored, and when none are left
+	 * the query matches nothing.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_content_status( array $query_args ): array {
+		if ( empty( $query_args['post_status'] ) ) {
+			return $query_args;
+		}
+
+		$allowed = array_values( array_intersect( $this->parse_list( $query_args['post_status'] ), $this->get_public_post_statuses() ) );
+
+		if ( empty( $allowed ) ) {
+			$query_args = $this->match_nothing( $query_args );
+			$allowed    = [ 'publish' ];
+		}
+
+		$query_args['post_status'] = $allowed;
+
+		return $query_args;
+	}
+
+	/**
+	 * Editorial notes are only visible to users who can edit them, so they're left out of the query.
+	 *
+	 * WordPress already leaves notes out unless they're asked for by type, or with the "all" type. "all"
+	 * becomes no type filter, which is every type except notes, and a type list that only names notes
+	 * matches nothing.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_comment_type( array $query_args ): array {
+		foreach ( [ 'type', 'type__in' ] as $key ) {
+			if ( empty( $query_args[ $key ] ) ) {
+				continue;
+			}
+
+			$requested = is_array( $query_args[ $key ] ) || is_string( $query_args[ $key ] ) ? wp_parse_list( $query_args[ $key ] ) : [];
+
+			if ( in_array( 'all', $requested, true ) ) {
+				unset( $query_args[ $key ] );
+				continue;
+			}
+
+			$allowed = array_values( array_diff( $requested, [ 'note' ] ) );
+
+			if ( empty( $allowed ) ) {
+				unset( $query_args[ $key ] );
+				$query_args = $this->match_nothing( $query_args );
+				continue;
+			}
+
+			$query_args[ $key ] = $allowed;
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * Search only the fields the user can read.
+	 *
+	 * WordPress's comment search also matches the author's email and IP address, which only moderators can
+	 * see, so the term is passed on as `graphql_search_visible_fields` instead, which only searches the
+	 * author's name and URL and the comment's content (see Config::graphql_wp_comments_query_visible_fields_search()).
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_search( array $query_args ): array {
+		if ( ! isset( $query_args['search'] ) || '' === $query_args['search'] ) {
+			return $query_args;
+		}
+
+		$query_args['graphql_search_visible_fields'] = is_scalar( $query_args['search'] ) ? (string) $query_args['search'] : '';
+		unset( $query_args['search'] );
+
+		return $query_args;
+	}
+
+	/**
+	 * Ordering by a field only moderators can see falls back to the comment date, since the order, and
+	 * cursors built from it, would show how those values compare.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_orderby( array $query_args ): array {
+		if ( empty( $query_args['orderby'] ) ) {
+			return $query_args;
+		}
+
+		$hidden_fields = [ 'comment_author_email', 'comment_author_ip', 'comment_agent' ];
+		$is_hidden     = static function ( $field ) use ( $hidden_fields ): bool {
+			return in_array( strtolower( (string) $field ), $hidden_fields, true );
+		};
+
+		$orderby = $query_args['orderby'];
+
+		$is_visible = static function ( $field ) use ( $is_hidden ): bool {
+			return ! $is_hidden( $field );
+		};
+
+		if ( is_array( $orderby ) ) {
+			// Either a list of fields, or fields mapped to their order.
+			$orderby = array_values( $orderby ) === $orderby
+				? array_values( array_filter( $orderby, $is_visible ) )
+				: array_filter( $orderby, $is_visible, ARRAY_FILTER_USE_KEY );
+		} elseif ( is_string( $orderby ) ) {
+			$fields  = preg_split( '/[,\s]+/', $orderby, -1, PREG_SPLIT_NO_EMPTY );
+			$orderby = implode( ' ', array_filter( false !== $fields ? $fields : [], $is_visible ) );
+		}
+
+		$query_args['orderby'] = ! empty( $orderby ) ? $orderby : 'comment_date';
+
+		return $query_args;
+	}
+
+	/**
+	 * Limits the query to comments on content the user can see.
+	 *
+	 * Comments on content the user can't see are hidden when the comments load, but pagination info is
+	 * decided from the rows the query returns, so those comments must not be queried at all.
+	 *
+	 * - The comments of a content node need nothing more: the node was already visible to the user.
+	 * - A reply or parent is limited to the content of the comment it's queried from.
+	 * - A query limited to specific content keeps only the content the user can see, judged by the content's
+	 *   own visibility (the Post model), so a media item follows the content it's attached to.
+	 * - Any other query only returns comments on content with a public status, of a post type that's public.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function restrict_content( array $query_args ): array {
+		if ( $this->source instanceof Post ) {
+			return $query_args;
+		}
+
+		// A reply or parent can be stored on other content than the comment it's queried from.
+		if ( $this->source instanceof Comment ) {
+			$source_comment = get_comment( $this->source->databaseId );
+			$source_post_id = $source_comment instanceof \WP_Comment ? absint( $source_comment->comment_post_ID ) : 0;
+			$post_in        = ! empty( $query_args['post__in'] ) ? wp_parse_id_list( $query_args['post__in'] ) : [ $source_post_id ];
+			$post_in        = array_values( array_intersect( $post_in, [ $source_post_id ] ) );
+
+			if ( empty( $post_in ) ) {
+				$query_args = $this->match_nothing( $query_args );
+				$post_in    = [ 0 ];
+			}
+
+			$query_args['post__in'] = $post_in;
+		}
+
+		$post_id = isset( $query_args['post_id'] ) && is_numeric( $query_args['post_id'] ) ? absint( $query_args['post_id'] ) : 0;
+		$post_in = ! empty( $query_args['post__in'] ) ? wp_parse_id_list( $query_args['post__in'] ) : [];
+
+		if ( 0 === $post_id && empty( $post_in ) ) {
+			if ( empty( $query_args['post_status'] ) ) {
+				$query_args['post_status'] = $this->get_public_post_statuses();
+			}
+
+			$public_post_types = $this->get_public_post_types();
+			$post_types        = ! empty( $query_args['post_type'] ) ? array_values( array_intersect( $this->parse_list( $query_args['post_type'] ), $public_post_types ) ) : $public_post_types;
+
+			if ( empty( $post_types ) ) {
+				$query_args = $this->match_nothing( $query_args );
+				$post_types = $public_post_types;
+			}
+
+			$query_args['post_type'] = $post_types;
+
+			return $query_args;
+		}
+
+		if ( 0 !== $post_id && ! $this->is_content_visible( $post_id ) ) {
+			$query_args = $this->match_nothing( $query_args );
+		}
+
+		if ( ! empty( $post_in ) ) {
+			_prime_post_caches( $post_in, false, false );
+
+			$visible = array_values(
+				array_filter(
+					$post_in,
+					function ( $id ) {
+						return $this->is_content_visible( $id );
+					}
+				)
+			);
+
+			if ( empty( $visible ) ) {
+				// An empty list would remove the condition, so never leave one behind.
+				$query_args = $this->match_nothing( $query_args );
+				$visible    = [ 0 ];
+			}
+
+			$query_args['post__in'] = $visible;
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * Makes the query match no comments, and skips running it.
+	 *
+	 * The impossible condition keeps the query from matching anything even if a
+	 * `graphql_connection_should_execute` callback runs it anyway.
+	 *
+	 * @param array<string,mixed> $query_args The WP_Comment_Query args.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function match_nothing( array $query_args ): array {
+		$this->should_execute      = false;
+		$query_args['comment__in'] = [ 0 ];
+
+		return $query_args;
+	}
+
+	/**
+	 * Parses a list of slugs given as an array or a comma or space separated string.
+	 *
+	 * @param mixed $value The value to parse.
+	 *
+	 * @return string[]
+	 */
+	private function parse_list( $value ): array {
+		return is_array( $value ) || is_string( $value ) ? wp_parse_slug_list( $value ) : [];
+	}
+
+	/**
+	 * The registered post statuses whose content is public.
+	 *
+	 * @return string[]
+	 */
+	private function get_public_post_statuses(): array {
+		return array_values( get_post_stati( [ 'public' => true ] ) );
+	}
+
+	/**
+	 * The post types whose published content is public, decided the same way the Post model decides it.
+	 *
+	 * @return string[]
+	 */
+	private function get_public_post_types(): array {
+		$post_types = array_merge( get_post_types( [ 'public' => true ] ), get_post_types( [ 'publicly_queryable' => true ] ) );
+
+		return array_values( array_diff( array_unique( $post_types ), [ 'revision' ] ) );
+	}
+
+	/**
+	 * Whether the user can see the content a comment is on, judged by the content's own visibility.
+	 *
+	 * @param int $post_id The ID of the content.
+	 */
+	private function is_content_visible( int $post_id ): bool {
+		// get_post() falls back to the global post for an empty ID.
+		if ( $post_id <= 0 ) {
+			return false;
+		}
+
+		$post = get_post( $post_id );
+
+		return $post instanceof \WP_Post && ! ( new Post( $post ) )->is_private();
+	}
+
+	/**
 	 * This sets up the "allowed" args, and translates the GraphQL-friendly keys to
 	 * WP_Comment_Query friendly keys.
 	 *
@@ -312,6 +663,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @param int $offset The ID of the node used for the cursor offset.
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_comment( $offset ) );
+		$comment = get_comment( $offset );
+
+		// A comment the user can't see is treated like one that doesn't exist.
+		return $comment instanceof \WP_Comment && 'private' !== ( new Comment( $comment ) )->get_visibility();
 	}
 }
