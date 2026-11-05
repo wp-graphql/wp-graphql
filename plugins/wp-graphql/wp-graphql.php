@@ -183,7 +183,7 @@ function graphql_init_appsero_telemetry(): void {
 				$insights->notice(
 					sprintf(
 						// translators: %s is a link to the WPGraphQL settings page.
-						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s.', 'wp-graphql' ),
+						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. Email updates are a separate choice under %s, where you can also stop sharing at any time.', 'wp-graphql' ),
 						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings' ) ) . '">' . esc_html__( 'GraphQL → Settings', 'wp-graphql' ) . '</a>'
 					)
 				);
@@ -194,6 +194,9 @@ function graphql_init_appsero_telemetry(): void {
 		$insights->init();
 
 		( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug ) )->init();
+
+		// A separate choice from usage data, registered after its toggle so it shows next to it.
+		( new \WPGraphQL\Admin\EmailUpdates( $client->hash, $client->slug, (string) $client->project_version ) )->init();
 	} catch ( \Throwable $e ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
 			sprintf(
