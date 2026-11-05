@@ -29,7 +29,7 @@ Add a filter to allow externally registered node types to return the proper type
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/DataSource.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L765)
+- [`plugins/wp-graphql/src/Data/DataSource.php:874`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L874)
 
 ```php
 apply_filters( 'graphql_resolve_node_type', $type, $node );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_resolve_node_type', $type, $node );
 
 ## Related
 
-- `DataSource::resolve_node_type()` in [`plugins/wp-graphql/src/Data/DataSource.php:765`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L765)
+- `DataSource::resolve_node_type()` in [`plugins/wp-graphql/src/Data/DataSource.php:874`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L874)
