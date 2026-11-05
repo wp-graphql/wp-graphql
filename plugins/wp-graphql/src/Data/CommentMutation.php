@@ -132,7 +132,7 @@ class CommentMutation {
 	 *
 	 * @param int                                  $comment_id    The ID of the postObject the comment is connected to
 	 * @param array<string,mixed>                  $input         The input for the mutation
-	 * @param string                               $mutation_name The name of the mutation ( ex: create, update, delete )
+	 * @param string                               $mutation_name The name of the mutation (createComment or updateComment)
 	 * @param \WPGraphQL\AppContext                $context The AppContext passed down to all resolvers
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 	 *
@@ -151,7 +151,7 @@ class CommentMutation {
 		 *
 		 * @param int                                  $comment_id              The ID of the comment being mutated.
 		 * @param array<string,mixed>                  $input                   The input for the mutation.
-		 * @param string                               $mutation_name           The name of the mutation (for example: create, update, delete).
+		 * @param string                               $mutation_name           The name of the mutation (createComment or updateComment).
 		 * @param \WPGraphQL\AppContext                $context                 The AppContext passed down to all resolvers.
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info                    The ResolveInfo passed down to all resolvers.
 		 * @param int                                  $intended_comment_status The status requested by mutation input.

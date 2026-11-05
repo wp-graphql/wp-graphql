@@ -3,6 +3,8 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
 use WP_Taxonomy;
 
@@ -109,5 +111,40 @@ class TermObjectMutation {
 		 * @since 0.0.5
 		 */
 		return apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
+	}
+
+	/**
+	 * Fires the action that lets extensions update additional data related to a term object,
+	 * such as termmeta, after the term has been created or updated.
+	 *
+	 * @param int                                  $term_id       The ID of the term being mutated
+	 * @param array<string,mixed>                  $input         The input for the mutation
+	 * @param \WP_Taxonomy                         $taxonomy      The taxonomy of the term being mutated
+	 * @param string                               $mutation_name The name of the mutation (ex: createCategory, updateTag)
+	 * @param \WPGraphQL\AppContext                $context       The AppContext passed down to all resolvers
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down to all resolvers
+	 *
+	 * @return void
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function update_additional_term_object_data( int $term_id, array $input, WP_Taxonomy $taxonomy, string $mutation_name, AppContext $context, ResolveInfo $info ) {
+
+		/**
+		 * Fires after a term has been created or updated via a GraphQL mutation. This is a great spot to
+		 * hook into to update additional data related to terms, such as termmeta or relationships, using
+		 * the mutation input.
+		 *
+		 * @param int                                  $term_id       The ID of the term being mutated
+		 * @param array<string,mixed>                  $input         The input for the mutation
+		 * @param \WP_Taxonomy                         $taxonomy      The taxonomy of the term being mutated
+		 * @param string                               $mutation_name The name of the mutation (ex: createCategory, updateTag)
+		 * @param \WPGraphQL\AppContext                $context       The AppContext passed down to all resolvers
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down to all resolvers
+		 *
+		 * @hookGroup models
+		 * @since x-release-please-version
+		 */
+		do_action( 'graphql_term_object_mutation_update_additional_data', $term_id, $input, $taxonomy, $mutation_name, $context, $info );
 	}
 }

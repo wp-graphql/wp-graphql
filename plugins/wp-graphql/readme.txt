@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.26.1
+Stable tag: 2.26.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -79,6 +79,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 2.26.2 =
+
+**A malformed pagination cursor now returns no results.** Passing `after` or `before` a value that isn't a cursor WPGraphQL returned, such as `posts(after: "foo")` or a random string taken from a URL, used to return the first page, as if no cursor was passed. Connections now return no results for it. A cursor for an item that no longer exists, an empty string and `null` still return results from the start. If you relied on the old behavior, leave the argument out or pass `null`, or see the [connections guide](https://www.wpgraphql.com/docs/connections#cursors) for a filter that ignores malformed cursors again. See [#2795](https://github.com/wp-graphql/wp-graphql/issues/2795).
 
 = 2.26.1 =
 
@@ -367,6 +371,12 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.26.2 =
+
+**Bug Fixes**
+
+* return no results for malformed connection cursors ([#4613](https://github.com/wp-graphql/wp-graphql/issues/4613))
 
 = 2.26.1 =
 
