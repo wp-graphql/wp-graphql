@@ -10,6 +10,9 @@ namespace WPGraphQL\SmartCache;
 use GraphQL\Server\OperationParams;
 use WPGraphQL\SmartCache\Admin\Settings;
 use GraphQL\Error\SyntaxError;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Visitor;
 use GraphQL\Server\RequestError;
 
 class Document {
@@ -368,6 +371,11 @@ class Document {
 				$resolved = $this->resolve_query_id( $query_id, $query );
 
 				if ( ! $resolved['post'] ) {
+					// Refuse up front, so the client is told why, rather than storing a document per value.
+					if ( self::has_literal_arguments( $resolved['ast'] ) && self::can_auto_persist_document() ) {
+						throw new RequestError( self::literalArgumentsMessage() );
+					}
+
 					// Serve the verified document for this request; persist after validation.
 					self::$pending_documents[ $query_id ] = [
 						'raw'             => $query,
@@ -650,6 +658,47 @@ class Document {
 	 */
 	public static function queryIdMismatchMessage() {
 		return __( 'The provided queryId does not match the query hash. Alias names for saved GraphQL Documents can only be assigned by an authorized user.', 'wp-graphql-smart-cache' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function literalArgumentsMessage() {
+		return __( 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value.', 'wp-graphql-smart-cache' );
+	}
+
+	/**
+	 * Whether a document has string or number literals in its arguments.
+	 *
+	 * Those are the values a client builds into the query string (an id, a slug),
+	 * which would store a new document for every value. Enum, boolean and null
+	 * literals come from a small fixed set, and variable default values are part of
+	 * the document itself, so neither counts.
+	 *
+	 * @param \GraphQL\Language\AST\DocumentNode $ast The parsed document.
+	 *
+	 * @return bool
+	 */
+	private static function has_literal_arguments( DocumentNode $ast ) {
+		$found = false;
+		$stop  = static function () use ( &$found ) {
+			$found = true;
+			return Visitor::stop();
+		};
+
+		Visitor::visit(
+			$ast,
+			[
+				NodeKind::VARIABLE_DEFINITION => static function () {
+					return Visitor::skipNode();
+				},
+				NodeKind::STRING              => $stop,
+				NodeKind::INT                 => $stop,
+				NodeKind::FLOAT               => $stop,
+			]
+		);
+
+		return $found;
 	}
 
 	/**
