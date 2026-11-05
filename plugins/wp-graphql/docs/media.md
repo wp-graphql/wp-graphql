@@ -93,6 +93,28 @@ The connection between the Post and Featured image is a good example of a [one-t
 
 ![Screenshot of a GraphQL Query for a post and its connected featured image](./images/media-query-post-featured-image.png)
 
+### Comments on a Media Item
+
+Below is an example of querying the comments of a Media Item.
+
+```graphql
+{
+  mediaItem(id: 556, idType: DATABASE_ID) {
+    id
+    comments(first: 10) {
+      nodes {
+        id
+        content
+      }
+    }
+  }
+}
+```
+
+A Media Item is visible when the content it's attached to is, and one that isn't attached to anything is visible to everyone. Its comments follow the same rule.
+
+Comment lists that aren't limited to specific content, like the root `comments` list, leave comments on Media Items out for users who can't moderate comments, so query them by Media Item, as above, or with the `contentId` argument. See [Comment Visibility](/docs/comments/#comment-visibility).
+
 ## Mutating Media Items
 
 **NOTE:** WPGraphQL supports mutations for the data stored in the Database for Media Items, but WPGraphQL does not (yet) provide a way to handle the actual uploads of files. [See open issues related to this topic](https://github.com/wp-graphql/wp-graphql/issues?q=is%3Aissue+is%3Aopen+upload+image).

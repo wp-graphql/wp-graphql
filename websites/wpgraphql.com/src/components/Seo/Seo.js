@@ -211,7 +211,9 @@ export default function Seo({
     seo.opengraphDescription
   )
 
-  const canonical = absoluteUrl(uri ?? node?.uri)
+  // A noindex page has no canonical URL; without a uri this would otherwise
+  // fall back to the site root and point the page at the homepage.
+  const canonical = noindex ? null : absoluteUrl(uri ?? node?.uri)
   const ogImage = seo.opengraphImage?.sourceUrl
   const twitterImage = seo.twitterImage?.sourceUrl ?? ogImage
 

@@ -54,18 +54,18 @@ jobs:
           max_attempts: 3
           command: npm ci
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
-        with:
-          key: docker-${{ runner.os }}-wp-latest
-
+      # Note: we intentionally do NOT cache the wp-env Docker images. The repo's
+      # 10GB Actions cache budget is consumed by composer/npm/Playwright caches,
+      # so the multi-GB image caches were always evicted before the next run:
+      # every run missed the cache yet still paid to save it. wp-env pulls the
+      # images directly, which is no slower than restoring an image tarball.
       - name: Start wp-env
         uses: nick-fields/retry@v4
         with:
           timeout_minutes: 15
           max_attempts: 3
           command: |
-            npm run wp-env start
+            npm run wp-env start || { echo "::warning::wp-env start failed"; exit 1; }
             # wp-env intermittently reports a successful start but leaves the
             # instance uninitialized: the next `wp-env run` then fails with
             # "Environment not initialized. Run `wp-env start` first." for the
