@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.26.1\n"
+"Project-Id-Version: WPGraphQL 2.26.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-03T20:37:17+00:00\n"
+"POT-Creation-Date: 2026-11-05T16:49:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -849,58 +849,58 @@ msgid "The %s class does not rely on a query class. Please define a `query()` me
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:549
+#: src/Data/Connection/AbstractConnectionResolver.php:571
 #, php-format
 msgid "Class %s does not implement a valid method `loader_name()`."
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:568
+#: src/Data/Connection/AbstractConnectionResolver.php:590
 msgid "The Connection Resolver needs to define a loader name"
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:950
+#: src/Data/Connection/AbstractConnectionResolver.php:972
 msgid "The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`."
 msgstr ""
 
 #. translators: %s: The name of the arg that was invalid
-#: src/Data/Connection/AbstractConnectionResolver.php:971
+#: src/Data/Connection/AbstractConnectionResolver.php:993
 #, php-format
 msgid "%s must be a positive integer."
 msgstr ""
 
 #. translators: %1$s: The name of the class that should not use a query class. %2$s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1169
+#: src/Data/Connection/AbstractConnectionResolver.php:1196
 #, php-format
 msgid "Class %1$s should not use a query class, but is attempting to use the %2$s query class."
 msgstr ""
 
 #. translators: %s: The connection resolver class name.
-#: src/Data/Connection/AbstractConnectionResolver.php:1181
+#: src/Data/Connection/AbstractConnectionResolver.php:1208
 #, php-format
 msgid "%s requires a query class, but no query class is set."
 msgstr ""
 
 #. translators: %s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1192
+#: src/Data/Connection/AbstractConnectionResolver.php:1219
 #, php-format
 msgid "The query class %s does not exist."
 msgstr ""
 
 #. translators: %1$s: The name of the query class that is set by the resolver. %2$s: The name of the resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:1203
+#: src/Data/Connection/AbstractConnectionResolver.php:1230
 #, php-format
 msgid "The query class %1$s is not compatible with %2$s."
 msgstr ""
 
 #. translators: %s: The name of the method that should be used instead.
-#: src/Data/Connection/AbstractConnectionResolver.php:1576
-#: src/Data/Connection/AbstractConnectionResolver.php:1600
-#: src/Data/Connection/AbstractConnectionResolver.php:1621
-#: src/Data/Connection/AbstractConnectionResolver.php:1646
-#: src/Data/Connection/AbstractConnectionResolver.php:1665
-#: src/Data/Connection/AbstractConnectionResolver.php:1684
-#: src/Data/Connection/AbstractConnectionResolver.php:1703
-#: src/Data/Connection/AbstractConnectionResolver.php:1724
+#: src/Data/Connection/AbstractConnectionResolver.php:1603
+#: src/Data/Connection/AbstractConnectionResolver.php:1627
+#: src/Data/Connection/AbstractConnectionResolver.php:1648
+#: src/Data/Connection/AbstractConnectionResolver.php:1673
+#: src/Data/Connection/AbstractConnectionResolver.php:1692
+#: src/Data/Connection/AbstractConnectionResolver.php:1711
+#: src/Data/Connection/AbstractConnectionResolver.php:1730
+#: src/Data/Connection/AbstractConnectionResolver.php:1751
 #, php-format
 msgid "This will be removed in the next major release. Use %s instead."
 msgstr ""
