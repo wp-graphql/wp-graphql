@@ -201,7 +201,7 @@ In the above examples, the field `cursor` is selected on the `edges`. The cursor
 
 ### Cursors
 
-A cursor is an opaque value. Only pass back a `cursor`, `startCursor` or `endCursor` that WPGraphQL returned, and don't build cursors yourself, since their format isn't part of the API.
+A cursor is an opaque value. Only pass back a `cursor`, `startCursor` or `endCursor` that WPGraphQL returned, and don't build or decode cursors yourself. Their format isn't part of the API: it can change in any release, and that isn't considered a breaking change. A cursor stored from an earlier version, for example in a URL, may not be recognized after an update, and then returns no results.
 
 - A value that isn't a cursor WPGraphQL returned, such as a random string taken from a URL, returns no results: `nodes` and `edges` are empty.
 - A cursor for an item that no longer exists is ignored, and results start from the beginning of the list, the same as with no cursor.
