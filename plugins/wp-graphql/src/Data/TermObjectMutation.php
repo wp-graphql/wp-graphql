@@ -125,6 +125,8 @@ class TermObjectMutation {
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down to all resolvers
 	 *
 	 * @return void
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function update_additional_term_object_data( int $term_id, array $input, WP_Taxonomy $taxonomy, string $mutation_name, AppContext $context, ResolveInfo $info ) {
 
