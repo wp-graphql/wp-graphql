@@ -129,6 +129,9 @@ class SeamlessCloneInterfaceTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAc
 			acf_add_local_field_group( $field_group );
 		} else {
 			acf_import_field_group( $field_group );
+
+			// The import can leave its fields cached as loaded with the clone filter off, so the clone is never expanded.
+			acf_get_store( 'fields' )->reset();
 		}
 
 		$post_id = $this->published_post->ID;
