@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Model;
 
+use WPGraphQL\Data\ConnectorCredentials;
+
 /**
  * Class SettingGroup - Models the data for a settings group
  *
@@ -91,6 +93,9 @@ class SettingGroup extends Model {
 				},
 			];
 
+			// Looked up once per group rather than once per field.
+			$connector_settings = ConnectorCredentials::get_setting_names();
+
 			foreach ( $this->data as $setting_field ) {
 				$field_key = isset( $setting_field['graphql_field_name'] ) ? (string) $setting_field['graphql_field_name'] : '';
 
@@ -99,8 +104,10 @@ class SettingGroup extends Model {
 					continue;
 				}
 
-				$callback = function () use ( $setting_field ) {
-					return $this->resolve_setting_value( $setting_field );
+				$connector_method = ! empty( $setting_field['key'] ) ? ( $connector_settings[ (string) $setting_field['key'] ] ?? null ) : null;
+
+				$callback = function () use ( $setting_field, $connector_method ) {
+					return $this->resolve_setting_value( $setting_field, $connector_method );
 				};
 
 				// A setting carrying `graphql_capability` is declared as a
@@ -128,11 +135,34 @@ class SettingGroup extends Model {
 	 * This is the single value-resolution path for settings; the grouped and
 	 * flat read surfaces both resolve through the model.
 	 *
-	 * @param array<string,mixed> $setting_field The setting entry from the normalized settings map.
+	 * A connector credential setting resolves to null for users who can't
+	 * manage options, whatever capability its entry declares, and is masked
+	 * for everyone else (or null, when the value can't be masked). The mask
+	 * is applied last, after the `graphql_setting_field_value` filter, so no
+	 * callback can return the stored credential.
+	 *
+	 * @param array<string,mixed> $setting_field    The setting entry from the normalized settings map.
+	 * @param ?string             $connector_method The authentication method of the connector storing its credentials in this setting, or null if it isn't a connector credential setting.
 	 *
 	 * @return mixed
 	 */
-	private function resolve_setting_value( array $setting_field ) {
+	private function resolve_setting_value( array $setting_field, ?string $connector_method ) {
+		if ( null !== $connector_method && ! current_user_can( ConnectorCredentials::CAPABILITY ) ) {
+			$field_name = $this->get_model_name() . '.' . ( isset( $setting_field['graphql_field_name'] ) ? (string) $setting_field['graphql_field_name'] : '' );
+
+			graphql_debug(
+				// translators: 1: GraphQL field name, 2: required WordPress capability.
+				sprintf( __( 'The "%1$s" field requires the "%2$s" capability and resolved to null.', 'wp-graphql' ), $field_name, ConnectorCredentials::CAPABILITY ),
+				[
+					'type'                => 'RESTRICTED_FIELD',
+					'field'               => $field_name,
+					'required_capability' => ConnectorCredentials::CAPABILITY,
+				]
+			);
+
+			return null;
+		}
+
 		$option = ! empty( $setting_field['key'] ) ? get_option( (string) $setting_field['key'] ) : null;
 
 		switch ( $setting_field['type'] ?? '' ) {
@@ -177,6 +207,8 @@ class SettingGroup extends Model {
 		 * @hookGroup settings
 		 * @since 2.18.0
 		 */
-		return apply_filters( 'graphql_setting_field_value', $value, $setting_field, $this->group_key );
+		$value = apply_filters( 'graphql_setting_field_value', $value, $setting_field, $this->group_key );
+
+		return null !== $connector_method ? ConnectorCredentials::mask_value( $value, $connector_method ) : $value;
 	}
 }

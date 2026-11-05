@@ -10,6 +10,7 @@ import {
 	importAcfJson,
 	deleteAllAcfFieldGroups,
 	graphqlRequest,
+	graphqlRequestAsAdmin,
 } from '../utils.js';
 import { skipWhenNotAcfPro, isCI } from '../env.js';
 
@@ -64,14 +65,14 @@ const SCHEMA_WAIT_MS = isCI ? 60000 : 15000;
  * Poll GraphQL until a type appears in the schema (or timeout). Use after importing field groups
  * so CI sees the updated schema (avoids timing/cache issues where schema lags behind import).
  * On timeout, throws with a diagnostic summary of the last response (errors, __type) for CI logs.
- * @param request
+ * @param page
  * @param query
  * @param variables
  * @param check
  * @param timeoutMs
  */
 async function waitForSchemaType(
-	request,
+	page,
 	query,
 	variables,
 	check,
@@ -85,14 +86,14 @@ async function waitForSchemaType(
 	let elapsed = 0;
 	let lastRes;
 	while (elapsed < timeoutMs) {
-		lastRes = await graphqlRequest(request, query, variables);
+		lastRes = await graphqlRequestAsAdmin(page, query, variables);
 		if (check(lastRes)) {
 			return;
 		}
 		await new Promise((r) => setTimeout(r, step));
 		elapsed += step;
 	}
-	lastRes = await graphqlRequest(request, query, variables);
+	lastRes = await graphqlRequestAsAdmin(page, query, variables);
 	if (check(lastRes)) {
 		return;
 	}
@@ -117,13 +118,13 @@ describeClone('Clone with repeater (import + schema)', () => {
 	if (isCI) {
 		test.setTimeout(90000);
 	}
-	beforeEach(async ({ page, request }) => {
+	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
 		// Single import: clone-repeater has Flowers, Plants, clone fields. Keeps CI faster and more reliable.
 		await importAcfJson(page, 'acf-export-clone-repeater.json');
 		await waitForSchemaType(
-			request,
+			page,
 			GET_TYPE_QUERY,
 			{ type: 'Flowers' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
@@ -137,10 +138,10 @@ describeClone('Clone with repeater (import + schema)', () => {
 	});
 
 	test('imported field groups show in schema (Flowers + Plants + clone types)', async ({
-		request,
+		page,
 	}) => {
 		// Flowers: from clone-repeater JSON
-		const flowersRes = await graphqlRequest(request, GET_TYPE_QUERY, {
+		const flowersRes = await graphqlRequestAsAdmin(page, GET_TYPE_QUERY, {
 			type: 'Flowers',
 		});
 		expect(flowersRes.data?.__type?.fields?.length).toBeGreaterThan(0);
@@ -154,7 +155,7 @@ describeClone('Clone with repeater (import + schema)', () => {
 		expect(flowersFields).toContain('color');
 
 		// Plants: clone types present (cloneRoots, clonedRepeater)
-		const plantsRes = await graphqlRequest(request, GET_TYPE_QUERY, {
+		const plantsRes = await graphqlRequestAsAdmin(page, GET_TYPE_QUERY, {
 			type: 'Plants',
 		});
 		const plantsFields = (plantsRes.data?.__type?.fields ?? []).map(
@@ -196,13 +197,13 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 	if (isCI) {
 		test.setTimeout(90000);
 	}
-	beforeEach(async ({ page, request }) => {
+	beforeEach(async ({ page }) => {
 		await loginToWordPressAdmin(page);
 		await deleteAllAcfFieldGroups(page);
 		await importAcfJson(page, 'tests-inactive-group-for-cloning.json');
 		await importAcfJson(page, 'tests-acf-pro-kitchen-sink.json');
 		await waitForSchemaType(
-			request,
+			page,
 			GET_TYPE_QUERY,
 			{ type: 'AcfProKitchenSink' },
 			(res) => (res.data?.__type?.fields?.length ?? 0) > 0,
@@ -216,9 +217,9 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 	});
 
 	test('cloned field group applied as interface (AcfProKitchenSink)', async ({
-		request,
+		page,
 	}) => {
-		const res = await graphqlRequest(request, GET_TYPE_QUERY, {
+		const res = await graphqlRequestAsAdmin(page, GET_TYPE_QUERY, {
 			type: 'AcfProKitchenSink',
 		});
 		const fields = (res.data?.__type?.fields ?? []).map((f) => f.name);
@@ -231,9 +232,9 @@ describeClone('Clone fields (cloned group vs individual)', () => {
 	});
 
 	test('cloning individual fields does not apply cloned group as interface', async ({
-		request,
+		page,
 	}) => {
-		const res = await graphqlRequest(request, GET_TYPE_QUERY, {
+		const res = await graphqlRequestAsAdmin(page, GET_TYPE_QUERY, {
 			type: 'AcfProKitchenSinkFlexibleContentLayoutWithClonedGroupLayout',
 		});
 		const fields = (res.data?.__type?.fields ?? []).map((f) => f.name);
@@ -262,11 +263,11 @@ describeClone('Clone group without prefix (issue-172-b)', () => {
 	});
 
 	test('imported field groups show in AcfFieldGroup possibleTypes', async ({
-		request,
+		page,
 	}) => {
 		let res;
 		try {
-			res = await graphqlRequest(request, GET_ACF_FIELD_GROUPS);
+			res = await graphqlRequestAsAdmin(page, GET_ACF_FIELD_GROUPS);
 		} catch (err) {
 			const msg = err?.message ?? '';
 			if (
@@ -334,9 +335,9 @@ describeClone('Clone with group (issue-172 content blocks)', () => {
 	});
 
 	test('imported field groups show in schema (ContentBlocks, layouts, interfaces)', async ({
-		request,
+		page,
 	}) => {
-		let res = await graphqlRequest(request, GET_TYPE_WITH_POSSIBLE_TYPES, {
+		let res = await graphqlRequestAsAdmin(page, GET_TYPE_WITH_POSSIBLE_TYPES, {
 			type: 'ContentBlocks',
 		});
 		const interfaces1 = (res.data?.__type?.interfaces ?? []).map(
@@ -347,7 +348,7 @@ describeClone('Clone with group (issue-172 content blocks)', () => {
 		expect(interfaces1).toContain('ContentBlocks_Fields');
 		expect(fields1).toContain('blocks');
 
-		res = await graphqlRequest(request, GET_TYPE_WITH_POSSIBLE_TYPES, {
+		res = await graphqlRequestAsAdmin(page, GET_TYPE_WITH_POSSIBLE_TYPES, {
 			type: 'ContentBlocksBlocks_Layout',
 		});
 		const possible = (res.data?.__type?.possibleTypes ?? []).map(
@@ -359,7 +360,7 @@ describeClone('Clone with group (issue-172 content blocks)', () => {
 		expect(possible).toContain('ContentBlocksBlocksBrazeCardLayout');
 		expect(possible).toContain('ContentBlocksBlocksPriceComparisonLayout');
 
-		res = await graphqlRequest(request, GET_TYPE_WITH_POSSIBLE_TYPES, {
+		res = await graphqlRequestAsAdmin(page, GET_TYPE_WITH_POSSIBLE_TYPES, {
 			type: 'ContentBlocksBlocksAccordionLayout',
 		});
 		const interfaces2 = (res.data?.__type?.interfaces ?? []).map(
@@ -375,7 +376,7 @@ describeClone('Clone with group (issue-172 content blocks)', () => {
 		expect(interfaces2).toContain('AcfFieldGroupFields');
 		expect(fields2).not.toContain('accordion');
 
-		res = await graphqlRequest(request, GET_TYPE_WITH_POSSIBLE_TYPES, {
+		res = await graphqlRequestAsAdmin(page, GET_TYPE_WITH_POSSIBLE_TYPES, {
 			type: 'ContentBlocksBlocksPriceComparisonLayout',
 		});
 		const interfaces3 = (res.data?.__type?.interfaces ?? []).map(
@@ -408,9 +409,9 @@ describeClone('Clone field on multiple flexible layouts (issue-197)', () => {
 	});
 
 	test('imported field groups show in AcfFieldGroup possibleTypes', async ({
-		request,
+		page,
 	}) => {
-		const res = await graphqlRequest(request, GET_ACF_FIELD_GROUPS);
+		const res = await graphqlRequestAsAdmin(page, GET_ACF_FIELD_GROUPS);
 		expect(res.data?.__type?.name).toBe('AcfFieldGroup');
 		expect(res.data?.__type?.possibleTypes?.length).toBeGreaterThan(0);
 		const possible = (res.data?.__type?.possibleTypes ?? []).map(
