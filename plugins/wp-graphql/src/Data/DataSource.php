@@ -341,6 +341,18 @@ class DataSource {
 	 * grouped settings map) are derived from this single map so a setting cannot
 	 * appear on one surface and not the other.
 	 *
+	 * Who can read each setting is decided here too. A setting included only
+	 * because it is registered with `show_in_rest` (it doesn't declare
+	 * `show_in_graphql`) requires `manage_options` unless it is one of
+	 * WordPress core's own settings (see get_core_setting_names()) or declares
+	 * its own `graphql_capability`. Settings that opt in with
+	 * `show_in_graphql => true` are public unless they declare a
+	 * `graphql_capability`. Connector credential settings always require
+	 * `manage_options` (see ConnectorCredentials). The `graphql_normalized_settings`
+	 * filter runs after these defaults, so a site can change them, except that a
+	 * connector credential setting can't be made readable without
+	 * `manage_options`.
+	 *
 	 * The map is resolvable without a built schema. When a `TypeRegistry` is
 	 * provided (the schema-build path) settings whose declared type has no
 	 * corresponding GraphQL type are excluded, since they can't become fields.
@@ -368,6 +380,8 @@ class DataSource {
 		 * setting doesn't declare `show_in_graphql`.
 		 */
 		$normalized_settings = [];
+		$core_setting_names  = array_flip( self::get_core_setting_names() );
+		$connector_settings  = ConnectorCredentials::get_setting_names();
 		foreach ( $registered_settings as $key => $setting ) {
 			$setting_key = (string) $key;
 
@@ -384,8 +398,27 @@ class DataSource {
 				if ( ! isset( $setting['show_in_rest'] ) || false === $setting['show_in_rest'] ) {
 					continue;
 				}
+
+				// Exposing a setting to the REST API is a decision about the REST
+				// API, where `/wp/v2/settings` requires `manage_options` to read
+				// anything. So a setting that reaches GraphQL only through that
+				// fallback gets the same requirement here, unless it is one of
+				// WordPress core's own settings (which stay public, since front ends
+				// rely on them) or declares its own `graphql_capability`.
+				if ( empty( $setting['graphql_capability'] ) && ! isset( $core_setting_names[ $setting_key ] ) ) {
+					$setting['graphql_capability'] = 'manage_options';
+				}
 			} elseif ( true !== $setting['show_in_graphql'] ) {
 				continue;
+			}
+
+			// Connector credentials require `manage_options` however the setting
+			// was exposed. A capability the setting declares is kept, and enforced
+			// in addition to `manage_options` when the value is read. This is
+			// applied again after the `graphql_normalized_settings` filter, and
+			// here too so the filter's callbacks see it.
+			if ( isset( $connector_settings[ $setting_key ] ) && empty( $setting['graphql_capability'] ) ) {
+				$setting['graphql_capability'] = ConnectorCredentials::CAPABILITY;
 			}
 
 			$setting['key']                      = $setting_key;
@@ -423,8 +456,15 @@ class DataSource {
 		 * seed an entry here, in memory, instead of mutating the global settings registry. Entries
 		 * follow the register_setting() args shape (`group`, `type`, `description`, ...) plus a `key`
 		 * holding the option name, and support WPGraphQL-specific config: `graphql_readonly` (bool)
-		 * rejects updates to the setting through the updateSettings mutation, and `graphql_resolve`
-		 * (callable) normalizes the setting's resolved value.
+		 * rejects updates to the setting through the updateSettings mutation, `graphql_resolve`
+		 * (callable) normalizes the setting's resolved value, and `graphql_capability` (string) is
+		 * the capability required to read the setting.
+		 *
+		 * Entries arrive with their default `graphql_capability` already applied: a setting that is
+		 * in the map only because it is registered with `show_in_rest` carries `manage_options`.
+		 * Removing an entry's `graphql_capability` here makes it public, and setting one restricts
+		 * it. Connector credential settings are the exception: they always require `manage_options`,
+		 * whatever their entry says.
 		 *
 		 * @param array<string,array<string,mixed>>     $normalized_settings The normalized settings map, keyed by option name.
 		 * @param \WPGraphQL\Registry\TypeRegistry|null $type_registry       The WPGraphQL TypeRegistry, or null when the map is resolved without a built schema.
@@ -444,6 +484,14 @@ class DataSource {
 			if ( ! isset( $setting['key'] ) ) {
 				$setting['key']                             = (string) $setting_key;
 				$normalized_settings[ $setting_key ]['key'] = (string) $setting_key;
+			}
+
+			// A filter can't remove the capability from a connector credential
+			// setting. Reading the value also checks `manage_options` (see
+			// SettingGroup::resolve_setting_value()), so this keeps the declared
+			// capability, and the debug message for users without it, accurate.
+			if ( empty( $setting['graphql_capability'] ) && isset( $connector_settings[ (string) $setting['key'] ] ) ) {
+				$normalized_settings[ $setting_key ]['graphql_capability'] = ConnectorCredentials::CAPABILITY;
 			}
 
 			// The base/grouped field name (e.g. `homeUrl`, used on GeneralSettings).
@@ -484,6 +532,67 @@ class DataSource {
 		}
 
 		return Utils::format_field_name( $name );
+	}
+
+	/**
+	 * The option names of WordPress core's own settings, and of the options
+	 * WPGraphQL shims for core (see get_core_shim_settings()).
+	 *
+	 * These keep the visibility they have always had in WPGraphQL: they are
+	 * public, except where get_core_setting_config() restricts one (the
+	 * administrator email). Any other setting that reaches the settings map only
+	 * because it is registered with `show_in_rest` requires `manage_options`
+	 * unless it declares its own `graphql_capability`.
+	 *
+	 * The list is by option name, not by settings group, because plugins can and
+	 * do register their own settings into core's groups (`general`, `reading`,
+	 * ...), and those must not inherit core's public visibility. Option names
+	 * are unique per site, so a name identifies core's setting exactly.
+	 *
+	 * Derived from register_initial_settings() (`siteurl` and `admin_email` are
+	 * registered on single-site only), plus `site_logo` and `site_icon`, which
+	 * core registers alongside its blocks. A test compares the list with
+	 * register_initial_settings() on every WordPress version in the test
+	 * matrix. A setting a later WordPress release adds reads as requiring
+	 * `manage_options` until it's added here, which fails closed.
+	 *
+	 * @return string[]
+	 *
+	 * @since 2.26.1
+	 */
+	protected static function get_core_setting_names(): array {
+		return [
+			// General.
+			'blogname',
+			'blogdescription',
+			'siteurl',
+			'admin_email',
+			'timezone_string',
+			'date_format',
+			'time_format',
+			'start_of_week',
+			'WPLANG',
+			'site_logo',
+			'site_icon',
+			// Writing.
+			'use_smilies',
+			'default_category',
+			'default_post_format',
+			// Reading.
+			'posts_per_page',
+			'show_on_front',
+			'page_on_front',
+			'page_for_posts',
+			'wp_page_for_privacy_policy', // Registered since WordPress 7.2.
+			// Discussion.
+			'default_ping_status',
+			'default_comment_status',
+			// WPGraphQL's shims for options core doesn't register.
+			'home',
+			'permalink_structure',
+			'category_base',
+			'tag_base',
+		];
 	}
 
 	/**

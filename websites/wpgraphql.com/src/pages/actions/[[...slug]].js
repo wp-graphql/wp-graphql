@@ -3,6 +3,7 @@ import { MDXRemote } from "next-mdx-remote"
 import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
 import PrevNext from "components/Docs/PrevNext"
+import Seo from "components/Seo/Seo"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
@@ -35,6 +36,7 @@ export default function ActionDocPage({
   layoutData,
   docSlug,
   hasMarkdownH1,
+  description,
   nav,
 }) {
   const isIndex = docSlug === "actions/index"
@@ -49,6 +51,11 @@ export default function ActionDocPage({
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout toc={toc} docsNavData={docsNavData}>
+        <Seo
+          title={`${currentLabel} - WPGraphQL Developer Reference`}
+          description={source?.frontmatter?.description ?? description ?? null}
+          uri={isIndex ? "/actions" : `/${docSlug}`}
+        />
         <Breadcrumbs items={breadcrumbItems} />
         <div
           id="content-wrapper"
@@ -75,7 +82,8 @@ export async function getStaticProps({ params }) {
   }
 
   try {
-    const { source, toc, hasMarkdownH1 } = await getParsedDoc(docSlug)
+    const { source, toc, hasMarkdownH1, description } =
+      await getParsedDoc(docSlug)
     const docsNavData = getDeveloperReferenceNav()
     const layoutData = await getLayoutData()
 
@@ -98,6 +106,7 @@ export async function getStaticProps({ params }) {
         layoutData,
         docSlug,
         hasMarkdownH1,
+        description,
         nav,
       },
       revalidate: 30,
