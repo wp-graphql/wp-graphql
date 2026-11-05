@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.1...wp-graphql/v2.26.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* return no results for malformed connection cursors ([#4613](https://github.com/wp-graphql/wp-graphql/issues/4613)) ([4bfdecb](https://github.com/wp-graphql/wp-graphql/commit/4bfdecb0bd92a47e92aed91e7e26c5e7ee578a83))
+
 ## [2.26.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.0...wp-graphql/v2.26.1) (2026-11-03)
 
 
