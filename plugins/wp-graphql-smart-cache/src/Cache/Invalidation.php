@@ -249,7 +249,7 @@ class Invalidation {
 		 * @param array<string,mixed> $context          Structured details about the event.
 		 *
 		 * @since 0.2.0
-		 * @since x-release-please-version Added the `$context` parameter.
+		 * @since 2.4.0 Added the `$context` parameter.
 		 *
 		 * @hookGroup caching
 		 */
