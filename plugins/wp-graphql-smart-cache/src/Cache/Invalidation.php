@@ -163,6 +163,8 @@ class Invalidation {
 		$ignored_meta_keys = [
 			// see: https://github.com/wp-graphql/wp-graphql-smart-cache/issues/206
 			'apple_news_notice',
+			// The user's login sessions, written on every login and logout. No query can read them.
+			'session_tokens',
 		];
 
 		$ignored_meta_keys = apply_filters( 'graphql_cache_ignored_meta_keys', $ignored_meta_keys );
