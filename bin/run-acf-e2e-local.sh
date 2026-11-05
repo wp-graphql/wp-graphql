@@ -19,7 +19,7 @@
 # Environment (optional; controls ACF variant and test skips):
 #   INSTALL_ACF_PRO         'true' = ACF Pro, 'false' = ACF Free (default: unset)
 #   INSTALL_ACF_EXTENDED_PRO 'true' = ACF Extended Pro when using ACF Pro (default: unset)
-#   ACF_LICENSE_KEY         From env or plugins/wp-graphql-acf/.env (needed for Pro)
+#   ACF_LICENSE_KEY         From env, plugins/wp-graphql-acf/.env or the root .env (needed for Pro)
 #   ACF_EXTENDED_LICENSE_KEY From env or .env (needed for Extended Pro)
 #
 # Examples (run from repo root):

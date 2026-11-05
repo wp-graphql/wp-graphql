@@ -29,7 +29,7 @@ Filters the loader name. This is the name of the registered DataLoader that will
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:564`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L564)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:586`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L586)
 
 ```php
 apply_filters( 'graphql_connection_loader_name', $name, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_loader_name', $name, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_loader_name()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:564`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L564)
+- `AbstractConnectionResolver::get_loader_name()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:586`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L586)

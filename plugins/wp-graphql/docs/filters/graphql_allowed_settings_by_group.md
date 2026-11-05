@@ -28,7 +28,7 @@ Filter the $allowed_settings_by_group to allow enabling or disabling groups in t
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/DataSource.php:627`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L627)
+- [`plugins/wp-graphql/src/Data/DataSource.php:736`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L736)
 
 ```php
 apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group )
 
 ## Related
 
-- `DataSource::get_allowed_settings_by_group()` in [`plugins/wp-graphql/src/Data/DataSource.php:627`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L627)
+- `DataSource::get_allowed_settings_by_group()` in [`plugins/wp-graphql/src/Data/DataSource.php:736`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L736)

@@ -22,8 +22,13 @@ setup_wp() {
 	# Install test themes (using WP-CLI to get correct slugs, not .latest-stable suffix)
 	if [ "$ENV_NAME" = "tests-cli" ]; then
 		echo "Installing test themes..."
-		npm run wp-env run $ENV_NAME -- wp theme install twentytwentyone --force 2>/dev/null || echo "twentytwentyone already installed"
-		npm run wp-env run $ENV_NAME -- wp theme install twentytwentyfive --force 2>/dev/null || echo "twentytwentyfive already installed"
+		install_test_theme "$ENV_NAME" twentytwentyone || return 1
+		# Twenty Twenty-Five needs WordPress 6.7, and the CI matrix still tests older versions.
+		if npm run --silent wp-env run "$ENV_NAME" -- wp eval 'exit( version_compare( get_bloginfo( "version" ), "6.7", ">=" ) ? 0 : 1 );' 2>/dev/null; then
+			install_test_theme "$ENV_NAME" twentytwentyfive || return 1
+		else
+			echo "Skipping twentytwentyfive, which needs WordPress 6.7 or later."
+		fi
 	fi
 
 	# Activate wp-graphql-smart-cache in tests-cli environment (where all tests run)
@@ -68,6 +73,36 @@ setup_wp() {
 	npm run wp-env run $ENV_NAME -- bash -c 'rm -f /var/www/html/.maintenance 2>/dev/null || true'
 }
 
+
+# Installs a theme from WordPress.org unless it is already installed. The download is retried
+# because one network blip would otherwise leave the theme missing, and the e2e suites activate
+# twentytwentyone in their global setup, which then fails with a message that hides the cause.
+# A theme that still can't be installed fails setup, so `wp-env start` fails here instead.
+#
+# Arguments:
+#   $1 - wp-env Environment Name
+#   $2 - Theme slug
+install_test_theme() {
+	local ENV_NAME="$1"
+	local THEME="$2"
+
+	if npm run --silent wp-env run "$ENV_NAME" -- wp theme is-installed "$THEME" 2>/dev/null; then
+		echo "$THEME already installed"
+		return 0
+	fi
+
+	local attempt
+	for attempt in 1 2 3; do
+		if npm run wp-env run "$ENV_NAME" -- wp theme install "$THEME"; then
+			return 0
+		fi
+		echo "Installing $THEME failed (attempt $attempt of 3)." >&2
+		sleep 5
+	done
+
+	echo "ERROR: Could not install the $THEME theme in $ENV_NAME." >&2
+	return 1
+}
 
 # Install the pdo_mysql extension on the provided container
 # Arguments:
@@ -207,10 +242,14 @@ echo "Installed URL fix mu-plugin"
 
 echo "=== Configuring wp-env for WPGraphQL ==="
 
-# Run setup_wp in parallel for both environments
-setup_wp "cli" &
-setup_wp "tests-cli" &
-wait
+# Set up the two environments one after the other, not in parallel. Every `wp-env` command
+# rewrites the environment's wp-env-cache.json (it reads the file, then overwrites it in place),
+# and treats a file it can't parse as empty. Two `wp-env run` commands at once can read it
+# mid-write: that command fails, or it writes the file back without the marker that says the
+# environment was started, and every command after it fails with "Environment not initialized.
+# Run `wp-env start` first."
+setup_wp "cli" || exit 1
+setup_wp "tests-cli" || exit 1
 
 # Install the URL fix mu-plugin on tests-cli environment
 create_url_fix_mu_plugin

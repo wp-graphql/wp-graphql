@@ -61,7 +61,7 @@ Do not edit manually.
 - **Hook:** `graphql_connection`
   - Severity: warning
   - Message: low_specificity: Hook name has too few semantic segments after prefix.
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1064)
+  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1086)
 - **Hook:** `wp_graphql_experiment_enabled`
   - Severity: warning
   - Message: deprecated_prefix: Hook name uses deprecated prefix "wp_graphql_".

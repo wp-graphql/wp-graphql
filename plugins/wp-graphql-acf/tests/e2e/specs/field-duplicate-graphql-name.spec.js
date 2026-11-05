@@ -12,6 +12,7 @@ import {
 	navigateToFieldGroupEdit,
 	openFieldByKeyAndGraphQLTab,
 	submitFieldGroupForm,
+	graphqlRequestAsAdmin,
 } from '../utils.js';
 
 /**
@@ -36,34 +37,6 @@ const FIELD_GROUP_TYPE_QUERY = `
     }
   }
 `;
-
-/**
- * Runs a GraphQL query as the signed-in admin, from the admin page, so introspection works
- * whatever the site's public introspection and debug settings are.
- *
- * @param {import('@playwright/test').Page} page
- * @param {string}                          query
- * @return {Promise<{ data?: unknown; errors?: unknown }>} The parsed response.
- */
-async function graphqlRequestAsAdmin(page, query) {
-	return page.evaluate(async (graphqlQuery) => {
-		const nonce = await (
-			await fetch('/wp-admin/admin-ajax.php?action=rest-nonce', {
-				credentials: 'same-origin',
-			})
-		).text();
-		const response = await fetch('/graphql', {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-WP-Nonce': nonce,
-			},
-			body: JSON.stringify({ query: graphqlQuery }),
-		});
-		return response.json();
-	}, query);
-}
 
 describe('Duplicating a field in the field group editor', () => {
 	beforeEach(async ({ page }) => {

@@ -30,7 +30,7 @@ If pre-filter hooked, return $pre_pieces.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Config.php:538`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L538)
+- [`plugins/wp-graphql/src/Data/Config.php:544`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L544)
 
 ```php
 apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
@@ -38,4 +38,4 @@ apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, 
 
 ## Related
 
-- `Config::graphql_wp_comments_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:538`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L538)
+- `Config::graphql_wp_comments_query_cursor_pagination_support()` in [`plugins/wp-graphql/src/Data/Config.php:544`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Config.php#L544)

@@ -4,6 +4,7 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use WPGraphQL\AppContext;
+use WPGraphQL\Data\ConnectorCredentials;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Utils\Utils;
@@ -214,6 +215,8 @@ class UpdateSettings {
 			];
 		}
 
+		$connector_settings = ConnectorCredentials::get_setting_names();
+
 		foreach ( $input as $key => $value ) {
 			/**
 			 * Check to see that the input field exists in settings, if so grab the option
@@ -237,7 +240,24 @@ class UpdateSettings {
 				);
 			}
 
-			update_option( $updatable_settings_options[ $key ]['option'], $value );
+			$option_name = (string) $updatable_settings_options[ $key ]['option'];
+
+			/**
+			 * Connector credentials are read back masked, so a client that reads
+			 * settings and saves them back sends the mask. Never let that replace
+			 * the stored credential.
+			 */
+			if ( isset( $connector_settings[ $option_name ] ) ) {
+				$prepared = ConnectorCredentials::prepare_incoming_value( $option_name, $connector_settings[ $option_name ], $value );
+
+				if ( ! $prepared['write'] ) {
+					continue;
+				}
+
+				$value = $prepared['value'];
+			}
+
+			update_option( $option_name, $value );
 		}
 
 		return $updatable_settings_options;

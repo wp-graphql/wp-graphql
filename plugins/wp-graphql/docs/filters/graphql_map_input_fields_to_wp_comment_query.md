@@ -33,7 +33,7 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:304`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L304)
+- [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:655`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L655)
 
 ```php
 apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $arg
 
 ## Related
 
-- `CommentConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:304`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L304)
+- `CommentConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php:655`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/CommentConnectionResolver.php#L655)

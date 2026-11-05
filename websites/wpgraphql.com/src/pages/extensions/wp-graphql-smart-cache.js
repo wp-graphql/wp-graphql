@@ -1,6 +1,7 @@
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 import SiteLayout from "../../components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import Link from "next/link"
 import { Disclosure } from "@headlessui/react"
 import {
@@ -16,6 +17,12 @@ import {
   VisualPanel,
 } from "@/components/extensions/SectionHeading"
 import Constellation from "@/components/extensions/Constellation"
+
+const META = {
+  title: "WPGraphQL Smart Cache - Fast, accurate GraphQL caching",
+  description:
+    "Cache WPGraphQL queries aggressively, then invalidate them precisely, so your API stays fast without ever serving stale data.",
+}
 
 const WP_ORG_URL = "https://wordpress.org/plugins/wpgraphql-smart-cache/"
 // Repo root — issues / security policy live at the monorepo level.
@@ -404,6 +411,11 @@ function WpGraphQLSmartCache({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <SiteLayout>
+        <Seo
+          title={META.title}
+          description={META.description}
+          uri="/extensions/wp-graphql-smart-cache"
+        />
         {/* Sibling-brand scope: rose accent for the page body only.
             The shared SiteHeader/SiteFooter remain WPGraphQL-orange. */}
         <div className="theme-smart-cache">

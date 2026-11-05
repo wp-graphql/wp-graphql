@@ -15,7 +15,7 @@ plugin: wp-graphql
 apply_filters( 'graphql_normalized_settings', $normalized_settings, $type_registry );
 ```
 
-Filter the normalized settings map before the read and mutation surfaces are derived from it. This is the seam for exposing options WordPress never registers via register_setting(): seed an entry here, in memory, instead of mutating the global settings registry. Entries follow the register_setting() args shape (`group`, `type`, `description`, ...) plus a `key` holding the option name, and support WPGraphQL-specific config: `graphql_readonly` (bool) rejects updates to the setting through the updateSettings mutation, and `graphql_resolve` (callable) normalizes the setting's resolved value.
+Filter the normalized settings map before the read and mutation surfaces are derived from it. This is the seam for exposing options WordPress never registers via register_setting(): seed an entry here, in memory, instead of mutating the global settings registry. Entries follow the register_setting() args shape (`group`, `type`, `description`, ...) plus a `key` holding the option name, and support WPGraphQL-specific config: `graphql_readonly` (bool) rejects updates to the setting through the updateSettings mutation, `graphql_resolve` (callable) normalizes the setting's resolved value, and `graphql_capability` (string) is the capability required to read the setting. Entries arrive with their default `graphql_capability` already applied: a setting that is in the map only because it is registered with `show_in_rest` carries `manage_options`. Removing an entry's `graphql_capability` here makes it public, and setting one restricts it. Connector credential settings are the exception: they always require `manage_options`, whatever their entry says.
 
 - **Type:** filter
 - **Group:** Settings and Admin
@@ -29,7 +29,7 @@ Filter the normalized settings map before the read and mutation surfaces are der
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/DataSource.php:435`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L435)
+- [`plugins/wp-graphql/src/Data/DataSource.php:475`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L475)
 
 ```php
 apply_filters( 'graphql_normalized_settings', $normalized_settings, $type_registry );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_normalized_settings', $normalized_settings, $type_regist
 
 ## Related
 
-- `DataSource::get_normalized_settings()` in [`plugins/wp-graphql/src/Data/DataSource.php:435`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L435)
+- `DataSource::get_normalized_settings()` in [`plugins/wp-graphql/src/Data/DataSource.php:475`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/DataSource.php#L475)

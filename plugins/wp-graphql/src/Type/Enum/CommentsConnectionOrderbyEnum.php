@@ -18,7 +18,7 @@ class CommentsConnectionOrderbyEnum {
 				'values'      => [
 					'COMMENT_AGENT'        => [
 						'description' => static function () {
-							return __( 'Order by browser user agent of the commenter.', 'wp-graphql' );
+							return __( 'Order by browser user agent of the commenter. Requires permission to moderate comments; for other users, comments are ordered by date instead.', 'wp-graphql' );
 						},
 						'value'       => 'comment_agent',
 					],
@@ -36,13 +36,13 @@ class CommentsConnectionOrderbyEnum {
 					],
 					'COMMENT_AUTHOR_EMAIL' => [
 						'description' => static function () {
-							return __( 'Order by e-mail of the comment author.', 'wp-graphql' );
+							return __( 'Order by e-mail of the comment author. Requires permission to moderate comments; for other users, comments are ordered by date instead.', 'wp-graphql' );
 						},
 						'value'       => 'comment_author_email',
 					],
 					'COMMENT_AUTHOR_IP'    => [
 						'description' => static function () {
-							return __( 'Order by IP address of the comment author.', 'wp-graphql' );
+							return __( 'Order by IP address of the comment author. Requires permission to moderate comments; for other users, comments are ordered by date instead.', 'wp-graphql' );
 						},
 						'value'       => 'comment_author_IP',
 					],

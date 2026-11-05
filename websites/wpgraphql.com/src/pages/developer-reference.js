@@ -4,6 +4,7 @@ import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
 
 import SiteLayout from "components/Site/SiteLayout"
+import Seo from "components/Seo/Seo"
 import { Eyebrow } from "@/components/extensions/SectionHeading"
 import {
   BoltIcon,
@@ -13,6 +14,12 @@ import {
 import { FaFilter } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+
+const META = {
+  title: "Developer Reference - WPGraphQL",
+  description:
+    "Everything you need to customize WPGraphQL: recipes, actions, filters, and functions for extending the schema and shaping the API.",
+}
 
 const references = [
   {
@@ -49,6 +56,11 @@ export default function DeveloperReference({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <SiteLayout>
+        <Seo
+          title={META.title}
+          description={META.description}
+          uri="/developer-reference"
+        />
         <section className="relative overflow-hidden border-b border-border">
           <div
             aria-hidden="true"

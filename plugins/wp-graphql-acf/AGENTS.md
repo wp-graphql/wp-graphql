@@ -30,6 +30,12 @@ npm run -w @wpgraphql/wp-graphql-acf lint:php        # PHPCS (WordPress Coding S
 npm run -w @wpgraphql/wp-graphql-acf lint:php:stan   # PHPStan
 ```
 
+## Hooks
+
+Every action and filter this plugin adds is named `wpgraphql/acf/<name>`, with a snake_case name (for example `wpgraphql/acf/field_value` or `wpgraphql/acf/should_field_group_show_in_graphql`). New hooks follow the same pattern, not the `graphql_*` prefix the repo-root `AGENTS.md` prefers for core, so the plugin's hooks stay consistent with each other. A related set can share a segment, as `wpgraphql/acf/options_page/show_in_graphql` does.
+
+The rest of the root hook conventions still apply: a complete docblock at the call site (a description, a typed `@param` with a description for each argument, `@since x-release-please-version` for a new hook, and an `@hookGroup` from `scripts/hooks/groups.json`), and the normal deprecation path if a hook has to change. The hook linter and the generated hook docs only cover core today, so nothing checks this automatically here.
+
 ## Reference docs
 
 Additional documentation lives in [`docs/`](docs/).

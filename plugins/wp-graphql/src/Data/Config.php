@@ -39,6 +39,12 @@ class Config {
 		);
 
 		/**
+		 * Filter the comments_clauses in the WP_Comment_Query to search only the comment fields a user can
+		 * read, when the comment connection asks for that.
+		 */
+		add_filter( 'comments_clauses', [ $this, 'graphql_wp_comments_query_visible_fields_search' ], 10, 2 );
+
+		/**
 		 * Filter the WP_Query to support cursor based pagination where a post ID can be used
 		 * as a point of comparison when slicing the results to return.
 		 */
@@ -557,6 +563,41 @@ class Config {
 			$before_cursor    = new CommentObjectCursor( $query->query_vars, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
+
+		return $pieces;
+	}
+
+	/**
+	 * Applies a comment search limited to the author's name and URL and the comment's content.
+	 *
+	 * The comment connection passes the search term as `graphql_search_visible_fields`, in place of
+	 * WP_Comment_Query's own `search`, for users who can't moderate comments: WordPress's search also
+	 * matches the author's email and IP address, which only moderators can see. Otherwise this matches the
+	 * way WP_Comment_Query searches.
+	 *
+	 * @param array<string,mixed> $pieces A compacted array of comment query clauses.
+	 * @param \WP_Comment_Query   $query  Current instance of WP_Comment_Query, passed by reference.
+	 *
+	 * @return array<string,mixed> $pieces
+	 */
+	public function graphql_wp_comments_query_visible_fields_search( array $pieces, WP_Comment_Query $query ) {
+		$search = $query->query_vars['graphql_search_visible_fields'] ?? '';
+
+		if ( ! is_string( $search ) || '' === $search ) {
+			return $pieces;
+		}
+
+		global $wpdb;
+
+		$like     = '%' . $wpdb->esc_like( $search ) . '%';
+		$searches = [];
+
+		foreach ( [ 'comment_author', 'comment_author_url', 'comment_content' ] as $column ) {
+			$searches[] = $wpdb->prepare( "{$wpdb->comments}.{$column} LIKE %s", $like ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The table and column names are not user input.
+		}
+
+		$clause          = '(' . implode( ' OR ', $searches ) . ')';
+		$pieces['where'] = ! empty( $pieces['where'] ) ? $pieces['where'] . ' AND ' . $clause : $clause;
 
 		return $pieces;
 	}

@@ -5,6 +5,7 @@ import DocsLayout from "components/Docs/DocsLayout"
 import Breadcrumbs from "components/Docs/Breadcrumbs"
 import PreviewCard from "components/Preview/PreviewCard"
 import PrevNext from "components/Docs/PrevNext"
+import Seo from "components/Seo/Seo"
 import components from "components/Docs/MdxComponents"
 import { getLayoutData, LayoutProvider } from "lib/wpgraphql-client"
 import "lib/wpgraphql-client-config"
@@ -37,6 +38,9 @@ function slugifyHeading(value) {
       .replace(/-+/g, "-") || "group"
   )
 }
+
+const RECIPES_DESCRIPTION =
+  "WPGraphQL recipes are practical snippets that show how to customize WPGraphQL with actions, filters, and functions."
 
 function RecipesIndex({ layoutData }) {
   const docsNavData = getDeveloperReferenceNav()
@@ -75,6 +79,11 @@ function RecipesIndex({ layoutData }) {
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout docsNavData={docsNavData} toc={toc}>
+        <Seo
+          title="Recipes - WPGraphQL Developer Reference"
+          description={RECIPES_DESCRIPTION}
+          uri="/recipes"
+        />
         <Breadcrumbs
           items={[
             { label: "Developer Reference", href: "/developer-reference" },
@@ -86,10 +95,7 @@ function RecipesIndex({ layoutData }) {
           className="relative z-20 mt-8 max-w-none prose"
         >
           <h1 id="recipes">Recipes</h1>
-          <p>
-            WPGraphQL recipes are practical snippets that show how to customize
-            WPGraphQL with actions, filters, and functions.
-          </p>
+          <p>{RECIPES_DESCRIPTION}</p>
 
           {orderedGroups.map((groupName, groupIndex) => (
             <section key={groupName}>
@@ -152,9 +158,11 @@ function RecipeSingle({
   toc,
   hasMarkdownH1,
   title,
+  description,
   related,
   nav,
   layoutData,
+  uri,
 }) {
   const docsNavData = getDeveloperReferenceNav()
   const hasRelatedApis =
@@ -172,6 +180,11 @@ function RecipeSingle({
   return (
     <LayoutProvider value={layoutData}>
       <DocsLayout docsNavData={docsNavData} toc={pageToc}>
+        <Seo
+          title={`${title} - WPGraphQL Recipes`}
+          description={description}
+          uri={uri}
+        />
         <Breadcrumbs
           items={[
             { label: "Developer Reference", href: "/developer-reference" },
@@ -221,7 +234,9 @@ export async function getStaticProps({ params }) {
   const slug = Array.isArray(slugParts) ? slugParts.join("/") : slugParts
 
   try {
-    const { source, toc, hasMarkdownH1 } = await getParsedDoc(`recipes/${slug}`)
+    const { source, toc, hasMarkdownH1, description } = await getParsedDoc(
+      `recipes/${slug}`
+    )
     const meta =
       recipesIndex?.relations?.byUri?.[normalizeUri(`/recipes/${slug}`)] || null
 
@@ -239,6 +254,8 @@ export async function getStaticProps({ params }) {
         toc,
         hasMarkdownH1,
         title: meta?.title || source?.frontmatter?.title || slug,
+        description: source?.frontmatter?.description ?? description ?? null,
+        uri: `/recipes/${slug}`,
         related: {
           relatedActions: meta?.relatedActions ?? [],
           relatedFilters: meta?.relatedFilters ?? [],
