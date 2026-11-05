@@ -49,11 +49,12 @@ class ColorPickerFieldTest extends \Tests\WPGraphQL\Acf\WPUnit\AcfFieldTestCase 
 		';
 	}
 
+	// Lowercase, because ACF Extended Pro lowercases color picker values when it loads them.
 	public function get_block_data_to_store() {
-		return '#CC0033';
+		return '#cc0033';
 	}
 
 	public function get_expected_block_fragment_response() {
-		return '#CC0033';
+		return '#cc0033';
 	}
 }
