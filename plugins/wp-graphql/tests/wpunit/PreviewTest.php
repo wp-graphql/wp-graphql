@@ -2382,6 +2382,85 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Resolves the post's `postFormats` slugs for the given preview context.
+	 *
+	 * @param array<string,mixed>|null $preview The `extensions.preview` object, or null for none.
+	 *
+	 * @return string[]
+	 */
+	private function get_post_format_slugs_for_preview( ?array $preview ): array {
+		$request = [
+			'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { postFormats { nodes { slug } } } }',
+			'variables' => [ 'id' => $this->post ],
+		];
+
+		if ( null !== $preview ) {
+			$request['extensions'] = [ 'preview' => $preview ];
+		}
+
+		$actual = $this->graphql( $request );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		return wp_list_pluck( $actual['data']['post']['postFormats']['nodes'], 'slug' );
+	}
+
+	/**
+	 * Builds an `extensions.preview` object carrying the given post format.
+	 *
+	 * @param string $post_format The previewed post format.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_post_format_preview( string $post_format ): array {
+		return [
+			'databaseId' => $this->post,
+			'postFormat' => $post_format,
+		];
+	}
+
+	/**
+	 * A previewed `postFormat` overrides the published post format, mirroring how core
+	 * swaps in the `post_format` request param via `_wp_preview_terms_filter()`.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4379
+	 */
+	public function testPreviewPostFormatOverridesPublishedPostFormat() {
+		set_post_format( $this->post, 'aside' );
+		if ( ! get_term_by( 'slug', 'post-format-video', 'post_format' ) ) {
+			wp_insert_term( 'video', 'post_format', [ 'slug' => 'post-format-video' ] );
+		}
+
+		wp_set_current_user( $this->admin );
+
+		// Absent: no override, the published format is used.
+		$this->assertSame( [ 'post-format-aside' ], $this->get_post_format_slugs_for_preview( [ 'databaseId' => $this->post ] ) );
+
+		// A registered format overrides the published one.
+		$this->assertSame( [ 'post-format-video' ], $this->get_post_format_slugs_for_preview( $this->get_post_format_preview( 'video' ) ) );
+
+		// `standard` means no format, so nothing (and not every format term) is returned.
+		$this->assertSame( [], $this->get_post_format_slugs_for_preview( $this->get_post_format_preview( 'standard' ) ) );
+
+		// A value that is not a registered post format resolves as absent.
+		$this->assertSame( [ 'post-format-aside' ], $this->get_post_format_slugs_for_preview( $this->get_post_format_preview( 'bogus' ) ) );
+
+		// The header transport carries the same member as `post_format`.
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, post_format="video"', $this->post );
+		try {
+			$this->assertSame( [ 'post-format-video' ], $this->get_post_format_slugs_for_preview( null ) );
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		// A viewer who cannot edit the post never sees the previewed format.
+		$subscriber = $this->factory()->user->create( [ 'role' => 'subscriber' ] );
+		wp_set_current_user( $subscriber );
+		$this->assertSame( [ 'post-format-aside' ], $this->get_post_format_slugs_for_preview( $this->get_post_format_preview( 'video' ) ) );
+		wp_delete_user( $subscriber );
+	}
+
+	/**
 	 * The `asPreview` argument should be marked deprecated in the schema in favor of the
 	 * preview context.
 	 */
