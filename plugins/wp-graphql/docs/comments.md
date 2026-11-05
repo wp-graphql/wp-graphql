@@ -177,7 +177,29 @@ query GetTrashAndSpamComments {
 }
 ```
 
-For example, the above query would return null for public (non-authenticated) users, but would return comment nodes for authenticated admin users.
+For example, the above query would return no comments for public (non-authenticated) users, but would return comment nodes for authenticated admin users.
+
+### Comment Visibility
+
+Users who can moderate comments (like administrators and editors) can query every comment. In comment lists, everyone else gets approved comments, plus their own comments awaiting moderation, on content they can see:
+
+- **The comments of one item**, like `post { comments }` or `mediaItem { comments }`, are that item's comments. You can only reach the item if you can see it. A comment's `replies` and `parent` are limited to the same content as that comment.
+- **A comments list filtered by `contentId` or `contentIdIn`** returns comments on the content you can see, and nothing for content you can't. A media item counts as visible when the content it's attached to is, and media that isn't attached to anything is visible to everyone.
+- **Any other comments list**, like the root `comments` list or `user { comments }`, returns comments on published content of public content types only. Comments on media items are left out of it, so to show them, query them by item, with `mediaItem { comments }` or `contentId`. This also applies to comment lists that extensions add to other types.
+
+Filters, search and sorting follow the same rule. For users who can't moderate comments:
+
+- `statusIn` and the deprecated `status` only match approved comments: other statuses are ignored, and when none are left, no comments are returned. A logged-in user's own comments awaiting moderation are included in the default query, and whenever `APPROVE` is one of the statuses.
+- `contentStatus` ignores statuses of content that isn't published, and when none are left, no comments are returned.
+- `authorEmail` matches no comments, because the email address itself is only visible to moderators. To find a registered user's comments, filter by `authorIn` or `userId` instead.
+- `search` matches the comment's content and the author's name and URL, but not the author's email or IP address.
+- Ordering by `COMMENT_AUTHOR_EMAIL`, `COMMENT_AUTHOR_IP` or `COMMENT_AGENT` orders by date instead.
+
+Pagination only counts the comments these rules return, so `pageInfo` and cursors only reflect comments the user can see. A cursor that points at a comment the user can't see is ignored, the same way as a cursor that points at a comment that doesn't exist.
+
+### Notes
+
+WordPress 6.9 and later lets editors leave notes on content. Notes are stored as comments of the `note` type, and they're only visible to users who can edit them, in lists and by ID. For users who can't moderate comments, comment lists leave notes out, including when `commentType` or `commentTypeIn` asks for them.
 
 ## Comment Meta
 
@@ -332,7 +354,7 @@ You can also paginate backwards using `last` and `before`:
 ```
 
 > [!TIP]
-> The cursor is an opaque string that represents a comment's position in the list. You should not try to generate cursors manually - always use the cursors returned in the `pageInfo` object.
+> The cursor is an opaque string that represents a comment's position in the list. You should not try to generate cursors manually - always use the cursors returned in the `pageInfo` object. A value that isn't one of these cursors returns no comments. See [Cursors](/docs/connections#cursors).
 
 ## Mutations
 

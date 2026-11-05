@@ -43,6 +43,7 @@ jobs:
       # Add outputs for additional plugins here:
       # wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
+      is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -57,6 +58,21 @@ jobs:
             echo "🔔 Detected Release PR - will run e2e tests for all plugins with e2e tests"
           else
             echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if PR is from a fork
+        id: check-fork-pr
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          # Fork PRs cannot receive secrets (ACF_LICENSE_KEY, ACF_EXTENDED_LICENSE_KEY), so the
+          # wp-graphql-acf job runs only its ACF Free cell for them.
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && { [[ -z "$HEAD_REPO" ]] || [[ "$HEAD_REPO" != "$BASE_REPO" ]]; }; then
+            echo "is-fork-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 PR from fork - wp-graphql-acf e2e will run the ACF Free cell only (secrets not available)"
+          else
+            echo "is-fork-pr=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Detect changed files
@@ -98,6 +114,9 @@ jobs:
               - .github/workflows/js-e2e-tests-reusable.yml
               - .github/workflows/js-e2e-tests.yml
               - plugins/wp-graphql-acf/src/**
+              - plugins/wp-graphql-acf/*.php
+              - plugins/wp-graphql-acf/composer.json
+              - plugins/wp-graphql-acf/composer.lock
               - plugins/wp-graphql-acf/tests/e2e/**
               - plugins/wp-graphql-acf/tests/_data/**
               - plugins/wp-graphql-acf/bin/**
@@ -133,6 +152,7 @@ jobs:
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
           echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
           echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
+          echo "is-fork-pr: ${{ steps.check-fork-pr.outputs.is-fork-pr }}"
 
   # ===========================================
   # WP GRAPHQL
@@ -191,27 +211,23 @@ jobs:
   # ===========================================
   # WP GRAPHQL ACF
   # ===========================================
-  # Tests the WPGraphQL for ACF plugin's Playwright E2E tests.
-  # Skipped in CI for now; run locally: npm run -w @wpgraphql/wp-graphql-acf test:e2e
+  # Tests the WPGraphQL for ACF plugin's Playwright E2E tests, against ACF Free, ACF Pro with
+  # ACF Extended Free, and ACF Pro with ACF Extended Pro. Fork PRs can't use the license
+  # secrets, so they run the ACF Free cell only.
   # ===========================================
 
   wp-graphql-acf:
     name: 'E2E: ${{ matrix.name }}'
     needs: detect-changes
-    if: false # Skip in CI; re-enable when ACF E2E is stable (run locally in the meantime)
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql-acf == 'true' ||
+       needs.detect-changes.outputs.is-release-pr == 'true' ||
+       github.event_name == 'workflow_dispatch')
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: 'wp-graphql-acf / ACF Free'
-            acf_pro: 'false'
-            acf_extended_pro: 'false'
-          - name: 'wp-graphql-acf / ACF Pro, Extended Free'
-            acf_pro: 'true'
-            acf_extended_pro: 'false'
-          - name: 'wp-graphql-acf / ACF Pro, Extended Pro'
-            acf_pro: 'true'
-            acf_extended_pro: 'true'
+        include: ${{ fromJson(needs.detect-changes.outputs.is-fork-pr == 'true' && '[{"name":"wp-graphql-acf / ACF Free","acf_pro":"false","acf_extended_pro":"false"}]' || '[{"name":"wp-graphql-acf / ACF Free","acf_pro":"false","acf_extended_pro":"false"},{"name":"wp-graphql-acf / ACF Pro, Extended Free","acf_pro":"true","acf_extended_pro":"false"},{"name":"wp-graphql-acf / ACF Pro, Extended Pro","acf_pro":"true","acf_extended_pro":"true"}]') }}
     uses: ./.github/workflows/js-e2e-tests-reusable.yml
     secrets: inherit
     with:

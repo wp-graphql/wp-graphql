@@ -1097,11 +1097,11 @@ function get_graphql_admin_notices(): array {
  * notice. The required `sanitize` callback then receives the type-checked value, and its
  * return value is what lands on the context; returning null treats the member as absent.
  *
- * Core's own keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `nonce`)
- * are reserved, and when two extensions register the same name or header key the first
- * registration wins; refused registrations surface a debug notice. Declaring a member
- * grants no access by itself: previewed values only apply for a viewer allowed to preview
- * the post.
+ * Core's own keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`,
+ * `postFormat`, `nonce`) are reserved, and when two extensions register the same name or
+ * header key the first registration wins; refused registrations surface a debug notice.
+ * Declaring a member grants no access by itself: previewed values only apply for a viewer
+ * allowed to preview the post.
  *
  * @param string              $name   The camelCase member name, e.g. `locale`.
  * @param array<string,mixed> $config The member config.

@@ -18,12 +18,13 @@ Send the preview context as an `X-GraphQL-Preview` request header. The value is 
 X-GraphQL-Preview: database_id=123, featured_image_database_id=456, nonce="45d5b05f1b"
 ```
 
-The fields mirror the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `preview_nonce`):
+The fields mirror the query parameters WordPress core adds to a front-end preview URL (`preview_id`, `_thumbnail_id`, `post_format`, `preview_nonce`):
 
 | Header field (`extensions` field)              | Maps to         | Purpose                                                                 |
 | ---------------------------------------------- | --------------- | ----------------------------------------------------------------------- |
 | `database_id` (`databaseId`)                   | `preview_id`    | The database ID of the published post being previewed.                  |
 | `featured_image_database_id` (`featuredImageDatabaseId`) | `_thumbnail_id` | The previewed featured image. `0` means the featured image was removed. |
+| `post_format` (`postFormat`)                   | `post_format`   | The previewed post format (a string, such as `"video"`). `standard` means no format. |
 | `nonce` (`nonce`)                              | `preview_nonce` | Accepted but not verified today; see [The `nonce` field](#the-nonce-field). |
 
 The header value uses Structured Fields (the HTTP standard for structured header values), so its keys are lowercase `snake_case`; the JSON `extensions` fallback below uses the `camelCase` keys shown in parentheses. The header is included in `Access-Control-Allow-Headers`, so cross-origin clients (a headless app on a different domain) can send it.
@@ -96,7 +97,7 @@ This is useful when you want the preview context to travel inside the operation 
 
 ### Which fields are previewable
 
-Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, and resolves the featured image from the request's `featuredImageDatabaseId`.
+Previewing is **opt-in per field**. A field overlays from the revision only when its registration declares it previewable, so identity and structural fields (`id`, `databaseId`, `slug`, `uri`, `status`, `parent`, and so on) always resolve from the published post. Core marks `title`, `content`, and `excerpt` previewable, resolves the featured image from the request's `featuredImageDatabaseId`, and resolves `postFormats` from the request's `postFormat`.
 
 Plugins can opt their own fields into preview resolution via field config:
 
@@ -136,7 +137,7 @@ query Preview($id: ID!) {
 }
 ```
 
-- `isPreview` is `true` only when previewed values are actually overlaid on this node in this request: there is an autosave to overlay from, or a previewed featured image. An authorized preview with nothing to overlay resolves `false`, exactly like a request without preview context.
+- `isPreview` is `true` only when previewed values are actually overlaid on this node in this request: there is an autosave to overlay from, or a previewed featured image or post format. An authorized preview with nothing to overlay resolves `false`, exactly like a request without preview context.
 - `previewRevisionDatabaseId` exposes the overlay source (the autosave the previewed values come from), or `null` when nothing is overlaid.
 
 Because an unauthorized request never applies the overlay, these fields resolve identically to a request without preview context, so they cannot be used to probe for unpublished content.
@@ -187,6 +188,20 @@ query Preview($id: ID!) {
 
 With the preview context set to `{ "databaseId": 123, "featuredImageDatabaseId": 456 }` (via the header or `extensions.preview`), the query above returns attachment `456` as the featured image.
 
+### Previewing the post format
+
+Like the featured image, WordPress core passes the previewed post format as a request parameter (`post_format`) rather than storing it on the autosave. Core only sends it from the classic editor; a headless client can forward its own value either way. When the preview context carries a `postFormat`, the `postFormats` connection resolves from it instead of the published post format:
+
+- an absent `postFormat` means no override, so the published post format is used
+- `standard` means no format, so `postFormats` is empty
+- a value that is not a registered post format is ignored, as if it were absent
+
+```http
+X-GraphQL-Preview: database_id=123, post_format="video"
+```
+
+Other taxonomies (categories, tags, custom taxonomies) resolve from the published post when previewing, as in core: terms are stored against the published post, not the autosave.
+
 ### Adding your own preview context members
 
 An extension that needs a client-supplied preview value core doesn't know about (for example, the locale of the translation being previewed) can register its own member of the preview context:
@@ -209,7 +224,7 @@ The member is then accepted from both transports: as `translationLocale` in `ext
 - **`type`** (required) is one of `integer`, `string`, `boolean` or `inner-list`. An `inner-list` also declares its item type in `items` (`integer`, `string` or `boolean`), for example `[ 'type' => 'inner-list', 'items' => 'integer' ]`, sent as `translation_ids=(1 2)` in the header or `[1, 2]` in JSON.
 - Values must match the declared type exactly; nothing is coerced. A value of the wrong type is discarded, with a `PREVIEW_CONTEXT_MEMBER_INVALID` debug notice naming the key and the expected type.
 - **`sanitize`** (required) runs after the type check and receives the type-checked value. Whatever it returns lands on the context; return `null` to treat the value as absent.
-- Core's keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `nonce`, and their header keys) are reserved and can't be registered. If two extensions register the same name or header key, the first registration wins. Refused registrations surface a `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` debug notice.
+- Core's keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`, and their header keys) are reserved and can't be registered. If two extensions register the same name or header key, the first registration wins. Refused registrations surface a `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` debug notice.
 
 Declaring a member grants no access by itself. As with core's own members, previewed values only apply to a viewer who is allowed to preview the post.
 

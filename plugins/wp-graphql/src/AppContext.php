@@ -90,8 +90,8 @@ class AppContext {
 	 * Null when the request does not carry preview context.
 	 *
 	 * Core's keys are `databaseId` (int), `revisionDatabaseId` (int), `featuredImageDatabaseId`
-	 * (?int) and `nonce` (?string); members registered with register_graphql_preview_context_member()
-	 * are added under their camelCase names.
+	 * (?int), `postFormat` (?string) and `nonce` (?string); members registered with
+	 * register_graphql_preview_context_member() are added under their camelCase names.
 	 *
 	 * @var array<string,mixed>|null
 	 */

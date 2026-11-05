@@ -29,7 +29,7 @@ Filter the pageInfo that is returned to the connection. This filter allows for a
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:827`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L827)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:849`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L849)
 
 ```php
 apply_filters( 'graphql_connection_page_info', $page_info, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_page_info', $page_info, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_page_info()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:827`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L827)
+- `AbstractConnectionResolver::get_page_info()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:849`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L849)

@@ -19,6 +19,7 @@ class Preview {
 		'databaseId'              => 'database_id',
 		'revisionDatabaseId'      => 'revision_database_id',
 		'featuredImageDatabaseId' => 'featured_image_database_id',
+		'postFormat'              => 'post_format',
 		'nonce'                   => 'nonce',
 	];
 
