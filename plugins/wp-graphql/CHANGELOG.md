@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.26.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.1...wp-graphql/v2.26.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* return no results for malformed connection cursors ([#4613](https://github.com/wp-graphql/wp-graphql/issues/4613)) ([4bfdecb](https://github.com/wp-graphql/wp-graphql/commit/4bfdecb0bd92a47e92aed91e7e26c5e7ee578a83))
+
+## [2.26.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.0...wp-graphql/v2.26.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4630](https://github.com/wp-graphql/wp-graphql/issues/4630)) ([c78e619](https://github.com/wp-graphql/wp-graphql/commit/c78e61959fe4d081409b472cbc8a04e4dbe9adc7))
+* **deps:** bump webonyx/graphql-php from 15.38.1 to 15.39.0 in /plugins/wp-graphql ([#4633](https://github.com/wp-graphql/wp-graphql/issues/4633)) ([16729d1](https://github.com/wp-graphql/wp-graphql/commit/16729d1a85033af333d96648a8bf0565d2acaabf))
+* limit comment connection filters and counts to comments the requester can see ([#4642](https://github.com/wp-graphql/wp-graphql/issues/4642)) ([505ba4d](https://github.com/wp-graphql/wp-graphql/commit/505ba4d2314da19cd4b60ecff2854f0acd6c445f))
+* require manage_options to read settings exposed only through the REST API ([#4641](https://github.com/wp-graphql/wp-graphql/issues/4641)) ([fbd40fd](https://github.com/wp-graphql/wp-graphql/commit/fbd40fd7e4197881b1e2932342a93d97b5b4b70b))
+
+## [2.26.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.25.0...wp-graphql/v2.26.0) (2026-10-29)
+
+
+### New Features
+
+* add Site Health recommendations for WPGraphQL security settings ([#4536](https://github.com/wp-graphql/wp-graphql/issues/4536)) ([75d5d1b](https://github.com/wp-graphql/wp-graphql/commit/75d5d1b8d0360a029610948499d1c6c37330bca7))
+* add static to_global_id() helper to models ([#4586](https://github.com/wp-graphql/wp-graphql/issues/4586)) ([6a0a9d6](https://github.com/wp-graphql/wp-graphql/commit/6a0a9d6d883931b13645f061eba4ecad6b292a94))
+* **deps:** bump the npm-prod-minor-patch group with 6 updates ([#4592](https://github.com/wp-graphql/wp-graphql/issues/4592)) ([22810df](https://github.com/wp-graphql/wp-graphql/commit/22810dff5e483e594a4170bd31d32c68c820da7f))
+* let sites opt out of usage tracking from settings ([#4508](https://github.com/wp-graphql/wp-graphql/issues/4508)) ([0e61787](https://github.com/wp-graphql/wp-graphql/commit/0e61787e1278219ee3794e48e6be25c3635610d0))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql ([#4599](https://github.com/wp-graphql/wp-graphql/issues/4599)) ([1fc8e45](https://github.com/wp-graphql/wp-graphql/commit/1fc8e458a66d83b8bfb40d1c46ba83ddbce6cf6d))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 4 updates ([#4601](https://github.com/wp-graphql/wp-graphql/issues/4601)) ([e877515](https://github.com/wp-graphql/wp-graphql/commit/e877515f918f5b00127e44b8020b43bfebf44b49))
+* **deps-dev:** bump the npm-dev-minor-patch group with 8 updates ([#4591](https://github.com/wp-graphql/wp-graphql/issues/4591)) ([bb3c381](https://github.com/wp-graphql/wp-graphql/commit/bb3c3814c87043c18d5f98982310baab6dd46b78))
+* show a readable error when installing or activating an extension fails ([#4568](https://github.com/wp-graphql/wp-graphql/issues/4568)) ([67aab29](https://github.com/wp-graphql/wp-graphql/commit/67aab29e5c17154c80486101c065d06fce3b927d))
+
 ## [2.25.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.24.2...wp-graphql/v2.25.0) (2026-10-20)
 
 

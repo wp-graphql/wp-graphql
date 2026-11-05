@@ -6,6 +6,7 @@ use WPGraphQL\Admin\Extensions\Extensions;
 use WPGraphQL\Admin\GraphiQL\GraphiQL;
 use WPGraphQL\Admin\Settings\Settings;
 use WPGraphQL\Admin\SettingsReview\SettingsReview;
+use WPGraphQL\Admin\SiteHealth\SiteHealth;
 
 /**
  * Class Admin
@@ -42,6 +43,11 @@ class Admin {
 	 * @var \WPGraphQL\Admin\SettingsReview\SettingsReview
 	 */
 	protected $settings_review;
+
+	/**
+	 * @var \WPGraphQL\Admin\SiteHealth\SiteHealth
+	 */
+	protected $site_health;
 
 	/**
 	 * Initialize Admin functionality for WPGraphQL
@@ -106,5 +112,8 @@ class Admin {
 
 		$this->settings_review = new SettingsReview( $this->settings->settings_api );
 		$this->settings_review->init();
+
+		$this->site_health = new SiteHealth();
+		$this->site_health->init();
 	}
 }

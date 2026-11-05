@@ -21,6 +21,8 @@ And each "node" in the Graph can be identified by a unique ID.
 
 In WordPress, IDs are not truly unique. There can be a Post with ID `1`, a User with ID `1`, a Category with ID `1` and a Comment with ID `1`. WPGraphQL generates opaque global IDs for entities by hashing the underlying loader type and the database id. So, objects loaded by the Post loader get a global ID of `base_64_encode( 'post:' . $database_id );`. So, a Post with the database ID of `1` would have a global ID of `cG9zdDox`.
 
+From PHP, each model's static `to_global_id()` method builds the same ID, so you don't need to know which type it encodes. For example, `\WPGraphQL\Model\Post::to_global_id( 1 )` returns `cG9zdDox`, and `\WPGraphQL\Model\Menu::to_global_id( 3 )` encodes the `term` type that menus use.
+
 WPGraphQL allows for a global ID to be passed to the root `node` field, like so:
 
 ```graphql

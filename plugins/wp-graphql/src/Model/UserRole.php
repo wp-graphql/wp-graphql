@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class UserRole - Models data for user roles
  *
@@ -17,6 +15,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class UserRole extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'user_role';
+
 	/**
 	 * UserRole constructor.
 	 *
@@ -64,7 +70,7 @@ class UserRole extends Model {
 					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
 				},
 				'id'           => function () {
-					return Relay::toGlobalId( 'user_role', $this->data['id'] );
+					return self::to_global_id( $this->data['id'] );
 				},
 				'name'         => function () {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;

@@ -48,6 +48,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Allows overriding the default graphql_restrict_endpoint behavior.
 
+- [`graphql_pre_restrict_endpoint`](/filters/graphql_pre_restrict_endpoint)
+
+  Allows overriding the default graphql_restrict_endpoint behavior.
+
 - [`graphql_require_authentication_allowed_fields`](/filters/graphql_require_authentication_allowed_fields)
 
   Filters the allowed root fields

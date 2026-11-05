@@ -39,6 +39,14 @@ use WP_Comment;
  * @extends \WPGraphQL\Model\Model<\WP_Comment>
  */
 class Comment extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'comment';
+
 	/**
 	 * Comment constructor.
 	 *
@@ -81,6 +89,11 @@ class Comment extends Model {
 	 */
 	protected function is_private() {
 		if ( empty( $this->data->comment_post_ID ) ) {
+			return true;
+		}
+
+		// Editorial notes (WordPress 6.9+) are only visible to users who can edit them, as in the REST API.
+		if ( 'note' === $this->data->comment_type && ! current_user_can( 'edit_comment', $this->data->comment_ID ) ) {
 			return true;
 		}
 
@@ -149,7 +162,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
 				},
 				'id'                 => function () {
-					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'comment', (string) $this->databaseId ) : null;
+					return ! empty( $this->databaseId ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'karma'              => function () {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;

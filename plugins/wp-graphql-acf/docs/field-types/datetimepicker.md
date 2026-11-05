@@ -21,7 +21,7 @@ The date and time will be returned in the [RFC3339](https://www.rfc-editor.org/r
 | `No Weekends` |  |  |
 | `Week Starts On` |  |  |
 | `Display Format` | The format displayed when editing a post | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
-| `Return Format` |  |  |
+| `Return Format` | The format returned via template functions | The Return Format does not affect the GraphQL response. The field resolves from the stored date and time, seconds included, and always returns an RFC3339 date string, at the top level and inside repeater and flexible content rows. |
 | `placeholder` | Appears within the input | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `acfe_field_group_condition` | Enable Global Conditional Logic for a specific field, which can then be used in an another Field Group as condition, both as Field Group Condition and Field Condition. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `width` | HTML elements applied to the wrapper of the field in the WordPress admin. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |

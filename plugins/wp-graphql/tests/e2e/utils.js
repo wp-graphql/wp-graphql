@@ -257,3 +257,28 @@ export async function deactivatePlugin(page, slug) {
 		await pluginRow.locator('.deactivate a').click();
 	}
 }
+
+/**
+ * Activates or deactivates a plugin from the Plugins screen.
+ *
+ * The row is found by its plugin file, because every plugin in the same folder shares a slug.
+ *
+ * @param {import('@playwright/test').Page} page       The Playwright page object.
+ * @param {string}                          pluginFile The plugin file, relative to the plugins folder.
+ * @param {boolean}                         active     Whether the plugin should be active.
+ */
+export async function setPluginActive(page, pluginFile, active) {
+	await page.goto(`${wpAdminUrl}/plugins.php`, { waitUntil: 'networkidle' });
+
+	const row = page.locator(`tr[data-plugin="${pluginFile}"]`);
+	const isActive = await row.locator('.deactivate a').isVisible();
+
+	if (isActive !== active) {
+		await row.locator(active ? '.activate a' : '.deactivate a').click();
+		await page.waitForLoadState('networkidle');
+	}
+
+	await expect(
+		row.locator(active ? '.deactivate a' : '.activate a')
+	).toBeVisible();
+}

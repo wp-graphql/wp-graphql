@@ -18,7 +18,7 @@ This allows for the image to be queried as a node of the MediaItem Type, where t
 
 | Setting | Description | Impact on WPGraphQL |
 | --- | --- | --- |
-| `Return Format` |  |  |
+| `Return Format` | Specify the returned value on front end | The Return Format does not affect the GraphQL response. Whether it is set to Image Array, Image URL or Image ID, the field resolves to a connection to a MediaItem, at the top level and inside repeater and flexible content rows, and the client chooses which of the image's fields to ask for. |
 | `acfe_field_group_condition` | Enable Global Conditional Logic for a specific field, which can then be used in an another Field Group as condition, both as Field Group Condition and Field Condition. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `width` | HTML elements applied to the wrapper of the field in the WordPress admin. | This is a presentational field in the WordPress admin and has no impact on the GraphQL Schema or GraphQL resolvers. |
 | `show_in_graphql` | Whether the field should be queryable via GraphQL. NOTE: Changing this to false for existing field can cause a breaking change to the GraphQL Schema. Proceed with caution. | Checking this will expose the field to the GraphQL Schema. NOTE: If a field is added to the GraphQL Schema, then later removed from the Schema, this is considered a breaking change as client applications that were querying for the field would be breaking once it’s been removed from the Schema. |

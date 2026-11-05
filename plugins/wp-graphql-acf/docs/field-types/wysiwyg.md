@@ -69,6 +69,39 @@ add_action( 'acf/include_fields', function() {
 } );
 ```
 
+## How values are formatted
+
+WYSIWYG values are formatted the way ACF formats them for `get_field()`, with its `acf_the_content` filter. That adds paragraphs, and runs shortcodes and embeds. They are not run through WordPress's `the_content` filter, so things other plugins add to post content (sharing buttons, related posts, newsletter forms) are not added to them.
+
+To change how WYSIWYG values are formatted, hook onto `acf_the_content`. It runs for WYSIWYG fields everywhere, including fields in groups, repeaters, flexible content and clones, and in templates that use `get_field()`:
+
+```php
+add_filter( 'acf_the_content', 'my_plugin_add_markup' );
+```
+
+### Block markup
+
+ACF's formatting doesn't render blocks, but WPGraphQL for ACF renders block markup found in a WYSIWYG value the way `the_content` renders it: the blocks are rendered first, and ACF's paragraph formatting then skips the value, so the rendered blocks aren't wrapped in `<p>` tags. Static blocks lose their block comments, and dynamic blocks return their rendered output. This applies to GraphQL responses only, `get_field()` still returns ACF's own formatting.
+
+To return block markup with ACF's formatting only instead, return `false` from the `wpgraphql/acf/wysiwyg/render_blocks` filter:
+
+```php
+add_filter( 'wpgraphql/acf/wysiwyg/render_blocks', '__return_false' );
+```
+
+The filter also receives the field's value, its ACF field config, the root object and the node ID, so it can turn rendering off for specific fields only:
+
+```php
+add_filter(
+	'wpgraphql/acf/wysiwyg/render_blocks',
+	function ( $render_blocks, $value, $field_config ) {
+		return 'my_raw_field' === $field_config['name'] ? false : $render_blocks;
+	},
+	10,
+	3
+);
+```
+
 ## Querying the WYSIWYG field
 
 ```graphql

@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class Plugin - Models the Plugin object
  *
@@ -21,6 +19,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class Plugin extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'plugin';
+
 	/**
 	 * Plugin constructor.
 	 *
@@ -64,7 +70,7 @@ class Plugin extends Model {
 					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
 				'id'          => function () {
-					return ! empty( $this->path ) ? Relay::toGlobalId( 'plugin', $this->path ) : null;
+					return ! empty( $this->path ) ? self::to_global_id( $this->path ) : null;
 				},
 				'name'        => function () {
 					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;

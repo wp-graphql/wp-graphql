@@ -36,4 +36,5 @@ apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint );
 
 ## Related
 
+- `SiteHealth::is_restricted_to_logged_in_users()` in [`plugins/wp-graphql/src/Admin/SiteHealth/SiteHealth.php:311`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Admin/SiteHealth/SiteHealth.php#L311)
 - `RequireAuthentication::isEnabled()` in [`plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php:34`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Server/ValidationRules/RequireAuthentication.php#L34)

@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.1.0) (2026-10-30)
+
+
+### New Features
+
+* **acf:** test and document Secure Custom Fields support ([#4573](https://github.com/wp-graphql/wp-graphql/issues/4573)) ([7aca6b1](https://github.com/wp-graphql/wp-graphql/commit/7aca6b1767e9d7ef29a74fcb60da7f56904583ff))
+
+
+### Bug Fixes
+
+* **acf:** apply field groups located on "All" blocks to every ACF block type ([#4565](https://github.com/wp-graphql/wp-graphql/issues/4565)) ([10db567](https://github.com/wp-graphql/wp-graphql/commit/10db567b7e36b38b19a69fd1a41d07b58d6ca91d))
+* **acf:** don't run WYSIWYG field values through the_content ([#4585](https://github.com/wp-graphql/wp-graphql/issues/4585)) ([cc6bd1f](https://github.com/wp-graphql/wp-graphql/commit/cc6bd1f78d79b99cfb384b53d346e20340a71a11))
+* **acf:** don't warn about unsaved changes after opening a field group ([#4579](https://github.com/wp-graphql/wp-graphql/issues/4579)) ([d601e04](https://github.com/wp-graphql/wp-graphql/commit/d601e049118dd25d929012d5a0d73ce8c4c69dde))
+* **acf:** exclude types matched by "not equal to" location rules ([#4431](https://github.com/wp-graphql/wp-graphql/issues/4431)) ([f113c00](https://github.com/wp-graphql/wp-graphql/commit/f113c0077d6233b0c085fa89ca74fa3e665439e5))
+* **acf:** keep a field group's key and GraphQL settings when saving on ACF before 6.1 ([#4571](https://github.com/wp-graphql/wp-graphql/issues/4571)) ([3f47cee](https://github.com/wp-graphql/wp-graphql/commit/3f47cee2833b15a5c58ac851ebae756f85648c44))
+* **acf:** preserve Date Time Picker seconds and resolve nested row dates from stored values ([#4594](https://github.com/wp-graphql/wp-graphql/issues/4594)) ([954d880](https://github.com/wp-graphql/wp-graphql/commit/954d880385226a3556b8f3d79af3360e7d09cb08))
+* **acf:** render blocks in WYSIWYG values before ACF's wpautop ([#4606](https://github.com/wp-graphql/wp-graphql/issues/4606)) ([1d04129](https://github.com/wp-graphql/wp-graphql/commit/1d041291f7701f7ea8278c60edd24928aa6e7d0c))
+* **acf:** resolve a single "Both (Array)" choice as its value ([#4583](https://github.com/wp-graphql/wp-graphql/issues/4583)) ([f4cf962](https://github.com/wp-graphql/wp-graphql/commit/f4cf962f6374cd1652d992f748e40607d5052e76))
+* **acf:** resolve connection fields nested in repeater, flexible content and group rows ([#4380](https://github.com/wp-graphql/wp-graphql/issues/4380)) ([2a3a064](https://github.com/wp-graphql/wp-graphql/commit/2a3a064fc7c9fa93625183156ab55db744970ed5))
+* **acf:** resolve link fields with the URL return format inside rows ([#4580](https://github.com/wp-graphql/wp-graphql/issues/4580)) ([c0dc6a9](https://github.com/wp-graphql/wp-graphql/commit/c0dc6a95a26a1e924ff1d09d098e3aa18980ffa5))
+* **acf:** resolve stored 0 values as 0 instead of null ([#4581](https://github.com/wp-graphql/wp-graphql/issues/4581)) ([62b4301](https://github.com/wp-graphql/wp-graphql/commit/62b43019fa3cebb89aee061d5c9816a056ad2156))
+* **acf:** stop deprecating fieldGroupName ([#4582](https://github.com/wp-graphql/wp-graphql/issues/4582)) ([90783d6](https://github.com/wp-graphql/wp-graphql/commit/90783d6fde21fd6f14c0e8ecb5367398f82b9900))
+* **acf:** update the Appsero client so telemetry no longer loads translations too early ([#4567](https://github.com/wp-graphql/wp-graphql/issues/4567)) ([e39c2a0](https://github.com/wp-graphql/wp-graphql/commit/e39c2a0dc50dafb2c8e90f9eaec1dd9b881deb01))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4324](https://github.com/wp-graphql/wp-graphql/issues/4324)) ([fb6de5c](https://github.com/wp-graphql/wp-graphql/commit/fb6de5caff22ed7ea3f4828e5a34228b247c7643))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4349](https://github.com/wp-graphql/wp-graphql/issues/4349)) ([9b0e15a](https://github.com/wp-graphql/wp-graphql/commit/9b0e15a59595d916062810028ca9bbe5781e8f53))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4590](https://github.com/wp-graphql/wp-graphql/issues/4590)) ([75b0889](https://github.com/wp-graphql/wp-graphql/commit/75b088980f9453e8759c8fabefc41f819ebae31a))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281)) ([cae29d0](https://github.com/wp-graphql/wp-graphql/commit/cae29d0f0cec12ae3e2a522ce17d46fe46db8712))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-acf ([#4596](https://github.com/wp-graphql/wp-graphql/issues/4596)) ([8ff0058](https://github.com/wp-graphql/wp-graphql/commit/8ff00587bbd9dcb3412e4337b68c3dd45e31e6a2))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.8.0...wp-graphql-acf/v3.0.0) (2026-09-08)
 
 

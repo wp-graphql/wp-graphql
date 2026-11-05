@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
-
 /**
  * Class PostType - Models data for PostTypes
  *
@@ -41,6 +39,14 @@ use GraphQLRelay\Relay;
  * @extends \WPGraphQL\Model\Model<\WP_Post_Type>
  */
 class PostType extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'post_type';
+
 	/**
 	 * PostType constructor.
 	 *
@@ -115,7 +121,7 @@ class PostType extends Model {
 					return true === $this->data->hierarchical || ! empty( $this->data->hierarchical );
 				},
 				'id'                  => function () {
-					return ! empty( $this->name ) ? Relay::toGlobalId( 'post_type', $this->name ) : null;
+					return ! empty( $this->name ) ? self::to_global_id( $this->name ) : null;
 				},
 				// If the homepage settings are to set to
 				'isPostsPage'         => function () {

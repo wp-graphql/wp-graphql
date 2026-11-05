@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use GraphQLRelay\Relay;
 use WP_Comment;
 
 /**
@@ -19,6 +18,14 @@ use WP_Comment;
  * @extends \WPGraphQL\Model\Model<\WP_Comment>
  */
 class CommentAuthor extends Model {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var string
+	 */
+	protected static $global_id_type = 'comment_author';
+
 	/**
 	 * CommentAuthor constructor.
 	 *
@@ -42,7 +49,7 @@ class CommentAuthor extends Model {
 					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'id'         => function () {
-					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'comment_author', (string) $this->databaseId ) : null;
+					return ! empty( $this->databaseId ) ? self::to_global_id( (string) $this->databaseId ) : null;
 				},
 				'name'       => function () {
 					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
