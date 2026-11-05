@@ -41,6 +41,14 @@ class Preview {
 	private static $context_members = [];
 
 	/**
+	 * Whether the request in progress has already read the registered members, so a member
+	 * registered now will not be parsed for it.
+	 *
+	 * @var bool
+	 */
+	private static $context_members_read = false;
+
+	/**
 	 * Registers a third-party member of the request preview context.
 	 *
 	 * See register_graphql_preview_context_member() for the config contract.
@@ -104,6 +112,33 @@ class Preview {
 			'description' => isset( $config['description'] ) && is_string( $config['description'] ) ? $config['description'] : '',
 			'sanitize'    => $config['sanitize'],
 		];
+
+		// The request reads the members before it builds the schema, so a member registered on
+		// `graphql_register_types`, or later, is not parsed for the request in progress.
+		if ( self::$context_members_read ) {
+			graphql_debug(
+				sprintf(
+					/* translators: %s: the preview context member name */
+					__( 'The preview context member `%s` was registered after this request read the preview context, so it is not parsed for this request. Register preview context members on `init` or earlier.', 'wp-graphql' ),
+					$name
+				),
+				[ 'type' => 'PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE' ]
+			);
+		}
+	}
+
+	/**
+	 * Marks whether the request in progress has read the registered preview context members.
+	 *
+	 * The request sets it when it parses the preview context and clears it when it finishes,
+	 * so only a member registered too late for the request in progress surfaces a notice.
+	 *
+	 * @internal
+	 *
+	 * @param bool $read Whether the members have been read.
+	 */
+	public static function set_context_members_read( bool $read ): void {
+		self::$context_members_read = $read;
 	}
 
 	/**

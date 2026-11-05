@@ -407,6 +407,9 @@ class Request {
 	 * @return array<string,mixed>|null
 	 */
 	private function get_preview_context(): ?array {
+		// Registered members are read from here on; one registered later is reported as too late.
+		Preview::set_context_members_read( true );
+
 		$preview = $this->get_preview_input();
 
 		if ( null === $preview ) {
@@ -716,6 +719,8 @@ class Request {
 	 * @return T
 	 */
 	private function after_execute( $response ) {
+		// The request is done with the preview context, so registering a member is in time for the next one.
+		Preview::set_context_members_read( false );
 
 		/**
 		 * Authentication check has been moved to before_execute() as of 2.6.0.

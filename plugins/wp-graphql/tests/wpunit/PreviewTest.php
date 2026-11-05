@@ -82,6 +82,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$members = new \ReflectionProperty( \WPGraphQL\Utils\Preview::class, 'context_members' );
 		$members->setAccessible( true );
 		$members->setValue( null, [] );
+		\WPGraphQL\Utils\Preview::set_context_members_read( false );
 	}
 
 	/**
@@ -304,6 +305,68 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
 		$this->assertContains( 'PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED', $debug_types, 'A refused registration must surface a debug notice' );
+	}
+
+	/**
+	 * A request reads the registered members before it builds the schema, so a member
+	 * registered on `graphql_register_types` is not parsed for that request and a debug
+	 * notice says why. A member registered between requests is in time for the next one.
+	 */
+	public function testPreviewContextMemberRegisteredDuringSchemaBuildSurfacesNotice() {
+		$sanitize = static function ( $value ) {
+			return $value;
+		};
+
+		add_action(
+			'graphql_register_types',
+			static function () use ( $sanitize ) {
+				register_graphql_preview_context_member( 'lateMember', [ 'type' => 'string', 'sanitize' => $sanitize ] );
+			}
+		);
+		$this->register_preview_context_member_field( [ 'lateMember', 'timelyMember' ] );
+		wp_set_current_user( $this->admin );
+
+		$request = function () {
+			return $this->graphql(
+				[
+					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { previewContextMembers } }',
+					'variables'  => [ 'id' => $this->post ],
+					'extensions' => [
+						'preview' => [
+							'databaseId'   => $this->post,
+							'lateMember'   => 'late',
+							'timelyMember' => 'timely',
+						],
+					],
+				]
+			);
+		};
+
+		$actual = $request();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( [], json_decode( $actual['data']['post']['previewContextMembers'], true ), 'A member registered during the schema build is not parsed for that request' );
+		$late_notices = array_filter(
+			$actual['extensions']['debug'] ?? [],
+			static function ( $entry ) {
+				return 'PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE' === ( $entry['type'] ?? null );
+			}
+		);
+		$this->assertCount( 1, $late_notices, 'Registering too late must surface a debug notice' );
+		$this->assertStringContainsString( '`lateMember`', array_values( $late_notices )[0]['message'] );
+
+		// Registered between requests, so in time for the next one, without a notice.
+		register_graphql_preview_context_member( 'timelyMember', [ 'type' => 'string', 'sanitize' => $sanitize ] );
+
+		$actual = $request();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'timely', json_decode( $actual['data']['post']['previewContextMembers'], true )['timelyMember'] );
+		foreach ( $actual['extensions']['debug'] ?? [] as $entry ) {
+			if ( 'PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE' === ( $entry['type'] ?? null ) ) {
+				$this->assertStringNotContainsString( '`timelyMember`', $entry['message'], 'A member registered between requests is not too late' );
+			}
+		}
 	}
 
 	public function get_query() {
