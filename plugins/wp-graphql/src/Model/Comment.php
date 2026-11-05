@@ -92,6 +92,11 @@ class Comment extends Model {
 			return true;
 		}
 
+		// Editorial notes (WordPress 6.9+) are only visible to users who can edit them, as in the REST API.
+		if ( 'note' === $this->data->comment_type && ! current_user_can( 'edit_comment', $this->data->comment_ID ) ) {
+			return true;
+		}
+
 		// if the current user is the author of the comment, the comment should not be private
 		if ( 0 !== wp_get_current_user()->ID && absint( $this->data->user_id ) === absint( wp_get_current_user()->ID ) ) {
 			return false;

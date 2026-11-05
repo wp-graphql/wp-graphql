@@ -560,6 +560,53 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	}
 
 	/**
+	 * The commenter's IP address and user agent are only visible to users who can moderate comments,
+	 * including through the author edge.
+	 */
+	public function testCommentAgentAndIpAddressHiddenFromNonModerators() {
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_author_IP' => '203.0.113.7',
+				'comment_agent'     => 'Test Agent',
+			]
+		);
+
+		$query = '
+		query GetComment( $id: ID! ) {
+			comment( id: $id ) {
+				agent
+				authorIp
+				author {
+					ipAddress
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+		];
+
+		foreach ( [ 0, $this->subscriber ] as $user_id ) {
+			wp_set_current_user( $user_id );
+			$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertNull( $actual['data']['comment']['agent'] );
+			$this->assertNull( $actual['data']['comment']['authorIp'] );
+			$this->assertNull( $actual['data']['comment']['author']['ipAddress'] );
+		}
+
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Test Agent', $actual['data']['comment']['agent'] );
+		$this->assertSame( '203.0.113.7', $actual['data']['comment']['authorIp'] );
+		$this->assertSame( '203.0.113.7', $actual['data']['comment']['author']['ipAddress'] );
+	}
+
+	/**
 	 * Assert that non-approved posts are hidden from users without proper caps
 	 *
 	 * @dataProvider dataProviderSwitchUser
