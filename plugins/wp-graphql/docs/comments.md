@@ -354,7 +354,7 @@ You can also paginate backwards using `last` and `before`:
 ```
 
 > [!TIP]
-> The cursor is an opaque string that represents a comment's position in the list. You should not try to generate cursors manually - always use the cursors returned in the `pageInfo` object.
+> The cursor is an opaque string that represents a comment's position in the list. You should not try to generate cursors manually - always use the cursors returned in the `pageInfo` object. A value that isn't one of these cursors returns no comments. See [Cursors](/docs/connections#cursors).
 
 ## Mutations
 

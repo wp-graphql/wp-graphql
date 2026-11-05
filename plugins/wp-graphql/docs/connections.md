@@ -199,6 +199,33 @@ Because the shape of the queries consist of `edges` and `nodes`, we can query co
 
 In the above examples, the field `cursor` is selected on the `edges`. The cursor is a contextual pointer to where in the specific connection a node exists. It's not a property of the node itself, but a property of the node within the specific connection being queried.
 
+### Cursors
+
+A cursor is an opaque value. Only pass back a `cursor`, `startCursor` or `endCursor` that WPGraphQL returned, and don't build cursors yourself, since their format isn't part of the API.
+
+- A value that isn't a cursor WPGraphQL returned, such as a random string taken from a URL, returns no results: `nodes` and `edges` are empty.
+- A cursor for an item that no longer exists is ignored, and results start from the beginning of the list, the same as with no cursor.
+- An empty string or `null` means no cursor.
+
+Earlier versions of WPGraphQL ignored a value that wasn't a cursor too, and returned the first page. To get that behavior back, remove malformed cursors from the connection's arguments with the `graphql_connection_args` filter:
+
+```php
+add_filter(
+	'graphql_connection_args',
+	static function ( array $args, $resolver ) {
+		foreach ( [ 'after', 'before' ] as $cursor ) {
+			if ( ! empty( $args[ $cursor ] ) && empty( $resolver->get_offset_for_cursor( $args[ $cursor ] ) ) ) {
+				unset( $args[ $cursor ] );
+			}
+		}
+
+		return $args;
+	},
+	10,
+	2
+);
+```
+
 ## Connections? and Edges? and Nodes? Yes Please!!!!
 
 We hope the above explanations clarify why WPGraphQL is built with the Relay specification in mind. Now, go forth and GraphQL!
