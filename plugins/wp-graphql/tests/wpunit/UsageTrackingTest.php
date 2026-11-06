@@ -482,12 +482,16 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_POST['reason_id'] = 'other';
 		$this->requests     = [];
 
-		try {
-			$this->tracker->maybe_uninstall_reason_submission();
-			$this->fail( 'Expected the submission to be rejected when tracking is off.' );
-		} catch ( \WPDieException $e ) {
-			// wp_send_json_error() ends the request before any telemetry is sent.
-		}
+		$this->with_ajax_die_handler(
+			function (): void {
+				try {
+					$this->tracker->maybe_uninstall_reason_submission();
+					$this->fail( 'Expected the submission to be rejected when tracking is off.' );
+				} catch ( \WPDieException $e ) {
+					// wp_send_json_error() ends the request before any telemetry is sent.
+				}
+			}
+		);
 
 		$this->assertSame( [], $this->requests );
 	}
@@ -500,12 +504,16 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->requests       = [];
 		$this->request_bodies = [];
 
-		try {
-			$this->tracker->maybe_uninstall_reason_submission();
-			$this->fail( 'Expected wp_send_json_success to end the request.' );
-		} catch ( \WPDieException $e ) {
-			// Appsero ends with wp_send_json_success().
-		}
+		$this->with_ajax_die_handler(
+			function (): void {
+				try {
+					$this->tracker->maybe_uninstall_reason_submission();
+					$this->fail( 'Expected wp_send_json_success to end the request.' );
+				} catch ( \WPDieException $e ) {
+					// Appsero ends with wp_send_json_success().
+				}
+			}
+		);
 
 		$deactivate_index = null;
 		foreach ( $this->requests as $i => $url ) {
@@ -518,5 +526,31 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotNull( $deactivate_index, 'Expected a deactivate request to Appsero.' );
 		$this->assertSame( 'other', $this->request_bodies[ $deactivate_index ]['reason_id'] ?? null );
 		$this->assertArrayHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
+	}
+
+	/**
+	 * Run a callback with wp_send_json_* ending in WPDieException instead of die().
+	 *
+	 * Outside an AJAX request, wp_send_json_error()/success() call die() and stop the suite.
+	 *
+	 * @param callable():void $callback The callback that may call wp_send_json_*.
+	 */
+	private function with_ajax_die_handler( callable $callback ): void {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter(
+			'wp_die_ajax_handler',
+			static function () {
+				return static function ( $message = '' ): void {
+					throw new \WPDieException( (string) $message );
+				};
+			}
+		);
+
+		try {
+			$callback();
+		} finally {
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_all_filters( 'wp_die_ajax_handler' );
+		}
 	}
 }
