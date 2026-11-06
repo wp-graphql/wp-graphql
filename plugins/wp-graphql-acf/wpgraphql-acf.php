@@ -95,6 +95,42 @@ function graphql_acf_init_appsero_telemetry() {
 
 	// @phpstan-ignore-next-line
 	$insights->init();
+
+	// Gate with this plugin's own Appsero client so an older WPGraphQL (which may already
+	// define UsageTracking without gate_deactivation_feedback) cannot fatal the site.
+	graphql_acf_gate_deactivation_feedback( $insights, $client->slug );
+}
+
+/**
+ * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when this
+ * plugin's `{slug}_allow_tracking` option is opted in.
+ *
+ * @param \Appsero\Insights $insights The initialized Appsero insights instance.
+ * @param string            $slug     The Appsero client slug.
+ */
+function graphql_acf_gate_deactivation_feedback( $insights, string $slug ): void {
+	remove_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] );
+	add_action(
+		'admin_footer',
+		static function () use ( $insights ): void {
+			if ( $insights->tracking_allowed() ) {
+				$insights->deactivate_scripts();
+			}
+		}
+	);
+
+	$ajax_hook = 'wp_ajax_' . $slug . '_submit-uninstall-reason';
+	remove_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] );
+	add_action(
+		$ajax_hook,
+		static function () use ( $insights ): void {
+			if ( ! $insights->tracking_allowed() ) {
+				wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+			}
+
+			$insights->uninstall_reason_submission();
+		}
+	);
 }
 
 graphql_acf_init_appsero_telemetry();

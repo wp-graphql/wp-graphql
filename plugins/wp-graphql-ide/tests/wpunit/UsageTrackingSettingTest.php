@@ -206,4 +206,40 @@ class UsageTrackingSettingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertNotSame( 'yes', get_option( $this->slug . '_allow_tracking' ) );
 		$this->assertFalse( wp_next_scheduled( $this->slug . '_tracker_send_event' ) );
 	}
+
+	/**
+	 * Local gate for when WPGraphQL's UsageTracking lacks gate_deactivation_feedback().
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4510
+	 */
+	public function test_deactivation_feedback_is_gated_by_local_appsero_opt_in(): void {
+		$client   = new \Appsero\Client( 'ide-deactivation-gate-test', 'IDE Gate Test', WPGRAPHQL_IDE_PLUGIN_FILE );
+		$insights = $client->insights();
+		$insights->init();
+
+		\WPGraphQLIDE\Telemetry::gate_deactivation_feedback( $insights, $client->slug );
+
+		$this->assertFalse(
+			has_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] ),
+			'Appsero should no longer render the form unconditionally.'
+		);
+		$this->assertNotFalse(
+			has_action( 'admin_footer' ),
+			'A gated admin_footer callback should still be registered.'
+		);
+
+		$ajax_hook = 'wp_ajax_' . $client->slug . '_submit-uninstall-reason';
+		$this->assertFalse( has_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] ) );
+		$this->assertNotFalse( has_action( $ajax_hook ) );
+
+		delete_option( $client->slug . '_allow_tracking' );
+
+		global $pagenow;
+		$pagenow = 'plugins.php';
+		ob_start();
+		do_action( 'admin_footer' );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Goodbyes are always hard', (string) $output );
+	}
 }

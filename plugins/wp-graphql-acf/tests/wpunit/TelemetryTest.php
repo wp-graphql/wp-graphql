@@ -58,4 +58,41 @@ class TelemetryTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 			'WPGraphQL for ACF should lock the same Appsero client version as WPGraphQL, because the first copy loaded is used by every plugin.'
 		);
 	}
+
+	/**
+	 * Deactivation feedback must be gated by this plugin's own Appsero opt-in, without calling
+	 * WPGraphQL\Admin\UsageTracking::gate_deactivation_feedback() (missing on older WPGraphQL).
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4510
+	 */
+	public function testDeactivationFeedbackIsGatedByLocalAppseroOptIn(): void {
+		$client   = new \Appsero\Client( 'acf-deactivation-gate-test', 'ACF Gate Test', WPGRAPHQL_FOR_ACF_VERSION_PLUGIN_DIR . 'wpgraphql-acf.php' );
+		$insights = $client->insights();
+		$insights->init();
+
+		graphql_acf_gate_deactivation_feedback( $insights, $client->slug );
+
+		$this->assertFalse(
+			has_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] ),
+			'Appsero should no longer render the form unconditionally.'
+		);
+		$this->assertNotFalse(
+			has_action( 'admin_footer' ),
+			'A gated admin_footer callback should still be registered.'
+		);
+
+		$ajax_hook = 'wp_ajax_' . $client->slug . '_submit-uninstall-reason';
+		$this->assertFalse( has_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] ) );
+		$this->assertNotFalse( has_action( $ajax_hook ) );
+
+		delete_option( $client->slug . '_allow_tracking' );
+
+		global $pagenow;
+		$pagenow = 'plugins.php';
+		ob_start();
+		do_action( 'admin_footer' );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Goodbyes are always hard', (string) $output );
+	}
 }
