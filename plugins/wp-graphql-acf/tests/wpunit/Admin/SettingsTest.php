@@ -80,6 +80,18 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 		$this->assertTrue( true, 'add_field_settings with unsupported type should not throw' );
 	}
 
+	/**
+	 * Regression test for wp-graphql/wp-graphql#4661: the "Not supported" message linked to an empty href.
+	 */
+	public function test_add_field_settings_with_unsupported_type_links_to_the_guide(): void {
+		ob_start();
+		$this->settings->add_field_settings( [ 'name' => 'test', 'prefix' => 'acf_fields' ], 'fake_nonexistent_type' );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="https://www.wpgraphql.com/docs/acf/adding-support-for-3rd-party-acf-field-type"', $output );
+		$this->assertStringNotContainsString( 'href=""', $output );
+	}
+
 	public function test_add_field_settings_with_empty_field_type_returns_early(): void {
 		$call_count = 0;
 		add_filter( 'acf/render_field_setting', function () use ( &$call_count ) {

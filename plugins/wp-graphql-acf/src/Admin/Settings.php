@@ -344,8 +344,8 @@ class Settings {
 				'not_supported' => [
 					'type'         => 'message',
 					'label'        => __( 'Not supported in the GraphQL Schema', 'wpgraphql-acf' ),
-					// translators: %s is the name of the ACF Field Type
-					'instructions' => sprintf( __( 'The "%s" Field Type is not set up to map to the GraphQL Schema. If you want to query this field type in the Schema, visit our guide for <a href="" target="_blank" rel="nofollow">adding GraphQL support for additional ACF field types</a>.', 'wpgraphql-acf' ), $field_type ),
+					// translators: %1$s is the name of the ACF Field Type, %2$s is the URL of the guide for adding support for field types
+					'instructions' => sprintf( __( 'The "%1$s" Field Type is not set up to map to the GraphQL Schema. If you want to query this field type in the Schema, visit our guide for <a href="%2$s" target="_blank" rel="nofollow">adding GraphQL support for additional ACF field types</a>.', 'wpgraphql-acf' ), $field_type, esc_url( 'https://www.wpgraphql.com/docs/acf/adding-support-for-3rd-party-acf-field-type' ) ),
 					'conditions'   => [],
 				],
 			];
