@@ -1193,4 +1193,75 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertCount( 1, $calls, 'Only the one successful create may fire the action.' );
 	}
+
+	/**
+	 * An empty description is an explicit request to clear it. Leaving it out keeps it.
+	 */
+	public function testUpdateTermDescription() {
+		$term_id = $this->factory()->category->create(
+			[
+				'name'        => 'A category',
+				'description' => 'The original description',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		mutation UpdateCategory( $input: UpdateCategoryInput! ) {
+			updateCategory( input: $input ) {
+				category {
+					description
+				}
+			}
+		}
+		';
+
+		$id = \GraphQLRelay\Relay::toGlobalId( 'term', (string) $term_id );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'   => $id,
+						'name' => 'A renamed category',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'The original description', $actual['data']['updateCategory']['category']['description'] );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'          => $id,
+						'description' => null,
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'The original description', get_term( $term_id )->description );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'          => $id,
+						'description' => '',
+					],
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( '', get_term( $term_id )->description );
+	}
 }
