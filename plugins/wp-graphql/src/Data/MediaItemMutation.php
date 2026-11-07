@@ -20,12 +20,19 @@ class MediaItemMutation {
 	 * @param array<string,mixed>       $input            The input for the mutation from the GraphQL request
 	 * @param \WP_Post_Type             $post_type_object The post_type_object for the mediaItem (attachment)
 	 * @param string                    $mutation_name    The name of the mutation being performed (create, update, etc.)
-	 * @param array<string,mixed>|false $file             The mediaItem (attachment) file
+	 * @param array<string,mixed>|false $file             The mediaItem (attachment) file, or false when updating an existing mediaItem
 	 *
 	 * @return array<string,mixed>
 	 */
 	public static function prepare_media_item( array $input, WP_Post_Type $post_type_object, string $mutation_name, $file ) {
 		$insert_post_args = [];
+
+		/**
+		 * The args of an update are merged over the stored mediaItem, so anything set here
+		 * overwrites it. The defaults below are only for a new mediaItem. On an update, a field
+		 * left out of the input has to stay left out of the args to keep its stored value.
+		 */
+		$is_update = false === $file;
 
 		/**
 		 * Set the post_type (attachment) for the insert
@@ -50,7 +57,7 @@ class MediaItemMutation {
 
 		if ( ! empty( $input['status'] ) ) {
 			$insert_post_args['post_status'] = $input['status'];
-		} else {
+		} elseif ( ! $is_update ) {
 			$insert_post_args['post_status'] = 'inherit';
 		}
 
@@ -72,13 +79,13 @@ class MediaItemMutation {
 			$insert_post_args['ping_status'] = $input['pingStatus'];
 		}
 
-		if ( ! empty( $input['caption'] ) ) {
+		if ( isset( $input['caption'] ) ) {
 			$insert_post_args['post_excerpt'] = $input['caption'];
 		}
 
-		if ( ! empty( $input['description'] ) ) {
+		if ( isset( $input['description'] ) ) {
 			$insert_post_args['post_content'] = $input['description'];
-		} else {
+		} elseif ( ! $is_update ) {
 			$insert_post_args['post_content'] = '';
 		}
 
@@ -125,7 +132,7 @@ class MediaItemMutation {
 		/**
 		 * Update alt text postmeta for the mediaItem
 		 */
-		if ( ! empty( $input['altText'] ) ) {
+		if ( isset( $input['altText'] ) ) {
 			update_post_meta( $media_item_id, '_wp_attachment_image_alt', $input['altText'] );
 		}
 
