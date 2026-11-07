@@ -36,6 +36,10 @@ class PostObjectMutation {
 		/**
 		 * Prepare the data for inserting the post
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_post/
+		 *
+		 * Fields a client may want to clear or reset check isset() rather than empty(), since
+		 * an empty string or a zero is a value to save. A field that is omitted or null is left
+		 * out of the args, so an update keeps its stored value.
 		 */
 		if ( ! empty( $input['authorId'] ) ) {
 			$insert_post_args['post_author'] = Utils::get_database_id_from_id( $input['authorId'] );
@@ -45,15 +49,15 @@ class PostObjectMutation {
 			$insert_post_args['post_date'] = gmdate( 'Y-m-d H:i:s', strtotime( $input['date'] ) );
 		}
 
-		if ( ! empty( $input['content'] ) ) {
+		if ( isset( $input['content'] ) ) {
 			$insert_post_args['post_content'] = $input['content'];
 		}
 
-		if ( ! empty( $input['title'] ) ) {
+		if ( isset( $input['title'] ) ) {
 			$insert_post_args['post_title'] = $input['title'];
 		}
 
-		if ( ! empty( $input['excerpt'] ) ) {
+		if ( isset( $input['excerpt'] ) ) {
 			$insert_post_args['post_excerpt'] = $input['excerpt'];
 		}
 
@@ -69,7 +73,7 @@ class PostObjectMutation {
 			$insert_post_args['ping_status'] = $input['pingStatus'];
 		}
 
-		if ( ! empty( $input['password'] ) ) {
+		if ( isset( $input['password'] ) ) {
 			$insert_post_args['post_password'] = $input['password'];
 		}
 
@@ -85,11 +89,11 @@ class PostObjectMutation {
 			$insert_post_args['pinged'] = $input['pinged'];
 		}
 
-		if ( ! empty( $input['parentId'] ) ) {
+		if ( isset( $input['parentId'] ) ) {
 			$insert_post_args['post_parent'] = Utils::get_database_id_from_id( $input['parentId'] );
 		}
 
-		if ( ! empty( $input['menuOrder'] ) ) {
+		if ( isset( $input['menuOrder'] ) ) {
 			$insert_post_args['menu_order'] = $input['menuOrder'];
 		}
 
