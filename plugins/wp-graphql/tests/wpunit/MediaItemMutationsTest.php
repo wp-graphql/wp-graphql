@@ -1506,6 +1506,117 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
+	 * An update only changes the fields it was given. Omitting the description or the status
+	 * must not reset them, or changing a title erases the description and exposes a private
+	 * mediaItem.
+	 */
+	public function testUpdateMediaItemKeepsFieldsOmittedFromTheInput() {
+		$media_item_id = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->admin,
+				'post_status'    => 'private',
+				'post_content'   => 'The original description',
+				'post_excerpt'   => 'The original caption',
+			]
+		);
+		update_post_meta( $media_item_id, '_wp_attachment_image_alt', 'The original alt text' );
+
+		wp_set_current_user( $this->admin );
+
+		$this->update_variables = [
+			'input' => [
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_id ),
+				'title' => 'Only the title changes',
+			],
+		];
+
+		$actual = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$media_item = get_post( $media_item_id );
+
+		$this->assertSame( 'Only the title changes', $media_item->post_title );
+		$this->assertSame( 'The original description', $media_item->post_content );
+		$this->assertSame( 'The original caption', $media_item->post_excerpt );
+		$this->assertSame( 'private', $media_item->post_status );
+		$this->assertSame( 'The original alt text', get_post_meta( $media_item_id, '_wp_attachment_image_alt', true ) );
+	}
+
+	/**
+	 * An explicit null is the same as omitting the field, so it leaves the stored value alone.
+	 */
+	public function testUpdateMediaItemTreatsNullAsOmitted() {
+		$media_item_id = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->admin,
+				'post_content'   => 'The original description',
+				'post_excerpt'   => 'The original caption',
+			]
+		);
+		update_post_meta( $media_item_id, '_wp_attachment_image_alt', 'The original alt text' );
+
+		wp_set_current_user( $this->admin );
+
+		$this->update_variables = [
+			'input' => [
+				'id'          => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_id ),
+				'description' => null,
+				'caption'     => null,
+				'altText'     => null,
+			],
+		];
+
+		$actual = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$media_item = get_post( $media_item_id );
+
+		$this->assertSame( 'The original description', $media_item->post_content );
+		$this->assertSame( 'The original caption', $media_item->post_excerpt );
+		$this->assertSame( 'The original alt text', get_post_meta( $media_item_id, '_wp_attachment_image_alt', true ) );
+	}
+
+	/**
+	 * An empty string is an explicit request to clear the field.
+	 */
+	public function testUpdateMediaItemClearsFieldsGivenAnEmptyString() {
+		$media_item_id = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->admin,
+				'post_content'   => 'The original description',
+				'post_excerpt'   => 'The original caption',
+			]
+		);
+		update_post_meta( $media_item_id, '_wp_attachment_image_alt', 'The original alt text' );
+
+		wp_set_current_user( $this->admin );
+
+		$this->update_variables = [
+			'input' => [
+				'id'          => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_id ),
+				'description' => '',
+				'caption'     => '',
+				'altText'     => '',
+			],
+		];
+
+		$actual = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$media_item = get_post( $media_item_id );
+
+		$this->assertSame( '', $media_item->post_content );
+		$this->assertSame( '', $media_item->post_excerpt );
+		$this->assertSame( '', get_post_meta( $media_item_id, '_wp_attachment_image_alt', true ) );
+	}
+
+	/**
 	 * @throws \Exception
 	 */
 	public function testCannotInputPharAsFilePath() {
