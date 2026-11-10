@@ -101,7 +101,9 @@ class UsageTracking {
 	 * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
 	 * Call this after `$insights->init()` so those hooks are replaced.
 	 *
-	 * Extensions that don't register the settings toggle can call this on their own.
+	 * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
+	 * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
+	 * option), since calling a missing method is a fatal error.
 	 *
 	 * @since x-release-please-version
 	 */
