@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.0...wp-graphql-acf/v3.2.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
 ## [3.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.1.0...wp-graphql-acf/v3.2.0) (2026-11-05)
 
 
