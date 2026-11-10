@@ -805,6 +805,65 @@ function register_graphql_settings_field( string $group, array $config ): void {
 }
 
 /**
+ * Registers a product on the Data Sharing tab of the WPGraphQL settings page.
+ *
+ * The Data Sharing tab is where a site chooses what it shares with the WPGraphQL team. A registered
+ * product gets a "Share Usage Data" toggle there, named for the product. The toggle always shows the
+ * product's real opt-in state, Appsero's `{slug}_allow_tracking` option. Checking it opts the site in
+ * and requires the `manage_options` capability. Unchecking it opts the site out and stops the weekly
+ * check-ins, for any user who can save the settings page. Each product's toggle only changes that
+ * product's opt-in state.
+ *
+ * Registering also limits the product's Appsero deactivation feedback form to sites that opted in,
+ * so a product registered here should not gate the form itself as well.
+ *
+ * Call it once per product, after `$insights->init()` and before the `init` action. An extension
+ * loads before or after WPGraphQL depending on its folder name, so check
+ * `function_exists( 'register_graphql_data_sharing_product' )` on `plugins_loaded`, and keep the
+ * extension's own setting when the function doesn't exist (WPGraphQL versions without the tab).
+ *
+ * ```php
+ * add_action( 'plugins_loaded', static function () use ( $client, $insights ) {
+ *     if ( function_exists( 'register_graphql_data_sharing_product' ) ) {
+ *         register_graphql_data_sharing_product(
+ *             $client->slug,
+ *             [
+ *                 'insights' => $insights,
+ *                 'name'     => 'WPGraphQL Smart Cache',
+ *                 'hash'     => $client->hash,
+ *                 'version'  => WPGRAPHQL_SMART_CACHE_VERSION,
+ *             ]
+ *         );
+ *     }
+ * } );
+ * ```
+ *
+ * @param string              $slug   The product's Appsero client slug, the prefix of its Appsero options. Its
+ *                                    toggle is stored as `share_usage_data_{slug}` (the slug passed through
+ *                                    sanitize_key()) in the `graphql_data_sharing_settings` option, as a copy
+ *                                    of the real opt-in state.
+ * @param array<string,mixed> $config The product config: `insights` (required, the initialized Appsero insights
+ *                                    instance), `name` (required, the product name shown on the tab), `hash`
+ *                                    (required, the product's Appsero project hash) and `version` (the
+ *                                    product's version).
+ *
+ * @phpstan-param array{
+ *  insights: \Appsero\Insights,
+ *  name: string,
+ *  hash: string,
+ *  version?: string,
+ * } $config
+ *
+ * @return bool Whether the product was registered. An empty slug, a config with a missing or invalid key, or a
+ *              slug that is already registered is reported with _doing_it_wrong() and not registered.
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_data_sharing_product( string $slug, array $config ): bool {
+	return \WPGraphQL\Admin\DataSharing::register_product( $slug, $config );
+}
+
+/**
  * Registers a step in the WPGraphQL settings review.
  *
  * The settings review walks site administrators through settings and explains the tradeoffs of each.
