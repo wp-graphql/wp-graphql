@@ -67,7 +67,7 @@ WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data
 
 Appsero SDK **does not gather any data by default.** The SDK starts gathering basic telemetry data **only when a user allows it via the admin notice**.
 
-You can stop sharing at any time by unchecking **Share Usage Data: WPGraphQL** under **GraphQL → Settings → Data Sharing**. Opting out stops all further check-ins, including the copies sent to https://telemetry.wpgraphql.com. When you opt out, one final request records the opt-out with Appsero (and its copy at https://telemetry.wpgraphql.com). It includes a hashed identifier for your site, but no site details.
+You can stop sharing at any time by unchecking **Share usage data with the WPGraphQL team** next to **WPGraphQL** under **GraphQL → Settings → Data Sharing**. Opting out stops all further check-ins, including the copies sent to https://telemetry.wpgraphql.com. When you opt out, one final request records the opt-out with Appsero (and its copy at https://telemetry.wpgraphql.com). It includes a hashed identifier for your site, but no site details.
 
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
@@ -81,6 +81,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 2. WPGraphQL settings — configure the GraphQL endpoint, batch queries, query depth limiting, debug mode, and more.
 
 == Upgrade Notice ==
+
+= 2.29.0 =
+
+**Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
 
 = 2.26.2 =
 

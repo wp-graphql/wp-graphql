@@ -44,7 +44,7 @@ class UsageTracking {
 	protected $section;
 
 	/**
-	 * The product name shown in the toggle's description.
+	 * The product name shown in the toggle's description, or as its label on the Data Sharing tab.
 	 *
 	 * @var string
 	 */
@@ -67,13 +67,13 @@ class UsageTracking {
 	/**
 	 * Extensions with their own Appsero client can reuse this class with their own section and name.
 	 *
-	 * Products that share a settings section need a field name each, since the toggle only reads
-	 * and writes its own field. register_graphql_data_sharing_product() picks one per product.
+	 * Plugins that share a settings section need a field name each, since the toggle only reads
+	 * and writes its own field. register_graphql_data_sharing_plugin() picks one per plugin.
 	 *
 	 * @param \Appsero\Insights $insights     The initialized Appsero insights instance.
 	 * @param string            $slug         The Appsero client slug.
 	 * @param string            $section      The settings section to add the toggle to.
-	 * @param string            $product_name The product name shown in the toggle's description.
+	 * @param string            $product_name The product name shown in the toggle's description, or as its label on the Data Sharing tab.
 	 * @param string            $field_name   The name of the toggle's field within the section. Since x-release-please-version.
 	 *
 	 * @since 2.26.0
@@ -172,23 +172,30 @@ class UsageTracking {
 
 	/**
 	 * Register the toggle on the settings page.
+	 *
+	 * On the Data Sharing tab, where every registered plugin has a toggle, the row is labeled with
+	 * the plugin's name and the tab's description says what is shared, once for all of them.
 	 */
 	public function register_field(): void {
+		if ( DataSharing::SECTION === $this->section ) {
+			$label = esc_html( $this->product_name );
+			$desc  = esc_html__( 'Share usage data with the WPGraphQL team', 'wp-graphql' );
+		} else {
+			$label = __( 'Share Usage Data', 'wp-graphql' );
+			$desc  = sprintf(
+				// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
+				__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+				esc_html( $this->product_name ),
+				'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
+			);
+		}
+
 		register_graphql_settings_field(
 			$this->section,
 			[
 				'name'    => $this->field_name,
-				// The Data Sharing tab lists a toggle for every registered product, so each one is named.
-				'label'   => DataSharing::SECTION === $this->section
-					// translators: %s is the product name, such as WPGraphQL.
-					? sprintf( __( 'Share Usage Data: %s', 'wp-graphql' ), $this->product_name )
-					: __( 'Share Usage Data', 'wp-graphql' ),
-				'desc'    => sprintf(
-					// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-					__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
-					esc_html( $this->product_name ),
-					'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
-				),
+				'label'   => $label,
+				'desc'    => $desc,
 				'type'    => 'checkbox',
 				'default' => 'off',
 				// Always show the real opt-in state rather than the stored copy.

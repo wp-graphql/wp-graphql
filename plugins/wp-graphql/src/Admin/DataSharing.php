@@ -5,12 +5,12 @@ namespace WPGraphQL\Admin;
 /**
  * Class DataSharing
  *
- * The Data Sharing tab of the WPGraphQL settings page, and the products registered on it with
- * register_graphql_data_sharing_product().
+ * The Data Sharing tab of the WPGraphQL settings page, and the plugins registered on it with
+ * register_graphql_data_sharing_plugin().
  *
- * Each registered product gets a Share Usage Data toggle on the tab, handled by its own
- * UsageTracking instance with a field name of its own, so a product's toggle only ever changes
- * that product's opt-in state.
+ * Each registered plugin gets a Share Usage Data toggle on the tab, handled by its own
+ * UsageTracking instance with a field name of its own, so a plugin's toggle only ever changes
+ * that plugin's opt-in state.
  *
  * @package WPGraphQL\Admin
  *
@@ -24,35 +24,35 @@ final class DataSharing {
 	public const SECTION = 'graphql_data_sharing_settings';
 
 	/**
-	 * The prefix of each product's Share Usage Data field name. The product's slug follows it.
+	 * The prefix of each plugin's Share Usage Data field name. The plugin's slug follows it.
 	 */
 	public const USAGE_DATA_FIELD_PREFIX = 'share_usage_data_';
 
 	/**
-	 * The registered products, keyed by Appsero client slug.
+	 * The registered plugins, keyed by Appsero client slug.
 	 *
 	 * @var array<string,array{name:string,slug:string,hash:string,version:string,usage_tracking:\WPGraphQL\Admin\UsageTracking}>
 	 */
-	private static $products = [];
+	private static $plugins = [];
 
 	/**
-	 * Registers a product. See register_graphql_data_sharing_product() for the config.
+	 * Registers a plugin. See register_graphql_data_sharing_plugin() for the config.
 	 *
-	 * @param string              $slug   The product's Appsero client slug.
-	 * @param array<string,mixed> $config The product config.
+	 * @param string              $slug   The plugin's Appsero client slug.
+	 * @param array<string,mixed> $config The plugin config.
 	 *
-	 * @return bool Whether the product was registered.
+	 * @return bool Whether the plugin was registered.
 	 */
-	public static function register_product( string $slug, array $config ): bool {
+	public static function register_plugin( string $slug, array $config ): bool {
 		$field_name = self::get_usage_data_field_name( $slug );
 
 		if ( self::USAGE_DATA_FIELD_PREFIX === $field_name ) {
-			self::doing_it_wrong( __( 'A data sharing product needs the slug of its Appsero client.', 'wp-graphql' ) );
+			self::doing_it_wrong( __( 'A data sharing plugin needs the slug of its Appsero client.', 'wp-graphql' ) );
 			return false;
 		}
 
 		if ( ! isset( $config['insights'] ) || ! $config['insights'] instanceof \Appsero\Insights ) {
-			self::doing_it_wrong( __( 'A data sharing product needs its initialized Appsero insights instance as "insights".', 'wp-graphql' ) );
+			self::doing_it_wrong( __( 'A data sharing plugin needs its initialized Appsero insights instance as "insights".', 'wp-graphql' ) );
 			return false;
 		}
 
@@ -61,7 +61,7 @@ final class DataSharing {
 				self::doing_it_wrong(
 					sprintf(
 						// translators: %s is the name of the missing config key.
-						__( 'A data sharing product needs "%s".', 'wp-graphql' ),
+						__( 'A data sharing plugin needs "%s".', 'wp-graphql' ),
 						$required
 					)
 				);
@@ -70,17 +70,17 @@ final class DataSharing {
 		}
 
 		if ( isset( $config['version'] ) && ! is_string( $config['version'] ) ) {
-			self::doing_it_wrong( __( 'A data sharing product\'s "version" must be a string.', 'wp-graphql' ) );
+			self::doing_it_wrong( __( 'A data sharing plugin\'s "version" must be a string.', 'wp-graphql' ) );
 			return false;
 		}
 
 		// Two slugs that sanitize to the same key would share one field, and one toggle.
-		foreach ( self::$products as $product ) {
-			if ( $product['usage_tracking']->get_field_name() === $field_name ) {
+		foreach ( self::$plugins as $plugin ) {
+			if ( $plugin['usage_tracking']->get_field_name() === $field_name ) {
 				self::doing_it_wrong(
 					sprintf(
 						// translators: %s is the Appsero client slug.
-						__( 'A data sharing product with the slug "%s" is already registered.', 'wp-graphql' ),
+						__( 'A data sharing plugin with the slug "%s" is already registered.', 'wp-graphql' ),
 						$slug
 					)
 				);
@@ -91,12 +91,12 @@ final class DataSharing {
 		$usage_tracking = new UsageTracking( $config['insights'], $slug, self::SECTION, $config['name'], $field_name );
 		$usage_tracking->init();
 
-		if ( empty( self::$products ) ) {
+		if ( empty( self::$plugins ) ) {
 			// After the sections registered at the default priority, so Data Sharing is the last tab.
 			add_action( 'graphql_init_settings', [ self::class, 'register_section' ], 100 );
 		}
 
-		self::$products[ $slug ] = [
+		self::$plugins[ $slug ] = [
 			'name'           => $config['name'],
 			'slug'           => $slug,
 			'hash'           => $config['hash'],
@@ -108,18 +108,18 @@ final class DataSharing {
 	}
 
 	/**
-	 * The registered products, keyed by Appsero client slug, in the order they were registered.
+	 * The registered plugins, keyed by Appsero client slug, in the order they were registered.
 	 *
 	 * @return array<string,array{name:string,slug:string,hash:string,version:string,usage_tracking:\WPGraphQL\Admin\UsageTracking}>
 	 */
-	public static function get_products(): array {
-		return self::$products;
+	public static function get_registered_plugins(): array {
+		return self::$plugins;
 	}
 
 	/**
-	 * The name of a product's Share Usage Data field in the Data Sharing section.
+	 * The name of a plugin's Share Usage Data field in the Data Sharing section.
 	 *
-	 * @param string $slug The product's Appsero client slug.
+	 * @param string $slug The plugin's Appsero client slug.
 	 */
 	public static function get_usage_data_field_name( string $slug ): string {
 		return self::USAGE_DATA_FIELD_PREFIX . sanitize_key( $slug );
@@ -128,7 +128,7 @@ final class DataSharing {
 	/**
 	 * Registers the Data Sharing tab.
 	 *
-	 * Hooked to `graphql_init_settings` once a product is registered, so the tab never shows empty.
+	 * Hooked to `graphql_init_settings` once a plugin is registered, so the tab never shows empty.
 	 *
 	 * @param \WPGraphQL\Admin\Settings\SettingsRegistry $registry The settings registry.
 	 */
@@ -137,9 +137,26 @@ final class DataSharing {
 			self::SECTION,
 			[
 				'title' => __( 'Data Sharing', 'wp-graphql' ),
-				'desc'  => __( 'Choose what this site shares with the WPGraphQL team. These settings don\'t change how WPGraphQL works on your site.', 'wp-graphql' ),
+				'desc'  => self::get_section_description(),
 			]
 		);
+	}
+
+	/**
+	 * The Data Sharing tab's description: what the toggles send, said once for every plugin on the tab.
+	 */
+	public static function get_section_description(): string {
+		// SettingsRegistry::admin_init() puts a backslash before every double quote in a section description,
+		// so the link's attributes use single quotes.
+		$learn_more = "<a href='https://appsero.com/privacy-policy/' target='_blank' rel='noopener noreferrer'>" . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>';
+
+		return '<p>' . esc_html__( 'Choose what this site shares with the WPGraphQL team. These settings don\'t change how WPGraphQL works on your site.', 'wp-graphql' ) . '</p>'
+			. '<p>' . sprintf(
+				// translators: %s is a link to the privacy policy of the telemetry provider.
+				esc_html__( 'A plugin whose box is checked sends details about this site to help guide its development, once when the box is checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck a plugin\'s box to stop sharing for it at any time. %s', 'wp-graphql' ),
+				$learn_more
+			) . '</p>'
+			. '<p>' . esc_html__( 'While a plugin is opted in, deactivating it from the Plugins screen may show a form asking why. Submitting it sends that reason with the same site details as a check-in.', 'wp-graphql' ) . '</p>';
 	}
 
 	/**
@@ -169,6 +186,6 @@ final class DataSharing {
 	 * @param string $message The reason.
 	 */
 	private static function doing_it_wrong( string $message ): void {
-		_doing_it_wrong( 'register_graphql_data_sharing_product', esc_html( $message ), 'x-release-please-version' );
+		_doing_it_wrong( 'register_graphql_data_sharing_plugin', esc_html( $message ), 'x-release-please-version' );
 	}
 }

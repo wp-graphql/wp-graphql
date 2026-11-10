@@ -4,19 +4,19 @@ use WPGraphQL\Admin\DataSharing;
 use WPGraphQL\Admin\UsageTracking;
 
 /**
- * Tests the Data Sharing settings tab and register_graphql_data_sharing_product().
+ * Tests the Data Sharing settings tab and register_graphql_data_sharing_plugin().
  */
 class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	/**
-	 * The products registered before the test, restored afterwards.
+	 * The plugins registered before the test, restored afterwards.
 	 *
 	 * @var array<string,mixed>
 	 */
-	private $registered_products;
+	private $registered_plugins;
 
 	/**
-	 * The Appsero clients of the products the test registered, keyed by slug.
+	 * The Appsero clients of the plugins the test registered, keyed by slug.
 	 *
 	 * @var array<string,\Appsero\Client>
 	 */
@@ -39,7 +39,7 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->registered_products = $this->get_products_property()->getValue();
+		$this->registered_plugins = $this->get_plugins_property()->getValue();
 
 		add_filter( 'pre_http_request', [ $this, 'record_request' ], 1, 3 );
 
@@ -52,13 +52,13 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function tearDown(): void {
 		remove_filter( 'pre_http_request', [ $this, 'record_request' ], 1 );
 
-		// Unhook only the products this test registered, then put the registry back as it was.
-		foreach ( DataSharing::get_products() as $slug => $product ) {
-			if ( ! isset( $this->registered_products[ $slug ] ) ) {
-				$this->unhook( $product['usage_tracking'], $slug );
+		// Unhook only the plugins this test registered, then put the registry back as it was.
+		foreach ( DataSharing::get_registered_plugins() as $slug => $plugin ) {
+			if ( ! isset( $this->registered_plugins[ $slug ] ) ) {
+				$this->unhook( $plugin['usage_tracking'], $slug );
 			}
 		}
-		$this->get_products_property()->setValue( null, $this->registered_products );
+		$this->get_plugins_property()->setValue( null, $this->registered_plugins );
 
 		foreach ( array_keys( $this->clients ) as $slug ) {
 			delete_option( $slug . '_allow_tracking' );
@@ -76,8 +76,8 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
-	private function get_products_property(): \ReflectionProperty {
-		$property = new \ReflectionProperty( DataSharing::class, 'products' );
+	private function get_plugins_property(): \ReflectionProperty {
+		$property = new \ReflectionProperty( DataSharing::class, 'plugins' );
 		$property->setAccessible( true );
 
 		return $property;
@@ -117,7 +117,7 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Creates an Appsero client for a test product.
+	 * Creates an Appsero client for a test plugin.
 	 *
 	 * Appsero takes the slug from the plugin's folder name and reads the plugin file's header, so a
 	 * placeholder plugin file is written for it and removed after the test.
@@ -143,12 +143,12 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Registers a test product and returns its Appsero client.
+	 * Registers a test plugin and returns its Appsero client.
 	 */
-	private function register_test_product( string $file_slug, string $name ): \Appsero\Client {
+	private function register_test_plugin( string $file_slug, string $name ): \Appsero\Client {
 		$client = $this->create_client( $file_slug, $file_slug . '-hash' );
 
-		$registered = register_graphql_data_sharing_product(
+		$registered = register_graphql_data_sharing_plugin(
 			$client->slug,
 			[
 				'insights' => $client->insights(),
@@ -179,9 +179,9 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Registers the fields the way the settings page does, and returns the registry.
 	 */
 	private function init_settings(): \WPGraphQL\Admin\Settings\SettingsRegistry {
-		foreach ( DataSharing::get_products() as $slug => $product ) {
-			if ( ! isset( $this->registered_products[ $slug ] ) ) {
-				$product['usage_tracking']->register_field();
+		foreach ( DataSharing::get_registered_plugins() as $slug => $plugin ) {
+			if ( ! isset( $this->registered_plugins[ $slug ] ) ) {
+				$plugin['usage_tracking']->register_field();
 			}
 		}
 
@@ -208,36 +208,36 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * The slug WPGraphQL registered itself with, which is its folder name.
 	 */
 	private function core_slug(): string {
-		foreach ( $this->registered_products as $slug => $product ) {
-			if ( 'cd0d1172-95a0-4460-a36a-2c303807c9ef' === $product['hash'] ) {
+		foreach ( $this->registered_plugins as $slug => $plugin ) {
+			if ( 'cd0d1172-95a0-4460-a36a-2c303807c9ef' === $plugin['hash'] ) {
 				return $slug;
 			}
 		}
 
-		$this->fail( 'WPGraphQL did not register itself as a data sharing product.' );
+		$this->fail( 'WPGraphQL did not register itself as a data sharing plugin.' );
 	}
 
-	public function testRegisteringAProductRecordsItsConfig(): void {
-		$client = $this->register_test_product( 'data-sharing-a', 'Product A' );
+	public function testRegisteringAPluginRecordsItsConfig(): void {
+		$client = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
 
-		$product = DataSharing::get_products()[ $client->slug ];
+		$plugin = DataSharing::get_registered_plugins()[ $client->slug ];
 
-		$this->assertSame( 'Product A', $product['name'] );
-		$this->assertSame( $client->slug, $product['slug'] );
-		$this->assertSame( 'data-sharing-a-hash', $product['hash'] );
-		$this->assertSame( '1.2.3', $product['version'] );
-		$this->assertSame( 'share_usage_data_data-sharing-a', $product['usage_tracking']->get_field_name() );
+		$this->assertSame( 'Plugin A', $plugin['name'] );
+		$this->assertSame( $client->slug, $plugin['slug'] );
+		$this->assertSame( 'data-sharing-a-hash', $plugin['hash'] );
+		$this->assertSame( '1.2.3', $plugin['version'] );
+		$this->assertSame( 'share_usage_data_data-sharing-a', $plugin['usage_tracking']->get_field_name() );
 	}
 
-	public function testARegisteredProductGetsANamedToggleOnTheDataSharingTab(): void {
-		$client = $this->register_test_product( 'data-sharing-a', 'Product A' );
+	public function testARegisteredPluginGetsARowNamedForItOnTheDataSharingTab(): void {
+		$client = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
 		update_option( $client->slug . '_allow_tracking', 'yes' );
 
 		$field = $this->find_field( $this->init_settings(), DataSharing::SECTION, $this->field_name( $client ) );
 
 		$this->assertSame( 'checkbox', $field['type'] );
-		$this->assertSame( 'Share Usage Data: Product A', $field['label'] );
-		$this->assertStringContainsString( 'Product A development', $field['desc'] );
+		$this->assertSame( 'Plugin A', $field['label'] );
+		$this->assertSame( 'Share usage data with the WPGraphQL team', $field['desc'] );
 		$this->assertSame( 'on', $field['value'] );
 	}
 
@@ -252,8 +252,40 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( DataSharing::SECTION, array_key_last( $sections ) );
 	}
 
+	public function testTheTabDescribesWhatIsSharedOnceForEveryPlugin(): void {
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
+		$this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
+		$this->register_test_plugin( 'data-sharing-b', 'Plugin B' );
+
+		// Render the tab the way the settings page does, through the section's kses filtering.
+		$registry = $this->init_settings();
+		$registry->admin_init();
+
+		ob_start();
+		do_settings_sections( DataSharing::SECTION );
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'Choose what this site shares with the WPGraphQL team.', $output );
+		$this->assertStringContainsString( 'and then about once a week: server environment and WordPress version', $output );
+		$this->assertStringContainsString( 'admin email address and an administrator', $output );
+		$this->assertStringContainsString( 'sign anyone up for emails', $output );
+		$this->assertStringContainsString( 'box to stop sharing for it at any time.', $output );
+		$this->assertStringContainsString( 'deactivating it from the Plugins screen may show a form asking why', $output );
+		$this->assertStringContainsString( 'Submitting it sends that reason with the same site details as a check-in.', $output );
+		$this->assertMatchesRegularExpression( '#<a href="https://appsero\.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Learn more</a>#', $output );
+
+		// The disclosure is said once, not once per plugin.
+		$this->assertSame( 1, substr_count( $output, 'about once a week' ) );
+
+		// Each plugin's row is its name and the short checkbox text.
+		$this->assertStringContainsString( 'Plugin A', $output );
+		$this->assertStringContainsString( 'Plugin B', $output );
+		$this->assertGreaterThanOrEqual( 2, substr_count( $output, 'Share usage data with the WPGraphQL team' ) );
+	}
+
 	public function testCoreToggleIsOnTheDataSharingTab(): void {
-		$core = $this->registered_products[ $this->core_slug() ];
+		$core = $this->registered_plugins[ $this->core_slug() ];
 
 		$this->assertSame( 'WPGraphQL', $core['name'] );
 		$this->assertSame( WPGRAPHQL_VERSION, $core['version'] );
@@ -262,7 +294,7 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		do_action( 'graphql_init_settings', $registry );
 
 		$field = $this->find_field( $registry, DataSharing::SECTION, DataSharing::get_usage_data_field_name( $this->core_slug() ) );
-		$this->assertSame( 'Share Usage Data: WPGraphQL', $field['label'] );
+		$this->assertSame( 'WPGraphQL', $field['label'] );
 
 		$general = wp_list_pluck( $registry->get_settings_fields()['graphql_general_settings'] ?? [], 'name' );
 		$this->assertNotContains( UsageTracking::FIELD_NAME, $general );
@@ -282,9 +314,9 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'GraphQL → Settings → Data Sharing', $output );
 	}
 
-	public function testEachToggleOnlyChangesItsOwnProduct(): void {
-		$a = $this->register_test_product( 'data-sharing-a', 'Product A' );
-		$b = $this->register_test_product( 'data-sharing-b', 'Product B' );
+	public function testEachToggleOnlyChangesItsOwnPlugin(): void {
+		$a = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
+		$b = $this->register_test_plugin( 'data-sharing-b', 'Plugin B' );
 
 		// The settings form posts every toggle on the tab.
 		update_option(
@@ -334,9 +366,9 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 	}
 
-	public function testOptingOutOfOneProductElsewhereOnlyUpdatesItsOwnStoredToggle(): void {
-		$a = $this->register_test_product( 'data-sharing-a', 'Product A' );
-		$b = $this->register_test_product( 'data-sharing-b', 'Product B' );
+	public function testOptingOutOfOnePluginElsewhereOnlyUpdatesItsOwnStoredToggle(): void {
+		$a = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
+		$b = $this->register_test_plugin( 'data-sharing-b', 'Plugin B' );
 
 		update_option(
 			DataSharing::SECTION,
@@ -361,7 +393,7 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testAnEditorCannotOptInFromTheDataSharingTab(): void {
-		$a = $this->register_test_product( 'data-sharing-a', 'Product A' );
+		$a = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
 
 		update_option( DataSharing::SECTION, [ $this->field_name( $a ) => 'on' ] );
@@ -373,7 +405,7 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testAnEditorCanOptOutFromTheDataSharingTab(): void {
-		$a = $this->register_test_product( 'data-sharing-a', 'Product A' );
+		$a = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
 		update_option( DataSharing::SECTION, [ $this->field_name( $a ) => 'on' ] );
 		$this->assertTrue( $this->is_allowed( $a ) );
 
@@ -384,21 +416,21 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertFalse( $this->is_scheduled( $a ) );
 	}
 
-	public function testARegisteredProductsDeactivationFeedbackIsGated(): void {
+	public function testARegisteredPluginsDeactivationFeedbackIsGated(): void {
 		$client   = $this->create_client( 'data-sharing-a', 'data-sharing-a-hash' );
 		$insights = $client->insights();
 		$insights->init();
 
-		register_graphql_data_sharing_product(
+		register_graphql_data_sharing_plugin(
 			$client->slug,
 			[
 				'insights' => $insights,
-				'name'     => 'Product A',
+				'name'     => 'Plugin A',
 				'hash'     => $client->hash,
 			]
 		);
 
-		$tracker = DataSharing::get_products()[ $client->slug ]['usage_tracking'];
+		$tracker = DataSharing::get_registered_plugins()[ $client->slug ]['usage_tracking'];
 
 		$this->assertFalse( has_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] ) );
 		$this->assertNotFalse( has_action( 'admin_footer', [ $tracker, 'maybe_deactivate_scripts' ] ) );
@@ -408,25 +440,25 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotFalse( has_action( $ajax_hook, [ $tracker, 'maybe_uninstall_reason_submission' ] ) );
 
 		// The version is optional.
-		$this->assertSame( '', DataSharing::get_products()[ $client->slug ]['version'] );
+		$this->assertSame( '', DataSharing::get_registered_plugins()[ $client->slug ]['version'] );
 	}
 
 	public function testRegisteringTheSameSlugTwiceIsRejected(): void {
-		$this->setExpectedIncorrectUsage( 'register_graphql_data_sharing_product' );
+		$this->setExpectedIncorrectUsage( 'register_graphql_data_sharing_plugin' );
 
-		$a = $this->register_test_product( 'data-sharing-a', 'Product A' );
+		$a = $this->register_test_plugin( 'data-sharing-a', 'Plugin A' );
 
-		$registered = register_graphql_data_sharing_product(
+		$registered = register_graphql_data_sharing_plugin(
 			$a->slug,
 			[
 				'insights' => $a->insights(),
-				'name'     => 'Product A again',
+				'name'     => 'Plugin A again',
 				'hash'     => 'another-hash',
 			]
 		);
 
 		$this->assertFalse( $registered );
-		$this->assertSame( 'Product A', DataSharing::get_products()[ $a->slug ]['name'] );
+		$this->assertSame( 'Plugin A', DataSharing::get_registered_plugins()[ $a->slug ]['name'] );
 	}
 
 	/**
@@ -434,13 +466,13 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function invalidConfigProvider(): array {
 		return [
-			'empty slug'       => [ '', [ 'name' => 'Product', 'hash' => 'hash' ] ],
-			'missing insights' => [ 'data-sharing-invalid', [ 'name' => 'Product', 'hash' => 'hash', 'insights' => null ] ],
-			'wrong insights'   => [ 'data-sharing-invalid', [ 'name' => 'Product', 'hash' => 'hash', 'insights' => new \stdClass() ] ],
+			'empty slug'       => [ '', [ 'name' => 'Plugin', 'hash' => 'hash' ] ],
+			'missing insights' => [ 'data-sharing-invalid', [ 'name' => 'Plugin', 'hash' => 'hash', 'insights' => null ] ],
+			'wrong insights'   => [ 'data-sharing-invalid', [ 'name' => 'Plugin', 'hash' => 'hash', 'insights' => new \stdClass() ] ],
 			'missing name'     => [ 'data-sharing-invalid', [ 'hash' => 'hash' ] ],
-			'missing hash'     => [ 'data-sharing-invalid', [ 'name' => 'Product' ] ],
-			'non-string name'  => [ 'data-sharing-invalid', [ 'name' => [ 'Product' ], 'hash' => 'hash' ] ],
-			'non-string ver'   => [ 'data-sharing-invalid', [ 'name' => 'Product', 'hash' => 'hash', 'version' => 1 ] ],
+			'missing hash'     => [ 'data-sharing-invalid', [ 'name' => 'Plugin' ] ],
+			'non-string name'  => [ 'data-sharing-invalid', [ 'name' => [ 'Plugin' ], 'hash' => 'hash' ] ],
+			'non-string ver'   => [ 'data-sharing-invalid', [ 'name' => 'Plugin', 'hash' => 'hash', 'version' => 1 ] ],
 		];
 	}
 
@@ -450,17 +482,17 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @param array<string,mixed> $config
 	 */
 	public function testAnInvalidConfigIsRejected( string $slug, array $config ): void {
-		$this->setExpectedIncorrectUsage( 'register_graphql_data_sharing_product' );
+		$this->setExpectedIncorrectUsage( 'register_graphql_data_sharing_plugin' );
 
 		if ( ! array_key_exists( 'insights', $config ) ) {
 			$config['insights'] = $this->create_client( 'data-sharing-invalid', 'invalid-hash' )->insights();
 		}
 
-		$before = DataSharing::get_products();
+		$before = DataSharing::get_registered_plugins();
 
 		// @phpstan-ignore argument.type (Invalid on purpose.)
-		$this->assertFalse( register_graphql_data_sharing_product( $slug, $config ) );
-		$this->assertSame( $before, DataSharing::get_products() );
+		$this->assertFalse( register_graphql_data_sharing_plugin( $slug, $config ) );
+		$this->assertSame( $before, DataSharing::get_registered_plugins() );
 	}
 
 	public function testTheUpdateRoutineRemovesTheOldGeneralSettingsCopy(): void {

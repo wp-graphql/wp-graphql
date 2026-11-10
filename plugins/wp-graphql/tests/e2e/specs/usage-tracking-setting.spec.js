@@ -3,8 +3,9 @@ import { loginToWordPressAdmin, wpAdminUrl } from '../utils.js';
 
 /**
  * @file usage-tracking-setting.spec.js
- * @description Checks that WPGraphQL's "Share Usage Data" toggle on the Data Sharing tab of the
- * settings page shows the site's real opt-in state and that saving it opts the site in or out. The
+ * @description Checks that WPGraphQL's "Share usage data with the WPGraphQL team" checkbox on the
+ * Data Sharing tab of the settings page shows the site's real opt-in state and that saving it opts
+ * the site in or out. The
  * `settings-page-spec/usage-tracking-spec.php` test plugin blocks usage tracking requests, prints the
  * real opt-in state, and sets it from the `wpgraphql_e2e_tracking` query argument.
  */
@@ -109,9 +110,26 @@ test.describe('Usage tracking setting', () => {
 			page.locator('#graphql_data_sharing_settings-tab')
 		).toHaveClass(/nav-tab-active/);
 		await expect(page.locator(toggle)).toBeVisible();
+
+		// The row is labeled with the plugin's name, and the checkbox text is short.
+		const row = page.locator('#graphql_data_sharing_settings tr', {
+			has: page.locator(toggle),
+		});
+		await expect(row.locator('th')).toHaveText('WPGraphQL');
+		await expect(row.locator('td label')).toHaveText(
+			'Share usage data with the WPGraphQL team'
+		);
+
+		// What is shared is described once, on the tab.
+		const description = page.locator(
+			'#graphql_data_sharing_settings .inside'
+		);
+		await expect(description).toContainText('about once a week');
+		await expect(description).toContainText('may show a form asking why');
 		await expect(
-			page.getByText('Share Usage Data: WPGraphQL', { exact: true })
-		).toBeVisible();
+			description.getByRole('link', { name: 'Learn more' })
+		).toHaveAttribute('href', 'https://appsero.com/privacy-policy/');
+
 		await expect(page.locator(legacyToggle)).toHaveCount(0);
 	});
 

@@ -193,7 +193,7 @@ function graphql_init_appsero_telemetry(): void {
 
 		$insights->init();
 
-		register_graphql_data_sharing_product(
+		register_graphql_data_sharing_plugin(
 			$client->slug,
 			[
 				'insights' => $insights,

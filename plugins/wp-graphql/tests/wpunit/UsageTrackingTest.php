@@ -432,8 +432,12 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( UsageTracking::FIELD_NAME, $names );
 	}
 
-	public function testTheToggleKeepsItsLabelOnASectionOfItsOwn(): void {
-		$this->assertSame( 'Share Usage Data', $this->registered_field()['label'] );
+	public function testTheToggleKeepsItsLabelAndDescriptionOnASectionOfItsOwn(): void {
+		$field = $this->registered_field();
+
+		$this->assertSame( 'Share Usage Data', $field['label'] );
+		$this->assertStringContainsString( 'help guide WPGraphQL development, when checked and then about once a week', $field['desc'] );
+		$this->assertStringContainsString( 'https://appsero.com/privacy-policy/', $field['desc'] );
 	}
 
 	public function testACustomFieldNameIsTheOnlyFieldTheToggleReadsAndWrites(): void {

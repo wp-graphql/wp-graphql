@@ -805,27 +805,28 @@ function register_graphql_settings_field( string $group, array $config ): void {
 }
 
 /**
- * Registers a product on the Data Sharing tab of the WPGraphQL settings page.
+ * Registers a plugin on the Data Sharing tab of the WPGraphQL settings page.
  *
  * The Data Sharing tab is where a site chooses what it shares with the WPGraphQL team. A registered
- * product gets a "Share Usage Data" toggle there, named for the product. The toggle always shows the
- * product's real opt-in state, Appsero's `{slug}_allow_tracking` option. Checking it opts the site in
- * and requires the `manage_options` capability. Unchecking it opts the site out and stops the weekly
- * check-ins, for any user who can save the settings page. Each product's toggle only changes that
- * product's opt-in state.
+ * plugin gets a row there, labeled with its name, with a "Share usage data with the WPGraphQL team"
+ * checkbox. The tab's description says once, for every plugin on it, what is shared and how often.
+ * The checkbox always shows the plugin's real opt-in state, Appsero's `{slug}_allow_tracking`
+ * option. Checking it opts the site in and requires the `manage_options` capability. Unchecking it
+ * opts the site out and stops the weekly check-ins, for any user who can save the settings page.
+ * Each plugin's checkbox only changes that plugin's opt-in state.
  *
- * Registering also limits the product's Appsero deactivation feedback form to sites that opted in,
- * so a product registered here should not gate the form itself as well.
+ * Registering also limits the plugin's Appsero deactivation feedback form to sites that opted in,
+ * so a plugin registered here should not gate the form itself as well.
  *
- * Call it once per product, after `$insights->init()` and before the `init` action. An extension
- * loads before or after WPGraphQL depending on its folder name, so check
- * `function_exists( 'register_graphql_data_sharing_product' )` on `plugins_loaded`, and keep the
- * extension's own setting when the function doesn't exist (WPGraphQL versions without the tab).
+ * Call it once per plugin, after `$insights->init()` and before the `init` action. A plugin loads
+ * before or after WPGraphQL depending on its folder name, so check
+ * `function_exists( 'register_graphql_data_sharing_plugin' )` on `plugins_loaded`, and keep the
+ * plugin's own setting when the function doesn't exist (WPGraphQL versions without the tab).
  *
  * ```php
  * add_action( 'plugins_loaded', static function () use ( $client, $insights ) {
- *     if ( function_exists( 'register_graphql_data_sharing_product' ) ) {
- *         register_graphql_data_sharing_product(
+ *     if ( function_exists( 'register_graphql_data_sharing_plugin' ) ) {
+ *         register_graphql_data_sharing_plugin(
  *             $client->slug,
  *             [
  *                 'insights' => $insights,
@@ -838,14 +839,14 @@ function register_graphql_settings_field( string $group, array $config ): void {
  * } );
  * ```
  *
- * @param string              $slug   The product's Appsero client slug, the prefix of its Appsero options. Its
- *                                    toggle is stored as `share_usage_data_{slug}` (the slug passed through
+ * @param string              $slug   The plugin's Appsero client slug, the prefix of its Appsero options. Its
+ *                                    checkbox is stored as `share_usage_data_{slug}` (the slug passed through
  *                                    sanitize_key()) in the `graphql_data_sharing_settings` option, as a copy
  *                                    of the real opt-in state.
- * @param array<string,mixed> $config The product config: `insights` (required, the initialized Appsero insights
- *                                    instance), `name` (required, the product name shown on the tab), `hash`
- *                                    (required, the product's Appsero project hash) and `version` (the
- *                                    product's version).
+ * @param array<string,mixed> $config The plugin config: `insights` (required, the initialized Appsero insights
+ *                                    instance), `name` (required, the plugin name shown on the tab), `hash`
+ *                                    (required, the plugin's Appsero project hash) and `version` (the
+ *                                    plugin's version).
  *
  * @phpstan-param array{
  *  insights: \Appsero\Insights,
@@ -854,13 +855,13 @@ function register_graphql_settings_field( string $group, array $config ): void {
  *  version?: string,
  * } $config
  *
- * @return bool Whether the product was registered. An empty slug, a config with a missing or invalid key, or a
+ * @return bool Whether the plugin was registered. An empty slug, a config with a missing or invalid key, or a
  *              slug that is already registered is reported with _doing_it_wrong() and not registered.
  *
  * @since x-release-please-version
  */
-function register_graphql_data_sharing_product( string $slug, array $config ): bool {
-	return \WPGraphQL\Admin\DataSharing::register_product( $slug, $config );
+function register_graphql_data_sharing_plugin( string $slug, array $config ): bool {
+	return \WPGraphQL\Admin\DataSharing::register_plugin( $slug, $config );
 }
 
 /**
