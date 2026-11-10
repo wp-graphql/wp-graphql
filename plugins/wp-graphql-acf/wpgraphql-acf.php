@@ -98,6 +98,7 @@ function graphql_acf_init_appsero_telemetry() {
 
 	// Gate with this plugin's own Appsero client so an older WPGraphQL (which may already
 	// define UsageTracking without gate_deactivation_feedback) cannot fatal the site.
+	// @phpstan-ignore-next-line
 	graphql_acf_gate_deactivation_feedback( $insights, $client->slug );
 }
 
