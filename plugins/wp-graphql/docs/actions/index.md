@@ -58,6 +58,10 @@ Actions let your code run at specific points in the WPGraphQL request lifecycle 
 
   Run an action after the additional data has been updated.
 
+- [`graphql_term_object_mutation_update_additional_data`](/actions/graphql_term_object_mutation_update_additional_data)
+
+  Fires after a term has been created or updated via a GraphQL mutation.
+
 - [`graphql_update_term`](/actions/graphql_update_term)
 
   Fires an action when a term is updated via a GraphQL Mutation
