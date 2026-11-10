@@ -93,7 +93,7 @@ Open an issue at [github.com/wp-graphql/wp-graphql](https://github.com/wp-graphq
 
 = How does WPGraphQL IDE handle privacy and telemetry? =
 
-WPGraphQL IDE uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings → IDE Settings**. Sharing usage data doesn't sign anyone up for email. Email updates about security releases and breaking changes are a separate opt-in in the same place.
+WPGraphQL IDE uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings → IDE Settings**. Sharing usage data doesn't sign anyone up for email.
 
 == Privacy Policy ==
 
@@ -105,7 +105,7 @@ You can stop sharing at any time by unchecking **Share Usage Data** under **Grap
 
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
-Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name. To get emails about security releases and breaking changes, check **Email Updates** under **GraphQL → Settings → IDE Settings** and save. That sends the address you enter (prefilled with the email address of your account), this site's URL and the plugin version to https://telemetry.wpgraphql.com, which emails the address a confirmation link. Nothing is subscribed until the link is clicked. It's a separate choice from usage data, and works whether or not usage data is shared. Unchecking the box sends nothing and doesn't unsubscribe the address. To unsubscribe, use the link in any of the emails.
+Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 

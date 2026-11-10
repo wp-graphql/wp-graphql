@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.26.2
+Stable tag: 2.27.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -59,7 +59,7 @@ Yes! WPGraphQL works with any client that can make HTTP requests to the GraphQL 
 You can join the WPGraphQL [Discord community](https://discord.gg/AGVBqqyaUY) for support, discussions, and announcements.
 
 = How does WPGraphQL handle privacy and telemetry? =
-WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings**. Sharing usage data doesn't sign anyone up for email. Email updates about security releases and breaking changes are a separate opt-in in the same place.
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings**. Sharing usage data doesn't sign anyone up for email.
 
 == Privacy Policy ==
 
@@ -71,7 +71,7 @@ You can stop sharing at any time by unchecking **Share Usage Data** under **Grap
 
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
-Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name. To get emails about security releases and breaking changes, check **Email Updates** under **GraphQL → Settings** and save. That sends the address you enter (prefilled with the email address of your account), this site's URL and the plugin version to https://telemetry.wpgraphql.com, which emails the address a confirmation link. Nothing is subscribed until the link is clicked. It's a separate choice from usage data, and works whether or not usage data is shared. Unchecking the box sends nothing and doesn't unsubscribe the address. To unsubscribe, use the link in any of the emails.
+Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -373,6 +373,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.27.0 =
+
+**New Features**
+
+* add hasPublishedContent user connection arg and deprecate hasPublishedPosts ([#4612](https://github.com/wp-graphql/wp-graphql/issues/4612))
+* **mutations:** add graphql_term_object_mutation_update_additional_data action ([#4623](https://github.com/wp-graphql/wp-graphql/issues/4623))
+* preview the post format from the preview context ([#4617](https://github.com/wp-graphql/wp-graphql/issues/4617))
+
+**Bug Fixes**
+
+* **mutations:** pass updateComment as the mutation name when updating a comment ([#4625](https://github.com/wp-graphql/wp-graphql/issues/4625))
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
 
 = 2.26.2 =
 

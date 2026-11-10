@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.27.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.2...wp-graphql/v2.27.0) (2026-11-10)
+
+
+### New Features
+
+* add hasPublishedContent user connection arg and deprecate hasPublishedPosts ([#4612](https://github.com/wp-graphql/wp-graphql/issues/4612)) ([6d1f8cb](https://github.com/wp-graphql/wp-graphql/commit/6d1f8cb438611052af0a0e031d33748d16e8c7be))
+* **mutations:** add graphql_term_object_mutation_update_additional_data action ([#4623](https://github.com/wp-graphql/wp-graphql/issues/4623)) ([003ad7b](https://github.com/wp-graphql/wp-graphql/commit/003ad7bb1af1ea9104ae1bcdef9e23e490c2d282))
+* preview the post format from the preview context ([#4617](https://github.com/wp-graphql/wp-graphql/issues/4617)) ([04565bb](https://github.com/wp-graphql/wp-graphql/commit/04565bb122a25683c4ff600d5edb49463de02371))
+
+
+### Bug Fixes
+
+* **mutations:** pass updateComment as the mutation name when updating a comment ([#4625](https://github.com/wp-graphql/wp-graphql/issues/4625)) ([895591d](https://github.com/wp-graphql/wp-graphql/commit/895591d47d02d2c03fcabc5f2609c5efb64b19ab))
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
 ## [2.26.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.1...wp-graphql/v2.26.2) (2026-11-05)
 
 
