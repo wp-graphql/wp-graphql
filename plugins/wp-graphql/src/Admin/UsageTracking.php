@@ -105,7 +105,7 @@ class UsageTracking {
 	 * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
 	 * option), since calling a missing method is a fatal error.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.27.0
 	 */
 	public function gate_deactivation_feedback(): void {
 		remove_action( 'admin_footer', [ $this->insights, 'deactivate_scripts' ] );
@@ -119,7 +119,7 @@ class UsageTracking {
 	/**
 	 * Render the deactivation feedback form only when tracking is allowed.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.27.0
 	 */
 	public function maybe_deactivate_scripts(): void {
 		if ( ! $this->is_tracking_allowed() ) {
@@ -132,7 +132,7 @@ class UsageTracking {
 	/**
 	 * Accept a deactivation reason submission only when tracking is allowed.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.27.0
 	 */
 	public function maybe_uninstall_reason_submission(): void {
 		if ( ! $this->is_tracking_allowed() ) {
