@@ -170,6 +170,18 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.9.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.8.1...wp-graphql-ide/v5.9.0) (2026-11-10)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4634](https://github.com/wp-graphql/wp-graphql/issues/4634)) ([14341d5](https://github.com/wp-graphql/wp-graphql/commit/14341d50de59d4f5e847cab2a028094cd1b41cfc))
+
+
+### Bug Fixes
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
 ## [5.8.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.8.0...wp-graphql-ide/v5.8.1) (2026-11-02)
 
 
