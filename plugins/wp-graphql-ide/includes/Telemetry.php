@@ -54,23 +54,22 @@ class Telemetry {
 				static function () use ( $insights ): void {
 					$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#graphql_ide_settings' ) ) . '">' . esc_html__( 'GraphQL → Settings → IDE Settings', 'wpgraphql-ide' ) . '</a>';
 
-					// The email updates opt-in lives in WPGraphQL core, so older core versions don't offer it.
-					$notice = class_exists( '\WPGraphQL\Admin\EmailUpdates' )
-						// translators: %s is a link to the IDE settings tab.
-						? __( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. Email updates are a separate choice under %s, where you can also stop sharing at any time.', 'wpgraphql-ide' )
-						// translators: %s is a link to the IDE settings tab.
-						: __( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wpgraphql-ide' );
-
-					$insights->notice( sprintf( $notice, $settings_link ) );
+					$insights->notice(
+						sprintf(
+							// translators: %s is a link to the IDE settings tab.
+							__( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wpgraphql-ide' ),
+							$settings_link
+						)
+					);
 				},
 				9
 			);
 
 			$insights->init();
 
-			// Settings toggle, email updates, and deactivation gate live in WPGraphQL core (loaded after
-			// this plugin). Gate locally when core's UsageTracking lacks gate_deactivation_feedback()
-			// so an older WPGraphQL (class present, method missing) cannot fatal the site.
+			// The settings toggle and the deactivation gate live in WPGraphQL core (loaded after this
+			// plugin). Gate locally when core's UsageTracking lacks gate_deactivation_feedback() so an
+			// older WPGraphQL (class present, method missing) cannot fatal the site.
 			add_action(
 				'plugins_loaded',
 				static function () use ( $insights, $client ): void {
@@ -87,11 +86,6 @@ class Telemetry {
 
 					if ( ! $gated_by_core ) {
 						self::gate_deactivation_feedback( $insights, $client->slug );
-					}
-
-					// A separate choice from usage data, registered after its toggle so it shows next to it.
-					if ( class_exists( '\WPGraphQL\Admin\EmailUpdates' ) ) {
-						( new \WPGraphQL\Admin\EmailUpdates( self::APPSERO_HASH, $client->slug, WPGRAPHQL_IDE_VERSION, 'graphql_ide_settings', 'WPGraphQL IDE' ) )->init();
 					}
 				}
 			);
