@@ -89,6 +89,57 @@ class UsageTracking {
 		add_action( 'add_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
+
+		$this->gate_deactivation_feedback();
+	}
+
+	/**
+	 * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when the
+	 * site has opted in to usage tracking.
+	 *
+	 * Appsero always registers the form and sends `get_tracking_data()` with the reason — site URL,
+	 * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
+	 * Call this after `$insights->init()` so those hooks are replaced.
+	 *
+	 * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
+	 * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
+	 * option), since calling a missing method is a fatal error.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function gate_deactivation_feedback(): void {
+		remove_action( 'admin_footer', [ $this->insights, 'deactivate_scripts' ] );
+		add_action( 'admin_footer', [ $this, 'maybe_deactivate_scripts' ] );
+
+		$ajax_hook = 'wp_ajax_' . $this->slug . '_submit-uninstall-reason';
+		remove_action( $ajax_hook, [ $this->insights, 'uninstall_reason_submission' ] );
+		add_action( $ajax_hook, [ $this, 'maybe_uninstall_reason_submission' ] );
+	}
+
+	/**
+	 * Render the deactivation feedback form only when tracking is allowed.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function maybe_deactivate_scripts(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			return;
+		}
+
+		$this->insights->deactivate_scripts();
+	}
+
+	/**
+	 * Accept a deactivation reason submission only when tracking is allowed.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function maybe_uninstall_reason_submission(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+		}
+
+		$this->insights->uninstall_reason_submission();
 	}
 
 	/**
