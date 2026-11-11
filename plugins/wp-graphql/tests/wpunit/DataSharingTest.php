@@ -274,9 +274,28 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'deactivating it from the Plugins screen may show a form asking why', $output );
 		$this->assertStringContainsString( 'Submitting it sends that reason with the same site details as a check-in.', $output );
 		// The description writes the link's attributes in single quotes. Depending on the WordPress version,
-		// kses either keeps them as written or rewrites every attribute with double quotes (WordPress 7.0's
-		// wp_kses_hair() does), so accept either style, used consistently across the attributes.
-		$this->assertMatchesRegularExpression( '#<a href=([\'"])https://appsero\.com/privacy-policy/\1 target=\1_blank\1 rel=\1noopener noreferrer\1>Learn more</a>#', $output );
+		// kses keeps them as written or rebuilds them with double quotes and in another order, so check each
+		// attribute on its own instead of matching the tag's exact markup.
+		$this->assertMatchesRegularExpression( '#<a\s([^>]*)>Learn more</a>#', $output );
+		preg_match( '#<a\s([^>]*)>Learn more</a>#', $output, $link );
+		preg_match_all( '#([a-z-]+)=([\'"])(.*?)\2#', $link[1], $pairs, PREG_SET_ORDER );
+		$attributes = array_column( $pairs, 3, 1 );
+
+		// Every attribute must be a plain quoted name=value pair: nothing left over, such as escaped quotes.
+		$this->assertSame( '', trim( (string) preg_replace( '#([a-z-]+)=([\'"])(.*?)\2#', '', $link[1] ) ), $link[0] );
+		$this->assertSame(
+			[
+				'href'   => 'https://appsero.com/privacy-policy/',
+				'rel'    => 'noopener noreferrer',
+				'target' => '_blank',
+			],
+			[
+				'href'   => $attributes['href'] ?? null,
+				'rel'    => $attributes['rel'] ?? null,
+				'target' => $attributes['target'] ?? null,
+			],
+			$link[0]
+		);
 
 		// The disclosure is said once, not once per plugin.
 		$this->assertSame( 1, substr_count( $output, 'about once a week' ) );
