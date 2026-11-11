@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.26.2
+Stable tag: 2.27.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -85,6 +85,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 = 2.29.0 =
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
+
+= 2.27.1 =
+
+**Posts in custom statuses that aren't public now need `edit_others_posts` to read.** A post in a status a plugin registers with `'public' => false`, such as an editorial workflow status, now returns its content only to its author and to users who can edit other users' posts, the same way WordPress treats drafts and pending posts. Other users who can edit posts still see that the post exists, with its title, slug, link and status, but not its content, as they do for someone else's draft. The same applies to posts left in a status that is no longer registered. If your site relies on the old behavior, the `graphql_restricted_data_cap` filter can change the capability these posts require.
 
 = 2.26.2 =
 
@@ -377,6 +381,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.27.0 =
+
+**New Features**
+
+* add hasPublishedContent user connection arg and deprecate hasPublishedPosts ([#4612](https://github.com/wp-graphql/wp-graphql/issues/4612))
+* **mutations:** add graphql_term_object_mutation_update_additional_data action ([#4623](https://github.com/wp-graphql/wp-graphql/issues/4623))
+* preview the post format from the preview context ([#4617](https://github.com/wp-graphql/wp-graphql/issues/4617))
+
+**Bug Fixes**
+
+* **mutations:** pass updateComment as the mutation name when updating a comment ([#4625](https://github.com/wp-graphql/wp-graphql/issues/4625))
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
 
 = 2.26.2 =
 
