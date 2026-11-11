@@ -82,6 +82,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.27.1 =
+
+**Posts in custom statuses that aren't public now need `edit_others_posts` to read.** A post in a status a plugin registers with `'public' => false`, such as an editorial workflow status, now returns its content only to its author and to users who can edit other users' posts, the same way WordPress treats drafts and pending posts. Other users who can edit posts still see that the post exists, with its title, slug, link and status, but not its content, as they do for someone else's draft. The same applies to posts left in a status that is no longer registered. If your site relies on the old behavior, the `graphql_restricted_data_cap` filter can change the capability these posts require.
+
 = 2.26.2 =
 
 **A malformed pagination cursor now returns no results.** Passing `after` or `before` a value that isn't a cursor WPGraphQL returned, such as `posts(after: "foo")` or a random string taken from a URL, used to return the first page, as if no cursor was passed. Connections now return no results for it. A cursor for an item that no longer exists, an empty string and `null` still return results from the start. If you relied on the old behavior, leave the argument out or pass `null`, or see the [connections guide](https://www.wpgraphql.com/docs/connections#cursors) for a filter that ignores malformed cursors again. See [#2795](https://github.com/wp-graphql/wp-graphql/issues/2795).

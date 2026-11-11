@@ -271,29 +271,60 @@ class Post extends Model {
 	 */
 	protected function get_restricted_cap() {
 		if ( ! empty( $this->data->post_password ) ) {
-			return isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
+			return self::get_edit_others_cap( $this->post_type_object );
 		}
 
-		switch ( $this->data->post_status ) {
-			/**
-			 * Content in a status the site does not publish belongs to whoever wrote it. Being
-			 * able to edit posts is enough to be told the node exists, it is not enough to read
-			 * someone else's. The owner is exempt from this before the capability is consulted.
-			 *
-			 * @see \WPGraphQL\Model\Model::get_visibility()
-			 */
-			case 'draft':
-			case 'future':
-			case 'pending':
-			case 'trash':
-				$cap = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
-				break;
-			default:
-				$cap = '';
-				break;
+		/**
+		 * `inherit` content (media items and revisions) has no restricted capability. Whether a
+		 * media item is returned follows the content it's attached to, in is_private(), and one
+		 * that is returned is readable in full, since its file is public once uploaded. Revisions
+		 * have their own checks.
+		 */
+		if ( 'inherit' === $this->data->post_status ) {
+			return '';
 		}
 
-		return $cap;
+		return self::get_status_restricted_cap( $this->data->post_status, $this->post_type_object );
+	}
+
+	/**
+	 * The capability needed to read someone else's content in full, given its status.
+	 *
+	 * Content in a status the site does not publish belongs to whoever wrote it. Being able to
+	 * edit posts is enough to be told the node exists, it is not enough to read someone else's.
+	 * The owner is exempt from this before the capability is consulted. This applies to every
+	 * status that isn't public, the same way WordPress treats drafts and pending posts: the
+	 * built-in ones, statuses plugins register with `'public' => false` (including `protected`
+	 * ones), and statuses that are no longer registered.
+	 *
+	 * `private` has its own check, `read_private_posts` in is_post_private().
+	 *
+	 * @see \WPGraphQL\Model\Model::get_visibility()
+	 *
+	 * @param string             $status           The content's status.
+	 * @param \WP_Post_Type|null $post_type_object The content's post type.
+	 */
+	private static function get_status_restricted_cap( string $status, ?\WP_Post_Type $post_type_object ): string {
+		if ( 'private' === $status ) {
+			return '';
+		}
+
+		$status_object = get_post_status_object( $status );
+
+		if ( $status_object instanceof \stdClass && true === $status_object->public ) {
+			return '';
+		}
+
+		return self::get_edit_others_cap( $post_type_object );
+	}
+
+	/**
+	 * The post type's capability for editing other users' content.
+	 *
+	 * @param \WP_Post_Type|null $post_type_object The post type.
+	 */
+	private static function get_edit_others_cap( ?\WP_Post_Type $post_type_object ): string {
+		return isset( $post_type_object->cap->edit_others_posts ) ? $post_type_object->cap->edit_others_posts : 'edit_others_posts';
 	}
 
 	/**
