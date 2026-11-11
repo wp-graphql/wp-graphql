@@ -274,8 +274,14 @@ class Post extends Model {
 			return self::get_edit_others_cap( $this->post_type_object );
 		}
 
+		/**
+		 * `inherit` content (media items and revisions) has no restricted capability. Whether a
+		 * media item is returned follows the content it's attached to, in is_private(), and one
+		 * that is returned is readable in full, since its file is public once uploaded. Revisions
+		 * have their own checks.
+		 */
 		if ( 'inherit' === $this->data->post_status ) {
-			return $this->get_inherited_restricted_cap();
+			return '';
 		}
 
 		return self::get_status_restricted_cap( $this->data->post_status, $this->post_type_object );
@@ -310,37 +316,6 @@ class Post extends Model {
 		}
 
 		return self::get_edit_others_cap( $post_type_object );
-	}
-
-	/**
-	 * The restricted capability for content in the `inherit` status.
-	 *
-	 * A media item is visible when the content it's attached to is, so when that content is
-	 * returned with its fields withheld, the media attached to it is too. Whoever wrote that
-	 * content can read its media in full, like the content itself. This follows the content's
-	 * status only, not its password, so media in a password-protected post stays readable.
-	 * Media that isn't attached to anything, and revisions, which have their own checks, have
-	 * no restricted capability.
-	 */
-	private function get_inherited_restricted_cap(): string {
-		if ( 'attachment' !== $this->data->post_type || empty( $this->data->post_parent ) ) {
-			return '';
-		}
-
-		$parent = get_post( (int) $this->data->post_parent );
-
-		// Media attached to other media would loop back here, so it stops at the first parent.
-		if ( ! $parent instanceof WP_Post || 'attachment' === $parent->post_type ) {
-			return '';
-		}
-
-		$current_user_id = get_current_user_id();
-
-		if ( 0 !== $current_user_id && (int) $parent->post_author === $current_user_id ) {
-			return '';
-		}
-
-		return self::get_status_restricted_cap( $parent->post_status, get_post_type_object( $parent->post_type ) );
 	}
 
 	/**

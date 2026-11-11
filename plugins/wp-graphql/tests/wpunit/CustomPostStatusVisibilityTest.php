@@ -7,8 +7,9 @@
  * equivalent) in any status that isn't public, the same way WordPress treats drafts and pending
  * posts. These tests cover statuses registered by plugins with `'public' => false` (including
  * `protected` ones) and statuses that are no longer registered, through `post`, `node`,
- * `contentNode` and the `posts` connection's `status` and `stati` arguments, plus media attached
- * to such posts and a post type with its own capabilities.
+ * `contentNode` and the `posts` connection's `status` and `stati` arguments, and a post type
+ * with its own capabilities. Media attached to such posts keeps following the documented rule
+ * for media (docs/media.md).
  *
  * Each test sets one user. Switching users and calling clearSchema() inside one test registers
  * the schema twice, and the later queries fail in a way that looks like the user being blocked.
@@ -258,19 +259,6 @@ class CustomPostStatusVisibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQL
 	}
 
 	/**
-	 * Asserts the media item was returned with its fields withheld.
-	 *
-	 * @param array<string,mixed>|null $media_item The queried media item.
-	 */
-	private function assertMediaWithheld( ?array $media_item ): void {
-		$this->assertNotNull( $media_item, 'Media attached to content the user is told exists is still returned.' );
-		$this->assertTrue( $media_item['isRestricted'] );
-		$this->assertNull( $media_item['description'] );
-		$this->assertNull( $media_item['caption'] );
-		$this->assertNull( $media_item['sourceUrl'] );
-	}
-
-	/**
 	 * Asserts the media item was returned in full.
 	 *
 	 * @param array<string,mixed>|null $media_item The queried media item.
@@ -492,78 +480,37 @@ class CustomPostStatusVisibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQL
 		$this->assertStringContainsString( 'Custom status secret content', (string) $actual['data']['contentNode']['content'] );
 	}
 
-	public function testContributorCannotReadMediaOnSomeoneElsesPostInNonPublicStatus(): void {
+	public function testMediaOnSomeoneElsesPostInNonPublicStatusFollowsTheMediaRule(): void {
+		/*
+		 * Whether a media item is returned follows the content it's attached to, and one that is
+		 * returned is readable in full, since its file is public once uploaded. Sites that make all
+		 * media public with `graphql_pre_model_data_is_private` rely on that. See docs/media.md and
+		 * Post::is_private().
+		 */
 		$media_id = $this->create_media_item( $this->create_post( 'gqltest_pitch', $this->admin ), $this->admin );
 
 		wp_set_current_user( $this->contributor );
 
-		$this->assertMediaWithheld( $this->query_media_item( $media_id ) );
+		$this->assertMediaReadable( $this->query_media_item( $media_id ) );
 	}
 
-	public function testContributorCannotReadMediaOnSomeoneElsesDraft(): void {
+	public function testMakingAllMediaPublicReturnsMediaOnADraftInFull(): void {
+		// The override documented on Post::is_private(), as a guest, with the media's fields too.
 		$media_id = $this->create_media_item( $this->create_post( 'draft', $this->admin ), $this->admin );
 
-		wp_set_current_user( $this->contributor );
+		$make_media_public = static function ( $is_private, $model_name, $data ) {
+			if ( 'PostObject' === $model_name && isset( $data->post_type ) && 'attachment' === $data->post_type ) {
+				return false;
+			}
+			return $is_private;
+		};
+		add_filter( 'graphql_pre_model_data_is_private', $make_media_public, 10, 3 );
 
-		$this->assertMediaWithheld( $this->query_media_item( $media_id ) );
-	}
+		$media_item = $this->query_media_item( $media_id );
 
-	public function testContributorCannotReadMediaOnSomeoneElsesPostThroughConnection(): void {
-		$media_id = $this->create_media_item( $this->create_post( 'gqltest_pitch', $this->admin ), $this->admin );
+		remove_filter( 'graphql_pre_model_data_is_private', $make_media_public, 10 );
 
-		wp_set_current_user( $this->contributor );
-
-		$actual = $this->graphql(
-			[
-				'query' => '
-					query {
-						mediaItems( first: 50 ) {
-							nodes { databaseId description }
-						}
-					}
-				',
-			]
-		);
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$description_by_id = array_column( $actual['data']['mediaItems']['nodes'], 'description', 'databaseId' );
-
-		$this->assertArrayHasKey( $media_id, $description_by_id );
-		$this->assertNull( $description_by_id[ $media_id ] );
-	}
-
-	public function testContributorCanReadMediaOnOwnPostInNonPublicStatus(): void {
-		// Uploaded by an Administrator, attached to the contributor's own post.
-		$media_id = $this->create_media_item( $this->create_post( 'gqltest_pitch', $this->contributor ), $this->admin );
-
-		wp_set_current_user( $this->contributor );
-
-		$this->assertMediaReadable( $this->query_media_item( $media_id ) );
-	}
-
-	public function testEditorCanReadMediaOnSomeoneElsesPostInNonPublicStatus(): void {
-		$media_id = $this->create_media_item( $this->create_post( 'gqltest_pitch', $this->admin ), $this->admin );
-
-		wp_set_current_user( $this->editor );
-
-		$this->assertMediaReadable( $this->query_media_item( $media_id ) );
-	}
-
-	public function testMediaOnPasswordProtectedPostIsUnaffected(): void {
-		// The media follows its post's status, not its password.
-		$parent_id = $this->factory()->post->create(
-			[
-				'post_status'   => 'publish',
-				'post_author'   => $this->admin,
-				'post_password' => 'secret',
-			]
-		);
-		$media_id  = $this->create_media_item( $parent_id, $this->admin );
-
-		wp_set_current_user( $this->contributor );
-
-		$this->assertMediaReadable( $this->query_media_item( $media_id ) );
+		$this->assertMediaReadable( $media_item );
 	}
 
 	public function testContributorCannotSeePageInNonPublicStatus(): void {

@@ -84,7 +84,7 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 = 2.27.1 =
 
-**Posts in custom statuses that aren't public now need `edit_others_posts` to read.** A post in a status a plugin registers with `'public' => false`, such as an editorial workflow status, now returns its content only to its author and to users who can edit other users' posts, the same way WordPress treats drafts and pending posts. Other users who can edit posts still see that the post exists, with its title, slug, link and status, but not its content, as they do for someone else's draft. The same applies to posts left in a status that is no longer registered. Media attached to a post whose content is withheld this way, including someone else's draft, now has its description, caption and file URL withheld too. Media on published or password-protected posts, and media that isn't attached to anything, is unchanged. If your site relies on the old behavior, the `graphql_restricted_data_cap` filter can change the capability these posts require.
+**Posts in custom statuses that aren't public now need `edit_others_posts` to read.** A post in a status a plugin registers with `'public' => false`, such as an editorial workflow status, now returns its content only to its author and to users who can edit other users' posts, the same way WordPress treats drafts and pending posts. Other users who can edit posts still see that the post exists, with its title, slug, link and status, but not its content, as they do for someone else's draft. The same applies to posts left in a status that is no longer registered. If your site relies on the old behavior, the `graphql_restricted_data_cap` filter can change the capability these posts require.
 
 = 2.26.2 =
 
