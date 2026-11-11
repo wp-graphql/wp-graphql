@@ -270,46 +270,86 @@ class Post extends Model {
 	 * @return string
 	 */
 	protected function get_restricted_cap() {
-		$edit_others_posts = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
-
 		if ( ! empty( $this->data->post_password ) ) {
-			return $edit_others_posts;
+			return self::get_edit_others_cap( $this->post_type_object );
 		}
 
-		switch ( $this->data->post_status ) {
-			/**
-			 * Content in a status the site does not publish belongs to whoever wrote it. Being
-			 * able to edit posts is enough to be told the node exists, it is not enough to read
-			 * someone else's. The owner is exempt from this before the capability is consulted.
-			 *
-			 * @see \WPGraphQL\Model\Model::get_visibility()
-			 */
-			case 'draft':
-			case 'future':
-			case 'pending':
-			case 'trash':
-				$cap = $edit_others_posts;
-				break;
-			/**
-			 * `private` has its own check, `read_private_posts` in is_post_private(), and `inherit`
-			 * (media items and revisions) takes its visibility from the parent.
-			 */
-			case 'private':
-			case 'inherit':
-				$cap = '';
-				break;
-			/**
-			 * Any other status that isn't public is treated the same way, as WordPress does when it
-			 * maps `read_post`: statuses plugins register with `'public' => false`, including
-			 * `protected` ones, and statuses that are no longer registered.
-			 */
-			default:
-				$status_object = get_post_status_object( $this->data->post_status );
-				$cap           = $status_object instanceof \stdClass && true === $status_object->public ? '' : $edit_others_posts;
-				break;
+		if ( 'inherit' === $this->data->post_status ) {
+			return $this->get_inherited_restricted_cap();
 		}
 
-		return $cap;
+		return self::get_status_restricted_cap( $this->data->post_status, $this->post_type_object );
+	}
+
+	/**
+	 * The capability needed to read someone else's content in full, given its status.
+	 *
+	 * Content in a status the site does not publish belongs to whoever wrote it. Being able to
+	 * edit posts is enough to be told the node exists, it is not enough to read someone else's.
+	 * The owner is exempt from this before the capability is consulted. This applies to every
+	 * status that isn't public, the same way WordPress treats drafts and pending posts: the
+	 * built-in ones, statuses plugins register with `'public' => false` (including `protected`
+	 * ones), and statuses that are no longer registered.
+	 *
+	 * `private` has its own check, `read_private_posts` in is_post_private().
+	 *
+	 * @see \WPGraphQL\Model\Model::get_visibility()
+	 *
+	 * @param string             $status           The content's status.
+	 * @param \WP_Post_Type|null $post_type_object The content's post type.
+	 */
+	private static function get_status_restricted_cap( string $status, ?\WP_Post_Type $post_type_object ): string {
+		if ( 'private' === $status ) {
+			return '';
+		}
+
+		$status_object = get_post_status_object( $status );
+
+		if ( $status_object instanceof \stdClass && true === $status_object->public ) {
+			return '';
+		}
+
+		return self::get_edit_others_cap( $post_type_object );
+	}
+
+	/**
+	 * The restricted capability for content in the `inherit` status.
+	 *
+	 * A media item is visible when the content it's attached to is, so when that content is
+	 * returned with its fields withheld, the media attached to it is too. Whoever wrote that
+	 * content can read its media in full, like the content itself. This follows the content's
+	 * status only, not its password, so media in a password-protected post stays readable.
+	 * Media that isn't attached to anything, and revisions, which have their own checks, have
+	 * no restricted capability.
+	 */
+	private function get_inherited_restricted_cap(): string {
+		if ( 'attachment' !== $this->data->post_type || empty( $this->data->post_parent ) ) {
+			return '';
+		}
+
+		$parent = get_post( (int) $this->data->post_parent );
+
+		// Media attached to other media would loop back here, so it stops at the first parent.
+		if ( ! $parent instanceof WP_Post || 'attachment' === $parent->post_type ) {
+			return '';
+		}
+
+		$current_user_id = get_current_user_id();
+
+		if ( 0 !== $current_user_id && (int) $parent->post_author === $current_user_id ) {
+			return '';
+		}
+
+		return self::get_status_restricted_cap( $parent->post_status, get_post_type_object( $parent->post_type ) );
+	}
+
+	/**
+	 * The post type's capability for editing other users' content.
+	 *
+	 * @param \WP_Post_Type|null $post_type_object The post type.
+	 */
+	private static function get_edit_others_cap( ?\WP_Post_Type $post_type_object ): string {
+		return isset( $post_type_object->cap->edit_others_posts ) ? $post_type_object->cap->edit_others_posts : 'edit_others_posts';
 	}
 
 	/**
