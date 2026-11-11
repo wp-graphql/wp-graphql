@@ -118,6 +118,36 @@ class SettingsRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Section descriptions with double-quoted attributes should render without backslashes.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4698
+	 */
+	public function testSectionDescriptionPreservesDoubleQuotedAttributes() {
+		$this->registry->register_section(
+			'graphql_quote_test_settings',
+			[
+				'title' => 'Quote Test',
+				'desc'  => '<div class="notice notice-info inline"><p>Test <a href="https://example.com" target="_blank">link</a></p></div>',
+			]
+		);
+
+		$this->registry->admin_init();
+
+		global $wp_settings_sections;
+		$callback = $wp_settings_sections['graphql_quote_test_settings']['graphql_quote_test_settings']['callback'];
+
+		ob_start();
+		$callback();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( '<div class="inside">', $html );
+		$this->assertStringContainsString( 'class="notice notice-info inline"', $html );
+		$this->assertStringContainsString( 'href="https://example.com"', $html );
+		$this->assertStringContainsString( 'target="_blank"', $html );
+		$this->assertStringNotContainsString( '\"', $html );
+	}
+
+	/**
 	 * Test that sanitize_options() works with WordPress sanitize_option filter
 	 * 
 	 * This simulates how WordPress calls the sanitization callback via the filter
