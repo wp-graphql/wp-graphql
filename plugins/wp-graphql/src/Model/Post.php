@@ -270,8 +270,10 @@ class Post extends Model {
 	 * @return string
 	 */
 	protected function get_restricted_cap() {
+		$edit_others_posts = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
+
 		if ( ! empty( $this->data->post_password ) ) {
-			return isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
+			return $edit_others_posts;
 		}
 
 		switch ( $this->data->post_status ) {
@@ -286,10 +288,24 @@ class Post extends Model {
 			case 'future':
 			case 'pending':
 			case 'trash':
-				$cap = isset( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts';
+				$cap = $edit_others_posts;
 				break;
-			default:
+			/**
+			 * `private` has its own check, `read_private_posts` in is_post_private(), and `inherit`
+			 * (media items and revisions) takes its visibility from the parent.
+			 */
+			case 'private':
+			case 'inherit':
 				$cap = '';
+				break;
+			/**
+			 * Any other status that isn't public is treated the same way, as WordPress does when it
+			 * maps `read_post`: statuses plugins register with `'public' => false`, including
+			 * `protected` ones, and statuses that are no longer registered.
+			 */
+			default:
+				$status_object = get_post_status_object( $this->data->post_status );
+				$cap           = $status_object instanceof \stdClass && true === $status_object->public ? '' : $edit_others_posts;
 				break;
 		}
 
