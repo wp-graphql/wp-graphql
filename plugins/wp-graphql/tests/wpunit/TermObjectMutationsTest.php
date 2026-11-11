@@ -1026,4 +1026,171 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'An administrator must not be told they lack permission for a term that does not exist.'
 		);
 	}
+
+	/**
+	 * Records every call to the graphql_term_object_mutation_update_additional_data action.
+	 *
+	 * @return \ArrayObject<int,array<int,mixed>> The recorded calls. Each entry holds the action's arguments.
+	 */
+	protected function recordUpdateAdditionalDataCalls() {
+		$calls = new \ArrayObject();
+
+		add_action(
+			'graphql_term_object_mutation_update_additional_data',
+			static function () use ( $calls ) {
+				$calls[] = func_get_args();
+			},
+			10,
+			6
+		);
+
+		return $calls;
+	}
+
+	/**
+	 * The create term mutation fires graphql_term_object_mutation_update_additional_data once,
+	 * with the created term ID, the mutation input, the taxonomy, the mutation name, the
+	 * AppContext and the ResolveInfo, in that order.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1429
+	 */
+	public function testCreateTermFiresUpdateAdditionalDataAction() {
+		$calls = $this->recordUpdateAdditionalDataCalls();
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->createCategoryMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $calls, 'The action must fire exactly once for createCategory.' );
+
+		[ $term_id, $input, $taxonomy, $mutation_name, $context, $info ] = $calls[0];
+
+		$this->assertSame( $actual['data']['createCategory']['category']['databaseId'], $term_id );
+		$this->assertSame( $this->category_name, $input['name'] );
+		$this->assertSame( $this->description, $input['description'] );
+		$this->assertInstanceOf( \WP_Taxonomy::class, $taxonomy );
+		$this->assertSame( 'category', $taxonomy->name );
+		$this->assertSame( 'createCategory', $mutation_name );
+		$this->assertInstanceOf( \WPGraphQL\AppContext::class, $context );
+		$this->assertInstanceOf( \GraphQL\Type\Definition\ResolveInfo::class, $info );
+	}
+
+	/**
+	 * The update term mutation fires graphql_term_object_mutation_update_additional_data once,
+	 * after the term has been saved, with the same argument order as on create.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1429
+	 */
+	public function testUpdateTermFiresUpdateAdditionalDataAction() {
+		$tag_id = $this->factory()->term->create(
+			[
+				'taxonomy'    => 'post_tag',
+				'name'        => $this->tag_name,
+				'description' => $this->description,
+			]
+		);
+
+		$calls = $this->recordUpdateAdditionalDataCalls();
+
+		$description_seen_by_hook = null;
+		add_action(
+			'graphql_term_object_mutation_update_additional_data',
+			static function ( $term_id ) use ( &$description_seen_by_hook ) {
+				$description_seen_by_hook = get_term( $term_id )->description;
+			}
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'term', (string) $tag_id );
+		$actual    = $this->updateTagMutation( $global_id );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $calls, 'The action must fire exactly once for updateTag.' );
+
+		[ $term_id, $input, $taxonomy, $mutation_name, $context, $info ] = $calls[0];
+
+		$this->assertSame( $tag_id, $term_id );
+		$this->assertSame( $global_id, $input['id'] );
+		$this->assertSame( $this->description_update, $input['description'] );
+		$this->assertInstanceOf( \WP_Taxonomy::class, $taxonomy );
+		$this->assertSame( 'post_tag', $taxonomy->name );
+		$this->assertSame( 'updateTag', $mutation_name );
+		$this->assertInstanceOf( \WPGraphQL\AppContext::class, $context );
+		$this->assertInstanceOf( \GraphQL\Type\Definition\ResolveInfo::class, $info );
+
+		$this->assertSame( $this->description_update, $description_seen_by_hook, 'The action must fire after the term has been updated.' );
+	}
+
+	/**
+	 * Termmeta saved from the action is persisted and available to the mutation payload,
+	 * which is the use case the hook exists for.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1429
+	 */
+	public function testUpdateAdditionalDataActionCanSaveTermMeta() {
+		add_action(
+			'graphql_term_object_mutation_update_additional_data',
+			static function ( $term_id, $input, $taxonomy, $mutation_name ) {
+				update_term_meta( $term_id, 'graphql_test_mutation_name', $mutation_name );
+			},
+			10,
+			4
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$created = $this->createTagMutation();
+		$this->assertArrayNotHasKey( 'errors', $created );
+
+		$tag_id = $created['data']['createTag']['tag']['databaseId'];
+		$this->assertSame( 'createTag', get_term_meta( $tag_id, 'graphql_test_mutation_name', true ) );
+
+		$updated = $this->updateTagMutation( $created['data']['createTag']['tag']['id'] );
+		$this->assertArrayNotHasKey( 'errors', $updated );
+		$this->assertSame( 'updateTag', get_term_meta( $tag_id, 'graphql_test_mutation_name', true ) );
+	}
+
+	/**
+	 * The action only fires once a term was actually created or updated. Rejected
+	 * mutations and delete mutations do not fire it.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1429
+	 */
+	public function testUpdateAdditionalDataActionDoesNotFireWhenTermIsNotSaved() {
+		$category_id = $this->factory()->term->create( [ 'taxonomy' => 'category' ] );
+
+		$calls = $this->recordUpdateAdditionalDataCalls();
+
+		// A subscriber may not create or update terms.
+		wp_set_current_user( $this->subscriber );
+
+		$actual = $this->createCategoryMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		$actual = $this->updateCategoryMutation( \GraphQLRelay\Relay::toGlobalId( 'term', (string) $category_id ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		wp_set_current_user( $this->admin );
+
+		// A term that does not exist cannot be updated.
+		$actual = $this->updateCategoryMutation( '99999999' );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// A term with a name that already exists is not created.
+		$actual = $this->createCategoryMutation();
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $calls );
+
+		$actual = $this->createCategoryMutation();
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertCount( 1, $calls, 'A rejected duplicate create must not fire the action.' );
+
+		// Deleting a term is not covered by the action.
+		$actual = $this->deleteCategoryMutation( $category_id );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertCount( 1, $calls, 'Only the one successful create may fire the action.' );
+	}
 }

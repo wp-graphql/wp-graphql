@@ -52,11 +52,13 @@ class Telemetry {
 			add_action(
 				'admin_notices',
 				static function () use ( $insights ): void {
+					$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#graphql_ide_settings' ) ) . '">' . esc_html__( 'GraphQL → Settings → IDE Settings', 'wpgraphql-ide' ) . '</a>';
+
 					$insights->notice(
 						sprintf(
 							// translators: %s is a link to the IDE settings tab.
-							__( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information. You can change this at any time under %s.', 'wpgraphql-ide' ),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#graphql_ide_settings' ) ) . '">' . esc_html__( 'GraphQL → Settings → IDE Settings', 'wpgraphql-ide' ) . '</a>'
+							__( 'Want to help make <strong>WPGraphQL IDE</strong> even more awesome? Allow WPGraphQL IDE to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wpgraphql-ide' ),
+							$settings_link
 						)
 					);
 				},
@@ -65,13 +67,25 @@ class Telemetry {
 
 			$insights->init();
 
-			// The settings toggle lives in WPGraphQL core, which loads after this plugin. Older core
-			// versions without it simply don't show one.
+			// The settings toggle and the deactivation gate live in WPGraphQL core (loaded after this
+			// plugin). Gate locally when core's UsageTracking lacks gate_deactivation_feedback() so an
+			// older WPGraphQL (class present, method missing) cannot fatal the site.
 			add_action(
 				'plugins_loaded',
 				static function () use ( $insights, $client ): void {
+					$gated_by_core = false;
+
 					if ( class_exists( '\WPGraphQL\Admin\UsageTracking' ) ) {
-						( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug, 'graphql_ide_settings', 'WPGraphQL IDE' ) )->init();
+						$tracker = new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug, 'graphql_ide_settings', 'WPGraphQL IDE' );
+						$tracker->init();
+
+						if ( method_exists( $tracker, 'gate_deactivation_feedback' ) ) {
+							$gated_by_core = true;
+						}
+					}
+
+					if ( ! $gated_by_core ) {
+						self::gate_deactivation_feedback( $insights, $client->slug );
 					}
 				}
 			);
@@ -87,6 +101,38 @@ class Telemetry {
 	}
 
 	/**
+	 * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when
+	 * this plugin's `{slug}_allow_tracking` option is opted in.
+	 *
+	 * @param \Appsero\Insights $insights The initialized Appsero insights instance.
+	 * @param string            $slug     The Appsero client slug.
+	 */
+	public static function gate_deactivation_feedback( $insights, string $slug ): void {
+		remove_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] );
+		add_action(
+			'admin_footer',
+			static function () use ( $insights ): void {
+				if ( $insights->tracking_allowed() ) {
+					$insights->deactivate_scripts();
+				}
+			}
+		);
+
+		$ajax_hook = 'wp_ajax_' . $slug . '_submit-uninstall-reason';
+		remove_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] );
+		add_action(
+			$ajax_hook,
+			static function () use ( $insights ): void {
+				if ( ! $insights->tracking_allowed() ) {
+					wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+				}
+
+				$insights->uninstall_reason_submission();
+			}
+		);
+	}
+
+	/**
 	 * Mirror Appsero requests to wpgraphql.com's telemetry server.
 	 *
 	 * Scoped to this plugin's hash so we don't mirror other Appsero
@@ -94,8 +140,8 @@ class Telemetry {
 	 * proceed unchanged.
 	 *
 	 * @param bool|\WP_Error       $preempt Whether to preempt the request.
-	 * @param array<string, mixed> $args    The arguments for the request.
-	 * @param string               $url     The URL for the request.
+	 * @param array<string, mixed> $args    The request arguments.
+	 * @param string               $url     The request URL.
 	 * @return bool|\WP_Error Whether to preempt the request.
 	 */
 	public static function mirror_request( $preempt, $args, $url ) {

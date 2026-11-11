@@ -26,7 +26,7 @@ Fires after additional comment mutation data has been updated.
 
 - `$comment_id` (`int`): The ID of the comment being mutated.
 - `$input` (`array<string,mixed>`): The input for the mutation.
-- `$mutation_name` (`string`): The name of the mutation (for example: create, update, delete).
+- `$mutation_name` (`string`): The name of the mutation (createComment or updateComment).
 - `$context` (`\WPGraphQL\AppContext`): The AppContext passed down to all resolvers.
 - `$info` (`\GraphQL\Type\Definition\ResolveInfo`): The ResolveInfo passed down to all resolvers.
 - `$intended_comment_status` (`int`): The status requested by mutation input.

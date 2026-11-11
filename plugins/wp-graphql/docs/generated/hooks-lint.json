@@ -159,28 +159,28 @@
       "type": "naming_convention",
       "hook": "graphql_execute",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 763,
+      "line": 767,
       "message": "low_specificity: Hook name has too few semantic segments after prefix."
     },
     {
       "type": "naming_convention",
       "hook": "do_graphql_request",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 847,
+      "line": 851,
       "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {
       "type": "naming_convention",
       "hook": "pre_graphql_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 923,
+      "line": 927,
       "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {
       "type": "naming_convention",
       "hook": "pre_graphql_execute_request",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1030,
+      "line": 1034,
       "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
     },
     {

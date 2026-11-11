@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.26.2
+Stable tag: 2.27.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -59,7 +59,7 @@ Yes! WPGraphQL works with any client that can make HTTP requests to the GraphQL 
 You can join the WPGraphQL [Discord community](https://discord.gg/AGVBqqyaUY) for support, discussions, and announcements.
 
 = How does WPGraphQL handle privacy and telemetry? =
-WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings**.
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, the same payloads are also mirrored to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings**. Sharing usage data doesn't sign anyone up for email.
 
 == Privacy Policy ==
 
@@ -69,7 +69,9 @@ Appsero SDK **does not gather any data by default.** The SDK starts gathering ba
 
 You can stop sharing at any time by unchecking **Share Usage Data** under **GraphQL → Settings**. Opting out stops all further check-ins, including the copies sent to https://telemetry.wpgraphql.com. When you opt out, one final request records the opt-out with Appsero (and its copy at https://telemetry.wpgraphql.com). It includes a hashed identifier for your site, but no site details.
 
-When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
+
+Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -83,6 +85,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 = 2.28.0 =
 
 **Fields now see the right post, term or user as the current object.** Values that depend on the current object, such as some SEO, template, block and gallery output, now come from the node a field is selected under, including in lists, where they could come from a different node before. After updating, purge cached GraphQL responses (WPGraphQL Smart Cache, your CDN and your front end) so the corrected values appear. If you have custom resolvers that read the current post with functions like `get_the_ID()` or `is_singular()` in root fields or in Deferred callbacks, check them against https://www.wpgraphql.com/docs/node-context/. Details: https://github.com/wp-graphql/wp-graphql/issues/4572.
+
+= 2.27.1 =
+
+**Posts in custom statuses that aren't public now need `edit_others_posts` to read.** A post in a status a plugin registers with `'public' => false`, such as an editorial workflow status, now returns its content only to its author and to users who can edit other users' posts, the same way WordPress treats drafts and pending posts. Other users who can edit posts still see that the post exists, with its title, slug, link and status, but not its content, as they do for someone else's draft. The same applies to posts left in a status that is no longer registered. If your site relies on the old behavior, the `graphql_restricted_data_cap` filter can change the capability these posts require.
 
 = 2.26.2 =
 
@@ -375,6 +381,25 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.27.1 =
+
+**Bug Fixes**
+
+* require edit_others_posts to read other users' posts in any non-public status ([#4702](https://github.com/wp-graphql/wp-graphql/issues/4702))
+
+= 2.27.0 =
+
+**New Features**
+
+* add hasPublishedContent user connection arg and deprecate hasPublishedPosts ([#4612](https://github.com/wp-graphql/wp-graphql/issues/4612))
+* **mutations:** add graphql_term_object_mutation_update_additional_data action ([#4623](https://github.com/wp-graphql/wp-graphql/issues/4623))
+* preview the post format from the preview context ([#4617](https://github.com/wp-graphql/wp-graphql/issues/4617))
+
+**Bug Fixes**
+
+* **mutations:** pass updateComment as the mutation name when updating a comment ([#4625](https://github.com/wp-graphql/wp-graphql/issues/4625))
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
 
 = 2.26.2 =
 

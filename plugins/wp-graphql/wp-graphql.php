@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.26.2
+ * Version: 2.27.1
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.26.2
+ * @version  2.27.1
  */
 
 // Exit if accessed directly.
@@ -183,7 +183,7 @@ function graphql_init_appsero_telemetry(): void {
 				$insights->notice(
 					sprintf(
 						// translators: %s is a link to the WPGraphQL settings page.
-						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s.', 'wp-graphql' ),
+						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wp-graphql' ),
 						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings' ) ) . '">' . esc_html__( 'GraphQL → Settings', 'wp-graphql' ) . '</a>'
 					)
 				);

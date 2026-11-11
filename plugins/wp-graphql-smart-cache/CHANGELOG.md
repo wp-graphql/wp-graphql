@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.4.0...wp-graphql-smart-cache/v2.4.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
+## [2.4.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.4...wp-graphql-smart-cache/v2.4.0) (2026-11-05)
+
+
+### New Features
+
+* **smart-cache:** pass structured context to graphql_purge listeners ([#4622](https://github.com/wp-graphql/wp-graphql/issues/4622)) ([974da4c](https://github.com/wp-graphql/wp-graphql/commit/974da4c21ad4eee19fb663a3636b4ea55753268b))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4588](https://github.com/wp-graphql/wp-graphql/issues/4588)) ([ba4181a](https://github.com/wp-graphql/wp-graphql/commit/ba4181a9216e38764f233970992203e36c3d552c))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.24.2 to 2.25.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4628](https://github.com/wp-graphql/wp-graphql/issues/4628)) ([c7878f1](https://github.com/wp-graphql/wp-graphql/commit/c7878f100e89c95b7520cfa4cbf3937f14dcebc7))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-smart-cache ([#4598](https://github.com/wp-graphql/wp-graphql/issues/4598)) ([0b0bca9](https://github.com/wp-graphql/wp-graphql/commit/0b0bca99609c7a0c7c3e175e3cbebed13ccc3cb6))
+* **smart-cache:** stop purging a user's cached data on every login and logout ([#4671](https://github.com/wp-graphql/wp-graphql/issues/4671)) ([a49950a](https://github.com/wp-graphql/wp-graphql/commit/a49950a2af7bd5de0a5470458a71642640877dcb))
+
 ## [2.3.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.3.3...wp-graphql-smart-cache/v2.3.4) (2026-10-21)
 
 

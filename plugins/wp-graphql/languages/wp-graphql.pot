@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.26.2\n"
+"Project-Id-Version: WPGraphQL 2.27.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-05T16:49:25+00:00\n"
+"POT-Creation-Date: 2026-11-11T21:40:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -781,17 +781,17 @@ msgstr ""
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
 msgstr ""
 
-#: src/Admin/UsageTracking.php:109
+#: src/Admin/UsageTracking.php:160
 msgid "Share Usage Data"
 msgstr ""
 
 #. translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-#: src/Admin/UsageTracking.php:112
+#: src/Admin/UsageTracking.php:163
 #, php-format
-msgid "Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and the name and email address of a site administrator. Uncheck to stop sharing at any time. %2$s"
+msgid "Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site's admin email address and an administrator's name. Sharing usage data doesn't sign anyone up for emails. Uncheck to stop sharing at any time. %2$s"
 msgstr ""
 
-#: src/Admin/UsageTracking.php:114
+#: src/Admin/UsageTracking.php:165
 msgid "Learn more"
 msgstr ""
 
@@ -914,10 +914,10 @@ msgid "WP_Query has been modified by a plugin or theme to suppress_filters, whic
 msgstr ""
 
 #: src/Data/Connection/UserConnectionResolver.php:102
-msgid "The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value, and will be removed from the possible enum values in a future release."
+msgid "The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value. Use `hasPublishedContent` instead."
 msgstr ""
 
-#: src/Data/Connection/UserConnectionResolver.php:226
+#: src/Data/Connection/UserConnectionResolver.php:221
 msgid "Sorry, you are not allowed to filter users by role."
 msgstr ""
 
@@ -1055,16 +1055,16 @@ msgstr ""
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:54
+#: src/Data/TermObjectMutation.php:56
 msgid "Please provide only one of parentId or parentDatabaseId"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:67
+#: src/Data/TermObjectMutation.php:69
 msgid "The parent ID is not a valid ID"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:76
-#: src/Data/TermObjectMutation.php:93
+#: src/Data/TermObjectMutation.php:78
+#: src/Data/TermObjectMutation.php:95
 msgid "The parent does not exist"
 msgstr ""
 
@@ -2581,58 +2581,58 @@ msgid "The Taxonomy to filter terms by"
 msgstr ""
 
 #. translators: %s: custom post-type name
-#: src/Registry/Utils/PostObject.php:330
+#: src/Registry/Utils/PostObject.php:349
 #, php-format
 msgid "The globally unique identifier of the %s object."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:340
+#: src/Registry/Utils/PostObject.php:359
 #: src/Type/ObjectType/Menu.php:42
 #: src/Type/ObjectType/MenuItem.php:155
 #: src/Type/ObjectType/User.php:202
 msgid "Deprecated in favor of the databaseId field"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:343
+#: src/Registry/Utils/PostObject.php:362
 msgid "The unique numeric identifier for the content node."
 msgstr ""
 
 #. translators: %s: custom post-type name.
-#: src/Registry/Utils/PostObject.php:354
+#: src/Registry/Utils/PostObject.php:373
 #, php-format
 msgid "Whether the %s object is password protected."
 msgstr ""
 
 #. translators: %s: custom post-type name.
-#: src/Registry/Utils/PostObject.php:364
+#: src/Registry/Utils/PostObject.php:383
 #, php-format
 msgid "The password for the %s object."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:375
+#: src/Registry/Utils/PostObject.php:394
 #: src/Type/ObjectType/ContentType.php:179
 msgid "Whether this page is set to the static front page."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:382
+#: src/Registry/Utils/PostObject.php:401
 #: src/Type/ObjectType/ContentType.php:185
 msgid "Whether this page is set to the blog posts page."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:389
+#: src/Registry/Utils/PostObject.php:408
 msgid "Whether this page is set to the privacy page."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:398
+#: src/Registry/Utils/PostObject.php:417
 msgid "Whether this page is sticky"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:433
+#: src/Registry/Utils/PostObject.php:452
 msgid "The caption for the resource"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:439
-#: src/Registry/Utils/PostObject.php:530
+#: src/Registry/Utils/PostObject.php:458
+#: src/Registry/Utils/PostObject.php:549
 #: src/Type/InterfaceType/NodeWithContentEditor.php:34
 #: src/Type/InterfaceType/NodeWithExcerpt.php:35
 #: src/Type/InterfaceType/NodeWithTitle.php:35
@@ -2640,63 +2640,63 @@ msgstr ""
 msgid "Format of the field output"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:456
+#: src/Registry/Utils/PostObject.php:475
 msgid "Alternative text to display when resource is not displayed"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:465
+#: src/Registry/Utils/PostObject.php:484
 msgid "Size of the MediaItem to calculate srcSet with"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:470
+#: src/Registry/Utils/PostObject.php:489
 msgid "The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:489
+#: src/Registry/Utils/PostObject.php:508
 msgid "Size of the MediaItem to calculate sizes with"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:494
+#: src/Registry/Utils/PostObject.php:513
 msgid "The sizes attribute value for an image."
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:524
+#: src/Registry/Utils/PostObject.php:543
 msgid "Description of the image (stored as post_content)"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:547
-#: src/Registry/Utils/PostObject.php:559
+#: src/Registry/Utils/PostObject.php:566
+#: src/Registry/Utils/PostObject.php:578
 msgid "Url of the mediaItem"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:553
+#: src/Registry/Utils/PostObject.php:572
 msgid "Type of resource"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:565
-#: src/Registry/Utils/PostObject.php:590
-#: src/Registry/Utils/PostObject.php:621
-#: src/Registry/Utils/PostObject.php:662
+#: src/Registry/Utils/PostObject.php:584
+#: src/Registry/Utils/PostObject.php:609
+#: src/Registry/Utils/PostObject.php:640
+#: src/Registry/Utils/PostObject.php:681
 msgid "Size of the MediaItem to return"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:584
+#: src/Registry/Utils/PostObject.php:603
 msgid "The filename of the mediaItem for the specified size (default size is full)"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:615
+#: src/Registry/Utils/PostObject.php:634
 msgid "The path to the original file relative to the uploads directory"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:656
+#: src/Registry/Utils/PostObject.php:675
 msgid "The filesize in bytes of the resource"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:696
+#: src/Registry/Utils/PostObject.php:715
 msgid "The mime type of the mediaItem"
 msgstr ""
 
-#: src/Registry/Utils/PostObject.php:702
+#: src/Registry/Utils/PostObject.php:721
 msgid "Details about the mediaItem"
 msgstr ""
 
@@ -2743,29 +2743,29 @@ msgstr ""
 msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
 msgstr ""
 
-#: src/Request.php:523
+#: src/Request.php:526
 msgid "The `extensions.preview` object is not supported in batch requests and was ignored. Send the `X-GraphQL-Preview` header instead; it applies to every operation in the batch."
 msgstr ""
 
-#: src/Request.php:568
+#: src/Request.php:572
 msgid "The `X-GraphQL-Preview` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.preview` fallback applies if present."
 msgstr ""
 
-#: src/Request.php:597
-msgid "The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present."
+#: src/Request.php:601
+msgid "The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `post_format`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present."
 msgstr ""
 
-#: src/Request.php:902
-#: src/Request.php:1006
+#: src/Request.php:906
+#: src/Request.php:1010
 msgid "Authentication Error"
 msgstr ""
 
-#: src/Request.php:967
+#: src/Request.php:971
 msgid "The GraphQL request returned an invalid response"
 msgstr ""
 
 #. translators: %s is the content type header value that was received
-#: src/Request.php:1116
+#: src/Request.php:1120
 #, php-format
 msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
 msgstr ""
@@ -3012,7 +3012,7 @@ msgid "Retrieve posts where post status is in an array."
 msgstr ""
 
 #: src/Type/Connection/PostObjects.php:448
-#: src/Type/Connection/Users.php:238
+#: src/Type/Connection/Users.php:249
 msgid "What parameter to use to order the objects by."
 msgstr ""
 
@@ -3208,27 +3208,35 @@ msgstr ""
 msgid "Pass an array of post types to filter results to users who have published posts in those post types."
 msgstr ""
 
-#: src/Type/Connection/Users.php:192
+#: src/Type/Connection/Users.php:189
+msgid "Deprecated in favor of hasPublishedContent, which does not accept media items since they are never published."
+msgstr ""
+
+#: src/Type/Connection/Users.php:197
+msgid "Limit results to users who have published content of at least one of the given content types."
+msgstr ""
+
+#: src/Type/Connection/Users.php:203
 msgid "The user nicename."
 msgstr ""
 
-#: src/Type/Connection/Users.php:200
+#: src/Type/Connection/Users.php:211
 msgid "An array of nicenames to include. Users matching one of these nicenames will be included in results."
 msgstr ""
 
-#: src/Type/Connection/Users.php:208
+#: src/Type/Connection/Users.php:219
 msgid "An array of nicenames to exclude. Users matching one of these nicenames will not be included in results."
 msgstr ""
 
-#: src/Type/Connection/Users.php:214
+#: src/Type/Connection/Users.php:225
 msgid "The user login."
 msgstr ""
 
-#: src/Type/Connection/Users.php:222
+#: src/Type/Connection/Users.php:233
 msgid "An array of logins to include. Users matching one of these logins will be included in results."
 msgstr ""
 
-#: src/Type/Connection/Users.php:230
+#: src/Type/Connection/Users.php:241
 msgid "An array of logins to exclude. Users matching one of these logins will not be included in results."
 msgstr ""
 
@@ -3405,7 +3413,7 @@ msgid "The \"%s\" template."
 msgstr ""
 
 #: src/Type/Enum/ContentTypeEnum.php:29
-#: src/Type/Enum/ContentTypeEnum.php:64
+#: src/Type/Enum/ContentTypeEnum.php:85
 msgid "The Type of Content object"
 msgstr ""
 
@@ -3413,8 +3421,12 @@ msgstr ""
 msgid "Available content entity types that can be queried or filtered. Identifies the primary content structures available in the system."
 msgstr ""
 
+#: src/Type/Enum/ContentTypeEnum.php:58
+msgid "Content types that can have published content. Unlike ContentTypeEnum, media items are excluded since they are never published."
+msgstr ""
+
 #. translators: %s is the taxonomy's GraphQL name.
-#: src/Type/Enum/ContentTypeEnum.php:76
+#: src/Type/Enum/ContentTypeEnum.php:97
 #, php-format
 msgid "Allowed Content Types of the %s taxonomy."
 msgstr ""
@@ -5922,7 +5934,7 @@ msgstr ""
 #. translators: %s is a link to the WPGraphQL settings page.
 #: wp-graphql.php:186
 #, php-format
-msgid "Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. You can change this at any time under %s."
+msgid "Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site's admin email address and an administrator's name. This doesn't sign anyone up for emails. You can stop sharing at any time under %s."
 msgstr ""
 
 #: wp-graphql.php:187

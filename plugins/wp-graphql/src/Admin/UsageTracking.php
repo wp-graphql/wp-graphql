@@ -89,6 +89,57 @@ class UsageTracking {
 		add_action( 'add_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
+
+		$this->gate_deactivation_feedback();
+	}
+
+	/**
+	 * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when the
+	 * site has opted in to usage tracking.
+	 *
+	 * Appsero always registers the form and sends `get_tracking_data()` with the reason — site URL,
+	 * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
+	 * Call this after `$insights->init()` so those hooks are replaced.
+	 *
+	 * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
+	 * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
+	 * option), since calling a missing method is a fatal error.
+	 *
+	 * @since 2.27.0
+	 */
+	public function gate_deactivation_feedback(): void {
+		remove_action( 'admin_footer', [ $this->insights, 'deactivate_scripts' ] );
+		add_action( 'admin_footer', [ $this, 'maybe_deactivate_scripts' ] );
+
+		$ajax_hook = 'wp_ajax_' . $this->slug . '_submit-uninstall-reason';
+		remove_action( $ajax_hook, [ $this->insights, 'uninstall_reason_submission' ] );
+		add_action( $ajax_hook, [ $this, 'maybe_uninstall_reason_submission' ] );
+	}
+
+	/**
+	 * Render the deactivation feedback form only when tracking is allowed.
+	 *
+	 * @since 2.27.0
+	 */
+	public function maybe_deactivate_scripts(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			return;
+		}
+
+		$this->insights->deactivate_scripts();
+	}
+
+	/**
+	 * Accept a deactivation reason submission only when tracking is allowed.
+	 *
+	 * @since 2.27.0
+	 */
+	public function maybe_uninstall_reason_submission(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+		}
+
+		$this->insights->uninstall_reason_submission();
 	}
 
 	/**
@@ -109,7 +160,7 @@ class UsageTracking {
 				'label'   => __( 'Share Usage Data', 'wp-graphql' ),
 				'desc'    => sprintf(
 					// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-					__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and the name and email address of a site administrator. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+					__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
 					esc_html( $this->product_name ),
 					'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
 				),

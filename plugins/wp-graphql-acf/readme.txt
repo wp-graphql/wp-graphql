@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 3.1.0
+Stable tag: 3.2.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -104,7 +104,7 @@ WPGraphQL for Advanced Custom Fields uses [Appsero](https://appsero.com) SDK to 
 
 The Appsero SDK **doesn't collect data by default** and only starts gathering basic telemetry data when a user allows it via the admin notice. No data is collected without user consent.
 
-When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
 Learn more about how [Appsero collects and uses data](https://appsero.com/privacy-policy/).
 
@@ -163,6 +163,25 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
+
+= 3.2.1 =
+
+**Bug Fixes**
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
+
+= 3.2.0 =
+
+**New Features**
+
+* **acf:** let custom field types resolve ACF's formatted value ([#4609](https://github.com/wp-graphql/wp-graphql/issues/4609))
+
+**Bug Fixes**
+
+* **acf:** give a duplicated field its own GraphQL field name ([#4610](https://github.com/wp-graphql/wp-graphql/issues/4610))
+* **acf:** return null for an options page whose loader has been replaced ([#4649](https://github.com/wp-graphql/wp-graphql/issues/4649))
+* **acf:** stop loading every stored ACF field for each flexible content layout ([#4611](https://github.com/wp-graphql/wp-graphql/issues/4611))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.24.2 to 2.25.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4631](https://github.com/wp-graphql/wp-graphql/issues/4631))
 
 = 3.1.0 =
 
