@@ -273,7 +273,10 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'box to stop sharing for it at any time.', $output );
 		$this->assertStringContainsString( 'deactivating it from the Plugins screen may show a form asking why', $output );
 		$this->assertStringContainsString( 'Submitting it sends that reason with the same site details as a check-in.', $output );
-		$this->assertMatchesRegularExpression( '#<a href="https://appsero\.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Learn more</a>#', $output );
+		// The description writes the link's attributes in single quotes. Depending on the WordPress version,
+		// kses either keeps them as written or rewrites every attribute with double quotes (WordPress 7.0's
+		// wp_kses_hair() does), so accept either style, used consistently across the attributes.
+		$this->assertMatchesRegularExpression( '#<a href=([\'"])https://appsero\.com/privacy-policy/\1 target=\1_blank\1 rel=\1noopener noreferrer\1>Learn more</a>#', $output );
 
 		// The disclosure is said once, not once per plugin.
 		$this->assertSame( 1, substr_count( $output, 'about once a week' ) );
