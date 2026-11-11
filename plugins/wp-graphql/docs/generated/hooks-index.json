@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-11-10T21:02:59.593Z",
+  "generatedAt": "2026-11-11T21:40:27.798Z",
   "stats": {
     "totalHooks": 289,
     "actions": 64,
@@ -788,7 +788,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 573,
+      "line": 604,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -812,7 +812,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 573,
+          "line": 604,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -16709,7 +16709,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 849,
+      "line": 880,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16733,7 +16733,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 849,
+          "line": 880,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -16751,7 +16751,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 549,
+      "line": 580,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16775,13 +16775,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16835,7 +16835,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 558,
+      "line": 589,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16859,13 +16859,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -16943,13 +16943,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -17027,13 +17027,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -17111,13 +17111,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -17195,13 +17195,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -17279,13 +17279,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
@@ -17363,13 +17363,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 580,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 589,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
