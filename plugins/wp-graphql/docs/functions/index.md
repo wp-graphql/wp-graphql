@@ -187,3 +187,9 @@ The functions documented below are provided by WPGraphQL to extend the schema or
 - [`graphql_debug`](/functions/graphql_debug)
 
   Given a message and an optional config array
+
+## Other
+
+- [`graphql_bind_node_context`](/functions/graphql_bind_node_context)
+
+  Wraps a callback so that, whenever it's called, it runs with the global state as it is now.

@@ -38,7 +38,7 @@ use WPGraphQL\AppContext;
  *           and is_node_scoped(), and the graphql_model_node_context_globals filter. Extensions
  *           bind callbacks through graphql_bind_node_context().
  *
- * @since x-release-please-version
+ * @since 2.28.0
  */
 final class NodeContext {
 
@@ -104,7 +104,7 @@ final class NodeContext {
 	 *
 	 * @param \WPGraphQL\AppContext $context The request's AppContext.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public static function for_request( AppContext $context ): self {
 		if ( null === self::$requests ) {
@@ -125,7 +125,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When a model's tear_down() throws, after every node has been torn down.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public static function end_request( AppContext $context ): void {
 		if ( null === self::$requests || ! self::$requests->contains( $context ) ) {
@@ -151,7 +151,7 @@ final class NodeContext {
 	 * @param mixed                                $source The value the field is resolved on.
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info   The field's resolve info.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public function enter( $source, ResolveInfo $info ): void {
 		$parent_path = array_slice( $info->path, 0, -1 );
@@ -223,7 +223,7 @@ final class NodeContext {
 	 *
 	 * @return callable The wrapped callback, which takes the same arguments and returns the same value.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public static function bind( callable $callback ): callable {
 		$model = self::$active_model;
@@ -261,7 +261,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public static function run_as( Model $model, callable $callback ) {
 		// Already set up as the current node, or nothing to set up (the model has no setup() or
@@ -293,7 +293,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private function push( string $key, Model $model ): void {
 		$previous      = self::$active_model;
@@ -319,7 +319,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When the model's setup() throws, after restoring the previous state.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function set_up( Model $model ): array {
 		$state = self::capture_global_state( $model );
@@ -345,7 +345,7 @@ final class NodeContext {
 	 *
 	 * @return array{0:?int,1:?int,2:?int}
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function applied_state(): array {
 		global $wp_query;
@@ -362,7 +362,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When the model's tear_down() throws, after restoring the state.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private function pop(): void {
 		$entry = array_pop( $this->stack );
@@ -387,7 +387,7 @@ final class NodeContext {
 	 *
 	 * @throws \Throwable When a model's tear_down() throws.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private function leave_all(): void {
 		$error = null;
@@ -412,7 +412,7 @@ final class NodeContext {
 	 *
 	 * @param \WPGraphQL\Model\Model<mixed> $model The model.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function has_lifecycle( Model $model ): bool {
 		$class = get_class( $model );
@@ -438,7 +438,7 @@ final class NodeContext {
 	 *
 	 * @return array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]}
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function capture_global_state( ?Model $model ): array {
 		global $wp_query;
@@ -474,7 +474,7 @@ final class NodeContext {
 	 *
 	 * @param array{query:?array<string,mixed>,globals:array<string,mixed>,unset:string[]} $state The state to restore.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function restore_global_state( array $state ): void {
 		global $wp_query;
@@ -501,7 +501,7 @@ final class NodeContext {
 	 *
 	 * @return string[]
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	private static function get_globals( ?Model $model ): array {
 		// With no model set up there's nothing node-specific to capture beyond the defaults.
@@ -529,7 +529,7 @@ final class NodeContext {
 		 * @param \WPGraphQL\Model\Model<mixed> $model   The model about to be set up, or the current node when a callback is being bound.
 		 *
 		 * @hookGroup models
-		 * @since x-release-please-version
+		 * @since 2.28.0
 		 */
 		$globals = apply_filters( 'graphql_model_node_context_globals', self::GLOBALS, $model );
 

@@ -192,7 +192,7 @@ class Post extends Model {
 	 *
 	 * @return bool
 	 *
-	 * @since x-release-please-version
+	 * @since 2.28.0
 	 */
 	public function is_node_scoped() {
 		return true;

@@ -29,7 +29,7 @@ Set the items. These are the "nodes" that make up the connection. Filters the no
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1047`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1047)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1053`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1053)
 
 ```php
 apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1047`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1047)
+- `AbstractConnectionResolver::get_connection()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1053`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1053)

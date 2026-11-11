@@ -27,7 +27,7 @@ Renames a GraphQL field.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:462`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L462)
+- [`plugins/wp-graphql/access-functions.php:493`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L493)
 
 ```php
 function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ): void {

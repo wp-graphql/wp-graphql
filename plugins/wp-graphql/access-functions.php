@@ -139,7 +139,7 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  *
  * @return callable The wrapped callback, which takes the same arguments and returns the same value.
  *
- * @since x-release-please-version
+ * @since 2.28.0
  */
 function graphql_bind_node_context( callable $callback ): callable {
 	return \WPGraphQL\Model\NodeContext::bind( $callback );

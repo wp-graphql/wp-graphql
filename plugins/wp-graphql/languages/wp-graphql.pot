@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.27.1\n"
+"Project-Id-Version: WPGraphQL 2.28.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T21:40:28+00:00\n"
+"POT-Creation-Date: 2026-11-11T22:45:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -831,76 +831,76 @@ msgid "The email address you are trying to use is invalid"
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:291
+#: src/Data/Connection/AbstractConnectionResolver.php:292
 #, php-format
 msgid "Class %s does not implement a valid method `prepare_query_args()`."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:317
+#: src/Data/Connection/AbstractConnectionResolver.php:318
 #, php-format
 msgid "Class %s does not implement a valid method `get_ids_from_query()`."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:431
+#: src/Data/Connection/AbstractConnectionResolver.php:432
 #, php-format
 msgid "The %s class does not rely on a query class. Please define a `query()` method to return the data directly."
 msgstr ""
 
 #. translators: %s is the name of the connection resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:571
+#: src/Data/Connection/AbstractConnectionResolver.php:572
 #, php-format
 msgid "Class %s does not implement a valid method `loader_name()`."
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:590
+#: src/Data/Connection/AbstractConnectionResolver.php:591
 msgid "The Connection Resolver needs to define a loader name"
 msgstr ""
 
-#: src/Data/Connection/AbstractConnectionResolver.php:972
+#: src/Data/Connection/AbstractConnectionResolver.php:973
 msgid "The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`."
 msgstr ""
 
 #. translators: %s: The name of the arg that was invalid
-#: src/Data/Connection/AbstractConnectionResolver.php:993
+#: src/Data/Connection/AbstractConnectionResolver.php:994
 #, php-format
 msgid "%s must be a positive integer."
 msgstr ""
 
 #. translators: %1$s: The name of the class that should not use a query class. %2$s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1196
+#: src/Data/Connection/AbstractConnectionResolver.php:1203
 #, php-format
 msgid "Class %1$s should not use a query class, but is attempting to use the %2$s query class."
 msgstr ""
 
 #. translators: %s: The connection resolver class name.
-#: src/Data/Connection/AbstractConnectionResolver.php:1208
+#: src/Data/Connection/AbstractConnectionResolver.php:1215
 #, php-format
 msgid "%s requires a query class, but no query class is set."
 msgstr ""
 
 #. translators: %s: The name of the query class that is set by the resolver.
-#: src/Data/Connection/AbstractConnectionResolver.php:1219
+#: src/Data/Connection/AbstractConnectionResolver.php:1226
 #, php-format
 msgid "The query class %s does not exist."
 msgstr ""
 
 #. translators: %1$s: The name of the query class that is set by the resolver. %2$s: The name of the resolver class.
-#: src/Data/Connection/AbstractConnectionResolver.php:1230
+#: src/Data/Connection/AbstractConnectionResolver.php:1237
 #, php-format
 msgid "The query class %1$s is not compatible with %2$s."
 msgstr ""
 
 #. translators: %s: The name of the method that should be used instead.
-#: src/Data/Connection/AbstractConnectionResolver.php:1603
-#: src/Data/Connection/AbstractConnectionResolver.php:1627
-#: src/Data/Connection/AbstractConnectionResolver.php:1648
-#: src/Data/Connection/AbstractConnectionResolver.php:1673
-#: src/Data/Connection/AbstractConnectionResolver.php:1692
-#: src/Data/Connection/AbstractConnectionResolver.php:1711
-#: src/Data/Connection/AbstractConnectionResolver.php:1730
-#: src/Data/Connection/AbstractConnectionResolver.php:1751
+#: src/Data/Connection/AbstractConnectionResolver.php:1610
+#: src/Data/Connection/AbstractConnectionResolver.php:1634
+#: src/Data/Connection/AbstractConnectionResolver.php:1655
+#: src/Data/Connection/AbstractConnectionResolver.php:1680
+#: src/Data/Connection/AbstractConnectionResolver.php:1699
+#: src/Data/Connection/AbstractConnectionResolver.php:1718
+#: src/Data/Connection/AbstractConnectionResolver.php:1737
+#: src/Data/Connection/AbstractConnectionResolver.php:1758
 #, php-format
 msgid "This will be removed in the next major release. Use %s instead."
 msgstr ""
@@ -1548,7 +1548,7 @@ msgstr ""
 
 #. translators: 1: model + field name, 2: required WordPress capability.
 #. translators: 1: GraphQL field name, 2: required WordPress capability.
-#: src/Model/Model.php:518
+#: src/Model/Model.php:573
 #: src/Model/SettingGroup.php:155
 #: src/Type/ObjectType/Settings.php:102
 #, php-format
@@ -2729,43 +2729,43 @@ msgstr ""
 msgid "The unique numeric identifier for the term."
 msgstr ""
 
-#: src/Request.php:323
+#: src/Request.php:324
 msgid "Preview context was provided for a post the current user is not allowed to preview. The published data was resolved instead."
 msgstr ""
 
-#: src/Request.php:336
+#: src/Request.php:337
 msgid "Batch Queries are not supported"
 msgstr ""
 
 #. translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
-#: src/Request.php:346
+#: src/Request.php:347
 #, php-format
 msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
 msgstr ""
 
-#: src/Request.php:526
+#: src/Request.php:527
 msgid "The `extensions.preview` object is not supported in batch requests and was ignored. Send the `X-GraphQL-Preview` header instead; it applies to every operation in the batch."
 msgstr ""
 
-#: src/Request.php:572
+#: src/Request.php:573
 msgid "The `X-GraphQL-Preview` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.preview` fallback applies if present."
 msgstr ""
 
-#: src/Request.php:601
+#: src/Request.php:602
 msgid "The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `post_format`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present."
 msgstr ""
 
-#: src/Request.php:906
-#: src/Request.php:1010
+#: src/Request.php:911
+#: src/Request.php:1015
 msgid "Authentication Error"
 msgstr ""
 
-#: src/Request.php:971
+#: src/Request.php:976
 msgid "The GraphQL request returned an invalid response"
 msgstr ""
 
 #. translators: %s is the content type header value that was received
-#: src/Request.php:1120
+#: src/Request.php:1125
 #, php-format
 msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
 msgstr ""
@@ -5855,7 +5855,7 @@ msgstr ""
 msgid "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
 msgstr ""
 
-#: src/Utils/InstrumentSchema.php:234
+#: src/Utils/InstrumentSchema.php:239
 msgid "You do not have permission to view this"
 msgstr ""
 

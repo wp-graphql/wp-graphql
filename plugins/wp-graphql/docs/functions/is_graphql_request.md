@@ -30,7 +30,7 @@ Whether a GraphQL request is in action or not. This is determined by the WPGraph
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:697`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L697)
+- [`plugins/wp-graphql/access-functions.php:728`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L728)
 
 ```php
 function is_graphql_request(): bool {
