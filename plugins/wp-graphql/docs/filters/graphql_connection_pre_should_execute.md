@@ -32,7 +32,7 @@ Filters whether or not the query should execute, BEFORE any data is fetched or a
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:926`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L926)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:927`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L927)
 
 ```php
 apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source, $args, $context, $info );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source
 
 ## Related
 
-- `AbstractConnectionResolver::get_pre_should_execute()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:926`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L926)
+- `AbstractConnectionResolver::get_pre_should_execute()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:927`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L927)

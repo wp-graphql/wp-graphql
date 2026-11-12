@@ -61,7 +61,7 @@ Do not edit manually.
 - **Hook:** `graphql_connection`
   - Severity: warning
   - Message: low_specificity: Hook name has too few semantic segments after prefix.
-  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1086)
+  - Source: `plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php` (line 1092)
 - **Hook:** `wp_graphql_experiment_enabled`
   - Severity: warning
   - Message: deprecated_prefix: Hook name uses deprecated prefix "wp_graphql_".
@@ -101,27 +101,27 @@ Do not edit manually.
 - **Hook:** `init_graphql_request`
   - Severity: warning
   - Message: deprecated_prefix: Hook name uses deprecated prefix "init_graphql_".
-  - Source: `plugins/wp-graphql/src/Request.php` (line 163)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 164)
 - **Hook:** `init_graphql_request`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Request.php` (line 163)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 164)
 - **Hook:** `graphql_execute`
   - Severity: warning
   - Message: low_specificity: Hook name has too few semantic segments after prefix.
-  - Source: `plugins/wp-graphql/src/Request.php` (line 767)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 772)
 - **Hook:** `do_graphql_request`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Request.php` (line 851)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 856)
 - **Hook:** `pre_graphql_execute_request`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Request.php` (line 927)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 932)
 - **Hook:** `pre_graphql_execute_request`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
-  - Source: `plugins/wp-graphql/src/Request.php` (line 1034)
+  - Source: `plugins/wp-graphql/src/Request.php` (line 1039)
 - **Hook:** `register_graphql_post_type_args`
   - Severity: warning
   - Message: nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix.
@@ -137,7 +137,7 @@ Do not edit manually.
 - **Hook:** `graphql_endpoint`
   - Severity: warning
   - Message: low_specificity: Hook name has too few semantic segments after prefix.
-  - Source: `plugins/wp-graphql/access-functions.php` (line 983)
+  - Source: `plugins/wp-graphql/access-functions.php` (line 1014)
 - **Hook:** `'wp_graphql_experiment_' . $this->get_slug() . '_loaded'`
   - Severity: warning
   - Message: dynamic_nonstandard_prefix: Dynamic hook expression does not clearly map to an expected namespace prefix.

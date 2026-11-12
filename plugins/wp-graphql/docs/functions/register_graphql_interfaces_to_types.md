@@ -26,7 +26,7 @@ Given a type name and interface name, this applies the interface to the Type. Sh
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:178`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L178)
+- [`plugins/wp-graphql/access-functions.php:209`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L209)
 
 ```php
 function register_graphql_interfaces_to_types( $interface_names, $type_names ): void {
