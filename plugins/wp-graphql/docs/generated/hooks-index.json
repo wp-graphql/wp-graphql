@@ -1,10 +1,10 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-11-10T21:02:59.593Z",
+  "generatedAt": "2026-11-11T22:45:08.900Z",
   "stats": {
-    "totalHooks": 289,
+    "totalHooks": 290,
     "actions": 64,
-    "filters": 225,
+    "filters": 226,
     "dynamic": 16,
     "snippets": 0
   },
@@ -168,7 +168,7 @@
         "type": "naming_convention",
         "hook": "graphql_connection",
         "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-        "line": 1086,
+        "line": 1092,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
@@ -238,42 +238,42 @@
         "type": "naming_convention",
         "hook": "init_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 163,
+        "line": 164,
         "message": "deprecated_prefix: Hook name uses deprecated prefix \"init_graphql_\"."
       },
       {
         "type": "naming_convention",
         "hook": "init_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 163,
+        "line": 164,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "graphql_execute",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 767,
+        "line": 772,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
         "type": "naming_convention",
         "hook": "do_graphql_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 851,
+        "line": 856,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 927,
+        "line": 932,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
         "type": "naming_convention",
         "hook": "pre_graphql_execute_request",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 1034,
+        "line": 1039,
         "message": "nonstandard_prefix: Hook name does not use the expected WPGraphQL namespace prefix."
       },
       {
@@ -301,7 +301,7 @@
         "type": "naming_convention",
         "hook": "graphql_endpoint",
         "file": "plugins/wp-graphql/access-functions.php",
-        "line": 983,
+        "line": 1014,
         "message": "low_specificity: Hook name has too few semantic segments after prefix."
       },
       {
@@ -317,7 +317,7 @@
     "flaggedHooks": 31,
     "warnings": 31,
     "errors": 0,
-    "wpgraphqlHooks": 268,
+    "wpgraphqlHooks": 269,
     "coreHooks": 21
   },
   "hooks": [
@@ -535,7 +535,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 361,
+      "line": 362,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -666,7 +666,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::do_action()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 851,
+      "line": 856,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action for each request.",
@@ -711,7 +711,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 851,
+          "line": 856,
           "symbol": "Request::do_action()",
           "emitter": "do_action"
         }
@@ -788,7 +788,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 573,
+      "line": 618,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -812,7 +812,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 573,
+          "line": 618,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -1424,7 +1424,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 716,
+      "line": 721,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after GraphQL Execution",
@@ -1459,7 +1459,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 716,
+          "line": 721,
           "symbol": "Request::after_execute()",
           "emitter": "do_action"
         }
@@ -1477,7 +1477,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "InstrumentSchema::wrap_fields()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 199,
+      "line": 204,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action AFTER the field resolves",
@@ -1547,7 +1547,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 199,
+          "line": 204,
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "do_action"
         }
@@ -1565,7 +1565,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Model::wrap_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 416,
+      "line": 458,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Hook that fires after the data is returned for the field",
@@ -1625,7 +1625,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 416,
+          "line": 458,
           "symbol": "Model::wrap_fields()",
           "emitter": "do_action"
         }
@@ -1999,7 +1999,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::filtered_authentication_errors()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 650,
+      "line": 651,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "If false, there are no authentication errors. If true, execution of the GraphQL request will be prevented and an error will be thrown.",
@@ -2034,7 +2034,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 650,
+          "line": 651,
           "symbol": "Request::filtered_authentication_errors()",
           "emitter": "apply_filters"
         },
@@ -2093,7 +2093,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 650,
+          "line": 651,
           "symbol": "Request::filtered_authentication_errors()",
           "emitter": "apply_filters"
         },
@@ -2117,7 +2117,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 374,
+      "line": 375,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "This action runs before execution of a GraphQL request (regardless if it's a single or batch request)",
@@ -2147,7 +2147,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 374,
+          "line": 375,
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
@@ -2165,7 +2165,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "InstrumentSchema::wrap_fields()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 121,
+      "line": 126,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action BEFORE the field resolves",
@@ -2230,7 +2230,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 121,
+          "line": 126,
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "do_action"
         }
@@ -2810,7 +2810,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_connection()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1086,
+      "line": 1092,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the connection. In some cases, connections will want to provide additional information other than edges, nodes, and pageInfo This filter allows additional fields to be returned to the connection resolver",
@@ -2845,7 +2845,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1086,
+          "line": 1092,
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
@@ -2863,7 +2863,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::__construct()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 226,
+      "line": 227,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the GraphQL args before they are used in get_query_args().",
@@ -2903,7 +2903,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 226,
+          "line": 227,
           "symbol": "AbstractConnectionResolver::__construct()",
           "emitter": "apply_filters"
         }
@@ -2921,7 +2921,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_amount_requested()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 963,
+      "line": 964,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the default query amount for a connection, if no `first` or `last` GraphQL argument is supplied.",
@@ -2956,7 +2956,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 963,
+          "line": 964,
           "symbol": "AbstractConnectionResolver::get_amount_requested()",
           "emitter": "apply_filters"
         }
@@ -2974,7 +2974,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::prepare_edges()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1426,
+      "line": 1433,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the edge within the connection.",
@@ -3009,7 +3009,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1426,
+          "line": 1433,
           "symbol": "AbstractConnectionResolver::prepare_edges()",
           "emitter": "apply_filters"
         }
@@ -3027,7 +3027,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_connection()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1059,
+      "line": 1065,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the edges in the connection.",
@@ -3062,7 +3062,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1059,
+          "line": 1065,
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
@@ -3080,7 +3080,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::execute_and_get_ids()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1161,
+      "line": 1168,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the connection IDs",
@@ -3115,7 +3115,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1161,
+          "line": 1168,
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
@@ -3133,7 +3133,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_is_valid_model()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1395,
+      "line": 1402,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether or not the model is valid. This is useful when the dataloader is overridden and uses a different model than expected by default.",
@@ -3173,7 +3173,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1395,
+          "line": 1402,
           "symbol": "AbstractConnectionResolver::get_is_valid_model()",
           "emitter": "apply_filters"
         }
@@ -3191,7 +3191,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_loader_name()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 586,
+      "line": 587,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the loader name. This is the name of the registered DataLoader that will be used to load the data for the connection.",
@@ -3226,7 +3226,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 586,
+          "line": 587,
           "symbol": "AbstractConnectionResolver::get_loader_name()",
           "emitter": "apply_filters"
         }
@@ -3244,7 +3244,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_query_amount()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 646,
+      "line": 647,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the maximum number of posts per page that should be queried. This prevents queries from being exceedingly resource intensive. The default is 100 - unless overloaded by ::max_query_amount() in the child class.",
@@ -3294,7 +3294,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 646,
+          "line": 647,
           "symbol": "AbstractConnectionResolver::get_query_amount()",
           "emitter": "apply_filters"
         }
@@ -3312,7 +3312,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_connection()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1047,
+      "line": 1053,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Set the items. These are the \"nodes\" that make up the connection. Filters the nodes in the connection",
@@ -3347,7 +3347,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1047,
+          "line": 1053,
           "symbol": "AbstractConnectionResolver::get_connection()",
           "emitter": "apply_filters"
         }
@@ -3365,7 +3365,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_page_info()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 849,
+      "line": 850,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the pageInfo that is returned to the connection. This filter allows for additional fields to be filtered into the pageInfo of a connection, such as \"totalCount\", etc, because the filter has enough context of the query, args, request, etc to be able to calculate and return that information. example: You would want to register a \"total\" field to the PageInfo type, then filter the pageInfo to return the total for the query, something to this tune: add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) { $page_info['total'] = null; if ( $connection->query instanceof WP_Query ) { if ( isset( $connection->query->found_posts ) { $page_info['total'] = (int) $connection->query->found_posts; } } return $page_info; });",
@@ -3400,7 +3400,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 849,
+          "line": 850,
           "symbol": "AbstractConnectionResolver::get_page_info()",
           "emitter": "apply_filters"
         }
@@ -3418,7 +3418,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_query()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 748,
+      "line": 749,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "When this filter returns anything but null, it will be used as the resolved query, and the default query execution will be skipped.",
@@ -3453,7 +3453,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 748,
+          "line": 749,
           "symbol": "AbstractConnectionResolver::get_query()",
           "emitter": "apply_filters"
         }
@@ -3471,7 +3471,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_pre_should_execute()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 926,
+      "line": 927,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters whether or not the query should execute, BEFORE any data is fetched or altered. This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for short-circuiting the Connection Resolver before any heavy logic is executed. For more in-depth checks, use the `graphql_connection_should_execute` filter instead.",
@@ -3521,7 +3521,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 926,
+          "line": 927,
           "symbol": "AbstractConnectionResolver::get_pre_should_execute()",
           "emitter": "apply_filters"
         }
@@ -3539,7 +3539,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::execute_and_get_ids()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1149,
+      "line": 1156,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Set the query for the resolver, for use as reference in filters, etc Filter the query. For core data, the query is typically an instance of: WP_Query WP_Comment_Query WP_User_Query WP_Term_Query ... But in some cases, the actual mechanism for querying data should be overridden. For example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload the query to that instead of a native WP_Query class. You could override this with a query to that datasource instead.",
@@ -3574,7 +3574,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1149,
+          "line": 1156,
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
@@ -3592,7 +3592,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::__construct()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 242,
+      "line": 243,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the query args before they are used in the query.",
@@ -3632,7 +3632,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 242,
+          "line": 243,
           "symbol": "AbstractConnectionResolver::__construct()",
           "emitter": "apply_filters"
         }
@@ -3680,7 +3680,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::get_query_class()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 713,
+      "line": 714,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the `$query_class` that will be used to execute the query. This is useful for replacing the default query (e.g `WP_Query` ) with a custom one (E.g. `WP_Term_Query` or WooCommerce's `WC_Query`).",
@@ -3715,7 +3715,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 713,
+          "line": 714,
           "symbol": "AbstractConnectionResolver::get_query_class()",
           "emitter": "apply_filters"
         }
@@ -3733,7 +3733,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "AbstractConnectionResolver::execute_and_get_ids()",
       "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-      "line": 1120,
+      "line": 1127,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Check if the connection should execute. If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed. Filter whether the connection should execute.",
@@ -3768,7 +3768,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-          "line": 1120,
+          "line": 1127,
           "symbol": "AbstractConnectionResolver::execute_and_get_ids()",
           "emitter": "apply_filters"
         }
@@ -3950,7 +3950,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 289,
+      "line": 331,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to determine if the data should be considered private or not",
@@ -4005,7 +4005,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 289,
+          "line": 331,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -4759,7 +4759,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "graphql_get_endpoint()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 983,
+      "line": 1014,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the relative endpoint path where GraphQL can be accessed.",
@@ -4789,7 +4789,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 983,
+          "line": 1014,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -4860,7 +4860,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 983,
+          "line": 1014,
           "symbol": "graphql_get_endpoint()",
           "emitter": "apply_filters"
         },
@@ -5098,7 +5098,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 767,
+      "line": 772,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action. This is a good place for debug tools to hook in to log things, etc.",
@@ -5153,7 +5153,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 767,
+          "line": 772,
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
@@ -5171,7 +5171,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::before_execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 356,
+      "line": 357,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Execute batch queries",
@@ -5201,7 +5201,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 356,
+          "line": 357,
           "symbol": "Request::before_execute()",
           "emitter": "do_action"
         }
@@ -5219,7 +5219,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 943,
+      "line": 948,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.",
@@ -5254,7 +5254,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 943,
+          "line": 948,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         }
@@ -5517,7 +5517,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "InstrumentSchema::wrap_fields()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 72,
+      "line": 73,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the field definition",
@@ -5552,7 +5552,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 72,
+          "line": 73,
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
@@ -5570,7 +5570,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "InstrumentSchema::check_field_permissions()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 244,
+      "line": 249,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filters the default authorization error message for field resolvers.",
@@ -5605,7 +5605,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 244,
+          "line": 249,
           "symbol": "InstrumentSchema::check_field_permissions()",
           "emitter": "apply_filters"
         }
@@ -5873,7 +5873,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 961,
+      "line": 992,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the value before returning it",
@@ -5923,7 +5923,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 961,
+          "line": 992,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
@@ -5941,7 +5941,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "get_graphql_setting()",
       "file": "plugins/wp-graphql/access-functions.php",
-      "line": 939,
+      "line": 970,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the section fields",
@@ -5981,7 +5981,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/access-functions.php",
-          "line": 939,
+          "line": 970,
           "symbol": "get_graphql_setting()",
           "emitter": "apply_filters"
         }
@@ -6100,7 +6100,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::html_entity_decode()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 600,
+      "line": 655,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Determine whether html_entity_decode should be applied to the string",
@@ -6145,7 +6145,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 600,
+          "line": 655,
           "symbol": "Model::html_entity_decode()",
           "emitter": "apply_filters"
         }
@@ -6787,7 +6787,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_invalid_content_type_response()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1105,
+      "line": 1110,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the status code to return when the content type is invalid",
@@ -6822,7 +6822,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1105,
+          "line": 1110,
           "symbol": "Request::get_invalid_content_type_response()",
           "emitter": "apply_filters"
         }
@@ -6840,7 +6840,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::is_batch_queries_enabled()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1171,
+      "line": 1176,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter whether batch queries are supported or not",
@@ -6875,7 +6875,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1171,
+          "line": 1176,
           "symbol": "Request::is_batch_queries_enabled()",
           "emitter": "apply_filters"
         }
@@ -6941,7 +6941,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::is_valid_http_content_type()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1071,
+      "line": 1076,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Allow graphql to validate custom content types for HTTP POST requests",
@@ -6976,7 +6976,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1071,
+          "line": 1076,
           "symbol": "Request::is_valid_http_content_type()",
           "emitter": "apply_filters"
         }
@@ -7616,7 +7616,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::current_user_can_access_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 502,
+      "line": 557,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Capability to check required for the field",
@@ -7676,8 +7676,61 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 502,
+          "line": 557,
           "symbol": "Model::current_user_can_access_field()",
+          "emitter": "apply_filters"
+        }
+      ],
+      "relatedRecipes": []
+    },
+    {
+      "pluginSlug": "wp-graphql",
+      "name": "graphql_model_node_context_globals",
+      "kind": "filter",
+      "group": "models",
+      "groupLabel": "Model Layer",
+      "groupSource": "explicit",
+      "sourceType": "wpgraphql",
+      "emitter": "apply_filters",
+      "enclosingSymbol": "NodeContext::get_globals()",
+      "file": "plugins/wp-graphql/src/Model/NodeContext.php",
+      "line": 534,
+      "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
+      "repositoryRef": "main",
+      "description": "Filters the globals saved before a model is set up as the current object, and restored when resolution leaves it. The main query ($wp_query) is always saved and restored, separately. By default the list is the post data globals WordPress sets up for a post ($post, $id, $authordata, $page, $pages, $multipage, $more, $numpages, $currentday and $currentmonth). Add a global that setting up the model can change, such as one a plugin sets on the `the_post` action (WooCommerce sets the global $product there) or one a custom model's setup() sets, so fields outside the model's part of the query don't see the value it left behind. The filter runs each time a model is set up, and when a callback is bound to the current node's state, so callbacks should be quick and have no side effects. Globals that hold WordPress's own infrastructure, such as $wpdb, $wp_filter and $current_user, are never saved or restored, even if they're added here.",
+      "params": [
+        {
+          "type": "string[]",
+          "name": "$globals",
+          "description": "The names of the globals, as keys of $GLOBALS."
+        },
+        {
+          "type": "\\WPGraphQL\\Model\\Model<mixed>",
+          "name": "$model",
+          "description": "The model about to be set up, or the current node when a callback is being bound."
+        }
+      ],
+      "argumentCount": 2,
+      "docblockParamCount": 2,
+      "since": "2.28.0",
+      "hookGroup": "models",
+      "isDynamic": false,
+      "rawExpression": "'graphql_model_node_context_globals'",
+      "sourceCall": "apply_filters( 'graphql_model_node_context_globals', self::GLOBALS, $model );",
+      "relatedSnippets": [],
+      "lifecycle": {
+        "status": "active",
+        "deprecatedIn": null,
+        "removedIn": null,
+        "replacement": null,
+        "message": null,
+        "source": null
+      },
+      "relatedReferences": [
+        {
+          "file": "plugins/wp-graphql/src/Model/NodeContext.php",
+          "line": 534,
+          "symbol": "NodeContext::get_globals()",
           "emitter": "apply_filters"
         }
       ],
@@ -7694,7 +7747,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 573,
+      "line": 628,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the array of fields for the Model before the object is hydrated with it",
@@ -7749,7 +7802,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 573,
+          "line": 628,
           "symbol": "Model::prepare_fields()",
           "emitter": "apply_filters"
         }
@@ -8160,7 +8213,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 315,
+      "line": 357,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the visibility name to be returned",
@@ -8210,7 +8263,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 315,
+          "line": 357,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -9203,7 +9256,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 265,
+      "line": 307,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to short circuit default is_private check for the model. This is expensive in some cases so this filter lets you prevent this from running by returning a true or false value.",
@@ -9258,7 +9311,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 265,
+          "line": 307,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -9581,7 +9634,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "InstrumentSchema::wrap_fields()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 148,
+      "line": 153,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "When this filter return anything other than the $nil it will be used as the resolved value and the execution of the actual resolved is skipped. This filter can be used to implement field level caches or for efficiently hiding data by returning null.",
@@ -9651,7 +9704,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 148,
+          "line": 153,
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
@@ -9923,7 +9976,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::wrap_fields()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 394,
+      "line": 436,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter to short circuit the callback for any field on a type. Returning anything other than null will stop the callback for the field from executing, and will return your data or execute your callback instead.",
@@ -9983,7 +10036,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 394,
+          "line": 436,
           "symbol": "Model::wrap_fields()",
           "emitter": "apply_filters"
         }
@@ -11599,7 +11652,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 806,
+      "line": 811,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the $response of the GraphQL execution. This allows for the response to be filtered before it's returned, allowing granular control over the response at the latest point. POSSIBLE USAGE EXAMPLES: This could be used to ensure that certain fields never make it to the response if they match certain criteria, etc. For example, this filter could be used to check if a current user is allowed to see certain things, and if they are not, the $response could be filtered to remove the data they should not be allowed to see. Or, perhaps some systems want the response to always include some additional piece of data in every response, regardless of the request that was sent to it, this could allow for that to be hooked in and included in the $response.",
@@ -11659,7 +11712,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 806,
+          "line": 811,
           "symbol": "Request::after_execute_actions()",
           "emitter": "apply_filters"
         }
@@ -11765,7 +11818,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "InstrumentSchema::wrap_fields()",
       "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-      "line": 181,
+      "line": 186,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Fire an action before the field resolves",
@@ -11835,7 +11888,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Utils/InstrumentSchema.php",
-          "line": 181,
+          "line": 186,
           "symbol": "InstrumentSchema::wrap_fields()",
           "emitter": "apply_filters"
         }
@@ -12362,7 +12415,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::get_visibility()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 248,
+      "line": 290,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter for the capability to check against for restricted data",
@@ -12417,7 +12470,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 248,
+          "line": 290,
           "symbol": "Model::get_visibility()",
           "emitter": "apply_filters"
         }
@@ -12435,7 +12488,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Model::prepare_field()",
       "file": "plugins/wp-graphql/src/Model/Model.php",
-      "line": 470,
+      "line": 513,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter the data returned by the default callback for the field",
@@ -12495,7 +12548,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Model.php",
-          "line": 470,
+          "line": 513,
           "symbol": "Model::prepare_field()",
           "emitter": "apply_filters"
         }
@@ -12581,7 +12634,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::after_execute_actions()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 823,
+      "line": 828,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action after the response has been filtered, as the response is being returned. This is a good place for debug tools to hook in to log things, etc.",
@@ -12646,7 +12699,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 823,
+          "line": 828,
           "symbol": "Request::after_execute_actions()",
           "emitter": "do_action"
         }
@@ -12664,7 +12717,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_root_value()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 246,
+      "line": 247,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Return the filtered root value",
@@ -12699,7 +12752,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 246,
+          "line": 247,
           "symbol": "Request::get_root_value()",
           "emitter": "apply_filters"
         }
@@ -12936,7 +12989,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::get_server()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1207,
+      "line": 1212,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Run an action when the server config is created. The config can be acted upon directly to override default values or implement new features, e.g., $config->setValidationRules().",
@@ -12971,7 +13024,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1207,
+          "line": 1212,
           "symbol": "Request::get_server()",
           "emitter": "do_action"
         }
@@ -15370,7 +15423,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::get_validation_rules()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 224,
+      "line": 225,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Return the validation rules to use in the request",
@@ -15405,7 +15458,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 224,
+          "line": 225,
           "symbol": "Request::get_validation_rules()",
           "emitter": "apply_filters"
         }
@@ -15971,7 +16024,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 163,
+          "line": 164,
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
@@ -15989,7 +16042,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Request::__construct()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 163,
+      "line": 164,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Action – intentionally with no context – to indicate a GraphQL Request has started.",
@@ -16019,7 +16072,7 @@
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 163,
+          "line": 164,
           "symbol": "Request::__construct()",
           "emitter": "do_action"
         }
@@ -16138,7 +16191,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 927,
+      "line": 932,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter this to be anything other than null to short-circuit the request.",
@@ -16173,13 +16226,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 927,
+          "line": 932,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1034,
+          "line": 1039,
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
@@ -16197,7 +16250,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Request::execute_http()",
       "file": "plugins/wp-graphql/src/Request.php",
-      "line": 1034,
+      "line": 1039,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "Filter this to be anything other than null to short-circuit HTTP execution.",
@@ -16232,13 +16285,13 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 927,
+          "line": 932,
           "symbol": "Request::execute()",
           "emitter": "apply_filters"
         },
         {
           "file": "plugins/wp-graphql/src/Request.php",
-          "line": 1034,
+          "line": 1039,
           "symbol": "Request::execute_http()",
           "emitter": "apply_filters"
         }
@@ -16709,7 +16762,7 @@
       "emitter": "apply_filters",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 849,
+      "line": 894,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16733,7 +16786,7 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 849,
+          "line": 894,
           "symbol": "Post::init()",
           "emitter": "apply_filters"
         }
@@ -16751,7 +16804,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 549,
+      "line": 594,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16775,37 +16828,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -16835,7 +16888,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Post::init()",
       "file": "plugins/wp-graphql/src/Model/Post.php",
-      "line": 558,
+      "line": 603,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16859,37 +16912,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -16919,7 +16972,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Term::init()",
       "file": "plugins/wp-graphql/src/Model/Term.php",
-      "line": 136,
+      "line": 142,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -16943,37 +16996,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -17003,7 +17056,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "Term::init()",
       "file": "plugins/wp-graphql/src/Model/Term.php",
-      "line": 145,
+      "line": 151,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -17027,37 +17080,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -17087,7 +17140,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "User::init()",
       "file": "plugins/wp-graphql/src/Model/User.php",
-      "line": 194,
+      "line": 202,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -17111,37 +17164,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -17171,7 +17224,7 @@
       "emitter": "do_action",
       "enclosingSymbol": "User::init()",
       "file": "plugins/wp-graphql/src/Model/User.php",
-      "line": 203,
+      "line": 211,
       "repositoryUrl": "https://github.com/wp-graphql/wp-graphql",
       "repositoryRef": "main",
       "description": "",
@@ -17195,37 +17248,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -17279,37 +17332,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
@@ -17363,37 +17416,37 @@
       "relatedReferences": [
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 549,
+          "line": 594,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Post.php",
-          "line": 558,
+          "line": 603,
           "symbol": "Post::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 136,
+          "line": 142,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/Term.php",
-          "line": 145,
+          "line": 151,
           "symbol": "Term::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 194,
+          "line": 202,
           "symbol": "User::init()",
           "emitter": "do_action"
         },
         {
           "file": "plugins/wp-graphql/src/Model/User.php",
-          "line": 203,
+          "line": 211,
           "symbol": "User::init()",
           "emitter": "do_action"
         },

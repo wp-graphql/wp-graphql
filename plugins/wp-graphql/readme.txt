@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.27.0
+Stable tag: 2.28.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -85,6 +85,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 = 2.29.0 =
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
+
+= 2.28.0 =
+
+**Fields now see the right post, term or user as the current object.** Values that depend on the current object, such as some SEO, template, block and gallery output, now come from the node a field is selected under, including in lists, where they could come from a different node before. After updating, purge cached GraphQL responses (WPGraphQL Smart Cache, your CDN and your front end) so the corrected values appear. If you have custom resolvers that read the current post with functions like `get_the_ID()` or `is_singular()` in root fields or in Deferred callbacks, check them against https://www.wpgraphql.com/docs/node-context/. Details: https://github.com/wp-graphql/wp-graphql/issues/4572.
 
 = 2.27.1 =
 
@@ -381,6 +385,18 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.28.0 =
+
+**New Features**
+
+* give resolvers the right current post, term or user, and restore global state afterward ([#4575](https://github.com/wp-graphql/wp-graphql/issues/4575))
+
+= 2.27.1 =
+
+**Bug Fixes**
+
+* require edit_others_posts to read other users' posts in any non-public status ([#4702](https://github.com/wp-graphql/wp-graphql/issues/4702))
 
 = 2.27.0 =
 

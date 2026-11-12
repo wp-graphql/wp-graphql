@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.28.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.27.1...wp-graphql/v2.28.0) (2026-11-11)
+
+
+### New Features
+
+* give resolvers the right current post, term or user, and restore global state afterward ([#4575](https://github.com/wp-graphql/wp-graphql/issues/4575)) ([72d1786](https://github.com/wp-graphql/wp-graphql/commit/72d17860f9e61d65824b28ad8d806500dde49387))
+
+## [2.27.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.27.0...wp-graphql/v2.27.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* require edit_others_posts to read other users' posts in any non-public status ([#4702](https://github.com/wp-graphql/wp-graphql/issues/4702)) ([b949a31](https://github.com/wp-graphql/wp-graphql/commit/b949a3145cf214cb437ba74339a993e2d4bdc559))
+
 ## [2.27.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.26.2...wp-graphql/v2.27.0) (2026-11-10)
 
 

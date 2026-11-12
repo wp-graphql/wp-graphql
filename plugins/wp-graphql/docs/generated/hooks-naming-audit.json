@@ -1,6 +1,6 @@
 {
   "plugin": "wp-graphql",
-  "generatedAt": "2026-11-10T21:02:59.593Z",
+  "generatedAt": "2026-11-11T22:45:08.900Z",
   "audit": {
     "rules": {
       "allowedPrefixes": [
@@ -31,11 +31,11 @@
       ]
     },
     "summary": {
-      "totalHooks": 289,
-      "wpgraphqlHooks": 268,
-      "activeWpgraphqlHooks": 264,
+      "totalHooks": 290,
+      "wpgraphqlHooks": 269,
+      "activeWpgraphqlHooks": 265,
       "coreHooks": 21,
-      "staticHooks": 251,
+      "staticHooks": 252,
       "dynamicHooks": 13,
       "flaggedHooks": 31,
       "warnings": 31,
@@ -44,7 +44,7 @@
     "topPrefixes": [
       {
         "prefix": "graphql_",
-        "count": 236
+        "count": 237
       },
       {
         "prefix": "wpgraphql_",
@@ -180,7 +180,7 @@
         "hook": "graphql_connection",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php",
-        "line": 1086,
+        "line": 1092,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
@@ -280,7 +280,7 @@
         "hook": "init_graphql_request",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 163,
+        "line": 164,
         "code": "deprecated_prefix",
         "severity": "warning",
         "message": "Hook name uses deprecated prefix \"init_graphql_\".",
@@ -290,7 +290,7 @@
         "hook": "init_graphql_request",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 163,
+        "line": 164,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -300,7 +300,7 @@
         "hook": "graphql_execute",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 767,
+        "line": 772,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",
@@ -310,7 +310,7 @@
         "hook": "do_graphql_request",
         "kind": "action",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 851,
+        "line": 856,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -320,7 +320,7 @@
         "hook": "pre_graphql_execute_request",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 927,
+        "line": 932,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -330,7 +330,7 @@
         "hook": "pre_graphql_execute_request",
         "kind": "filter",
         "file": "plugins/wp-graphql/src/Request.php",
-        "line": 1034,
+        "line": 1039,
         "code": "nonstandard_prefix",
         "severity": "warning",
         "message": "Hook name does not use the expected WPGraphQL namespace prefix.",
@@ -370,7 +370,7 @@
         "hook": "graphql_endpoint",
         "kind": "filter",
         "file": "plugins/wp-graphql/access-functions.php",
-        "line": 983,
+        "line": 1014,
         "code": "low_specificity",
         "severity": "warning",
         "message": "Hook name has too few semantic segments after prefix.",

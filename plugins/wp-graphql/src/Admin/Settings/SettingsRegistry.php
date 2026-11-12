@@ -285,7 +285,7 @@ class SettingsRegistry {
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 				$callback        = static function () use ( $section ) {
-					echo wp_kses( str_replace( '"', '\"', $section['desc'] ), Utils::get_allowed_wp_kses_html() );
+					echo wp_kses( $section['desc'], Utils::get_allowed_wp_kses_html() );
 				};
 			} elseif ( isset( $section['callback'] ) ) {
 				$callback = $section['callback'];

@@ -24,7 +24,7 @@ Action – intentionally with no context – to indicate a GraphQL Request has s
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L163)
+- [`plugins/wp-graphql/src/Request.php:164`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L164)
 
 ```php
 do_action( 'init_graphql_request' );
@@ -33,4 +33,4 @@ do_action( 'init_graphql_request' );
 ## Related
 
 - `Commands::generate_static_schema()` in [`plugins/wp-graphql/src/CLI/Commands.php:71`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/CLI/Commands.php#L71)
-- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:163`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L163)
+- `Request::__construct()` in [`plugins/wp-graphql/src/Request.php:164`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L164)
