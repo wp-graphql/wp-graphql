@@ -127,7 +127,7 @@ class SettingsRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_quote_test_settings',
 			[
 				'title' => 'Quote Test',
-				'desc'  => '<div class="notice notice-info inline"><p>Test <a href="https://example.com" target="_blank">link</a></p></div>',
+				'desc'  => '<div class="notice notice-info inline"><p>Choose "Allow" to continue. <a href="https://example.com" target="_blank">link</a></p></div>',
 			]
 		);
 
@@ -140,6 +140,9 @@ class SettingsRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$callback();
 		$html = (string) ob_get_clean();
 
+		// Quotes in the text are where the old escaping showed on every WordPress version. Some versions of
+		// kses remove backslashes inside tags, so the attribute checks alone don't catch it everywhere.
+		$this->assertStringContainsString( 'Choose "Allow" to continue.', $html );
 		$this->assertStringContainsString( '<div class="inside">', $html );
 		$this->assertStringContainsString( 'class="notice notice-info inline"', $html );
 		$this->assertStringContainsString( 'href="https://example.com"', $html );
