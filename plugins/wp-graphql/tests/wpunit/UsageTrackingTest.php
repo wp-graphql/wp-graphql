@@ -557,55 +557,7 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotNull( $deactivate_index, 'Expected a deactivate request to Appsero.' );
 		$this->assertSame( 'other', $this->request_bodies[ $deactivate_index ]['reason_id'] ?? null );
-
-		// The feedback carries the same site details as a check-in, without the admin email or name.
-		$this->assertArrayHasKey( 'url', $this->request_bodies[ $deactivate_index ] );
-		$this->assertArrayNotHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
-		$this->assertArrayNotHasKey( 'first_name', $this->request_bodies[ $deactivate_index ] );
-		$this->assertArrayNotHasKey( 'last_name', $this->request_bodies[ $deactivate_index ] );
-	}
-
-	public function testCheckInsLeaveOutTheAdminEmailAndName(): void {
-		self::factory()->user->create(
-			[
-				'role'       => 'administrator',
-				'first_name' => 'Ada',
-				'last_name'  => 'Admin',
-			]
-		);
-		delete_option( $this->slug . '_tracking_last_send' );
-
-		$optin_data = null;
-		$capture    = static function ( $data ) use ( &$optin_data ): void {
-			$optin_data = $data;
-		};
-		add_action( $this->slug . '_tracker_optin', $capture );
-
-		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
-
-		remove_action( $this->slug . '_tracker_optin', $capture );
-		delete_option( $this->slug . '_tracking_last_send' );
-
-		$track = array_values(
-			array_filter(
-				$this->request_bodies,
-				function ( $body, $i ) {
-					return false !== strpos( $this->requests[ $i ], '/track' );
-				},
-				ARRAY_FILTER_USE_BOTH
-			)
-		);
-
-		$this->assertNotEmpty( $track, 'Expected the opt-in to send a check-in.' );
-
-		foreach ( array_merge( $track, [ $optin_data ] ) as $data ) {
-			$this->assertIsArray( $data );
-			$this->assertSame( esc_url( home_url() ), $data['url'] );
-			$this->assertArrayHasKey( 'server', $data );
-			$this->assertArrayNotHasKey( 'admin_email', $data );
-			$this->assertArrayNotHasKey( 'first_name', $data );
-			$this->assertArrayNotHasKey( 'last_name', $data );
-		}
+		$this->assertArrayHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
 	}
 
 	/**
@@ -632,5 +584,55 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			remove_filter( 'wp_doing_ajax', '__return_true' );
 			remove_all_filters( 'wp_die_ajax_handler' );
 		}
+	}
+
+	/**
+	 * The copy sent to telemetry.wpgraphql.com leaves out the site's admin email address and an
+	 * administrator's name, and Appsero's own request is sent unchanged.
+	 */
+	public function testTheTelemetryCopyLeavesOutTheAdminEmailAndName(): void {
+		$sent    = [];
+		$capture = static function ( $preempt, $args, $url ) use ( &$sent ) {
+			if ( false !== strpos( $url, 'api.appsero.com' ) || false !== strpos( $url, 'telemetry.wpgraphql.com' ) ) {
+				$sent[ $url ] = $args['body'] ?? null;
+			}
+
+			return [
+				'headers'  => [],
+				'body'     => '',
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+			];
+		};
+		add_filter( 'pre_http_request', $capture, 0, 3 );
+
+		// The plugin's own hash, so its mirror sends a copy of the check-in.
+		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', WPGRAPHQL_PLUGIN_FILE );
+		$client->insights()->send_tracking_data( true );
+
+		remove_filter( 'pre_http_request', $capture, 0 );
+
+		$this->assertSame(
+			[
+				'https://api.appsero.com/track',
+				'https://telemetry.wpgraphql.com/api/appsero/track',
+			],
+			array_keys( $sent )
+		);
+
+		$appsero = $sent['https://api.appsero.com/track'];
+		$copy    = $sent['https://telemetry.wpgraphql.com/api/appsero/track'];
+
+		$this->assertIsArray( $appsero );
+		$this->assertSame( get_option( 'admin_email' ), $appsero['admin_email'] );
+		$this->assertArrayHasKey( 'first_name', $appsero );
+		$this->assertArrayHasKey( 'last_name', $appsero );
+
+		// Everything else in the copy is the same as what Appsero received.
+		unset( $appsero['admin_email'], $appsero['first_name'], $appsero['last_name'] );
+		$this->assertSame( $appsero, $copy );
 	}
 }
