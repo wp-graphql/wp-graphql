@@ -183,7 +183,7 @@ function graphql_init_appsero_telemetry(): void {
 				$insights->notice(
 					sprintf(
 						// translators: %s is a link to the Data Sharing tab of the WPGraphQL settings page.
-						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wp-graphql' ),
+						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information. It doesn\'t include this site\'s admin email address or any user\'s name or email address. You can stop sharing at any time under %s.', 'wp-graphql' ),
 						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#' . \WPGraphQL\Admin\DataSharing::SECTION ) ) . '">' . esc_html__( 'GraphQL → Settings → Data Sharing', 'wp-graphql' ) . '</a>'
 					)
 				);

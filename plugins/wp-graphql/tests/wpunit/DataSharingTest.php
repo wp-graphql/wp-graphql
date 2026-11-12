@@ -268,8 +268,8 @@ class DataSharingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertStringContainsString( 'Choose what this site shares with the WPGraphQL team.', $output );
 		$this->assertStringContainsString( 'and then about once a week: server environment and WordPress version', $output );
-		$this->assertStringContainsString( 'admin email address and an administrator', $output );
-		$this->assertStringContainsString( 'sign anyone up for emails', $output );
+		$this->assertStringContainsString( 'admin email address or any user', $output );
+		$this->assertStringNotContainsString( 'an administrator', $output );
 		$this->assertStringContainsString( 'box to stop sharing for it at any time.', $output );
 		$this->assertStringContainsString( 'deactivating it from the Plugins screen may show a form asking why', $output );
 		$this->assertStringContainsString( 'Submitting it sends that reason with the same site details as a check-in.', $output );

@@ -111,7 +111,34 @@ class UsageTracking {
 		add_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 
+		// Late, so the admin email and name stay out even if another callback adds data to the payload.
+		add_filter( $this->slug . '_tracker_data', [ $this, 'remove_admin_contact' ], 999 );
+
 		$this->gate_deactivation_feedback();
+	}
+
+	/**
+	 * Leave the site's admin email address and an administrator's name out of the usage data.
+	 *
+	 * Appsero adds both to every check-in, to the data passed to its opt-in action and to the
+	 * deactivation feedback, and the copies sent to telemetry.wpgraphql.com are the same payload.
+	 * The admin email isn't a request for email from anyone, and usage data doesn't need it, so it
+	 * isn't sent at all. Email updates are a separate choice, made with an address someone enters.
+	 *
+	 * @param mixed $data The data Appsero is about to send.
+	 *
+	 * @return mixed The data, without `admin_email`, `first_name` and `last_name`.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function remove_admin_contact( $data ) {
+		if ( ! is_array( $data ) ) {
+			return $data;
+		}
+
+		unset( $data['admin_email'], $data['first_name'], $data['last_name'] );
+
+		return $data;
 	}
 
 	/**
@@ -119,7 +146,7 @@ class UsageTracking {
 	 * site has opted in to usage tracking.
 	 *
 	 * Appsero always registers the form and sends `get_tracking_data()` with the reason — site URL,
-	 * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
+	 * environment details, and public IP — without checking `{slug}_allow_tracking`.
 	 * Call this after `$insights->init()` so those hooks are replaced.
 	 *
 	 * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
@@ -184,7 +211,7 @@ class UsageTracking {
 			$label = __( 'Share Usage Data', 'wp-graphql' );
 			$desc  = sprintf(
 				// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-				__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+				__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, and number of users. It doesn\'t include this site\'s admin email address or any user\'s name or email address. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
 				esc_html( $this->product_name ),
 				'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
 			);

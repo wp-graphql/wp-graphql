@@ -557,7 +557,55 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotNull( $deactivate_index, 'Expected a deactivate request to Appsero.' );
 		$this->assertSame( 'other', $this->request_bodies[ $deactivate_index ]['reason_id'] ?? null );
-		$this->assertArrayHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
+
+		// The feedback carries the same site details as a check-in, without the admin email or name.
+		$this->assertArrayHasKey( 'url', $this->request_bodies[ $deactivate_index ] );
+		$this->assertArrayNotHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
+		$this->assertArrayNotHasKey( 'first_name', $this->request_bodies[ $deactivate_index ] );
+		$this->assertArrayNotHasKey( 'last_name', $this->request_bodies[ $deactivate_index ] );
+	}
+
+	public function testCheckInsLeaveOutTheAdminEmailAndName(): void {
+		self::factory()->user->create(
+			[
+				'role'       => 'administrator',
+				'first_name' => 'Ada',
+				'last_name'  => 'Admin',
+			]
+		);
+		delete_option( $this->slug . '_tracking_last_send' );
+
+		$optin_data = null;
+		$capture    = static function ( $data ) use ( &$optin_data ): void {
+			$optin_data = $data;
+		};
+		add_action( $this->slug . '_tracker_optin', $capture );
+
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+
+		remove_action( $this->slug . '_tracker_optin', $capture );
+		delete_option( $this->slug . '_tracking_last_send' );
+
+		$track = array_values(
+			array_filter(
+				$this->request_bodies,
+				function ( $body, $i ) {
+					return false !== strpos( $this->requests[ $i ], '/track' );
+				},
+				ARRAY_FILTER_USE_BOTH
+			)
+		);
+
+		$this->assertNotEmpty( $track, 'Expected the opt-in to send a check-in.' );
+
+		foreach ( array_merge( $track, [ $optin_data ] ) as $data ) {
+			$this->assertIsArray( $data );
+			$this->assertSame( esc_url( home_url() ), $data['url'] );
+			$this->assertArrayHasKey( 'server', $data );
+			$this->assertArrayNotHasKey( 'admin_email', $data );
+			$this->assertArrayNotHasKey( 'first_name', $data );
+			$this->assertArrayNotHasKey( 'last_name', $data );
+		}
 	}
 
 	/**

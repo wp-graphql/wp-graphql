@@ -71,7 +71,7 @@ You can stop sharing at any time by unchecking **Share usage data with the WPGra
 
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
-Sharing usage data doesn't sign anyone up for email, even though the usage data includes this site's admin email address and an administrator's name.
+Usage data doesn't include this site's admin email address or any user's name or email address, and sharing it doesn't sign anyone up for email. (The "what we collect" list in Appsero's opt-in notice still names "your name and email address"; WPGraphQL removes both before anything is sent.)
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 

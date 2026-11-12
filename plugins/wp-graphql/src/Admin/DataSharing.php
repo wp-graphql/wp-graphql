@@ -153,7 +153,7 @@ final class DataSharing {
 		return '<p>' . esc_html__( 'Choose what this site shares with the WPGraphQL team. These settings don\'t change how WPGraphQL works on your site.', 'wp-graphql' ) . '</p>'
 			. '<p>' . sprintf(
 				// translators: %s is a link to the privacy policy of the telemetry provider.
-				esc_html__( 'A plugin whose box is checked sends details about this site to help guide its development, once when the box is checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck a plugin\'s box to stop sharing for it at any time. %s', 'wp-graphql' ),
+				esc_html__( 'A plugin whose box is checked sends details about this site to help guide its development, once when the box is checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, and number of users. It doesn\'t include this site\'s admin email address or any user\'s name or email address. Uncheck a plugin\'s box to stop sharing for it at any time. %s', 'wp-graphql' ),
 				$learn_more
 			) . '</p>'
 			. '<p>' . esc_html__( 'While a plugin is opted in, deactivating it from the Plugins screen may show a form asking why. Submitting it sends that reason with the same site details as a check-in.', 'wp-graphql' ) . '</p>';
