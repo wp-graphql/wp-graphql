@@ -171,6 +171,35 @@ class UsageTracking {
 	}
 
 	/**
+	 * Whether the site hasn't chosen yet: it hasn't opted in, and hasn't declined or dismissed the opt-in notice.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function is_undecided(): bool {
+		return ! $this->is_tracking_allowed() && 'hide' !== get_option( $this->slug . '_tracking_notice' );
+	}
+
+	/**
+	 * Opt the site in, as the opt-in notice's Allow button does. The caller checks `manage_options`.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function opt_in(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			$this->insights->optin();
+		}
+	}
+
+	/**
+	 * Decline, as the opt-in notice's No thanks button does: the site isn't opted in, and isn't asked again.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function opt_out(): void {
+		$this->insights->optout();
+	}
+
+	/**
 	 * Register the toggle on the settings page.
 	 *
 	 * On the Data Sharing tab, where every registered plugin has a toggle, the row is labeled with
