@@ -953,7 +953,10 @@ class TypeRegistry {
 		$introspection_keys = self::get_introspection_keys();
 
 		foreach ( $introspection_keys as $key ) {
-			if ( ! isset( $config[ $key ] ) || ! is_callable( $config[ $key ] ) ) {
+			// A string is the value itself, even when it names a PHP function (function names are
+			// case-insensitive, so a description like "Date" names date()). Only a closure, a
+			// callable array or an invokable object is resolved lazily.
+			if ( ! isset( $config[ $key ] ) || is_string( $config[ $key ] ) || ! is_callable( $config[ $key ] ) ) {
 				continue;
 			}
 
@@ -963,7 +966,7 @@ class TypeRegistry {
 				continue;
 			}
 
-			$config[ $key ] = is_callable( $config[ $key ] ) ? $config[ $key ]() : '';
+			$config[ $key ] = $config[ $key ]();
 		}
 
 		return $config;
