@@ -31,7 +31,7 @@ Filter the $insert_post_args
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L115)
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:119`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L119)
 
 ```php
 apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_post_object_insert_post_args', $insert_post_args, $input
 
 ## Related
 
-- `PostObjectMutation::prepare_post_object()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:115`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L115)
+- `PostObjectMutation::prepare_post_object()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:119`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L119)

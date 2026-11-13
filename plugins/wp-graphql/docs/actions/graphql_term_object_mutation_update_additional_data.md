@@ -33,7 +33,7 @@ Fires after a term has been created or updated via a GraphQL mutation. This is a
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/TermObjectMutation.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L148)
+- [`plugins/wp-graphql/src/Data/TermObjectMutation.php:149`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L149)
 
 ```php
 do_action( 'graphql_term_object_mutation_update_additional_data', $term_id, $input, $taxonomy, $mutation_name, $context, $info );
@@ -41,4 +41,4 @@ do_action( 'graphql_term_object_mutation_update_additional_data', $term_id, $inp
 
 ## Related
 
-- `TermObjectMutation::update_additional_term_object_data()` in [`plugins/wp-graphql/src/Data/TermObjectMutation.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L148)
+- `TermObjectMutation::update_additional_term_object_data()` in [`plugins/wp-graphql/src/Data/TermObjectMutation.php:149`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L149)

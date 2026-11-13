@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.29.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.28.0...wp-graphql/v2.29.0) (2026-11-13)
+
+
+### New Features
+
+* add a Data Sharing settings tab for usage data opt-ins ([#4697](https://github.com/wp-graphql/wp-graphql/issues/4697)) ([9327632](https://github.com/wp-graphql/wp-graphql/commit/93276321d472f6ac5afd36dda98b2a5e92722b3d))
+* add email updates to the Data Sharing tab and its opt-in notice ([#4708](https://github.com/wp-graphql/wp-graphql/issues/4708)) ([4f051fa](https://github.com/wp-graphql/wp-graphql/commit/4f051fa56aa6513280ccefb05274845d47267221))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4715](https://github.com/wp-graphql/wp-graphql/issues/4715)) ([4e9e782](https://github.com/wp-graphql/wp-graphql/commit/4e9e782020fc644b1bb8c2893b88b339600bf334))
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707)) ([154dade](https://github.com/wp-graphql/wp-graphql/commit/154dadedcdcdb1998bd00a3cbab353f4f500d944))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 8.56.0 to 9.0.0 ([#4689](https://github.com/wp-graphql/wp-graphql/issues/4689)) ([c7dd0c1](https://github.com/wp-graphql/wp-graphql/commit/c7dd0c1913bb9575a18b715f5ee07f8cead49f3a))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714)) ([de15e14](https://github.com/wp-graphql/wp-graphql/commit/de15e141b5c05737cfd981f19e06b07801e1640e))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4684](https://github.com/wp-graphql/wp-graphql/issues/4684)) ([257689b](https://github.com/wp-graphql/wp-graphql/commit/257689baa6fcc0a7d903f87878258f140dd9203e))
+* **mutations:** handle failed and disabled password reset emails ([#4680](https://github.com/wp-graphql/wp-graphql/issues/4680)) ([cc28bd0](https://github.com/wp-graphql/wp-graphql/commit/cc28bd0983e18ed393acdfce97c02ae35039e61d))
+* **mutations:** save empty values in post and term mutations ([#4679](https://github.com/wp-graphql/wp-graphql/issues/4679)) ([3aa82ad](https://github.com/wp-graphql/wp-graphql/commit/3aa82ad78b762034c3a4f051564f1dc546a2eea5))
+* **mutations:** stop updateMediaItem erasing fields left out of the input ([#4678](https://github.com/wp-graphql/wp-graphql/issues/4678)) ([f941abd](https://github.com/wp-graphql/wp-graphql/commit/f941abd09c5647331d7d71b19c84aa54a60c5fe1))
+* stop escaping quotes in settings section descriptions ([#4699](https://github.com/wp-graphql/wp-graphql/issues/4699)) ([f974205](https://github.com/wp-graphql/wp-graphql/commit/f974205a9c25394a0bd3a0d4d1b3d1c886d4668d))
+
 ## [2.28.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.27.1...wp-graphql/v2.28.0) (2026-11-11)
 
 

@@ -31,7 +31,7 @@ Filter the $insert_post_args
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/MediaItemMutation.php:106`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L106)
+- [`plugins/wp-graphql/src/Data/MediaItemMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L113)
 
 ```php
 apply_filters( 'graphql_media_item_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_media_item_insert_post_args', $insert_post_args, $input,
 
 ## Related
 
-- `MediaItemMutation::prepare_media_item()` in [`plugins/wp-graphql/src/Data/MediaItemMutation.php:106`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L106)
+- `MediaItemMutation::prepare_media_item()` in [`plugins/wp-graphql/src/Data/MediaItemMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L113)

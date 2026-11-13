@@ -31,7 +31,7 @@ Filter the $insert_args
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/TermObjectMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L113)
+- [`plugins/wp-graphql/src/Data/TermObjectMutation.php:114`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L114)
 
 ```php
 apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
@@ -39,4 +39,4 @@ apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $ta
 
 ## Related
 
-- `TermObjectMutation::prepare_object()` in [`plugins/wp-graphql/src/Data/TermObjectMutation.php:113`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L113)
+- `TermObjectMutation::prepare_object()` in [`plugins/wp-graphql/src/Data/TermObjectMutation.php:114`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/TermObjectMutation.php#L114)

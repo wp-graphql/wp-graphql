@@ -31,7 +31,7 @@ Fire an action before setting object terms during a GraphQL Post Object Mutation
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L250)
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:254`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L254)
 
 ```php
 do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $post_type_object, $mutation_name );
@@ -39,4 +39,4 @@ do_action( 'graphql_post_object_mutation_set_object_terms', $post_id, $input, $p
 
 ## Related
 
-- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:250`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L250)
+- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:254`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L254)
