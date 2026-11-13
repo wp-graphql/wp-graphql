@@ -163,11 +163,17 @@ add_filter(
 			$url
 		);
 
+		// The copy sent to the WPGraphQL team leaves out the site's admin email address and an
+		// administrator's name. Usage data doesn't need them, and nothing on telemetry.wpgraphql.com
+		// should treat them as contact details. Appsero's own request is sent unchanged.
+		unset( $body['admin_email'], $body['first_name'], $body['last_name'] );
+
 		wp_remote_post(
 			$mirror,
 			array_merge(
 				$args,
 				[
+					'body'     => $body,
 					'blocking' => false,
 					'timeout'  => 3,
 				]
