@@ -422,13 +422,45 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 	}
 
-	public function testPluginRegistersTheToggleOnTheGeneralSettings(): void {
+	public function testPluginNoLongerRegistersTheToggleOnTheGeneralSettings(): void {
 		$registry = new \WPGraphQL\Admin\Settings\SettingsRegistry();
 		do_action( 'graphql_init_settings', $registry );
 
 		$names = wp_list_pluck( $registry->get_settings_fields()['graphql_general_settings'] ?? [], 'name' );
 
-		$this->assertContains( UsageTracking::FIELD_NAME, $names );
+		// It's on the Data Sharing tab now, see DataSharingTest.
+		$this->assertNotContains( UsageTracking::FIELD_NAME, $names );
+	}
+
+	public function testTheToggleKeepsItsLabelAndDescriptionOnASectionOfItsOwn(): void {
+		$field = $this->registered_field();
+
+		$this->assertSame( 'Share Usage Data', $field['label'] );
+		$this->assertStringContainsString( 'help guide WPGraphQL development, when checked and then about once a week', $field['desc'] );
+		$this->assertStringContainsString( 'https://appsero.com/privacy-policy/', $field['desc'] );
+	}
+
+	public function testACustomFieldNameIsTheOnlyFieldTheToggleReadsAndWrites(): void {
+		$this->unhook_tracker();
+		$client        = new \Appsero\Client( 'usage-tracking-test-hash', 'Usage Tracking Test', WPGRAPHQL_PLUGIN_FILE );
+		$this->tracker = new UsageTracking( $client->insights(), $this->slug, self::SECTION, 'Usage Tracking Test', 'custom_toggle' );
+		$this->tracker->init();
+
+		$this->assertSame( 'custom_toggle', $this->tracker->get_field_name() );
+
+		// The default field name is just another field in this section now.
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+
+		update_option(
+			self::SECTION,
+			[
+				UsageTracking::FIELD_NAME => 'on',
+				'custom_toggle'           => 'on',
+			]
+		);
+		$this->assertTrue( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( 'on', get_option( self::SECTION )['custom_toggle'] );
 	}
 
 	public function testDeactivationFeedbackHooksReplaceAppseroWhenTrackingIsOff(): void {
