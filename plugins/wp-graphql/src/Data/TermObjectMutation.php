@@ -41,7 +41,8 @@ class TermObjectMutation {
 			$insert_args['name'] = $input['name'];
 		}
 
-		if ( ! empty( $input['description'] ) ) {
+		// An empty description is a value to save, so a term's description can be cleared.
+		if ( isset( $input['description'] ) ) {
 			$insert_args['description'] = $input['description'];
 		}
 
