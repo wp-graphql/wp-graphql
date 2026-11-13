@@ -114,9 +114,11 @@ test.describe('Data sharing notice', () => {
 				.getByRole('button', { name: 'Send confirmation email' })
 		).toBeVisible();
 
-		// Appsero's own notice links to an opt-in URL; it isn't shown.
+		// WPGraphQL's Appsero notice links to an opt-in URL named for its client slug; it isn't
+		// shown. Plugins not on the Data Sharing tab yet, such as Smart Cache when it's active,
+		// still show their own, so only WPGraphQL's is checked.
 		await expect(
-			page.locator('a[href*="_tracker_optin=true"]')
+			page.locator('a[href*="wp-graphql_tracker_optin=true"]')
 		).toHaveCount(0);
 	});
 
