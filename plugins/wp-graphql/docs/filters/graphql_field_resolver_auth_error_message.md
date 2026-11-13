@@ -29,7 +29,7 @@ Filters the default authorization error message for field resolvers.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:244`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L244)
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:249`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L249)
 
 ```php
 apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_message, $field );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_field_resolver_auth_error_message', $default_auth_error_
 
 ## Related
 
-- `InstrumentSchema::check_field_permissions()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:244`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L244)
+- `InstrumentSchema::check_field_permissions()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:249`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L249)

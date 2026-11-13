@@ -13,7 +13,7 @@
  * WPGraphQL Tested Up To: 2.0.0
  * Text Domain: wp-graphql-smart-cache
  * Domain Path: /languages
- * Version: 2.4.0
+ * Version: 2.4.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -49,7 +49,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_VERSION' ) ) {
-	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.4.0' );
+	define( 'WPGRAPHQL_SMART_CACHE_VERSION', '2.4.1' );
 }
 
 if ( ! defined( 'WPGRAPHQL_SMART_CACHE_WPGRAPHQL_REQUIRED_MIN_VERSION' ) ) {
@@ -251,6 +251,42 @@ function appsero_init_tracker_wpgraphql_smart_cache() {
 	}
 
 	$insights->init();
+
+	// Gate with this plugin's own Appsero client so an older WPGraphQL (which may already
+	// define UsageTracking without gate_deactivation_feedback) cannot fatal the site.
+	wpgraphql_smart_cache_gate_deactivation_feedback( $insights, $client->slug );
+}
+
+/**
+ * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when this
+ * plugin's `{slug}_allow_tracking` option is opted in.
+ *
+ * @param \Appsero\Insights $insights The initialized Appsero insights instance.
+ * @param string            $slug     The Appsero client slug.
+ */
+function wpgraphql_smart_cache_gate_deactivation_feedback( $insights, string $slug ): void {
+	remove_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] );
+	add_action(
+		'admin_footer',
+		static function () use ( $insights ): void {
+			if ( $insights->tracking_allowed() ) {
+				$insights->deactivate_scripts();
+			}
+		}
+	);
+
+	$ajax_hook = 'wp_ajax_' . $slug . '_submit-uninstall-reason';
+	remove_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] );
+	add_action(
+		$ajax_hook,
+		static function () use ( $insights ): void {
+			if ( ! $insights->tracking_allowed() ) {
+				wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+			}
+
+			$insights->uninstall_reason_submission();
+		}
+	);
 }
 
 appsero_init_tracker_wpgraphql_smart_cache();
@@ -282,11 +318,17 @@ add_filter(
 			$url
 		);
 
+		// The copy sent to the WPGraphQL team leaves out the site's admin email address and an
+		// administrator's name. Usage data doesn't need them, and nothing on telemetry.wpgraphql.com
+		// should treat them as contact details. Appsero's own request is sent unchanged.
+		unset( $body['admin_email'], $body['first_name'], $body['last_name'] );
+
 		wp_remote_post(
 			$mirror,
 			array_merge(
 				$args,
 				[
+					'body'     => $body,
 					'blocking' => false,
 					'timeout'  => 3,
 				]

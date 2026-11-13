@@ -1,6 +1,6 @@
 {
 	"name": "@wpgraphql/wp-graphql-acf",
-	"version": "3.2.0",
+	"version": "3.2.1",
 	"private": true,
 	"description": "WPGraphQL for ACF seamlessly integrates Advanced Custom Fields with WPGraphQL",
 	"repository": {
@@ -16,7 +16,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"eslint": "^10.8.0",
-		"globals": "^17.13.0"
+		"globals": "^17.14.0"
 	},
 	"scripts": {
 		"lint": "npm run lint:js && npm run lint:php",

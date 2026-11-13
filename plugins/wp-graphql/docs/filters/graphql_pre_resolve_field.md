@@ -36,7 +36,7 @@ When this filter return anything other than the $nil it will be used as the reso
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L148)
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:153`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L153)
 
 ```php
 apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
@@ -44,4 +44,4 @@ apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $inf
 
 ## Related
 
-- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:148`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L148)
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:153`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L153)
