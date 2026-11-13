@@ -79,6 +79,7 @@ class Telemetry {
 						$tracker = new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug, 'graphql_ide_settings', 'WPGraphQL IDE' );
 						$tracker->init();
 
+						// @phpstan-ignore function.impossibleType (The WPGraphQL stubs predate this method, but the check is for sites running an older WPGraphQL.)
 						if ( method_exists( $tracker, 'gate_deactivation_feedback' ) ) {
 							$gated_by_core = true;
 						}
