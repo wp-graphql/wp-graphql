@@ -176,21 +176,8 @@ function graphql_init_appsero_telemetry(): void {
 			$insights->add_plugin_data();
 		}
 
-		// Set the opt-in notice text just before Appsero renders it (priority 10), since translations can't load this early.
-		add_action(
-			'admin_notices',
-			static function () use ( $insights ): void {
-				$insights->notice(
-					sprintf(
-						// translators: %s is a link to the Data Sharing tab of the WPGraphQL settings page.
-						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. You can stop sharing at any time under %s.', 'wp-graphql' ),
-						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings#' . \WPGraphQL\Admin\DataSharing::SECTION ) ) . '">' . esc_html__( 'GraphQL → Settings → Data Sharing', 'wp-graphql' ) . '</a>'
-					)
-				);
-			},
-			9
-		);
-
+		// The Data Sharing notice asks about usage data in place of Appsero's own notice, once
+		// register_graphql_data_sharing_plugin() below registers the plugin.
 		$insights->init();
 
 		register_graphql_data_sharing_plugin(

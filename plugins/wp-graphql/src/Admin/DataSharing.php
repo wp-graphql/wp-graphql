@@ -10,7 +10,9 @@ namespace WPGraphQL\Admin;
  *
  * Each registered plugin gets a Share Usage Data toggle on the tab, handled by its own
  * UsageTracking instance with a field name of its own, so a plugin's toggle only ever changes
- * that plugin's opt-in state.
+ * that plugin's opt-in state. Each also gets an email updates checkbox, below one shared address
+ * field, handled by EmailUpdates. DataSharingNotice asks about both in one admin notice, in place
+ * of each plugin's own Appsero notice.
  *
  * @package WPGraphQL\Admin
  *
@@ -34,6 +36,13 @@ final class DataSharing {
 	 * @var array<string,array{name:string,slug:string,hash:string,version:string,usage_tracking:\WPGraphQL\Admin\UsageTracking}>
 	 */
 	private static $plugins = [];
+
+	/**
+	 * The email updates rows of the tab, set up when the first plugin registers.
+	 *
+	 * @var \WPGraphQL\Admin\EmailUpdates|null
+	 */
+	private static $email_updates;
 
 	/**
 	 * Registers a plugin. See register_graphql_data_sharing_plugin() for the config.
@@ -95,6 +104,16 @@ final class DataSharing {
 			// After the sections registered at the default priority, so Data Sharing is the last tab.
 			add_action( 'graphql_init_settings', [ self::class, 'register_section' ], 100 );
 		}
+
+		if ( null === self::$email_updates ) {
+			self::$email_updates = new EmailUpdates();
+			self::$email_updates->init();
+
+			( new DataSharingNotice( self::$email_updates ) )->init();
+		}
+
+		// The Data Sharing notice asks instead, once for every registered plugin.
+		remove_action( 'admin_notices', [ $config['insights'], 'admin_notice' ] );
 
 		self::$plugins[ $slug ] = [
 			'name'           => $config['name'],

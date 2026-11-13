@@ -59,7 +59,7 @@ Yes! WPGraphQL works with any client that can make HTTP requests to the GraphQL 
 You can join the WPGraphQL [Discord community](https://discord.gg/AGVBqqyaUY) for support, discussions, and announcements.
 
 = How does WPGraphQL handle privacy and telemetry? =
-WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, a copy of each payload, without this site's admin email address and an administrator's name, is also sent to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings → Data Sharing**. Sharing usage data doesn't sign anyone up for email.
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy. When telemetry is enabled, a copy of each payload, without this site's admin email address and an administrator's name, is also sent to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com. You can opt out at any time under **GraphQL → Settings → Data Sharing**. Sharing usage data doesn't sign anyone up for email. Email updates are a separate choice on the same tab.
 
 == Privacy Policy ==
 
@@ -72,6 +72,8 @@ You can stop sharing at any time by unchecking **Share usage data with the WPGra
 When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below, except this site's admin email address and an administrator's name, which the copy leaves out). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
 Sharing usage data doesn't sign anyone up for email, even though the usage data sent to Appsero includes this site's admin email address and an administrator's name.
+
+Email updates about security releases and breaking changes are a separate choice, also under **GraphQL → Settings → Data Sharing**. Checking **Email me about security releases and breaking changes in WPGraphQL** and saving sends the address you enter, this site's URL and the WPGraphQL version to https://telemetry.wpgraphql.com, which emails a confirmation link to that address unless it's already subscribed. Nothing is subscribed until the link is clicked. The site keeps a record of the address and when the confirmation was requested until you uncheck the box. Unchecking it doesn't unsubscribe the address; use the unsubscribe link in any of the emails.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 

@@ -846,6 +846,16 @@ function register_graphql_settings_field( string $group, array $config ): void {
  * opts the site out and stops the weekly check-ins, for any user who can save the settings page.
  * Each plugin's checkbox only changes that plugin's opt-in state.
  *
+ * The plugin also gets an "Email me about security releases and breaking changes" checkbox in the
+ * tab's Email Updates rows, below one address field shared by every plugin. Saving the tab sends one
+ * request to the telemetry service, with the `hash` of each plugin whose box was just checked, and
+ * the service emails a confirmation link for them. Checking a box requires the
+ * `manage_options` capability.
+ *
+ * Registering also replaces the plugin's Appsero opt-in notice with the Data Sharing notice, which
+ * asks once, for every registered plugin, about usage data and, separately, about email updates. A
+ * notice text set with `$insights->notice()` isn't shown.
+ *
  * Registering also limits the plugin's Appsero deactivation feedback form to sites that opted in,
  * so a plugin registered here should not gate the form itself as well.
  *
@@ -876,7 +886,8 @@ function register_graphql_settings_field( string $group, array $config ): void {
  *                                    of the real opt-in state.
  * @param array<string,mixed> $config The plugin config: `insights` (required, the initialized Appsero insights
  *                                    instance), `name` (required, the plugin name shown on the tab), `hash`
- *                                    (required, the plugin's Appsero project hash) and `version` (the
+ *                                    (required, the plugin's Appsero project hash, which also names the plugin's
+ *                                    mailing list to the telemetry service) and `version` (the
  *                                    plugin's version).
  *
  * @phpstan-param array{

@@ -151,6 +151,26 @@ class SettingsRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * A text field's placeholder is shown, and escaped, rather than stripped from the markup.
+	 */
+	public function testTextFieldShowsItsPlaceholder() {
+		ob_start();
+		$this->registry->callback_text(
+			[
+				'id'          => 'placeholder_test',
+				'section'     => 'graphql_placeholder_test_settings',
+				'std'         => '',
+				'desc'        => '',
+				'placeholder' => 'someone@example.com "quoted"',
+			]
+		);
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'placeholder="someone@example.com &quot;quoted&quot;"', $html );
+		$this->assertStringContainsString( 'value=""', $html );
+	}
+
+	/**
 	 * Test that sanitize_options() works with WordPress sanitize_option filter
 	 * 
 	 * This simulates how WordPress calls the sanitization callback via the filter
