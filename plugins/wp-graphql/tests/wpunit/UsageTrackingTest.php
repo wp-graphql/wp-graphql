@@ -65,6 +65,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_filter( 'pre_http_request', [ $this, 'record_request' ], 1 );
 		$this->unhook_tracker();
 
+		unset( $_POST['nonce'], $_POST['reason_id'], $_REQUEST['reason_info'] );
+
 		delete_option( self::SECTION );
 		delete_option( $this->slug . '_allow_tracking' );
 		wp_clear_scheduled_hook( $this->slug . '_tracker_send_event' );
@@ -103,6 +105,8 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this->tracker, 'sync_stored_value' ] );
 		remove_action( 'graphql_register_settings', [ $this->tracker, 'register_field' ] );
+		remove_action( 'admin_footer', [ $this->tracker, 'maybe_deactivate_scripts' ] );
+		remove_action( 'wp_ajax_' . $this->slug . '_submit-uninstall-reason', [ $this->tracker, 'maybe_uninstall_reason_submission' ] );
 	}
 
 	private function opt_in_via_notice(): void {
@@ -418,12 +422,217 @@ class UsageTrackingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 	}
 
-	public function testPluginRegistersTheToggleOnTheGeneralSettings(): void {
+	public function testPluginNoLongerRegistersTheToggleOnTheGeneralSettings(): void {
 		$registry = new \WPGraphQL\Admin\Settings\SettingsRegistry();
 		do_action( 'graphql_init_settings', $registry );
 
 		$names = wp_list_pluck( $registry->get_settings_fields()['graphql_general_settings'] ?? [], 'name' );
 
-		$this->assertContains( UsageTracking::FIELD_NAME, $names );
+		// It's on the Data Sharing tab now, see DataSharingTest.
+		$this->assertNotContains( UsageTracking::FIELD_NAME, $names );
+	}
+
+	public function testTheToggleKeepsItsLabelAndDescriptionOnASectionOfItsOwn(): void {
+		$field = $this->registered_field();
+
+		$this->assertSame( 'Share Usage Data', $field['label'] );
+		$this->assertStringContainsString( 'help guide WPGraphQL development, when checked and then about once a week', $field['desc'] );
+		$this->assertStringContainsString( 'https://appsero.com/privacy-policy/', $field['desc'] );
+	}
+
+	public function testACustomFieldNameIsTheOnlyFieldTheToggleReadsAndWrites(): void {
+		$this->unhook_tracker();
+		$client        = new \Appsero\Client( 'usage-tracking-test-hash', 'Usage Tracking Test', WPGRAPHQL_PLUGIN_FILE );
+		$this->tracker = new UsageTracking( $client->insights(), $this->slug, self::SECTION, 'Usage Tracking Test', 'custom_toggle' );
+		$this->tracker->init();
+
+		$this->assertSame( 'custom_toggle', $this->tracker->get_field_name() );
+
+		// The default field name is just another field in this section now.
+		update_option( self::SECTION, [ UsageTracking::FIELD_NAME => 'on' ] );
+		$this->assertFalse( $this->tracker->is_tracking_allowed() );
+
+		update_option(
+			self::SECTION,
+			[
+				UsageTracking::FIELD_NAME => 'on',
+				'custom_toggle'           => 'on',
+			]
+		);
+		$this->assertTrue( $this->tracker->is_tracking_allowed() );
+		$this->assertSame( 'on', get_option( self::SECTION )['custom_toggle'] );
+	}
+
+	public function testDeactivationFeedbackHooksReplaceAppseroWhenTrackingIsOff(): void {
+		$client   = new \Appsero\Client( 'usage-tracking-test-hash', 'Usage Tracking Test', WPGRAPHQL_PLUGIN_FILE );
+		$insights = $client->insights();
+		$insights->init();
+
+		$this->unhook_tracker();
+		$this->tracker = new UsageTracking( $insights, $client->slug, self::SECTION );
+		$this->tracker->init();
+		$this->slug = $client->slug;
+
+		$this->assertFalse(
+			has_action( 'admin_footer', [ $insights, 'deactivate_scripts' ] ),
+			'Appsero should no longer render the form unconditionally.'
+		);
+		$this->assertNotFalse( has_action( 'admin_footer', [ $this->tracker, 'maybe_deactivate_scripts' ] ) );
+
+		$ajax_hook = 'wp_ajax_' . $client->slug . '_submit-uninstall-reason';
+		$this->assertFalse( has_action( $ajax_hook, [ $insights, 'uninstall_reason_submission' ] ) );
+		$this->assertNotFalse( has_action( $ajax_hook, [ $this->tracker, 'maybe_uninstall_reason_submission' ] ) );
+	}
+
+	public function testDeactivationFormIsNotRenderedWhenTrackingIsOff(): void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		ob_start();
+		$this->tracker->maybe_deactivate_scripts();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	public function testDeactivationFormIsRenderedWhenTrackingIsOn(): void {
+		$this->opt_in_via_notice();
+
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		ob_start();
+		$this->tracker->maybe_deactivate_scripts();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Goodbyes are always hard', $output );
+		$this->assertStringContainsString( $this->slug . '-wd-dr-modal', $output );
+	}
+
+	public function testUninstallReasonSubmissionIsBlockedWhenTrackingIsOff(): void {
+		$_POST['nonce']     = wp_create_nonce( 'appsero-security-nonce' );
+		$_POST['reason_id'] = 'other';
+		$this->requests     = [];
+
+		$this->with_ajax_die_handler(
+			function (): void {
+				try {
+					$this->tracker->maybe_uninstall_reason_submission();
+					$this->fail( 'Expected the submission to be rejected when tracking is off.' );
+				} catch ( \WPDieException $e ) {
+					// wp_send_json_error() ends the request before any telemetry is sent.
+				}
+			}
+		);
+
+		$this->assertSame( [], $this->requests );
+	}
+
+	public function testUninstallReasonSubmissionSendsWhenTrackingIsOn(): void {
+		$this->opt_in_via_notice();
+
+		$_POST['nonce']       = wp_create_nonce( 'appsero-security-nonce' );
+		$_POST['reason_id']   = 'other';
+		$this->requests       = [];
+		$this->request_bodies = [];
+
+		$this->with_ajax_die_handler(
+			function (): void {
+				try {
+					$this->tracker->maybe_uninstall_reason_submission();
+					$this->fail( 'Expected wp_send_json_success to end the request.' );
+				} catch ( \WPDieException $e ) {
+					// Appsero ends with wp_send_json_success().
+				}
+			}
+		);
+
+		$deactivate_index = null;
+		foreach ( $this->requests as $i => $url ) {
+			if ( false !== strpos( $url, '/deactivate' ) ) {
+				$deactivate_index = $i;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $deactivate_index, 'Expected a deactivate request to Appsero.' );
+		$this->assertSame( 'other', $this->request_bodies[ $deactivate_index ]['reason_id'] ?? null );
+		$this->assertArrayHasKey( 'admin_email', $this->request_bodies[ $deactivate_index ] );
+	}
+
+	/**
+	 * Run a callback with wp_send_json_* ending in WPDieException instead of die().
+	 *
+	 * Outside an AJAX request, wp_send_json_error()/success() call die() and stop the suite.
+	 *
+	 * @param callable():void $callback The callback that may call wp_send_json_*.
+	 */
+	private function with_ajax_die_handler( callable $callback ): void {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter(
+			'wp_die_ajax_handler',
+			static function () {
+				return static function ( $message = '' ): void {
+					throw new \WPDieException( (string) $message );
+				};
+			}
+		);
+
+		try {
+			$callback();
+		} finally {
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_all_filters( 'wp_die_ajax_handler' );
+		}
+	}
+
+	/**
+	 * The copy sent to telemetry.wpgraphql.com leaves out the site's admin email address and an
+	 * administrator's name, and Appsero's own request is sent unchanged.
+	 */
+	public function testTheTelemetryCopyLeavesOutTheAdminEmailAndName(): void {
+		$sent    = [];
+		$capture = static function ( $preempt, $args, $url ) use ( &$sent ) {
+			if ( false !== strpos( $url, 'api.appsero.com' ) || false !== strpos( $url, 'telemetry.wpgraphql.com' ) ) {
+				$sent[ $url ] = $args['body'] ?? null;
+			}
+
+			return [
+				'headers'  => [],
+				'body'     => '',
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+			];
+		};
+		add_filter( 'pre_http_request', $capture, 0, 3 );
+
+		// The plugin's own hash, so its mirror sends a copy of the check-in.
+		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', WPGRAPHQL_PLUGIN_FILE );
+		$client->insights()->send_tracking_data( true );
+
+		remove_filter( 'pre_http_request', $capture, 0 );
+
+		$this->assertSame(
+			[
+				'https://api.appsero.com/track',
+				'https://telemetry.wpgraphql.com/api/appsero/track',
+			],
+			array_keys( $sent )
+		);
+
+		$appsero = $sent['https://api.appsero.com/track'];
+		$copy    = $sent['https://telemetry.wpgraphql.com/api/appsero/track'];
+
+		$this->assertIsArray( $appsero );
+		$this->assertSame( get_option( 'admin_email' ), $appsero['admin_email'] );
+		$this->assertArrayHasKey( 'first_name', $appsero );
+		$this->assertArrayHasKey( 'last_name', $appsero );
+
+		// Everything else in the copy is the same as what Appsero received.
+		unset( $appsero['admin_email'], $appsero['first_name'], $appsero['last_name'] );
+		$this->assertSame( $appsero, $copy );
 	}
 }

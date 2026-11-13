@@ -29,7 +29,7 @@ Filter the field definition
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:72`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L72)
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L73)
 
 ```php
 apply_filters( 'graphql_field_definition', $field, $type_name );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_field_definition', $field, $type_name );
 
 ## Related
 
-- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:72`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L72)
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:73`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L73)

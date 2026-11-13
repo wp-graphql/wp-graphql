@@ -5,7 +5,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.26.2
+ * Version: 2.28.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -17,7 +17,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.26.2
+ * @version  2.28.0
  */
 
 // Exit if accessed directly.
@@ -176,27 +176,19 @@ function graphql_init_appsero_telemetry(): void {
 			$insights->add_plugin_data();
 		}
 
-		// Set the opt-in notice text just before Appsero renders it (priority 10), since translations can't load this early.
-		add_action(
-			'admin_notices',
-			static function () use ( $insights ): void {
-				$insights->notice(
-					sprintf(
-						// translators: %s is a link to the WPGraphQL settings page.
-						__( 'Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site\'s admin email address and an administrator\'s name. This doesn\'t sign anyone up for emails. Email updates are a separate choice under %s, where you can also stop sharing at any time.', 'wp-graphql' ),
-						'<a href="' . esc_url( admin_url( 'admin.php?page=graphql-settings' ) ) . '">' . esc_html__( 'GraphQL → Settings', 'wp-graphql' ) . '</a>'
-					)
-				);
-			},
-			9
-		);
-
+		// The Data Sharing notice asks about usage data in place of Appsero's own notice, once
+		// register_graphql_data_sharing_plugin() below registers the plugin.
 		$insights->init();
 
-		( new \WPGraphQL\Admin\UsageTracking( $insights, $client->slug ) )->init();
-
-		// A separate choice from usage data, registered after its toggle so it shows next to it.
-		( new \WPGraphQL\Admin\EmailUpdates( $client->hash, $client->slug, (string) $client->project_version ) )->init();
+		register_graphql_data_sharing_plugin(
+			$client->slug,
+			[
+				'insights' => $insights,
+				'name'     => 'WPGraphQL',
+				'hash'     => $client->hash,
+				'version'  => WPGRAPHQL_VERSION,
+			]
+		);
 	} catch ( \Throwable $e ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
 			sprintf(
@@ -237,11 +229,17 @@ add_filter(
 			$url
 		);
 
+		// The copy sent to the WPGraphQL team leaves out the site's admin email address and an
+		// administrator's name. Usage data doesn't need them, and nothing on telemetry.wpgraphql.com
+		// should treat them as contact details. Appsero's own request is sent unchanged.
+		unset( $body['admin_email'], $body['first_name'], $body['last_name'] );
+
 		wp_remote_post(
 			$mirror,
 			array_merge(
 				$args,
 				[
+					'body'     => $body,
 					'blocking' => false,
 					'timeout'  => 3,
 				]
