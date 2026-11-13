@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.1...wp-graphql-acf/v3.3.0) (2026-11-13)
+
+
+### New Features
+
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707)) ([154dade](https://github.com/wp-graphql/wp-graphql/commit/154dadedcdcdb1998bd00a3cbab353f4f500d944))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.25.0 to 2.26.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4682](https://github.com/wp-graphql/wp-graphql/issues/4682)) ([1895da7](https://github.com/wp-graphql/wp-graphql/commit/1895da72dbb04ae99e0beb4b343760fc5cd3c524))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714)) ([de15e14](https://github.com/wp-graphql/wp-graphql/commit/de15e141b5c05737cfd981f19e06b07801e1640e))
+
 ## [3.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.0...wp-graphql-acf/v3.2.1) (2026-11-10)
 
 
