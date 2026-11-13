@@ -170,6 +170,21 @@ responses (mirroring `@wordpress/api-fetch`'s middleware) so long IDE
 sessions that outlive the bootstrap nonce don't start silently
 failing.
 
+## [5.10.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.9.0...wp-graphql-ide/v5.10.0) (2026-11-13)
+
+
+### New Features
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4715](https://github.com/wp-graphql/wp-graphql/issues/4715)) ([4e9e782](https://github.com/wp-graphql/wp-graphql/commit/4e9e782020fc644b1bb8c2893b88b339600bf334))
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707)) ([154dade](https://github.com/wp-graphql/wp-graphql/commit/154dadedcdcdb1998bd00a3cbab353f4f500d944))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/e2e-test-utils-playwright from 2.1.0 to 3.0.0 ([#4688](https://github.com/wp-graphql/wp-graphql/issues/4688)) ([3a32bfa](https://github.com/wp-graphql/wp-graphql/commit/3a32bfa81e8d448335c7a83b0ffaab85b3e59087))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714)) ([de15e14](https://github.com/wp-graphql/wp-graphql/commit/de15e141b5c05737cfd981f19e06b07801e1640e))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group in /plugins/wp-graphql-ide with 2 updates ([#4681](https://github.com/wp-graphql/wp-graphql/issues/4681)) ([1a218b7](https://github.com/wp-graphql/wp-graphql/commit/1a218b707f8589b349d074b166c18ab5cf9a2868))
+
 ## [5.9.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-ide/v5.8.1...wp-graphql-ide/v5.9.0) (2026-11-10)
 
 
