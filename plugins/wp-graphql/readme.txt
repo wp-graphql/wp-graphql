@@ -88,6 +88,8 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
 
+**Post and term mutations now save empty values.** An empty string for a post's `title`, `content`, `excerpt` or `password`, a `0` for `menuOrder` or `parentId`, and an empty `description` on term mutations are now saved, where they used to be ignored. This makes it possible to clear these fields, remove a post's password and move a page back to the top level. A title or content of `"0"` is also saved now. Fields that are left out or `null` still keep their stored values, so check any client that sends empty strings or zeros for fields it doesn't mean to change.
+
 = 2.28.0 =
 
 **Fields now see the right post, term or user as the current object.** Values that depend on the current object, such as some SEO, template, block and gallery output, now come from the node a field is selected under, including in lists, where they could come from a different node before. After updating, purge cached GraphQL responses (WPGraphQL Smart Cache, your CDN and your front end) so the corrected values appear. If you have custom resolvers that read the current post with functions like `get_the_ID()` or `is_singular()` in root fields or in Deferred callbacks, check them against https://www.wpgraphql.com/docs/node-context/. Details: https://github.com/wp-graphql/wp-graphql/issues/4572.
