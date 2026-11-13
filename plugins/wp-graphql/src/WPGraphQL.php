@@ -217,6 +217,9 @@ final class WPGraphQL {
 		// Prevent WPGraphQL Insights from running
 		remove_action( 'init', '\WPGraphQL\Extensions\graphql_insights_init' );
 
+		// The Share Usage Data toggle moved to the Data Sharing tab, so remove its old copy on update.
+		add_action( 'graphql_do_update_routine', [ \WPGraphQL\Admin\DataSharing::class, 'remove_legacy_usage_data_setting' ] );
+
 		/**
 		 * Flush permalinks if the registered GraphQL endpoint has not yet been registered.
 		 */

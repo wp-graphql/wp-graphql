@@ -29,7 +29,7 @@ When this filter returns anything but null, it will be used as the resolved quer
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:748`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L748)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:749`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L749)
 
 ```php
 apply_filters( 'graphql_connection_pre_get_query', null, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_pre_get_query', null, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_query()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:748`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L748)
+- `AbstractConnectionResolver::get_query()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:749`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L749)

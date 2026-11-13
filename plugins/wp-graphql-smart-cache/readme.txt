@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -66,7 +66,7 @@ Appsero SDK **does not gather any data by default.** The SDK only starts gatheri
 
 Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without confirmation from users in any case.**
 
-When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below, except this site's admin email address and an administrator's name, which the copy leaves out). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -140,6 +140,12 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.4.1 =
+
+**Bug Fixes**
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
 
 = 2.4.0 =
 

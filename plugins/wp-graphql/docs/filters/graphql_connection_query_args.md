@@ -30,7 +30,7 @@ Filters the query args before they are used in the query.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:242`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L242)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L243)
 
 ```php
 apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
@@ -38,7 +38,7 @@ apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, 
 
 ## Related
 
-- `AbstractConnectionResolver::__construct()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:242`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L242)
+- `AbstractConnectionResolver::__construct()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:243`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L243)
 
 ## Recipes
 

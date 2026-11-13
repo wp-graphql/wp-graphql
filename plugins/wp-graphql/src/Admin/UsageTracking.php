@@ -44,11 +44,18 @@ class UsageTracking {
 	protected $section;
 
 	/**
-	 * The product name shown in the toggle's description.
+	 * The product name shown in the toggle's description, or as its label on the Data Sharing tab.
 	 *
 	 * @var string
 	 */
 	protected $product_name;
+
+	/**
+	 * The name of the toggle's field within the settings section.
+	 *
+	 * @var string
+	 */
+	protected $field_name;
 
 	/**
 	 * Whether a save of the settings section is currently opting in or out.
@@ -60,18 +67,32 @@ class UsageTracking {
 	/**
 	 * Extensions with their own Appsero client can reuse this class with their own section and name.
 	 *
+	 * Plugins that share a settings section need a field name each, since the toggle only reads
+	 * and writes its own field. register_graphql_data_sharing_plugin() picks one per plugin.
+	 *
 	 * @param \Appsero\Insights $insights     The initialized Appsero insights instance.
 	 * @param string            $slug         The Appsero client slug.
 	 * @param string            $section      The settings section to add the toggle to.
-	 * @param string            $product_name The product name shown in the toggle's description.
+	 * @param string            $product_name The product name shown in the toggle's description, or as its label on the Data Sharing tab.
+	 * @param string            $field_name   The name of the toggle's field within the section. Since x-release-please-version.
 	 *
 	 * @since 2.26.0
 	 */
-	public function __construct( $insights, string $slug, string $section = 'graphql_general_settings', string $product_name = 'WPGraphQL' ) {
+	public function __construct( $insights, string $slug, string $section = 'graphql_general_settings', string $product_name = 'WPGraphQL', string $field_name = self::FIELD_NAME ) {
 		$this->insights     = $insights;
 		$this->slug         = $slug;
 		$this->section      = $section;
 		$this->product_name = $product_name;
+		$this->field_name   = $field_name;
+	}
+
+	/**
+	 * The name of the toggle's field within the settings section.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function get_field_name(): string {
+		return $this->field_name;
 	}
 
 	/**
@@ -89,6 +110,57 @@ class UsageTracking {
 		add_action( 'add_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'update_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
 		add_action( 'delete_option_' . $this->slug . '_allow_tracking', [ $this, 'sync_stored_value' ] );
+
+		$this->gate_deactivation_feedback();
+	}
+
+	/**
+	 * Only show Appsero's deactivation feedback form (and only accept its AJAX submit) when the
+	 * site has opted in to usage tracking.
+	 *
+	 * Appsero always registers the form and sends `get_tracking_data()` with the reason — site URL,
+	 * admin name/email, environment details, and public IP — without checking `{slug}_allow_tracking`.
+	 * Call this after `$insights->init()` so those hooks are replaced.
+	 *
+	 * `init()` calls this. An extension that also runs with WPGraphQL versions older than this
+	 * method should gate its own form instead (Appsero's `tracking_allowed()` checks the same
+	 * option), since calling a missing method is a fatal error.
+	 *
+	 * @since 2.27.0
+	 */
+	public function gate_deactivation_feedback(): void {
+		remove_action( 'admin_footer', [ $this->insights, 'deactivate_scripts' ] );
+		add_action( 'admin_footer', [ $this, 'maybe_deactivate_scripts' ] );
+
+		$ajax_hook = 'wp_ajax_' . $this->slug . '_submit-uninstall-reason';
+		remove_action( $ajax_hook, [ $this->insights, 'uninstall_reason_submission' ] );
+		add_action( $ajax_hook, [ $this, 'maybe_uninstall_reason_submission' ] );
+	}
+
+	/**
+	 * Render the deactivation feedback form only when tracking is allowed.
+	 *
+	 * @since 2.27.0
+	 */
+	public function maybe_deactivate_scripts(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			return;
+		}
+
+		$this->insights->deactivate_scripts();
+	}
+
+	/**
+	 * Accept a deactivation reason submission only when tracking is allowed.
+	 *
+	 * @since 2.27.0
+	 */
+	public function maybe_uninstall_reason_submission(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			wp_send_json_error( 'Usage tracking is not enabled for this site.' );
+		}
+
+		$this->insights->uninstall_reason_submission();
 	}
 
 	/**
@@ -99,20 +171,60 @@ class UsageTracking {
 	}
 
 	/**
+	 * Whether the site hasn't chosen yet: it hasn't opted in, and hasn't declined or dismissed the opt-in notice.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function is_undecided(): bool {
+		return ! $this->is_tracking_allowed() && 'hide' !== get_option( $this->slug . '_tracking_notice' );
+	}
+
+	/**
+	 * Opt the site in, as the opt-in notice's Allow button does. The caller checks `manage_options`.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function opt_in(): void {
+		if ( ! $this->is_tracking_allowed() ) {
+			$this->insights->optin();
+		}
+	}
+
+	/**
+	 * Decline, as the opt-in notice's No thanks button does: the site isn't opted in, and isn't asked again.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function opt_out(): void {
+		$this->insights->optout();
+	}
+
+	/**
 	 * Register the toggle on the settings page.
+	 *
+	 * On the Data Sharing tab, where every registered plugin has a toggle, the row is labeled with
+	 * the plugin's name and the tab's description says what is shared, once for all of them.
 	 */
 	public function register_field(): void {
+		if ( DataSharing::SECTION === $this->section ) {
+			$label = esc_html( $this->product_name );
+			$desc  = esc_html__( 'Share usage data with the WPGraphQL team', 'wp-graphql' );
+		} else {
+			$label = __( 'Share Usage Data', 'wp-graphql' );
+			$desc  = sprintf(
+				// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
+				__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
+				esc_html( $this->product_name ),
+				'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
+			);
+		}
+
 		register_graphql_settings_field(
 			$this->section,
 			[
-				'name'    => self::FIELD_NAME,
-				'label'   => __( 'Share Usage Data', 'wp-graphql' ),
-				'desc'    => sprintf(
-					// translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-					__( 'Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site\'s admin email address and an administrator\'s name. Sharing usage data doesn\'t sign anyone up for emails. Uncheck to stop sharing at any time. %2$s', 'wp-graphql' ),
-					esc_html( $this->product_name ),
-					'<a href="https://appsero.com/privacy-policy/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more', 'wp-graphql' ) . '</a>'
-				),
+				'name'    => $this->field_name,
+				'label'   => $label,
+				'desc'    => $desc,
 				'type'    => 'checkbox',
 				'default' => 'off',
 				// Always show the real opt-in state rather than the stored copy.
@@ -141,8 +253,8 @@ class UsageTracking {
 		// Store the real state, not the requested one. When an opt-in is held back (no
 		// `manage_options`, or no user), storing "on" would make a later admin opt-in look
 		// unchanged, and it would never be applied.
-		if ( is_array( $value ) && isset( $value[ self::FIELD_NAME ] ) ) {
-			$value[ self::FIELD_NAME ] = $this->is_tracking_allowed() ? 'on' : 'off';
+		if ( is_array( $value ) && isset( $value[ $this->field_name ] ) ) {
+			$value[ $this->field_name ] = $this->is_tracking_allowed() ? 'on' : 'off';
 		}
 
 		return $value;
@@ -163,17 +275,17 @@ class UsageTracking {
 
 		$stored = get_option( $this->section );
 
-		if ( ! is_array( $stored ) || ! isset( $stored[ self::FIELD_NAME ] ) ) {
+		if ( ! is_array( $stored ) || ! isset( $stored[ $this->field_name ] ) ) {
 			return;
 		}
 
 		$actual = $this->is_tracking_allowed() ? 'on' : 'off';
 
-		if ( $stored[ self::FIELD_NAME ] === $actual ) {
+		if ( $stored[ $this->field_name ] === $actual ) {
 			return;
 		}
 
-		$stored[ self::FIELD_NAME ] = $actual;
+		$stored[ $this->field_name ] = $actual;
 		update_option( $this->section, $stored );
 	}
 
@@ -193,11 +305,11 @@ class UsageTracking {
 	 * @param mixed $value     The new option value.
 	 */
 	protected function apply_requested_state( $old_value, $value ): void {
-		if ( ! is_array( $value ) || ! isset( $value[ self::FIELD_NAME ] ) ) {
+		if ( ! is_array( $value ) || ! isset( $value[ $this->field_name ] ) ) {
 			return;
 		}
 
-		$requested = $value[ self::FIELD_NAME ];
+		$requested = $value[ $this->field_name ];
 		$allowed   = $this->is_tracking_allowed();
 
 		if ( 'off' === $requested ) {
@@ -211,7 +323,7 @@ class UsageTracking {
 			return;
 		}
 
-		$unchanged = is_array( $old_value ) && isset( $old_value[ self::FIELD_NAME ] ) && 'on' === $old_value[ self::FIELD_NAME ];
+		$unchanged = is_array( $old_value ) && isset( $old_value[ $this->field_name ] ) && 'on' === $old_value[ $this->field_name ];
 
 		if ( ! $unchanged && current_user_can( 'manage_options' ) ) {
 			$this->insights->optin();

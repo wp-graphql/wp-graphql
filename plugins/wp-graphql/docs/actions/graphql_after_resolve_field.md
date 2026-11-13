@@ -36,7 +36,7 @@ Fire an action AFTER the field resolves
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L199)
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:204`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L204)
 
 ```php
 do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
@@ -44,4 +44,4 @@ do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $fiel
 
 ## Related
 
-- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L199)
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:204`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L204)

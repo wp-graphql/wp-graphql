@@ -29,7 +29,7 @@ Filter the edge within the connection.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1426`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1426)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1433`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1433)
 
 ```php
 apply_filters( 'graphql_connection_edge', $edge, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_edge', $edge, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::prepare_edges()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1426`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1426)
+- `AbstractConnectionResolver::prepare_edges()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:1433`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L1433)
