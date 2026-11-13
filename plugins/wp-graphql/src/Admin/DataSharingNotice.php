@@ -20,7 +20,7 @@ namespace WPGraphQL\Admin;
  *
  * @package WPGraphQL\Admin
  *
- * @since x-release-please-version
+ * @since 2.29.0
  */
 final class DataSharingNotice {
 

@@ -33,7 +33,7 @@ Run an action after the additional data has been updated. This is a great spot t
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/MediaItemMutation.php:147`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L147)
+- [`plugins/wp-graphql/src/Data/MediaItemMutation.php:154`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L154)
 
 ```php
 do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
@@ -41,4 +41,4 @@ do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id,
 
 ## Related
 
-- `MediaItemMutation::update_additional_media_item_data()` in [`plugins/wp-graphql/src/Data/MediaItemMutation.php:147`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L147)
+- `MediaItemMutation::update_additional_media_item_data()` in [`plugins/wp-graphql/src/Data/MediaItemMutation.php:154`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/MediaItemMutation.php#L154)

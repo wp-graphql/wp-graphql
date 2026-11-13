@@ -28,7 +28,7 @@ Filters the capability a caller needs to be told why no password reset email was
 
 ## Source
 
-- [`plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php:351`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php#L351)
+- [`plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php#L359)
 
 ```php
 apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_password_reset_debug_capability', 'list_users' );
 
 ## Related
 
-- `SendPasswordResetEmail::debug_reason()` in [`plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php:351`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php#L351)
+- `SendPasswordResetEmail::debug_reason()` in [`plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php:359`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Mutation/SendPasswordResetEmail.php#L359)

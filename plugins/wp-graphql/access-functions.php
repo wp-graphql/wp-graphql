@@ -900,7 +900,7 @@ function register_graphql_settings_field( string $group, array $config ): void {
  * @return bool Whether the plugin was registered. An empty slug, a config with a missing or invalid key, or a
  *              slug that is already registered is reported with _doing_it_wrong() and not registered.
  *
- * @since x-release-please-version
+ * @since 2.29.0
  */
 function register_graphql_data_sharing_plugin( string $slug, array $config ): bool {
 	return \WPGraphQL\Admin\DataSharing::register_plugin( $slug, $config );
