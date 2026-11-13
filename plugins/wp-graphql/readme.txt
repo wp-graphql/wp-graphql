@@ -88,6 +88,8 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
 
+**`updateMediaItem` no longer resets fields left out of the input.** Updating a media item without a `description` used to erase it, and updating it without a `status` reset the status to `inherit`, so a private media item stopped being private. Fields that are left out or `null` now keep their stored values. An empty string now clears `caption`, `description` and `altText`, where it used to be ignored, so check any client that sends empty strings for fields it doesn't mean to change.
+
 **Post and term mutations now save empty values.** An empty string for a post's `title`, `content`, `excerpt` or `password`, a `0` for `menuOrder` or `parentId`, and an empty `description` on term mutations are now saved, where they used to be ignored. This makes it possible to clear these fields, remove a post's password and move a page back to the top level. A title or content of `"0"` is also saved now. Fields that are left out or `null` still keep their stored values, so check any client that sends empty strings or zeros for fields it doesn't mean to change.
 
 = 2.28.0 =
