@@ -88,6 +88,8 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
 
+**`updateMediaItem` no longer resets fields left out of the input.** Updating a media item without a `description` used to erase it, and updating it without a `status` reset the status to `inherit`, so a private media item stopped being private. Fields that are left out or `null` now keep their stored values. An empty string now clears `caption`, `description` and `altText`, where it used to be ignored, so check any client that sends empty strings for fields it doesn't mean to change.
+
 = 2.28.0 =
 
 **Fields now see the right post, term or user as the current object.** Values that depend on the current object, such as some SEO, template, block and gallery output, now come from the node a field is selected under, including in lists, where they could come from a different node before. After updating, purge cached GraphQL responses (WPGraphQL Smart Cache, your CDN and your front end) so the corrected values appear. If you have custom resolvers that read the current post with functions like `get_the_ID()` or `is_singular()` in root fields or in Deferred callbacks, check them against https://www.wpgraphql.com/docs/node-context/. Details: https://github.com/wp-graphql/wp-graphql/issues/4572.
