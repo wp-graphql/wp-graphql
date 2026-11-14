@@ -31,6 +31,7 @@ use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
 use WPGraphQL\Registry\Utils\PostObject;
 use WPGraphQL\Registry\Utils\TermObject;
+use WPGraphQL\Type\Connection\CommentAuthors;
 use WPGraphQL\Type\Connection\Comments;
 use WPGraphQL\Type\Connection\MenuItems;
 use WPGraphQL\Type\Connection\PostObjects;
@@ -407,6 +408,7 @@ class TypeRegistry {
 		 * Register core connections
 		 */
 		Comments::register_connections();
+		CommentAuthors::register_connections();
 		MenuItems::register_connections();
 		PostObjects::register_connections();
 		Taxonomies::register_connections();
