@@ -76,8 +76,23 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 	public function test_add_field_settings_with_unsupported_type_runs_without_error(): void {
 		// Utils::get_graphql_field_type( 'fake_type' ) returns null, so the not_supported branch runs.
 		$this->assertNull( \WPGraphQL\Acf\Utils::get_graphql_field_type( 'fake_nonexistent_type' ) );
+
+		$guide_url = 'https://www.wpgraphql.com/docs/acf/adding-support-for-3rd-party-acf-field-type';
+
+		ob_start();
 		$this->settings->add_field_settings( [ 'name' => 'test', 'prefix' => 'acf_fields' ], 'fake_nonexistent_type' );
-		$this->assertTrue( true, 'add_field_settings with unsupported type should not throw' );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			$guide_url,
+			$output,
+			'Unsupported field type message should link to the ACF field type guide'
+		);
+		$this->assertStringContainsString(
+			'href="' . esc_url( $guide_url ) . '"',
+			$output,
+			'Guide URL should be set as the link href'
+		);
 	}
 
 	public function test_add_field_settings_with_empty_field_type_returns_early(): void {
