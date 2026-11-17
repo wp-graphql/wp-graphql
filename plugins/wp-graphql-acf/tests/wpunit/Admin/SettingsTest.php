@@ -74,6 +74,10 @@ class SettingsTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTestCase {
 	}
 
 	public function test_add_field_settings_with_unsupported_type_runs_without_error(): void {
+		if ( ! defined( 'ACF_VERSION' ) || version_compare( ACF_VERSION, '6.1', '<' ) ) {
+			$this->markTestSkipped( 'Before ACF 6.1, add_field_settings() does not receive the field type, so the not supported message is never shown' );
+		}
+
 		// Utils::get_graphql_field_type( 'fake_type' ) returns null, so the not_supported branch runs.
 		$this->assertNull( \WPGraphQL\Acf\Utils::get_graphql_field_type( 'fake_nonexistent_type' ) );
 
