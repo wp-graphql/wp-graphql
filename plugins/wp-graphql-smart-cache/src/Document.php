@@ -30,6 +30,12 @@ class Document {
 	const AUTO_PERSIST_DEFAULT_LIMIT = 5000;
 	const GRAPHQL_NAME               = 'graphqlDocument';
 
+	// What to do when an automatically saved query has values written into its arguments.
+	const LITERAL_ARGUMENTS_OFF          = 'off';
+	const LITERAL_ARGUMENTS_WARN         = 'warn';
+	const LITERAL_ARGUMENTS_REJECT       = 'reject';
+	const LITERAL_ARGUMENTS_DEFAULT_MODE = self::LITERAL_ARGUMENTS_OFF;
+
 	/**
 	 * Meta key recording how a document came to be stored. Documents registered by
 	 * the automatic persisted query request path carry SOURCE_AUTOMATIC so they can
@@ -371,10 +377,7 @@ class Document {
 				$resolved = $this->resolve_query_id( $query_id, $query );
 
 				if ( ! $resolved['post'] ) {
-					// Refuse up front, so the client is told why, rather than storing a document per value.
-					if ( self::has_literal_arguments( $resolved['ast'] ) && self::can_auto_persist_document() ) {
-						throw new RequestError( self::literalArgumentsMessage() );
-					}
+					$this->check_literal_arguments( $resolved['ast'], $query_id );
 
 					// Serve the verified document for this request; persist after validation.
 					self::$pending_documents[ $query_id ] = [
@@ -400,6 +403,66 @@ class Document {
 		}
 
 		return $parsed_body_params;
+	}
+
+	/**
+	 * Apply the literal arguments setting to a query about to be saved automatically.
+	 *
+	 * A client that builds values into the query string (an id from the URL, a slug)
+	 * saves a new document for every value it sends. Depending on the setting, this
+	 * does nothing, adds a debug message naming the arguments, or refuses the request
+	 * so the client is told to use variables. This runs before the query executes,
+	 * and a query is only stored once it passes validation, so the warning says the
+	 * query is saved when it runs without errors. When automatic saving is not
+	 * allowed for this request, nothing is stored, so nothing is checked.
+	 *
+	 * The warning is added here rather than after the save because the debug log is
+	 * already in the response by the time persist_pending_document_cb() runs.
+	 *
+	 * @param \GraphQL\Language\AST\DocumentNode $ast      The parsed query.
+	 * @param string                             $query_id The queryId sent with it.
+	 *
+	 * @throws \GraphQL\Server\RequestError When the setting is Reject and the query has literal argument values.
+	 */
+	private function check_literal_arguments( DocumentNode $ast, string $query_id ): void {
+		$mode = self::literal_arguments_mode();
+		if ( self::LITERAL_ARGUMENTS_OFF === $mode || ! self::can_auto_persist_document() ) {
+			return;
+		}
+
+		$arguments = self::literal_argument_names( $ast );
+		if ( empty( $arguments ) ) {
+			return;
+		}
+
+		if ( self::LITERAL_ARGUMENTS_REJECT === $mode ) {
+			// Refuse up front, so the client is told why, rather than storing a document per value.
+			throw new RequestError( self::literalArgumentsMessage( $arguments ) );
+		}
+
+		graphql_debug(
+			self::literalArgumentsWarningMessage( $arguments ),
+			[
+				'type'      => 'LITERAL_ARGUMENTS',
+				'queryId'   => $query_id,
+				'arguments' => $arguments,
+			]
+		);
+	}
+
+	/**
+	 * The configured literal arguments mode, or the default when it is missing or unknown.
+	 *
+	 * @return string One of the LITERAL_ARGUMENTS_* modes.
+	 */
+	public static function literal_arguments_mode(): string {
+		$mode = function_exists( 'get_graphql_setting' )
+			? \get_graphql_setting( 'apq_literal_arguments_mode', self::LITERAL_ARGUMENTS_DEFAULT_MODE, 'graphql_persisted_queries_section' )
+			: self::LITERAL_ARGUMENTS_DEFAULT_MODE;
+
+		$modes = [ self::LITERAL_ARGUMENTS_OFF, self::LITERAL_ARGUMENTS_WARN, self::LITERAL_ARGUMENTS_REJECT ];
+
+		return in_array( $mode, $modes, true ) ? $mode : self::LITERAL_ARGUMENTS_DEFAULT_MODE;
 	}
 
 	/**
@@ -661,29 +724,61 @@ class Document {
 	}
 
 	/**
+	 * The error returned when a query is refused for its literal argument values.
+	 *
+	 * @param string[] $arguments The arguments holding literal values, as `field.argument`.
+	 *
 	 * @return string
 	 */
-	public static function literalArgumentsMessage() {
-		return __( 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value.', 'wp-graphql-smart-cache' );
+	public static function literalArgumentsMessage( array $arguments = [] ) {
+		$message = __( 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value.', 'wp-graphql-smart-cache' );
+
+		if ( empty( $arguments ) ) {
+			return $message;
+		}
+
+		// translators: %s is a comma separated list of arguments, such as "post.id, posts.first".
+		return $message . ' ' . sprintf( __( 'Arguments with written values: %s.', 'wp-graphql-smart-cache' ), implode( ', ', $arguments ) );
 	}
 
 	/**
-	 * Whether a document has string or number literals in its arguments.
+	 * The debug message added when a query with literal argument values is about to be saved.
+	 *
+	 * @param string[] $arguments The arguments holding literal values, as `field.argument`.
+	 *
+	 * @return string
+	 */
+	public static function literalArgumentsWarningMessage( array $arguments ) {
+		// translators: %s is a comma separated list of arguments, such as "post.id, posts.first".
+		return sprintf( __( 'This query has string or number values written into its arguments (%s), and it is saved as a persisted query when it runs without errors. A client that builds values into the query saves a new query for every value. Declare variables for values that change between requests. With the literal arguments setting on Reject, this query would be refused.', 'wp-graphql-smart-cache' ), implode( ', ', $arguments ) );
+	}
+
+	/**
+	 * The arguments in a document that hold string or number literals.
 	 *
 	 * Those are the values a client builds into the query string (an id, a slug),
 	 * which would store a new document for every value. Enum, boolean and null
 	 * literals come from a small fixed set, and variable default values are part of
-	 * the document itself, so neither counts.
+	 * the document itself, so neither counts. A literal nested in an input object or
+	 * a list is reported under the argument that holds it.
 	 *
 	 * @param \GraphQL\Language\AST\DocumentNode $ast The parsed document.
 	 *
-	 * @return bool
+	 * @return string[] Unique `field.argument` names (`@directive.argument` for directives), in document order.
 	 */
-	private static function has_literal_arguments( DocumentNode $ast ) {
-		$found = false;
-		$stop  = static function () use ( &$found ) {
-			$found = true;
-			return Visitor::stop();
+	private static function literal_argument_names( DocumentNode $ast ): array {
+		/** @var array<string,true> $found Argument names holding literals, as keys so each is listed once. */
+		$found = [];
+		/** @var list<string> $owners The fields and directives enclosing the current node. */
+		$owners = [];
+		/** @var list<string> $arguments The argument currently being visited, as `owner.argument`. */
+		$arguments = [];
+
+		$record = static function () use ( &$found, &$arguments ) {
+			$argument = end( $arguments );
+			if ( false !== $argument ) {
+				$found[ $argument ] = true;
+			}
 		};
 
 		Visitor::visit(
@@ -692,13 +787,38 @@ class Document {
 				NodeKind::VARIABLE_DEFINITION => static function () {
 					return Visitor::skipNode();
 				},
-				NodeKind::STRING              => $stop,
-				NodeKind::INT                 => $stop,
-				NodeKind::FLOAT               => $stop,
+				NodeKind::FIELD               => [
+					'enter' => static function ( $node ) use ( &$owners ) {
+						$owners[] = $node->name->value;
+					},
+					'leave' => static function () use ( &$owners ) {
+						array_pop( $owners );
+					},
+				],
+				NodeKind::DIRECTIVE           => [
+					'enter' => static function ( $node ) use ( &$owners ) {
+						$owners[] = '@' . $node->name->value;
+					},
+					'leave' => static function () use ( &$owners ) {
+						array_pop( $owners );
+					},
+				],
+				NodeKind::ARGUMENT            => [
+					'enter' => static function ( $node ) use ( &$owners, &$arguments ) {
+						$owner       = end( $owners );
+						$arguments[] = ( false !== $owner ? $owner . '.' : '' ) . $node->name->value;
+					},
+					'leave' => static function () use ( &$arguments ) {
+						array_pop( $arguments );
+					},
+				],
+				NodeKind::STRING              => $record,
+				NodeKind::INT                 => $record,
+				NodeKind::FLOAT               => $record,
 			]
 		);
 
-		return $found;
+		return array_keys( $found );
 	}
 
 	/**

@@ -153,6 +153,22 @@ class Settings {
 				register_graphql_settings_field(
 					'graphql_persisted_queries_section',
 					[
+						'name'    => 'apq_literal_arguments_mode',
+						'label'   => __( 'Automatically saved queries with values written into their arguments', 'wp-graphql-smart-cache' ),
+						'desc'    => __( 'A client that builds values into the query text, such as an ID from the URL, instead of sending them as variables saves a new query for every value. Choose what happens when such a query is saved automatically. String and number values count, enum, boolean and null values do not, so a constant like first: 10 counts too. Try "Warn" first to see which queries would be refused. Queries saved by an authorized user, and queries already saved, are not affected.', 'wp-graphql-smart-cache' ),
+						'type'    => 'radio',
+						'default' => Document::LITERAL_ARGUMENTS_DEFAULT_MODE,
+						'options' => [
+							Document::LITERAL_ARGUMENTS_OFF    => 'Off: save them as usual',
+							Document::LITERAL_ARGUMENTS_WARN   => 'Warn: save them, and add a debug message naming the arguments',
+							Document::LITERAL_ARGUMENTS_REJECT => 'Reject: refuse to save them, and return an error asking for variables',
+						],
+					]
+				);
+
+				register_graphql_settings_field(
+					'graphql_persisted_queries_section',
+					[
 						'name'              => 'apq_automatic_document_limit',
 						'label'             => __( 'Limit on automatically saved queries', 'wp-graphql-smart-cache' ),
 						'desc'              => __( 'The most automatically saved queries to keep. Past this, the oldest are removed as new ones arrive, so the table cannot grow without limit. Clients re-send the full query when an ID is no longer known, so removing one is safe. Queries you have granted, denied, or placed in a Group are never removed by this limit.', 'wp-graphql-smart-cache' ),
