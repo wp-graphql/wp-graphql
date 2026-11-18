@@ -185,6 +185,49 @@ Prior to WPGraphQL `@since x-release-please-version`, some duplicate-field overr
 
 This is documented as a correctness fix rather than a breaking change, because the new behavior aligns with valid GraphQL schema rules.
 
+## Adding Interfaces to Existing Types
+
+Code that adds an interface to types registered by WordPress or other plugins, with `register_graphql_interfaces_to_types()` or the `graphql_type_interfaces` filter, can meet a type that already has a field registered under the same name as one of the interface's fields. Unless the registered field is a [compatible override](/docs/interfaces/#compatible-override-rules), the interface's field wins: the registered field, which may belong to another plugin, is dropped, and the `DUPLICATE_FIELD` debug message names the registered field even though the interface caused the conflict.
+
+A type's interfaces are decided before its fields are built, so you can't look at the type's fields at that point. Instead, `TypeRegistry::has_registered_field()` tells you whether a field has been registered to a type with `register_graphql_field()`, `register_graphql_fields()` or a connection, without building the type. Use it to skip the types where a field name is taken:
+
+```php
+add_action( 'graphql_register_types', function( $type_registry ) {
+  register_graphql_interface_type( 'NodeWithRating', [
+    'fields' => [
+      'rating' => [
+        'type' => 'Int',
+        'description' => 'The rating of the node',
+      ],
+    ],
+  ] );
+
+  add_filter( 'graphql_type_interfaces', function( $interfaces, $config ) use ( $type_registry ) {
+    $type_name = $config['name'] ?? '';
+
+    if ( ! in_array( $type_name, [ 'Post', 'Page' ], true ) ) {
+      return $interfaces;
+    }
+
+    // Leave the type alone if a `rating` field is already registered to it.
+    if ( $type_registry->has_registered_field( $type_name, 'rating' ) ) {
+      graphql_debug( sprintf( 'NodeWithRating was not added to %s, because it already has a rating field.', $type_name ) );
+      return $interfaces;
+    }
+
+    $interfaces[] = 'NodeWithRating';
+    return $interfaces;
+  }, 10, 2 );
+} );
+```
+
+Things to know about `has_registered_field()`:
+
+- Pass the field name as it appears in the schema. `register_graphql_field()` formats names, so a field registered as `my_field` is found as `myField`. The type name isn't case-sensitive.
+- Fields are registered on the `graphql_register_types` and `graphql_register_types_late` actions, so the answer is only complete after those. Types are normally built, and their interfaces decided, after both have run.
+- It only knows about registrations. Fields in the type's own config, fields it gets from its interfaces, and fields added directly with a `graphql_{$type_name}_fields` filter aren't counted. See [Adding Fields: register_graphql_field() or the Fields Filter?](/docs/graphql-resolvers/#adding-fields-register_graphql_field-or-the-fields-filter)
+- If your plugin supports versions of WPGraphQL from before `has_registered_field()` was added, check for it with `method_exists( $type_registry, 'has_registered_field' )` first.
+
 ## Interface Field Argument Merging
 
 When interfaces implement other interfaces, or when object types implement interfaces, field arguments are automatically merged. This allows you to build up arguments across an inheritance chain.

@@ -235,3 +235,15 @@ Now the same query for the hello field (with or without an input argument suppli
   }
 }
 ```
+
+## Adding Fields: register_graphql_field() or the Fields Filter?
+
+The `graphql_{$type_name}_fields` filter used above is the right tool for changing a field that's already registered, like replacing its resolver. To add a new field, use `register_graphql_field()` or `register_graphql_fields()`. Setting a new key in the filter also adds a field, but it skips the checks `register_graphql_field()` makes:
+
+- **Field names are formatted.** `register_graphql_field()` turns `my_field` into `myField`, unless the field sets `allowFieldUnderscores`, and skips a name that starts with a number, which GraphQL doesn't allow, with an `INVALID_FIELD_NAME` debug message. A field added through the filter keeps its array key as its name, and a name GraphQL doesn't allow makes the schema invalid.
+- **Existing fields are kept.** If the type already has a field with that name, from WPGraphQL, another plugin or an interface, `register_graphql_field()` keeps the existing field and adds a `DUPLICATE_FIELD` debug message. The filter replaces the existing field without a message.
+- **Interface fields are only replaced by compatible types.** `register_graphql_field()` replaces a field the type gets from an interface only when the new type is a [compatible override](/docs/interfaces/#compatible-override-rules). Through the filter, any type replaces it, and an incompatible type makes the schema invalid.
+- **Fields without a type are reported.** `register_graphql_field()` skips a field without a `type` with an `INVALID_FIELD_TYPE` debug message. Through the filter, the field is skipped without one.
+- **Other code can see the field before the type is built.** `TypeRegistry::has_registered_field()` finds fields registered with `register_graphql_field()`, so code [adding interfaces to existing types](/docs/interfaces/#adding-interfaces-to-existing-types) can avoid replacing them. Fields added through the filter aren't visible to it.
+
+To remove a field, use `deregister_graphql_field()`.
