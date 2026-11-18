@@ -217,10 +217,11 @@ class TypeRegistry {
 	protected $checking_compatibility = false;
 
 	/**
-	 * The names of the fields registered with register_field() and not deregistered since, keyed by
-	 * the lowercased type name and then the field name. Read with has_registered_field().
+	 * The fields registered with register_field() and deregistered with deregister_field(), keyed by
+	 * the type name exactly as it was given, then by field name, with true for the latest registration
+	 * and false for the latest deregistration. Read with has_registered_field().
 	 *
-	 * @var array<string,array<string,true>>
+	 * @var array<string,array<string,bool>>
 	 */
 	protected $registered_field_names = [];
 
@@ -1270,9 +1271,10 @@ class TypeRegistry {
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ): void {
 		// Record the name the field is added under, so has_registered_field() can answer before the type is built.
+		// The filter below formats the name again when the type is built, so the two calls must stay in step.
 		$allow_underscores = isset( $config['allowFieldUnderscores'] ) && true === $config['allowFieldUnderscores'];
 
-		$this->registered_field_names[ strtolower( $type_name ) ][ Utils::format_field_name( $field_name, $allow_underscores ) ] = true;
+		$this->registered_field_names[ $type_name ][ Utils::format_field_name( $field_name, $allow_underscores ) ] = true;
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
@@ -1687,25 +1689,40 @@ class TypeRegistry {
 	 * name is taken before then, without building the type, for example when deciding which interfaces
 	 * a type should implement, since a type's fields have to match the fields of its interfaces.
 	 *
-	 * Fields are registered on the `graphql_register_types` and `graphql_register_types_late` actions,
-	 * so the answer is only complete once those have run.
+	 * Fields are registered on the `graphql_register_initial_types`, `graphql_register_types` and
+	 * `graphql_register_types_late` actions, so the answer is only complete once those have run. Call it
+	 * when the type is being built, for example from the `graphql_type_interfaces` filter, not while
+	 * registering.
 	 *
 	 * Only registrations count. It doesn't cover:
-	 * - fields in the type's own config, or fields it gets from its interfaces, including fields
+	 * - the `fields` in the type's own config, or fields it gets from its interfaces, including fields
 	 *   registered to those interfaces,
-	 * - fields added or removed directly with a `graphql_{$type_name}_fields` filter.
+	 * - fields added, removed or renamed by a fields filter (`graphql_{$type_name}_fields`,
+	 *   `graphql_object_fields` and the like) or by rename_graphql_field().
 	 *
 	 * It returns true for a registration that's dropped when the type is built, for example one with
 	 * no type, or whose type is excluded from the schema.
 	 *
-	 * @param string $type_name  The name of the type. Not case-sensitive.
+	 * @param string $type_name  The name of the type as it appears in the schema. Like the fields
+	 *                           filters, only its first letter isn't case-sensitive.
 	 * @param string $field_name The name of the field as it appears in the schema. register_field()
 	 *                           formats names, so a field registered as `my_field` is `myField`.
 	 *
 	 * @since x-release-please-version
 	 */
 	public function has_registered_field( string $type_name, string $field_name ): bool {
-		return isset( $this->registered_field_names[ strtolower( $type_name ) ][ $field_name ] );
+		$registered = false;
+
+		// A type's fields filters run under its name with a lowercase first letter, then with an
+		// uppercase one, and each in the order its registrations and deregistrations were made, so
+		// the latest entry under the uppercase name wins.
+		foreach ( array_unique( [ lcfirst( $type_name ), ucfirst( $type_name ) ] ) as $filter_type_name ) {
+			if ( isset( $this->registered_field_names[ $filter_type_name ][ $field_name ] ) ) {
+				$registered = $this->registered_field_names[ $filter_type_name ][ $field_name ];
+			}
+		}
+
+		return $registered;
 	}
 
 	/**
@@ -1718,7 +1735,7 @@ class TypeRegistry {
 	 */
 	public function deregister_field( string $type_name, string $field_name ) {
 		// The filter below removes the field by the exact name given, so the record does the same.
-		unset( $this->registered_field_names[ strtolower( $type_name ) ][ $field_name ] );
+		$this->registered_field_names[ $type_name ][ $field_name ] = false;
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
