@@ -25,7 +25,7 @@ Determine when to register types.
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:151`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L151)
+- [`plugins/wp-graphql/access-functions.php:182`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L182)
 
 ```php
 function get_graphql_register_action(): string {

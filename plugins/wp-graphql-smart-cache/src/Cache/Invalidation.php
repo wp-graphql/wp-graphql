@@ -163,6 +163,8 @@ class Invalidation {
 		$ignored_meta_keys = [
 			// see: https://github.com/wp-graphql/wp-graphql-smart-cache/issues/206
 			'apple_news_notice',
+			// The user's login sessions, written on every login and logout. No query can read them.
+			'session_tokens',
 		];
 
 		$ignored_meta_keys = apply_filters( 'graphql_cache_ignored_meta_keys', $ignored_meta_keys );
@@ -225,17 +227,34 @@ class Invalidation {
 	 *
 	 * @param string $key An identifiers for data stored in memory.
 	 * @param string $event The event that caused the purge
+	 * @param array<string,mixed> $context Structured details about the event, passed to `graphql_purge` listeners
 	 *
 	 * @return void
 	 */
-	public function purge( $key, $event = 'undefined event' ) {
+	public function purge( $key, $event = 'undefined event', $context = [] ) {
 
 		$graphql_endpoint = preg_replace( '#^.*?://#', '', graphql_get_endpoint_url() );
 
-		// This action is emitted with the key to purge.
-		// Plugins can respond to this action to evict caches for that key
+		/**
+		 * Fires with a key to purge. Plugins can respond to this action to evict caches for that key.
+		 *
+		 * `$context` carries structured details about the event, so listeners can attribute a purge
+		 * without parsing `$event`. Meta-change events pass `meta_key`, the key of the meta that
+		 * changed. Other events pass an empty array. New keys may be added in future releases;
+		 * existing keys keep their meaning.
+		 *
+		 * @param string              $key              The key to purge.
+		 * @param string              $event            The event that caused the purge.
+		 * @param string|null         $graphql_endpoint The GraphQL endpoint URL, without the scheme.
+		 * @param array<string,mixed> $context          Structured details about the event.
+		 *
+		 * @since 0.2.0
+		 * @since 2.4.0 Added the `$context` parameter.
+		 *
+		 * @hookGroup caching
+		 */
 		// phpcs:ignore
-		do_action( 'graphql_purge', $key, $event, $graphql_endpoint );
+		do_action( 'graphql_purge', $key, $event, $graphql_endpoint, $context );
 
 		$nodes = $this->collection->get( $key );
 		if ( is_array( $nodes ) && ! empty( $nodes ) ) {
@@ -252,10 +271,11 @@ class Invalidation {
 	 * @param string $id_prefix The type name specific to the id to form the "global ID" that is unique among all types
 	 * @param mixed|string|int $id The node entity identifier
 	 * @param string $event The event that caused the purge
+	 * @param array<string,mixed> $context Structured details about the event, passed to `graphql_purge` listeners
 	 *
 	 * @return void
 	 */
-	public function purge_nodes( $id_prefix, $id, $event = 'unknown event' ) {
+	public function purge_nodes( $id_prefix, $id, $event = 'unknown event', $context = [] ) {
 		if ( ! method_exists( Relay::class, 'toGlobalId' ) ) {
 			return;
 		}
@@ -263,13 +283,13 @@ class Invalidation {
 		$relay_id = Relay::toGlobalId( $id_prefix, $id );
 
 		// purge the node
-		$this->purge( $relay_id, $event );
+		$this->purge( $relay_id, $event, $context );
 
 		// purge caches that had skipped keys of the type
 		// because of header limitations, WPGraphQL truncates the X-GraphQL-Key
 		// header, then depending on the types of node IDs that were skipped,
 		// skipped:$type_name keys are added to the list
-		$this->purge( 'skipped:' . $id_prefix, $event );
+		$this->purge( 'skipped:' . $id_prefix, $event, $context );
 	}
 
 	/**
@@ -443,7 +463,7 @@ class Invalidation {
 		}
 
 		// Delete the cached results associated with this post/key
-		$this->purge_nodes( 'term', $term->term_id, 'term_updated' );
+		$this->purge_nodes( 'term', $term->term_id, 'term_updated', [ 'meta_key' => $meta_key ] );
 	}
 
 	/**
@@ -693,7 +713,7 @@ class Invalidation {
 		}
 
 		// Delete the cached results associated with this key
-		$this->purge_nodes( 'user', $user->ID, 'user_meta_updated' );
+		$this->purge_nodes( 'user', $user->ID, 'user_meta_updated', [ 'meta_key' => $meta_key ] );
 	}
 
 	/**
@@ -775,7 +795,7 @@ class Invalidation {
 		}
 
 		// Delete the cached results associated with this post/key
-		$this->purge_nodes( 'post', $post->ID, sprintf( 'postmeta_changed (meta_key %s)', $meta_key ) );
+		$this->purge_nodes( 'post', $post->ID, sprintf( 'postmeta_changed (meta_key %s)', $meta_key ), [ 'meta_key' => $meta_key ] );
 	}
 
 	/**
@@ -899,7 +919,7 @@ class Invalidation {
 			return;
 		}
 
-		$this->purge_nodes( 'term', $term->term_id, 'menu_meta_updated' );
+		$this->purge_nodes( 'term', $term->term_id, 'menu_meta_updated', [ 'meta_key' => $meta_key ] );
 	}
 
 	/**
@@ -1004,7 +1024,7 @@ class Invalidation {
 			return;
 		}
 
-		$this->purge_nodes( 'post', $post->ID, 'menu_item_meta_changed' );
+		$this->purge_nodes( 'post', $post->ID, 'menu_item_meta_changed', [ 'meta_key' => $meta_key ] );
 	}
 
 	/**

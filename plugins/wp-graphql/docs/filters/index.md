@@ -382,6 +382,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Capability to check required for the field
 
+- [`graphql_model_node_context_globals`](/filters/graphql_model_node_context_globals)
+
+  Filters the globals saved before a model is set up as the current object, and restored when resolution leaves it.
+
 - [`graphql_model_prepare_fields`](/filters/graphql_model_prepare_fields)
 
   Filter the array of fields for the Model before the object is hydrated with it

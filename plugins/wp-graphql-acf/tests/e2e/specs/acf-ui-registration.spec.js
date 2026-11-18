@@ -9,6 +9,7 @@ import {
 	loginToWordPressAdmin,
 	visitAdminFacingPage,
 	deleteAcfUiEntity,
+	submitAndWaitForResult,
 	wpAdminUrl,
 } from '../utils.js';
 import { skipWhenNotAcfPro } from '../env.js';
@@ -82,8 +83,10 @@ describeAcfUi('ACF UI Registration – Custom Post Type', () => {
 		await page.getByLabel('GraphQL Single Name').fill('testSingleName');
 		await page.getByLabel('GraphQL Plural Name').fill('testPluralName');
 
-		await page.getByRole('button', { name: 'Save Changes' }).click();
-		await page.waitForLoadState('networkidle');
+		await submitAndWaitForResult(
+			page,
+			page.getByRole('button', { name: 'Save Changes' })
+		);
 
 		await expect(
 			page.locator('input[name="acf_post_type[labels][singular_name]"]')
@@ -177,8 +180,10 @@ describeAcfUi('ACF UI Registration – Custom Taxonomy', () => {
 		await page.getByLabel('GraphQL Single Name').fill('testSingleName');
 		await page.getByLabel('GraphQL Plural Name').fill('testPluralName');
 
-		await page.getByRole('button', { name: 'Save Changes' }).click();
-		await page.waitForLoadState('networkidle');
+		await submitAndWaitForResult(
+			page,
+			page.getByRole('button', { name: 'Save Changes' })
+		);
 
 		await expect(
 			page.locator('input[name="acf_taxonomy[labels][singular_name]"]')
@@ -275,8 +280,10 @@ describeAcfUi('ACF UI Registration – Options Page', () => {
 			.click();
 		await page.getByLabel('GraphQL Type Name').fill('TestOptionsPage');
 
-		await page.getByRole('button', { name: 'Save Changes' }).click();
-		await page.waitForLoadState('networkidle');
+		await submitAndWaitForResult(
+			page,
+			page.getByRole('button', { name: 'Save Changes' })
+		);
 
 		await expect(
 			page.locator('input[name="acf_ui_options_page[page_title]"]')

@@ -318,10 +318,17 @@ class Registry {
 		$interfaces[]     = 'AcfFieldGroup';
 		$interfaces[]     = $fields_interface;
 
-		$fields                 = $this->get_acf_fields( $acf_field_group );
+		// Use the fields passed in when there are any: flexible content layouts have no post ID to look theirs up by.
+		$fields                 = $acf_field_group['sub_fields'] ?? $this->get_acf_fields( $acf_field_group );
 		$clone_field_interfaces = [];
 		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field ) {
+				// In sub_fields, ACF has already replaced a seamless clone with the fields it clones,
+				// and each of those carries the clone field's key in `_clone`.
+				if ( empty( $field['clone'] ) && ! empty( $field['_clone'] ) ) {
+					$field = acf_get_field( $field['_clone'] ) ?: [];
+				}
+
 				// if the field is a clone field, track it
 				if ( ! empty( $field['clone'] ) && is_array( $field['clone'] ) ) {
 					foreach ( $field['clone'] as $clone_field ) {

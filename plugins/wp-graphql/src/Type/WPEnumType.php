@@ -104,7 +104,8 @@ class WPEnumType extends EnumType {
 		foreach ( $values as $key => $value ) {
 			$description = $value['description'] ?? null;
 
-			if ( is_callable( $description ) ) {
+			// A string is the description itself, even when it names a PHP function.
+			if ( ! is_string( $description ) && is_callable( $description ) ) {
 				$description = $description();
 			}
 

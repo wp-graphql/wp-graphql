@@ -73,10 +73,13 @@ The following are handled automatically by our CI/CD workflows. **Please do not 
 
 When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `perf!:` prefix):
 
-1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md`
+1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md` under `### ⚠ BREAKING CHANGES`
 2. **update-release-pr.yml** workflow automatically updates the `== Upgrade Notice ==` section in `readme.txt`
-3. WordPress.org displays this notice to users before they update
+3. **The release workflow** adds the release's upgrade notice to the top of its GitHub release notes
+4. WordPress.org displays this notice to users before they update
 
-**⚠️ Do not manually add upgrade notices** - they will be automatically generated from breaking changes in the changelog.
+**Fixes that change behavior someone may rely on** are not breaking changes, so they use `fix:`, not `fix!:`, and no notice is generated for them. Write one by hand in the fix PR instead: add a `= X.Y.Z =` entry under `== Upgrade Notice ==` in the plugin's `readme.txt`, using the version from the plugin's open release PR, and say in the PR description which version it targets, since it has to move if that release goes out first. Add it on `main`, never on the release-please branch, which is force-pushed. The automation leaves hand-written notices alone, and they are added to the GitHub release notes the same way.
+
+**⚠️ Don't hand-write notices for breaking changes** - those are generated from the changelog.
 
 > **NOTE:** This CONTRIBUTING.md file was forked from [Easy Digital Downloads](https://github.com/easydigitaldownloads/easy-digital-downloads/blob/main/CONTRIBUTING.md)

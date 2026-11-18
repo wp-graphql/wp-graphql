@@ -16,6 +16,7 @@ import {
 	navigateToFieldGroupEdit,
 	openFieldByKeyAndGraphQLTab,
 	submitFieldGroupForm,
+	submitAndWaitForResult,
 	wpAdminUrl,
 } from '../utils.js';
 import { skipWhenNotAcfPro } from '../env.js';
@@ -259,8 +260,10 @@ describeOptionsPage('GraphQL Capability on options pages', () => {
 			.locator('input[name="acf_ui_options_page[graphql_capability]"]')
 			.fill('edit_posts');
 
-		await page.getByRole('button', { name: 'Save Changes' }).click();
-		await page.waitForLoadState('networkidle');
+		await submitAndWaitForResult(
+			page,
+			page.getByRole('button', { name: 'Save Changes' })
+		);
 
 		await expect(
 			page.locator('input[name="acf_ui_options_page[graphql_capability]"]')

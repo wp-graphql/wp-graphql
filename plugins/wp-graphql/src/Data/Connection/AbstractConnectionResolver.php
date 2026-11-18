@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\NodeContext;
 use WPGraphQL\Model\Post;
 
 /**
@@ -457,6 +458,23 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Whether the `after` or `before` arg holds a cursor that get_offset_for_cursor() can't decode.
+	 *
+	 * Checks the args after the `graphql_connection_args` filter, so a cursor removed there is not checked.
+	 *
+	 * @since 2.26.2
+	 */
+	protected function has_malformed_cursor(): bool {
+		foreach ( [ 'after', 'before' ] as $cursor ) {
+			if ( ! empty( $this->args[ $cursor ] ) && empty( $this->get_offset_for_cursor( $this->args[ $cursor ] ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns the offset for a given cursor.
 	 *
 	 * Connections that use a string-based offset should override this method.
@@ -470,7 +488,12 @@ abstract class AbstractConnectionResolver {
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
 		if ( ! empty( $cursor ) ) {
-			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
+			$decoded = base64_decode( $cursor );
+
+			// A cursor this resolver issued always decodes to `arrayconnection:<offset>`, see get_cursor_for_node().
+			if ( is_string( $decoded ) && 0 === strpos( $decoded, 'arrayconnection:' ) ) {
+				$offset = substr( $decoded, strlen( 'arrayconnection:' ) );
+			}
 		}
 
 		/**
@@ -999,71 +1022,77 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Return a Deferred function to load all buffered nodes before
 		 * returning the connection.
+		 *
+		 * The callback runs after other fields (often other nodes' fields) have resolved, so it's
+		 * bound to the global state as it is now: the node this connection belongs to stays the
+		 * current object for the filters it runs.
 		 */
 		return new Deferred(
-			function () {
-				// @todo This should use ::get_ids() when b/c is not a concern.
-				$ids = $this->ids;
+			NodeContext::bind(
+				function () {
+					// @todo This should use ::get_ids() when b/c is not a concern.
+					$ids = $this->ids;
 
-				if ( ! empty( $ids ) ) {
-					// Load the ids.
-					$this->get_loader()->load_many( $ids );
+					if ( ! empty( $ids ) ) {
+						// Load the ids.
+						$this->get_loader()->load_many( $ids );
+					}
+
+					/**
+					 * Set the items. These are the "nodes" that make up the connection.
+					 *
+					 * Filters the nodes in the connection
+					 *
+					 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
+					 *
+					 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
+					 * @param self                                 $resolver Instance of the Connection Resolver
+					 * @hookGroup connections
+					 * @since 0.0.6
+					 */
+					$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
+
+					/**
+					 * Filters the edges in the connection.
+					 *
+					 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
+					 *
+					 * @param array<string,mixed> $edges    The edges in the connection
+					 * @param self                $resolver Instance of the Connection Resolver
+					 * @hookGroup connections
+					 * @since 0.0.6
+					 */
+					$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+
+					// @todo: we should also short-circuit fetching/populating the actual nodes/edges if we only need one result.
+					if ( true === $this->one_to_one ) {
+						// For one to one connections, return the first edge.
+						$first_edge_key = array_key_first( $this->edges );
+						$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
+					} else {
+						// For plural connections (default) return edges/nodes/pageInfo
+						$connection = [
+							'nodes'    => $this->nodes,
+							'edges'    => $this->edges,
+							'pageInfo' => $this->get_page_info(),
+						];
+					}
+
+					/**
+					 * Filter the connection. In some cases, connections will want to provide
+					 * additional information other than edges, nodes, and pageInfo
+					 *
+					 * This filter allows additional fields to be returned to the connection resolver
+					 *
+					 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
+					 * @param self                 $resolver   The instance of the connection resolver
+					 * @hookGroup connections
+					 * @since 0.3.0
+					 */
+					$connection = apply_filters( 'graphql_connection', $connection, $this );
+					return $connection;
 				}
-
-				/**
-				 * Set the items. These are the "nodes" that make up the connection.
-				 *
-				 * Filters the nodes in the connection
-				 *
-				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
-				 *
-				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
-				 * @param self                                 $resolver Instance of the Connection Resolver
-				 * @hookGroup connections
-				 * @since 0.0.6
-				 */
-				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
-
-				/**
-				 * Filters the edges in the connection.
-				 *
-				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
-				 *
-				 * @param array<string,mixed> $edges    The edges in the connection
-				 * @param self                $resolver Instance of the Connection Resolver
-				 * @hookGroup connections
-				 * @since 0.0.6
-				 */
-				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
-
-				// @todo: we should also short-circuit fetching/populating the actual nodes/edges if we only need one result.
-				if ( true === $this->one_to_one ) {
-					// For one to one connections, return the first edge.
-					$first_edge_key = array_key_first( $this->edges );
-					$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
-				} else {
-					// For plural connections (default) return edges/nodes/pageInfo
-					$connection = [
-						'nodes'    => $this->nodes,
-						'edges'    => $this->edges,
-						'pageInfo' => $this->get_page_info(),
-					];
-				}
-
-				/**
-				 * Filter the connection. In some cases, connections will want to provide
-				 * additional information other than edges, nodes, and pageInfo
-				 *
-				 * This filter allows additional fields to be returned to the connection resolver
-				 *
-				 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
-				 * @param self                 $resolver   The instance of the connection resolver
-				 * @hookGroup connections
-				 * @since 0.3.0
-				 */
-				$connection = apply_filters( 'graphql_connection', $connection, $this );
-				return $connection;
-			}
+			)
 		);
 	}
 
@@ -1078,6 +1107,11 @@ abstract class AbstractConnectionResolver {
 		 * If it's not, we need to call the should_execute() method to execute any situational logic to determine if the connection query should execute.
 		 */
 		$should_execute = false === $this->should_execute ? false : $this->should_execute();
+
+		// A cursor that doesn't decode to an offset is malformed, so there is nothing to paginate from.
+		if ( $should_execute && $this->has_malformed_cursor() ) {
+			$should_execute = false;
+		}
 
 		/**
 		 * Check if the connection should execute. If conditions are met that should prevent

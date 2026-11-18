@@ -115,6 +115,37 @@ function graphql( array $request_data = [], bool $return_request = false ) {
 }
 
 /**
+ * Wraps a callback so that, whenever it's called, it runs with the global state as it is now.
+ *
+ * While a field resolves, the post, term or user it's selected under is set up as the current
+ * object (see the Node Context and Global State docs). Code that runs later than the resolver,
+ * such as the callback of a Deferred the resolver returns, would otherwise run with whatever node
+ * was set up most recently. Wrap the callback while the resolver runs, and it sees the resolver's
+ * node instead:
+ *
+ *     'resolve' => static function ( $post ) {
+ *         return new \GraphQL\Deferred(
+ *             graphql_bind_node_context(
+ *                 static function () {
+ *                     return get_the_title(); // The title of the post the field is selected under.
+ *                 }
+ *             )
+ *         );
+ *     },
+ *
+ * The state at the time the callback is called is restored afterwards, even if it throws.
+ *
+ * @param callable $callback The callback to wrap.
+ *
+ * @return callable The wrapped callback, which takes the same arguments and returns the same value.
+ *
+ * @since 2.28.0
+ */
+function graphql_bind_node_context( callable $callback ): callable {
+	return \WPGraphQL\Model\NodeContext::bind( $callback );
+}
+
+/**
  * Previous access function for running GraphQL queries directly. This function will
  * eventually be deprecated in favor of `graphql`.
  *
@@ -802,6 +833,77 @@ function register_graphql_settings_field( string $group, array $config ): void {
 			$registry->register_field( $group, $config );
 		}
 	);
+}
+
+/**
+ * Registers a plugin on the Data Sharing tab of the WPGraphQL settings page.
+ *
+ * The Data Sharing tab is where a site chooses what it shares with the WPGraphQL team. A registered
+ * plugin gets a row there, labeled with its name, with a "Share usage data with the WPGraphQL team"
+ * checkbox. The tab's description says once, for every plugin on it, what is shared and how often.
+ * The checkbox always shows the plugin's real opt-in state, Appsero's `{slug}_allow_tracking`
+ * option. Checking it opts the site in and requires the `manage_options` capability. Unchecking it
+ * opts the site out and stops the weekly check-ins, for any user who can save the settings page.
+ * Each plugin's checkbox only changes that plugin's opt-in state.
+ *
+ * The plugin also gets an "Email me about security releases and breaking changes" checkbox in the
+ * tab's Email Updates rows, below one address field shared by every plugin. Saving the tab sends one
+ * request to the telemetry service, with the `hash` of each plugin whose box was just checked, and
+ * the service emails a confirmation link for them. Checking a box requires the
+ * `manage_options` capability.
+ *
+ * Registering also replaces the plugin's Appsero opt-in notice with the Data Sharing notice, which
+ * asks once, for every registered plugin, about usage data and, separately, about email updates. A
+ * notice text set with `$insights->notice()` isn't shown.
+ *
+ * Registering also limits the plugin's Appsero deactivation feedback form to sites that opted in,
+ * so a plugin registered here should not gate the form itself as well.
+ *
+ * Call it once per plugin, after `$insights->init()` and before the `init` action. A plugin loads
+ * before or after WPGraphQL depending on its folder name, so check
+ * `function_exists( 'register_graphql_data_sharing_plugin' )` on `plugins_loaded`, and keep the
+ * plugin's own setting when the function doesn't exist (WPGraphQL versions without the tab).
+ *
+ * ```php
+ * add_action( 'plugins_loaded', static function () use ( $client, $insights ) {
+ *     if ( function_exists( 'register_graphql_data_sharing_plugin' ) ) {
+ *         register_graphql_data_sharing_plugin(
+ *             $client->slug,
+ *             [
+ *                 'insights' => $insights,
+ *                 'name'     => 'WPGraphQL Smart Cache',
+ *                 'hash'     => $client->hash,
+ *                 'version'  => WPGRAPHQL_SMART_CACHE_VERSION,
+ *             ]
+ *         );
+ *     }
+ * } );
+ * ```
+ *
+ * @param string              $slug   The plugin's Appsero client slug, the prefix of its Appsero options. Its
+ *                                    checkbox is stored as `share_usage_data_{slug}` (the slug passed through
+ *                                    sanitize_key()) in the `graphql_data_sharing_settings` option, as a copy
+ *                                    of the real opt-in state.
+ * @param array<string,mixed> $config The plugin config: `insights` (required, the initialized Appsero insights
+ *                                    instance), `name` (required, the plugin name shown on the tab), `hash`
+ *                                    (required, the plugin's Appsero project hash, which also names the plugin's
+ *                                    mailing list to the telemetry service) and `version` (the
+ *                                    plugin's version).
+ *
+ * @phpstan-param array{
+ *  insights: \Appsero\Insights,
+ *  name: string,
+ *  hash: string,
+ *  version?: string,
+ * } $config
+ *
+ * @return bool Whether the plugin was registered. An empty slug, a config with a missing or invalid key, or a
+ *              slug that is already registered is reported with _doing_it_wrong() and not registered.
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_data_sharing_plugin( string $slug, array $config ): bool {
+	return \WPGraphQL\Admin\DataSharing::register_plugin( $slug, $config );
 }
 
 /**

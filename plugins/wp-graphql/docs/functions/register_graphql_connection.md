@@ -33,7 +33,7 @@ Given a config array for a connection, this registers a connection by creating a
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:537`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L537)
+- [`plugins/wp-graphql/access-functions.php:568`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L568)
 
 ```php
 function register_graphql_connection( array $config ): void {

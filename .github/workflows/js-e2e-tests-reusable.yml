@@ -157,18 +157,18 @@ jobs:
       - name: Build JavaScript assets
         run: npm run build -- --filter='./plugins/*'
 
-      - name: Cache Docker images
-        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
-        with:
-          key: docker-${{ runner.os }}-e2e
-
+      # Note: we intentionally do NOT cache the wp-env Docker images. The repo's
+      # 10GB Actions cache budget is consumed by composer/npm/Playwright caches,
+      # so the multi-GB image caches were always evicted before the next run:
+      # every run missed the cache yet still paid to save it. wp-env pulls the
+      # images directly, which is no slower than restoring an image tarball.
       - name: Start the Docker testing environment
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} || { echo "::warning::wp-env start failed"; exit 1; }
             # wp-env intermittently reports a successful start but leaves the
             # instance uninitialized: the next `wp-env run` then fails with
             # "Environment not initialized. Run `wp-env start` first." for the
@@ -260,7 +260,11 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.plugin_name }}-e2e-test-failures
+          # In CI, Playwright's results land in the repo root's artifacts/ (the ACF job's log shows
+          # ../../artifacts/test-results), not the plugin's, so look in both.
           path: |
+            artifacts/test-results/**
+            artifacts/storage-states/**
             ${{ inputs.plugin_path }}/artifacts/test-results/**
             ${{ inputs.plugin_path }}/artifacts/storage-states/**
           if-no-files-found: ignore
@@ -271,5 +275,6 @@ jobs:
         with:
           name: ${{ inputs.plugin_name }}-e2e-playwright-report
           path: |
+            artifacts/test-results/**
             ${{ inputs.plugin_path }}/artifacts/test-results/**
           if-no-files-found: ignore

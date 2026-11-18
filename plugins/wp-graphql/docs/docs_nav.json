@@ -85,6 +85,10 @@
 			"href": "/docs/themes"
 		},
 		{
+			"title": "Scripts and Styles",
+			"href": "/docs/scripts-and-styles"
+		},
+		{
 			"title": "Widgets",
 			"href": "/docs/widgets"
 		}
@@ -125,6 +129,10 @@
 		{
 			"title": "GraphQL Resolvers",
 			"href": "/docs/graphql-resolvers"
+		},
+		{
+			"title": "Node Context and Global State",
+			"href": "/docs/node-context"
 		},
 		{
 			"title": "Mutations",

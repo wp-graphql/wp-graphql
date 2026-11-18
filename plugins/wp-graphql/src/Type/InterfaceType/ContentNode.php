@@ -197,11 +197,11 @@ class ContentNode {
 							},
 							// When an authorized preview targets this node, report whether previewed
 							// values are actually being overlaid (an autosave to overlay from, or a
-							// previewed featured image), so a client can render a truthful preview
+							// previewed featured image or post format), so a client can render a truthful preview
 							// state: "authorized but nothing to preview" resolves false, exactly
 							// like a request without preview context.
 							'previewResolve' => static function ( $source, $args, $context, $info, array $preview ) {
-								return ! empty( $preview['revisionDatabaseId'] ) || isset( $preview['featuredImageDatabaseId'] );
+								return ! empty( $preview['revisionDatabaseId'] ) || isset( $preview['featuredImageDatabaseId'] ) || isset( $preview['postFormat'] );
 							},
 						],
 						'previewRevisionDatabaseId' => [

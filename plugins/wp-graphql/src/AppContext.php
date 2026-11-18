@@ -89,7 +89,7 @@ class AppContext {
 	 * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
 	 * Null when the request does not carry preview context.
 	 *
-	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,nonce:?string}|null
+	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,postFormat:?string,nonce:?string}|null
 	 */
 	public $preview = null;
 

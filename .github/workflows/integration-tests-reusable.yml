@@ -205,7 +205,7 @@ jobs:
           timeout_minutes: 15
           max_attempts: 3
           command: |
-            ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            ${{ inputs.coverage && github.actor != 'dependabot[bot]' && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} || { echo "::warning::wp-env start failed"; exit 1; }
             # wp-env intermittently reports a successful start but leaves the
             # instance uninitialized: the next `wp-env run` then fails with
             # "Environment not initialized. Run `wp-env start` first." for the
@@ -258,6 +258,9 @@ jobs:
           INPUT_PLUGIN_NAME: ${{ inputs.plugin_name }}
           INPUT_ACF_VERSION: ${{ inputs.acf_version }}
           INPUT_SCF: ${{ inputs.scf }}
+          # Authenticates the Content Blocks release lookup below. Without a token the GitHub API
+          # allows 60 requests an hour per IP, which shared runners can exhaust.
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Installing ACF plugins based on configuration..."
           echo "  INPUT_ACF_PRO=$INPUT_ACF_PRO INPUT_ACF_EXTENDED=$INPUT_ACF_EXTENDED INPUT_ACF_EXTENDED_PRO=$INPUT_ACF_EXTENDED_PRO"
@@ -369,8 +372,9 @@ jobs:
           # Install WPGraphQL Content Blocks if requested
           if [ "${{ inputs.wpgraphql_content_blocks }}" = "true" ]; then
             echo "Installing WPGraphQL Content Blocks..."
-            # Fetch latest tag from GitHub API on the runner to avoid wp-env stdout mixing with the version string
-            CONTENT_BLOCKS_VERSION=$(curl -s --location --request GET 'https://api.github.com/repos/wpengine/wp-graphql-content-blocks/releases/latest' | jq -r '.tag_name // empty')
+            # Fetch latest tag from GitHub API on the runner to avoid wp-env stdout mixing with the version string.
+            # Authenticated with GH_TOKEN; on failure gh prints the API error (e.g. the HTTP status), so the log says why.
+            CONTENT_BLOCKS_VERSION=$(gh api repos/wpengine/wp-graphql-content-blocks/releases/latest --jq '.tag_name // empty') || CONTENT_BLOCKS_VERSION=""
             if [ -z "$CONTENT_BLOCKS_VERSION" ]; then
               echo "::error::Failed to resolve WPGraphQL Content Blocks latest release tag"
               exit 1

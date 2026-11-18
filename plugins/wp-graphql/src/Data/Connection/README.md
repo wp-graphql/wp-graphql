@@ -374,6 +374,8 @@ Below is a list of some of the more common `AbstractConnectionResolver` methods 
 
    Connections that use a string-based offset should override this method.
 
+   Return an empty value, such as `false`, for a cursor the connection didn't issue. The connection then returns no results instead of running the query. A cursor that decodes but points at an item that doesn't exist should still return its offset, so it's ignored and results start from the beginning.
+
 - `protected function is_valid_model( $model ) : bool`
 
    Validates the GraphQL model returned from the DataLoader. By default, this ensures that the model’s fields are set appropriately, but your GraphQL implementation might have different requirements.

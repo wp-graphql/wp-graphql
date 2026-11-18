@@ -204,10 +204,10 @@ class CommentUpdate {
 			/**
 			 * This updates additional data not part of the comments table ( commentmeta, other relations, etc )
 			 *
-			 * The input for the commentMutation will be passed, along with the $new_comment_id for the
-			 * comment that was created so that relations can be set, meta can be updated, etc.
+			 * The input for the commentMutation will be passed, along with the $comment_id for the
+			 * comment that was updated so that relations can be set, meta can be updated, etc.
 			 */
-			CommentMutation::update_additional_comment_data( $comment_id, $input, 'create', $context, $info );
+			CommentMutation::update_additional_comment_data( $comment_id, $input, 'updateComment', $context, $info );
 
 			/**
 			 * Return the comment object

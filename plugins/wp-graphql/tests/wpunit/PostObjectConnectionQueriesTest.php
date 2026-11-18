@@ -310,6 +310,106 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
+	 * Values passed as `after` or `before` that aren't cursors WPGraphQL issued.
+	 *
+	 * @return array<string,string>
+	 */
+	private function get_malformed_cursors(): array {
+		return [
+			'short string'                     => 'foo',
+			'URL segment'                      => 'this-is-a-long-random-url-segment',
+			'base64 without the cursor prefix' => base64_encode( 'not a cursor at all, really' ),
+			'cursor prefix without an offset'  => base64_encode( 'arrayconnection:' ),
+		];
+	}
+
+	/**
+	 * Malformed cursors should return no results instead of the first page.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2795
+	 */
+	public function testMalformedCursorReturnsNoResults() {
+		$query = $this->getQuery();
+
+		foreach ( $this->get_malformed_cursors() as $label => $cursor ) {
+			foreach ( [ 'after', 'before' ] as $cursor_arg ) {
+				$variables = [
+					'first'     => 'after' === $cursor_arg ? 5 : null,
+					'last'      => 'before' === $cursor_arg ? 5 : null,
+					$cursor_arg => $cursor,
+				];
+
+				$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+				$this->assertArrayNotHasKey( 'errors', $actual );
+				$this->assertEmpty( $actual['data']['posts']['nodes'], sprintf( 'A malformed `%s` cursor (%s) should return no nodes', $cursor_arg, $label ) );
+			}
+		}
+	}
+
+	/**
+	 * A well-formed cursor for a post that doesn't exist, and an empty cursor, are ignored,
+	 * so the connection returns results from the start.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2795
+	 */
+	public function testCursorForMissingPostAndEmptyCursorAreIgnored() {
+		$query = $this->getQuery();
+
+		foreach ( [ base64_encode( 'arrayconnection:999999' ), '' ] as $cursor ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'first' => 5,
+						'after' => $cursor,
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertCount( 5, $actual['data']['posts']['nodes'] );
+		}
+	}
+
+	/**
+	 * The documented way to ignore malformed cursors again, as earlier versions of WPGraphQL did.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/2795
+	 */
+	public function testMalformedCursorCanBeIgnoredWithConnectionArgsFilter() {
+		add_filter(
+			'graphql_connection_args',
+			static function ( array $args, $resolver ) {
+				foreach ( [ 'after', 'before' ] as $cursor ) {
+					if ( ! empty( $args[ $cursor ] ) && empty( $resolver->get_offset_for_cursor( $args[ $cursor ] ) ) ) {
+						unset( $args[ $cursor ] );
+					}
+				}
+
+				return $args;
+			},
+			10,
+			2
+		);
+
+		foreach ( $this->get_malformed_cursors() as $label => $cursor ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $this->getQuery(),
+					'variables' => [
+						'first' => 5,
+						'after' => $cursor,
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertCount( 5, $actual['data']['posts']['nodes'], sprintf( 'A malformed cursor (%s) removed by the filter should be ignored', $label ) );
+		}
+	}
+
+	/**
 	 * Test to assert that the global post object is being set correctly
 	 */
 	public function testPostExcerptsAreDifferent() {

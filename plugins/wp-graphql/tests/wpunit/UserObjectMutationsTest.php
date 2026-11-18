@@ -1239,6 +1239,16 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	/**
+	 * Makes wp_mail() report a successful send for the rest of the test.
+	 *
+	 * The test site's domain has no dot, so the default From address is invalid and a real
+	 * wp_mail() call fails. Tests of the success path need the send to succeed.
+	 */
+	protected function stubSuccessfulEmailSend(): void {
+		add_filter( 'pre_wp_mail', '__return_true' );
+	}
+
+	/**
 	 * Hardening for GHSA-f5f8-v768-93c8. One operation can invoke the mutation many
 	 * times with aliases, and the request layer's batch limit counts batch entries
 	 * rather than aliases, so it cannot see them. Without a limit in the resolver,
@@ -1539,7 +1549,83 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 	}
 
+	/**
+	 * Core's wp_mail() reports a failed send by returning `false`, so that has to count as a
+	 * failure too. It is treated like any other: invisible to a caller who cannot list users,
+	 * and explained to one who can.
+	 *
+	 * @see GHSA-6xw5-35v5-2886
+	 */
+	public function testEmailSendReturningFalseIsReportedAsAFailure() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter( 'pre_wp_mail', '__return_false' );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty( $anonymous['extensions']['debug'] ?? [] );
+
+			wp_set_current_user( $this->admin );
+
+			$entitled = $this->sendPasswordResetEmailMutation( $username );
+
+			$this->assertTrue( $entitled['data']['sendPasswordResetEmail']['success'] );
+			$this->assertNull( $entitled['data']['sendPasswordResetEmail']['user'], 'No user is returned when no email was sent.' );
+			$this->assertStringContainsString( 'The email could not be sent.', $entitled['extensions']['debug'][0]['message'] ?? '' );
+		} finally {
+			remove_filter( 'pre_wp_mail', '__return_false' );
+		}
+	}
+
+	/**
+	 * `retrieve_password_message` is documented, here and in core, as not sending the email when
+	 * it is filtered to an empty message. Sites use it to turn the email off.
+	 */
+	public function testEmptyPasswordResetMessageDoesNotSendAnEmail() {
+		$username = get_userdata( $this->subscriber )->user_login;
+
+		add_filter( 'retrieve_password_message', '__return_empty_string' );
+
+		try {
+			wp_set_current_user( 0 );
+
+			$anonymous = null;
+			$sent      = $this->countEmailsSentBy(
+				function () use ( $username, &$anonymous ) {
+					$anonymous = $this->sendPasswordResetEmailMutation( $username );
+				}
+			);
+
+			$this->assertSame( 0, $sent );
+			$this->assertArrayNotHasKey( 'errors', $anonymous );
+			$this->assertTrue( $anonymous['data']['sendPasswordResetEmail']['success'], 'The payload must look the same as a successful send.' );
+			$this->assertEmpty( $anonymous['extensions']['debug'] ?? [] );
+
+			wp_set_current_user( $this->admin );
+
+			$entitled = null;
+			$sent     = $this->countEmailsSentBy(
+				function () use ( $username, &$entitled ) {
+					$entitled = $this->sendPasswordResetEmailMutation( $username );
+				}
+			);
+
+			$this->assertSame( 0, $sent );
+			$this->assertNull( $entitled['data']['sendPasswordResetEmail']['user'], 'No user is returned when no email was sent.' );
+			$this->assertStringContainsString( 'The password reset message is empty', $entitled['extensions']['debug'][0]['message'] ?? '' );
+		} finally {
+			remove_filter( 'retrieve_password_message', '__return_empty_string' );
+		}
+	}
+
 	public function testSendPasswordResetEmailWithUsername() {
+		$this->stubSuccessfulEmailSend();
+
 		$user     = get_userdata( $this->subscriber );
 		$username = $user->user_login;
 
@@ -1564,6 +1650,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	public function testSendPasswordResetEmailWithEmail() {
+		$this->stubSuccessfulEmailSend();
+
 		$user  = get_userdata( $this->subscriber );
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
@@ -1628,6 +1716,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * the enumeration hole without removing the legitimate admin-side utility of the field.
 	 */
 	public function testSendPasswordResetEmailUserFieldVisibleToCapableUser() {
+		$this->stubSuccessfulEmailSend();
+
 		$user     = get_userdata( $this->author );
 		$username = $user->user_login;
 

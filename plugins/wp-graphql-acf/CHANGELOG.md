@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.0...wp-graphql-acf/v3.2.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
+## [3.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.1.0...wp-graphql-acf/v3.2.0) (2026-11-05)
+
+
+### New Features
+
+* **acf:** let custom field types resolve ACF's formatted value ([#4609](https://github.com/wp-graphql/wp-graphql/issues/4609)) ([6013ed6](https://github.com/wp-graphql/wp-graphql/commit/6013ed6f734886f76e3b82c35beb055219172aa0))
+
+
+### Bug Fixes
+
+* **acf:** give a duplicated field its own GraphQL field name ([#4610](https://github.com/wp-graphql/wp-graphql/issues/4610)) ([e385f72](https://github.com/wp-graphql/wp-graphql/commit/e385f72bf1db01a06113413c0db695110d365411))
+* **acf:** return null for an options page whose loader has been replaced ([#4649](https://github.com/wp-graphql/wp-graphql/issues/4649)) ([be038d5](https://github.com/wp-graphql/wp-graphql/commit/be038d56c0f06b65bf9440eb04fef8c0d6162592))
+* **acf:** stop loading every stored ACF field for each flexible content layout ([#4611](https://github.com/wp-graphql/wp-graphql/issues/4611)) ([4dbb190](https://github.com/wp-graphql/wp-graphql/commit/4dbb1906eba940cb6dc7abd633fa1c6612bc1dc2))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.24.2 to 2.25.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4631](https://github.com/wp-graphql/wp-graphql/issues/4631)) ([c626947](https://github.com/wp-graphql/wp-graphql/commit/c6269472893868b1410f3286dd81f91ed6b5cb27))
+
 ## [3.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.1.0) (2026-10-30)
 
 

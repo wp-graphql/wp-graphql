@@ -223,6 +223,24 @@ class UserCacheInvalidationTest extends \TestCase\WPGraphQLSmartCache\TestCase\W
         ], $evicted );
     }
 
+	// Logging in and out writes the user's `session_tokens` meta, which no query can read,
+	// so it shouldn't evict the cache for queries containing that user.
+	public function testLoginAndLogoutSessionTokensDoNotPurgeCache() {
+
+		$this->assertEmpty( $this->getEvictedCaches() );
+
+		// Logging in creates a session token for the user.
+		$sessions = \WP_Session_Tokens::get_instance( $this->editor->ID );
+		$token    = $sessions->create( time() + DAY_IN_SECONDS );
+
+		$this->assertEmpty( $this->getEvictedCaches(), 'Logging in should not evict caches' );
+
+		// Logging out destroys it.
+		$sessions->destroy( $token );
+
+		$this->assertEmpty( $this->getEvictedCaches(), 'Logging out should not evict caches' );
+	}
+
     // update user meta (with non-allowed meta key)
     public function testUpdateNonAllowedUserMetaAndPurgeCache() {
 

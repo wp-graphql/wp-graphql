@@ -648,6 +648,23 @@ jobs:
           ZIP_PATH: plugin-build/${{ matrix.component }}.zip
         run: gh release upload "$TAG_NAME" "$ZIP_PATH" --clobber --repo "$GITHUB_REPOSITORY"
 
+      # Best-effort: by now the release is published and deployed, so a problem adding the
+      # notice shows as a warning on this step instead of failing the release.
+      - name: Include upgrade notice in GitHub release notes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.plugin_info.outputs.tag_name }}
+          PACKAGE_PATH: ${{ steps.plugin_info.outputs.package_path }}
+          PLUGIN_VERSION: ${{ steps.plugin_info.outputs.version }}
+        run: |
+          gh release view "$TAG_NAME" --json body --jq .body --repo "$GITHUB_REPOSITORY" > "$RUNNER_TEMP/release-notes.md"
+          node scripts/extract-upgrade-notice.js --version="$PLUGIN_VERSION" --plugin-dir="$PACKAGE_PATH" \
+            --release-notes="$RUNNER_TEMP/release-notes.md" --output="$RUNNER_TEMP/release-notes-updated.md"
+          if [ -f "$RUNNER_TEMP/release-notes-updated.md" ]; then
+            gh release edit "$TAG_NAME" --notes-file "$RUNNER_TEMP/release-notes-updated.md" --repo "$GITHUB_REPOSITORY"
+          fi
+
       - name: Release Summary
         env:
           MATRIX_COMPONENT: ${{ matrix.component }}

@@ -147,6 +147,27 @@ export async function deleteAllAcfFieldGroups(page) {
 }
 
 /**
+ * Clicks a button that submits a form, and waits for the page the server sends back to load.
+ *
+ * Waiting for `networkidle` straight after the click returned at once, before the form was
+ * submitted, so the checks that followed read the unsubmitted form. The next `page.goto()`
+ * then started while the saved page was still loading, and in CI with ACF Extended Pro that
+ * navigation never went out: no request was sent and the test timed out. Every form here
+ * lands on a different URL (a new item's edit screen, or a list with a result flag), so wait
+ * for the URL to change and that page to load.
+ *
+ * @param {import('@playwright/test').Page}    page   The page.
+ * @param {import('@playwright/test').Locator} button The submit button.
+ */
+export async function submitAndWaitForResult(page, button) {
+	const before = page.url();
+	await button.click();
+	await page.waitForURL((url) => url.href !== before, {
+		waitUntil: 'load',
+	});
+}
+
+/**
  * Delete one ACF UI entity (post type, taxonomy, or options page) by its list label.
  * Goes to list, finds row by label text, bulk trashes, then empties from trash.
  * @param {import('@playwright/test').Page} page
@@ -165,8 +186,7 @@ export async function deleteAcfUiEntity(page, listUrl, rowLabel) {
 	}
 	await row.locator('.check-column input[type="checkbox"]').check();
 	await page.locator('#bulk-action-selector-bottom').selectOption('trash');
-	await page.locator('#doaction2').click();
-	await page.waitForLoadState('networkidle');
+	await submitAndWaitForResult(page, page.locator('#doaction2'));
 	await visitAdminFacingPage(
 		page,
 		`${wpAdminUrl}/${listUrl}&post_status=trash`
@@ -181,8 +201,7 @@ export async function deleteAcfUiEntity(page, listUrl, rowLabel) {
 	}
 	await trashRow.locator('.check-column input[type="checkbox"]').check();
 	await page.locator('#bulk-action-selector-bottom').selectOption('delete');
-	await page.locator('#doaction2').click();
-	await page.waitForLoadState('networkidle');
+	await submitAndWaitForResult(page, page.locator('#doaction2'));
 }
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPGraphQL Usage Tracking Spec
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
- * Description: Used only by end-to-end (e2e) tests. Blocks usage tracking requests so tests never send real data, prints the site's real opt-in state on admin pages, and sets that state when the `wpgraphql_e2e_tracking` query argument is `yes` or `no`. It lives in the settings-page-spec folder because that folder is already mounted on the tests site.
+ * Description: Used only by end-to-end (e2e) tests. Blocks usage tracking requests so tests never send real data, prints the site's real opt-in state on admin pages, and sets that state when the `wpgraphql_e2e_tracking` query argument is `yes`, `no` or `undecided` (not opted in, and the opt-in notice not answered). It lives in the settings-page-spec folder because that folder is already mounted on the tests site.
  * Version: 1.0.0
  * Author: WPGraphQL Team
  * License: GPL-3
@@ -21,6 +21,11 @@ const WPGRAPHQL_E2E_TRACKING_OPTION = 'wp-graphql_allow_tracking';
 add_filter(
 	'pre_http_request',
 	static function ( $preempt, $args, $url ) {
+		// Leave a request another test plugin already answered, such as the email updates spec's subscribe requests.
+		if ( false !== $preempt ) {
+			return $preempt;
+		}
+
 		if ( false === strpos( $url, 'api.appsero.com' ) && false === strpos( $url, 'telemetry.wpgraphql.com' ) ) {
 			return $preempt;
 		}
@@ -48,6 +53,12 @@ add_action(
 		// Set the option directly, the way an opt-in through the admin notice before the toggle existed left it.
 		if ( in_array( $state, [ 'yes', 'no' ], true ) ) {
 			update_option( WPGRAPHQL_E2E_TRACKING_OPTION, $state );
+		}
+
+		// A site that hasn't been asked yet: not opted in, and the opt-in notice not answered or dismissed.
+		if ( 'undecided' === $state ) {
+			update_option( WPGRAPHQL_E2E_TRACKING_OPTION, 'no' );
+			delete_option( 'wp-graphql_tracking_notice' );
 		}
 	}
 );
