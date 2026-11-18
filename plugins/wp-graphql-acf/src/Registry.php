@@ -935,6 +935,8 @@ class Registry {
 	 * @param array<string> $locations                       The GraphQL types this field group is assigned to.
 	 * @param string        $field_name                      The field name derived from the field group GraphQL type name.
 	 * @param array<mixed>  $acf_field_group                 The ACF field group configuration.
+	 *
+	 * @since x-release-please-version
 	 */
 	protected function register_with_field_group_interface_to_types( string $with_field_group_interface_name, array $locations, string $field_name, array $acf_field_group ): void {
 		if ( empty( $locations ) || empty( $with_field_group_interface_name ) ) {
@@ -996,6 +998,8 @@ class Registry {
 	 * @param string              $field_name The field name to check.
 	 *
 	 * @return bool True if the type or one of its interfaces already defines the field; false otherwise.
+	 *
+	 * @since x-release-please-version
 	 */
 	protected function type_has_field( array $config, array $interfaces, string $field_name ): bool {
 		// Check static fields array on the type config if present (avoids executing callable field loaders).
