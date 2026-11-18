@@ -95,7 +95,9 @@ class FieldGroupFieldCollisionTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQL
 				$found_collision_debug = true;
 				$this->assertSame( 'title', $message['field_name'] );
 				$this->assertSame( 'Post', $message['target_type'] );
-				$this->assertSame( 'graphql_types', $message['setting_to_change'] );
+				$this->assertSame( 'graphql_field_name', $message['setting_to_change'] );
+				$this->assertSame( 'group_colliding_title', $message['field_group']['key'] );
+				$this->assertSame( 'Title', $message['field_group']['title'] );
 				$this->assertStringContainsString( 'Change the "GraphQL Type Name" setting', $message['message'] );
 				break;
 			}

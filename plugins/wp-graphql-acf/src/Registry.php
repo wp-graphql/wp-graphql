@@ -945,7 +945,10 @@ class Registry {
 					}
 
 					if ( $this->type_has_field( $config, $interfaces, $field_name ) ) {
-						$field_group_title = $acf_field_group['title'] ?? $acf_field_group['graphql_types'] ?? $with_field_group_interface_name;
+						$field_group_title = ! empty( $acf_field_group['title'] )
+							? (string) $acf_field_group['title']
+							: ( ! empty( $acf_field_group['key'] ) ? (string) $acf_field_group['key'] : $with_field_group_interface_name );
+
 						graphql_debug(
 							sprintf(
 								/* translators: 1: ACF field group name, 2: target GraphQL type name, 3: colliding field name */
@@ -956,10 +959,13 @@ class Registry {
 							),
 							[
 								'type'              => 'FIELD_GROUP_FIELD_COLLISION',
-								'field_group'       => $acf_field_group,
+								'field_group'       => [
+									'key'   => $acf_field_group['key'] ?? '',
+									'title' => $acf_field_group['title'] ?? '',
+								],
 								'field_name'        => $field_name,
 								'target_type'       => $config['name'],
-								'setting_to_change' => 'graphql_types',
+								'setting_to_change' => 'graphql_field_name',
 							]
 						);
 
@@ -976,7 +982,7 @@ class Registry {
 
 	/**
 	 * Checks whether a GraphQL type configuration or any of its implemented interfaces already
-	 * defines a field with the specified name.
+	 * defines a field with the specified name, without triggering the type's fields callback.
 	 *
 	 * @param array<string,mixed> $config     The ObjectType configuration array.
 	 * @param array<mixed>        $interfaces The interfaces currently applied to the type.
@@ -985,11 +991,8 @@ class Registry {
 	 * @return bool True if the type or one of its interfaces already defines the field; false otherwise.
 	 */
 	protected function type_has_field( array $config, array $interfaces, string $field_name ): bool {
-		$fields = $config['fields'] ?? [];
-		if ( is_callable( $fields ) ) {
-			$fields = $fields();
-		}
-		if ( is_array( $fields ) && isset( $fields[ $field_name ] ) ) {
+		// Check static fields array on the type config if present (avoids executing callable field loaders).
+		if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) && isset( $config['fields'][ $field_name ] ) ) {
 			return true;
 		}
 
@@ -1000,15 +1003,23 @@ class Registry {
 					$interface_type = $this->type_registry->get_type( (string) $maybe_interface );
 				}
 
-				if ( $interface_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+				if ( ! $interface_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+					continue;
+				}
+
+				// Check the raw fields config on the interface without building full field definitions.
+				$interface_fields = $interface_type->config['fields'] ?? [];
+				if ( is_callable( $interface_fields ) ) {
 					try {
-						if ( $interface_type->hasField( $field_name ) ) {
-							return true;
-						}
+						$interface_fields = $interface_fields();
 					} catch ( \Throwable $e ) {
 						unset( $e );
-						continue;
+						$interface_fields = [];
 					}
+				}
+
+				if ( is_array( $interface_fields ) && isset( $interface_fields[ $field_name ] ) ) {
+					return true;
 				}
 			}
 		}
