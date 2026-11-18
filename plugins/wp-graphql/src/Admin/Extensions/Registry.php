@@ -56,7 +56,7 @@ final class Registry {
 		return [
 			'wp-graphql/wpgraphql-ide'           => [
 				'name'              => 'WPGraphQL IDE',
-				'description'       => 'GraphQL IDE for WPGraphQL',
+				'description'       => __( 'GraphQL IDE for WPGraphQL', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/wp-graphql/wpgraphql-ide',
 				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-ide/',
 				'plugin_file'       => 'wpgraphql-ide.php',
@@ -68,7 +68,7 @@ final class Registry {
 			],
 			'wp-graphql/wp-graphql-smart-cache'  => [
 				'name'              => 'WPGraphQL Smart Cache',
-				'description'       => 'A smart cache for WPGraphQL that caches only the data you need.',
+				'description'       => __( 'A smart cache for WPGraphQL that caches only the data you need.', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache',
 				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
 				'plugin_file'       => 'wp-graphql-smart-cache.php',
@@ -80,7 +80,7 @@ final class Registry {
 			],
 			'wp-graphql/wpgraphql-acf'           => [
 				'name'              => 'WPGraphQL for Advanced Custom Fields',
-				'description'       => 'WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends.',
+				'description'       => __( 'WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends.', 'wp-graphql' ),
 				'documentation_url' => 'https://www.wpgraphql.com/docs/acf',
 				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-acf/',
 				'plugin_file'       => 'wpgraphql-acf.php',
@@ -92,7 +92,7 @@ final class Registry {
 			],
 			'ashhitch/wp-graphql-yoast-seo'      => [
 				'name'              => 'WPGraphQL Yoast SEO Addon',
-				'description'       => 'This plugin enables Yoast SEO Support for WPGraphQL',
+				'description'       => __( 'This plugin enables Yoast SEO Support for WPGraphQL', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/ashhitch/wp-graphql-yoast-seo',
 				'plugin_url'        => 'https://wordpress.org/plugins/add-wpgraphql-seo/',
 				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose',
@@ -103,7 +103,7 @@ final class Registry {
 			],
 			'axepress/wp-graphql-gravity-forms'  => [
 				'name'              => 'WPGraphQL for Gravity Forms',
-				'description'       => 'Adds Gravity Forms support to WPGraphQL',
+				'description'       => __( 'Adds Gravity Forms support to WPGraphQL', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/axewp/wp-graphql-gravity-forms',
 				'plugin_url'        => 'https://github.com/axewp/wp-graphql-gravity-forms',
 				'support_url'       => 'https://github.com/axewp/wp-graphql-gravity-forms/issues/new/choose',
@@ -114,7 +114,7 @@ final class Registry {
 			],
 			'axepress/wp-graphql-headless-login' => [
 				'name'              => 'Headless Login for WPGraphQL',
-				'description'       => 'A WordPress plugin that provides headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OIDC, JWT, cookies, header management, and more.',
+				'description'       => __( 'A WordPress plugin that provides headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OIDC, JWT, cookies, header management, and more.', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/axewp/wp-graphql-headless-login',
 				'plugin_url'        => 'https://github.com/axewp/wp-graphql-headless-login',
 				'support_url'       => 'https://github.com/axewp/wp-graphql-headless-login/issues/new/choose',
@@ -125,7 +125,7 @@ final class Registry {
 			],
 			'axepress/wp-graphql-rank-math'      => [
 				'name'              => 'WPGraphQL for Rank Math SEO',
-				'description'       => 'Adds Rank Math SEO support to WPGraphQL',
+				'description'       => __( 'Adds Rank Math SEO support to WPGraphQL', 'wp-graphql' ),
 				'documentation_url' => 'https://github.com/axewp/wp-graphql-rank-math',
 				'plugin_url'        => 'https://github.com/axewp/wp-graphql-rank-math',
 				'support_url'       => 'https://github.com/axewp/wp-graphql-rank-math/issues',
