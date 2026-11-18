@@ -198,7 +198,7 @@ class DocumentLiteralArgumentsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testWarnDoesNotStoreQueryThatFailsValidation() {
 		// The warning goes out before execution, and a query that fails validation is
-		// never stored, which is why the message says "when it runs without errors".
+		// never stored, which is why the message says "unless it fails validation".
 		$this->set_mode( Document::LITERAL_ARGUMENTS_WARN );
 
 		[ $response, $document ] = $this->persist( '{ post(id: 123, idType: DATABASE_ID) { notAField } }' );
@@ -246,6 +246,134 @@ class DocumentLiteralArgumentsTest extends \Codeception\TestCase\WPTestCase {
 		[ $response ] = $this->persist( $query );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
+	}
+
+	/**
+	 * Apollo-style clients hash the query text exactly as they wrote it. When that
+	 * differs from the stored document only in formatting, the queryId misses the
+	 * stored document's aliases, but the query is still the stored one, so saving it
+	 * only adds the queryId as another alias.
+	 *
+	 * @dataProvider modesThatActProvider
+	 */
+	public function testStoredQueryIsNotCheckedWhenTheQueryIdIsAHashOfItsRawText( string $mode ) {
+		$normalized = '{ post(id: 123, idType: DATABASE_ID) { id } }';
+		$post_id    = self::factory()->post->create(
+			[
+				'post_type'    => Document::TYPE_NAME,
+				'post_status'  => 'publish',
+				'post_content' => $normalized,
+			]
+		);
+
+		$this->set_mode( $mode );
+
+		$raw      = "{\n  post(id: 123, idType: DATABASE_ID) {\n    id\n  }\n}";
+		$raw_hash = Utils::getHashFromFormattedString( $raw );
+		$this->assertNotSame( Utils::generateHash( $raw ), $raw_hash, 'The raw text hash must differ from the stored hash for this to test anything.' );
+
+		$response = graphql(
+			[
+				'queryId' => $raw_hash,
+				'query'   => $raw,
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertSame( [], $this->literal_warnings( $response ) );
+
+		// No second document: the raw text hash became an alias of the stored one.
+		$documents = get_posts(
+			[
+				'post_type'   => Document::TYPE_NAME,
+				'post_status' => 'any',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+			]
+		);
+		$this->assertSame( [ $post_id ], $documents );
+		$this->assertTrue( has_term( $raw_hash, Document::ALIAS_TAXONOMY_NAME, $post_id ) );
+	}
+
+	public function modesThatActProvider(): array {
+		return [
+			'warn'   => [ Document::LITERAL_ARGUMENTS_WARN ],
+			'reject' => [ Document::LITERAL_ARGUMENTS_REJECT ],
+		];
+	}
+
+	/**
+	 * A request can become allowed to save while it runs, for example a login
+	 * mutation that logs the user in. It skipped the check up front, so under Reject
+	 * the save afterwards must still be refused.
+	 */
+	public function testRejectDoesNotSaveWhenTheRequestBecomesAllowedWhileItRuns() {
+		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+		add_action(
+			'graphql_register_types',
+			static function () use ( $admin_id ) {
+				register_graphql_field(
+					'RootQuery',
+					'testLogInDuringRequest',
+					[
+						'type'    => 'Boolean',
+						'args'    => [
+							'username' => [ 'type' => 'String' ],
+						],
+						'resolve' => static function () use ( $admin_id ) {
+							wp_set_current_user( $admin_id );
+							return true;
+						},
+					]
+				);
+			}
+		);
+		\WPGraphQL::clear_schema();
+
+		$this->set_mode( Document::LITERAL_ARGUMENTS_REJECT, Document::AUTO_PERSIST_AUTHENTICATED );
+		wp_set_current_user( 0 );
+
+		[ $response, $document ] = $this->persist( '{ testLogInDuringRequest(username: "admin") }' );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertTrue( is_user_logged_in(), 'The resolver should have logged the user in, or this tests nothing.' );
+		$this->assertNull( $document );
+
+		\WPGraphQL::clear_schema();
+	}
+
+	public function testRejectChecksLoggedInUsersWhenOnlyTheyCanSave() {
+		$this->set_mode( Document::LITERAL_ARGUMENTS_REJECT, Document::AUTO_PERSIST_AUTHENTICATED );
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$this->expectException( RequestError::class );
+		$this->persist( '{ post(id: 123, idType: DATABASE_ID) { id } }' );
+	}
+
+	/**
+	 * Requests that only send a query, or only a queryId, aren't saving a query, so
+	 * Reject doesn't apply to them.
+	 */
+	public function testRejectDoesNotAffectRequestsThatAreNotSavingAQuery() {
+		$query = '{ post(id: 123, idType: DATABASE_ID) { id } }';
+		$hash  = Utils::generateHash( $query );
+		self::factory()->post->create(
+			[
+				'post_type'    => Document::TYPE_NAME,
+				'post_status'  => 'publish',
+				'post_content' => $query,
+			]
+		);
+
+		$this->set_mode( Document::LITERAL_ARGUMENTS_REJECT );
+
+		$query_only = graphql( [ 'query' => $query ] );
+		$this->assertArrayNotHasKey( 'errors', $query_only );
+
+		$query_id_only = graphql( [ 'queryId' => $hash ] );
+		$this->assertArrayNotHasKey( 'errors', $query_id_only );
+		$this->assertArrayHasKey( 'post', $query_id_only['data'] );
 	}
 
 	public function testUnknownModeFallsBackToOff() {

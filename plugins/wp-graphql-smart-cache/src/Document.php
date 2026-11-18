@@ -30,10 +30,32 @@ class Document {
 	const AUTO_PERSIST_DEFAULT_LIMIT = 5000;
 	const GRAPHQL_NAME               = 'graphqlDocument';
 
-	// What to do when an automatically saved query has values written into its arguments.
-	const LITERAL_ARGUMENTS_OFF          = 'off';
-	const LITERAL_ARGUMENTS_WARN         = 'warn';
-	const LITERAL_ARGUMENTS_REJECT       = 'reject';
+	/**
+	 * Literal arguments mode: queries with values written into their arguments are saved as usual.
+	 *
+	 * @since x-release-please-version
+	 */
+	const LITERAL_ARGUMENTS_OFF = 'off';
+
+	/**
+	 * Literal arguments mode: such queries are saved, with a debug message naming the arguments.
+	 *
+	 * @since x-release-please-version
+	 */
+	const LITERAL_ARGUMENTS_WARN = 'warn';
+
+	/**
+	 * Literal arguments mode: such queries are refused, not run and not saved.
+	 *
+	 * @since x-release-please-version
+	 */
+	const LITERAL_ARGUMENTS_REJECT = 'reject';
+
+	/**
+	 * The literal arguments mode used when none is set.
+	 *
+	 * @since x-release-please-version
+	 */
 	const LITERAL_ARGUMENTS_DEFAULT_MODE = self::LITERAL_ARGUMENTS_OFF;
 
 	/**
@@ -52,7 +74,11 @@ class Document {
 	 * executes, and only writes it to the database after the request passed
 	 * validation. Keyed by queryId.
 	 *
-	 * @var array<string,array{raw:string,normalized:string,normalized_hash:string}>
+	 * `literal_arguments` lists the arguments holding literal values, found when the
+	 * literal arguments setting is on, so the document is not saved under Reject even
+	 * if the request was only allowed to save once it ran.
+	 *
+	 * @var array<string,array{raw:string,normalized:string,normalized_hash:string,literal_arguments:string[]}>
 	 */
 	private static $pending_documents = [];
 
@@ -377,13 +403,19 @@ class Document {
 				$resolved = $this->resolve_query_id( $query_id, $query );
 
 				if ( ! $resolved['post'] ) {
-					$this->check_literal_arguments( $resolved['ast'], $query_id );
+					// A query already stored under its normalized hash, such as one saved in the
+					// admin, only gains this queryId as another alias when it's saved, so it isn't
+					// a new document and the literal arguments setting doesn't apply to it.
+					$literal_arguments = self::is_stored_query( $resolved['normalized'], $resolved['normalized_hash'] )
+						? []
+						: $this->check_literal_arguments( $resolved['ast'], $query_id );
 
 					// Serve the verified document for this request; persist after validation.
 					self::$pending_documents[ $query_id ] = [
-						'raw'             => $query,
-						'normalized'      => $resolved['normalized'],
-						'normalized_hash' => $resolved['normalized_hash'],
+						'raw'               => $query,
+						'normalized'        => $resolved['normalized'],
+						'normalized_hash'   => $resolved['normalized_hash'],
+						'literal_arguments' => $literal_arguments,
 					];
 				}
 
@@ -412,9 +444,12 @@ class Document {
 	 * saves a new document for every value it sends. Depending on the setting, this
 	 * does nothing, adds a debug message naming the arguments, or refuses the request
 	 * so the client is told to use variables. This runs before the query executes,
-	 * and a query is only stored once it passes validation, so the warning says the
-	 * query is saved when it runs without errors. When automatic saving is not
-	 * allowed for this request, nothing is stored, so nothing is checked.
+	 * and a query is stored unless it fails validation, so the warning says so.
+	 *
+	 * When automatic saving isn't allowed for this request yet, there's nothing to
+	 * refuse or warn about, but the arguments are still returned. A request can become
+	 * allowed to save while it runs, for example by logging a user in, and
+	 * persist_pending_document_cb() uses them to refuse the save under Reject.
 	 *
 	 * The warning is added here rather than after the save because the debug log is
 	 * already in the response by the time persist_pending_document_cb() runs.
@@ -422,17 +457,18 @@ class Document {
 	 * @param \GraphQL\Language\AST\DocumentNode $ast      The parsed query.
 	 * @param string                             $query_id The queryId sent with it.
 	 *
+	 * @return string[] The arguments holding literal values, or an empty array when the setting is Off.
 	 * @throws \GraphQL\Server\RequestError When the setting is Reject and the query has literal argument values.
 	 */
-	private function check_literal_arguments( DocumentNode $ast, string $query_id ): void {
+	private function check_literal_arguments( DocumentNode $ast, string $query_id ): array {
 		$mode = self::literal_arguments_mode();
-		if ( self::LITERAL_ARGUMENTS_OFF === $mode || ! self::can_auto_persist_document() ) {
-			return;
+		if ( self::LITERAL_ARGUMENTS_OFF === $mode ) {
+			return [];
 		}
 
 		$arguments = self::literal_argument_names( $ast );
-		if ( empty( $arguments ) ) {
-			return;
+		if ( empty( $arguments ) || ! self::can_auto_persist_document() ) {
+			return $arguments;
 		}
 
 		if ( self::LITERAL_ARGUMENTS_REJECT === $mode ) {
@@ -448,12 +484,16 @@ class Document {
 				'arguments' => $arguments,
 			]
 		);
+
+		return $arguments;
 	}
 
 	/**
 	 * The configured literal arguments mode, or the default when it is missing or unknown.
 	 *
 	 * @return string One of the LITERAL_ARGUMENTS_* modes.
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function literal_arguments_mode(): string {
 		$mode = function_exists( 'get_graphql_setting' )
@@ -636,6 +676,11 @@ class Document {
 			return;
 		}
 
+		// Covers a request that was only allowed to save once it ran, so it skipped the check up front.
+		if ( ! empty( $pending['literal_arguments'] ) && self::LITERAL_ARGUMENTS_REJECT === self::literal_arguments_mode() ) {
+			return;
+		}
+
 		try {
 			$this->save( $matched_id, $pending['raw'] );
 			self::enforce_automatic_document_limit();
@@ -687,6 +732,20 @@ class Document {
 	}
 
 	/**
+	 * Whether the query is already stored under its normalized hash.
+	 *
+	 * @param string $normalized      The normalized query string.
+	 * @param string $normalized_hash The hash of the normalized query string.
+	 *
+	 * @return bool
+	 */
+	private static function is_stored_query( $normalized, $normalized_hash ) {
+		$post = Utils::getPostByTermName( $normalized_hash, self::TYPE_NAME, self::ALIAS_TAXONOMY_NAME );
+
+		return $post instanceof \WP_Post && self::document_holds_query( $post, $normalized, $normalized_hash );
+	}
+
+	/**
 	 * Whether a stored document holds the given query.
 	 *
 	 * A document is identified by the query it holds, not by its slug. Two documents
@@ -729,6 +788,8 @@ class Document {
 	 * @param string[] $arguments The arguments holding literal values, as `field.argument`.
 	 *
 	 * @return string
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function literalArgumentsMessage( array $arguments = [] ) {
 		$message = __( 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value.', 'wp-graphql-smart-cache' );
@@ -747,10 +808,12 @@ class Document {
 	 * @param string[] $arguments The arguments holding literal values, as `field.argument`.
 	 *
 	 * @return string
+	 *
+	 * @since x-release-please-version
 	 */
 	public static function literalArgumentsWarningMessage( array $arguments ) {
 		// translators: %s is a comma separated list of arguments, such as "post.id, posts.first".
-		return sprintf( __( 'This query has string or number values written into its arguments (%s), and it is saved as a persisted query when it runs without errors. A client that builds values into the query saves a new query for every value. Declare variables for values that change between requests. With the literal arguments setting on Reject, this query would be refused.', 'wp-graphql-smart-cache' ), implode( ', ', $arguments ) );
+		return sprintf( __( 'This query has string or number values written into its arguments (%s), and it is saved as a persisted query unless it fails validation. A client that builds values into the query saves a new query for every value. Declare variables for values that change between requests. With "Automatically saved queries with values written into their arguments" set to Reject, this query would be refused.', 'wp-graphql-smart-cache' ), implode( ', ', $arguments ) );
 	}
 
 	/**
@@ -758,8 +821,9 @@ class Document {
 	 *
 	 * Those are the values a client builds into the query string (an id, a slug),
 	 * which would store a new document for every value. Enum, boolean and null
-	 * literals come from a small fixed set, and variable default values are part of
-	 * the document itself, so neither counts. A literal nested in an input object or
+	 * literals come from a small fixed set, and a variable's default value is a
+	 * constant its author declared, which requests override through variables, so
+	 * neither counts. A literal nested in an input object or
 	 * a list is reported under the argument that holds it.
 	 *
 	 * @param \GraphQL\Language\AST\DocumentNode $ast The parsed document.
