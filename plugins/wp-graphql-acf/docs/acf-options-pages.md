@@ -121,7 +121,7 @@ An unauthenticated request for the page then gets:
 { "data": { "integrationSettings": null } }
 ```
 
-Options Pages defined in the ACF UI, or in local JSON, keep the setting when they're exported, imported and registered.
+Options Pages defined in the ACF UI, or in local JSON, keep the setting when they're exported, imported and registered. Earlier versions of WPGraphQL for ACF ignore the setting and leave the page public, so update the plugin on every site before relying on it.
 
 Field groups and fields on the page can have their own `graphql_capability` too, checked in addition to the page's. See [Restricting who can read ACF data](/adding-acf-fields-to-the-wpgraphql-schema/#restricting-who-can-read-acf-data) for how the settings combine, the debug messages users without the capability get, and the filters (`wpgraphql/acf/options_page_should_resolve` for Options Pages).
 

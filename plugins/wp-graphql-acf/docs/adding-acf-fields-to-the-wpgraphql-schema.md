@@ -62,6 +62,7 @@ By default, every field group and field in the GraphQL Schema can be read by any
 -   **Unset, `null` or an empty string means public.** This is the default, so existing field groups, fields and Options Pages are unaffected.
 -   **It is checked when the data is resolved.** The schema is the same for every user: a restricted field group or field is still in the schema, and resolves `null` for users without the capability.
 -   **It only controls GraphQL.** It doesn't change who can edit the data in the WordPress admin, and isn't related to the `capability` setting of ACF Options Pages, which controls who can see and edit the page in the admin.
+-   **Earlier versions of WPGraphQL for ACF ignore it.** On a site running a version without this setting, a field group, field or Options Page with a `graphql_capability` stays public. Update WPGraphQL for ACF on every site before relying on the setting, especially when the same field groups are shared between sites through local JSON.
 
 ### Setting a capability
 
@@ -161,6 +162,7 @@ Each level is checked on its own, and a user needs every capability that applies
 -   A field’s capability is checked as well as its field group’s. A field can be more restrictive than its field group, but never less: a field without a capability in a restricted field group is still only readable with the field group’s capability.
 -   The fields of a field group that is [cloned](./field-types/clone-field.md) into another field group keep the capability of the field group they were cloned from.
 -   On an Options Page with a capability, the field groups on the page are only readable with the page’s capability, because the page itself resolves `null` without it.
+-   The capabilities apply wherever the data resolves: on posts, pages, terms, users and other nodes, on Options Pages, and in ACF Blocks. Fields that connect to other nodes, such as Relationship, Post Object and Image fields, resolve `null` for users without the capability, rather than a connection.
 
 For example, with a field group set to `edit_posts` and one of its fields set to `manage_options`, an unauthenticated user gets `null` for the field group, an author gets the field group with `null` for that field, and an administrator gets everything.
 

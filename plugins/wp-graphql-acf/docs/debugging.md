@@ -103,6 +103,12 @@ Is the ACF Field Type a [supported field type](./field-types/index.md)?
 
 If you’re using a 3rd party ACF Extension that adds a custom ACF Field Type, it won’t be shown in the GraphQL Schema unless [support is added for the custom ACF Field type](./adding-support-for-3rd-party-acf-field-type.md).
 
+## ACF Field or Field Group resolves `null` for some users
+
+If a field group or field resolves `null` for some users but not others, such as for unauthenticated requests but not for administrators, check whether it requires a capability. The `graphql_capability` setting of a field group, a field or an Options Page returns `null` to users without that capability, while keeping it in the Schema for everyone. See [Restricting who can read ACF data](./adding-acf-fields-to-the-wpgraphql-schema.md#restricting-who-can-read-acf-data).
+
+With [`GRAPHQL_DEBUG`](#general-wpgraphql-debugging) enabled, a restricted field group or field that resolves `null` adds a debug message with the type `RESTRICTED_FIELD` to the response, naming it and the capability it requires.
+
 ## Next Steps
 
 This guide covers the some common steps for debugging WPGraphQL for ACF v2.0+. If you’re still encountering issues after following these steps, please refer to our [support page](./support.md) for further assistance.
