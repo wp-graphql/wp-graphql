@@ -8,6 +8,8 @@ import {
 import {
 	loginToWordPressAdmin,
 	visitAdminFacingPage,
+	deleteAcfUiEntity,
+	submitAndWaitForResult,
 	wpAdminUrl,
 } from '../utils.js';
 import { skipWhenNotAcfPro } from '../env.js';
@@ -22,64 +24,6 @@ import { skipWhenNotAcfPro } from '../env.js';
 const describeAcfUi = skipWhenNotAcfPro() ? describe.skip : describe;
 
 const TOOLS_URL = `${wpAdminUrl}/edit.php?post_type=acf-field-group&page=acf-tools`;
-
-/**
- * Clicks a button that submits a form, and waits for the page the server sends back to load.
- *
- * Waiting for `networkidle` straight after the click returned at once, before the form was
- * submitted, so the checks that followed read the unsubmitted form. The next `page.goto()`
- * then started while the saved page was still loading, and in CI with ACF Extended Pro that
- * navigation never went out: no request was sent and the test timed out. Every form here
- * lands on a different URL (a new item's edit screen, or a list with a result flag), so wait
- * for the URL to change and that page to load.
- *
- * @param {import('@playwright/test').Page}    page   The page.
- * @param {import('@playwright/test').Locator} button The submit button.
- */
-async function submitAndWaitForResult(page, button) {
-	const before = page.url();
-	await button.click();
-	await page.waitForURL((url) => url.href !== before, {
-		waitUntil: 'load',
-	});
-}
-
-/**
- * Delete one ACF UI entity (post type, taxonomy, or options page) by its list label.
- * Goes to list, finds row by label text, bulk trashes, then empties from trash.
- * @param page
- * @param listUrl
- * @param rowLabel
- */
-async function deleteAcfUiEntity(page, listUrl, rowLabel) {
-	await visitAdminFacingPage(page, `${wpAdminUrl}/${listUrl}`);
-	const table = page.locator('.wp-list-table').first();
-	const row = table
-		.locator('tbody tr:not(.no-items)')
-		.filter({ hasText: rowLabel })
-		.first();
-	if ((await row.count()) === 0) {
-		return;
-	}
-	await row.locator('.check-column input[type="checkbox"]').check();
-	await page.locator('#bulk-action-selector-bottom').selectOption('trash');
-	await submitAndWaitForResult(page, page.locator('#doaction2'));
-	await visitAdminFacingPage(
-		page,
-		`${wpAdminUrl}/${listUrl}&post_status=trash`
-	);
-	const trashTable = page.locator('.wp-list-table').first();
-	const trashRow = trashTable
-		.locator('tbody tr:not(.no-items)')
-		.filter({ hasText: rowLabel })
-		.first();
-	if ((await trashRow.count()) === 0) {
-		return;
-	}
-	await trashRow.locator('.check-column input[type="checkbox"]').check();
-	await page.locator('#bulk-action-selector-bottom').selectOption('delete');
-	await submitAndWaitForResult(page, page.locator('#doaction2'));
-}
 
 describeAcfUi('ACF UI Registration – Custom Post Type', () => {
 	beforeEach(async ({ page }) => {

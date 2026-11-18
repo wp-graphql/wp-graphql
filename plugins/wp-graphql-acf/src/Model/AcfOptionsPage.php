@@ -3,6 +3,7 @@
 namespace WPGraphQL\Acf\Model;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Acf\AccessControl;
 use WPGraphQL\Model\Model;
 
 /**
@@ -31,6 +32,18 @@ class AcfOptionsPage extends Model {
 	public function __construct( array $options_page ) {
 		$this->data = $options_page;
 		parent::__construct();
+	}
+
+	/**
+	 * An options page the current user may not read is private, so the loader returns null for it
+	 * wherever it's loaded from: its root field and the node field.
+	 *
+	 * @see \WPGraphQL\Acf\AccessControl::can_resolve_options_page()
+	 *
+	 * @return bool
+	 */
+	protected function is_private() {
+		return ! AccessControl::can_resolve_options_page( $this->data );
 	}
 
 	/**
