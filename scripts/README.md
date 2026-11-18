@@ -203,6 +203,31 @@ node scripts/discard-timestamp-only-changes.js --paths=plugins/wp-graphql,websit
 3. Restores the file from `HEAD` when that is the only difference; a file with a real change keeps its new timestamp
 4. Never fails the sync: a file it cannot compare is logged and left changed, which falls back to committing it
 
+### `check-php-conventions.js`
+
+Checks the PHP a change adds to the plugins for `@since` tags and translated strings, in the "Check PHP conventions" job of `lint.yml`.
+
+**Purpose**: Two conventions no other linter covers. New functions, classes, interfaces, traits, enums, constants and non-private methods need a docblock with `@since x-release-please-version` (or `{@inheritDoc}` on an override). A literal string as the value of a user-facing key (`label`, `desc`, `description`, `title`, `placeholder`, `instructions`, `message`), or as a label in an `options` array, needs a translation function. PHPCS's `WordPress.WP.I18n` rule only checks strings that are already wrapped.
+
+**Usage**:
+```bash
+node scripts/check-php-conventions.js                      # compare against origin/main
+node scripts/check-php-conventions.js --base-ref=HEAD~3    # compare against another ref
+node scripts/check-php-conventions.js --all                # list every untranslated string (never fails)
+```
+
+**Arguments**:
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--base-ref` | No | Ref to compare against (default: the pull request's base branch, the commit before a push, or `origin/main`) |
+| `--all` | No | Check every line of every file for untranslated strings, for an inventory. Skips the `@since` check, which most existing code predates |
+
+**How it works**:
+1. Diffs `plugins/*/src/**/*.php` and `plugins/*/access-functions.php` against the base ref, following renames
+2. A declaration counts as new when the base version of the file has fewer declarations of that kind and name, and is reported when its line is one the change added
+3. Strings are checked only on added lines, so existing code doesn't fail. A line with an `i18n-ignore` comment is skipped
+4. Fails when it can't diff against the base ref, rather than passing without checking anything
+
 ### `update-upgrade-notice.js`
 
 Updates the Upgrade Notice section in `readme.txt` when there are breaking changes in a release.
