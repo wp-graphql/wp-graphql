@@ -869,7 +869,7 @@ class Registry {
 
 				// If the field group has locations defined (Types to be added to)
 				// Add the WithAcf$FieldGroup Interface to the corresponding graphql_types
-				register_graphql_interfaces_to_types( [ $with_field_group_interface_name ], $locations );
+				$this->register_with_field_group_interface_to_types( $with_field_group_interface_name, $locations, $field_name, $acf_field_group );
 			}
 
 			if ( ! $this->has_registered_field_group( $type_name . '_Fields' ) ) {
@@ -923,5 +923,114 @@ class Registry {
 				$this->register_field_group( $type_name, $acf_field_group );
 			}
 		}
+	}
+
+	/**
+	 * Registers the WithAcf{Type} interface to the specified location types, skipping any type
+	 * where the group's field name collides with an existing field on that type.
+	 *
+	 * When a collision occurs, a debug message is logged and the existing field on the type wins.
+	 *
+	 * @param string        $with_field_group_interface_name The WithAcf{Type} interface name.
+	 * @param array<string> $locations                       The GraphQL types this field group is assigned to.
+	 * @param string        $field_name                      The field name derived from the field group GraphQL type name.
+	 * @param array<mixed>  $acf_field_group                 The ACF field group configuration.
+	 */
+	protected function register_with_field_group_interface_to_types( string $with_field_group_interface_name, array $locations, string $field_name, array $acf_field_group ): void {
+		if ( empty( $locations ) || empty( $with_field_group_interface_name ) ) {
+			return;
+		}
+
+		foreach ( $locations as $type_name ) {
+			add_filter(
+				'graphql_type_interfaces',
+				function ( $interfaces, $config ) use ( $type_name, $with_field_group_interface_name, $field_name, $acf_field_group ) {
+					$interfaces = is_array( $interfaces ) ? $interfaces : [];
+
+					if ( strtolower( $type_name ) !== strtolower( $config['name'] ?? '' ) ) {
+						return $interfaces;
+					}
+
+					if ( $this->type_has_field( $config, $interfaces, $field_name ) ) {
+						$field_group_title = ! empty( $acf_field_group['title'] )
+							? (string) $acf_field_group['title']
+							: ( ! empty( $acf_field_group['key'] ) ? (string) $acf_field_group['key'] : $with_field_group_interface_name );
+
+						graphql_debug(
+							sprintf(
+								/* translators: 1: ACF field group name, 2: target GraphQL type name, 3: colliding field name */
+								__( 'The ACF field group "%1$s" was not added to the "%2$s" type because the field "%3$s" already exists on "%2$s". Change the "GraphQL Type Name" setting on the field group to resolve the collision.', 'wpgraphql-acf' ),
+								$field_group_title,
+								$config['name'],
+								$field_name
+							),
+							[
+								'type'              => 'FIELD_GROUP_FIELD_COLLISION',
+								'field_group'       => [
+									'key'   => $acf_field_group['key'] ?? '',
+									'title' => $acf_field_group['title'] ?? '',
+								],
+								'field_name'        => $field_name,
+								'target_type'       => $config['name'],
+								'setting_to_change' => 'graphql_field_name',
+							]
+						);
+
+						return $interfaces;
+					}
+
+					return array_unique( array_merge( $interfaces, [ $with_field_group_interface_name ] ) );
+				},
+				10,
+				2
+			);
+		}
+	}
+
+	/**
+	 * Checks whether a GraphQL type configuration or any of its implemented interfaces already
+	 * defines a field with the specified name, without triggering the type's fields callback.
+	 *
+	 * @param array<string,mixed> $config     The ObjectType configuration array.
+	 * @param array<mixed>        $interfaces The interfaces currently applied to the type.
+	 * @param string              $field_name The field name to check.
+	 *
+	 * @return bool True if the type or one of its interfaces already defines the field; false otherwise.
+	 */
+	protected function type_has_field( array $config, array $interfaces, string $field_name ): bool {
+		// Check static fields array on the type config if present (avoids executing callable field loaders).
+		if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) && isset( $config['fields'][ $field_name ] ) ) {
+			return true;
+		}
+
+		if ( ! empty( $interfaces ) ) {
+			foreach ( $interfaces as $maybe_interface ) {
+				$interface_type = $maybe_interface;
+				if ( ! $interface_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+					$interface_type = $this->type_registry->get_type( (string) $maybe_interface );
+				}
+
+				if ( ! $interface_type instanceof \GraphQL\Type\Definition\InterfaceType ) {
+					continue;
+				}
+
+				// Check the raw fields config on the interface without building full field definitions.
+				$interface_fields = $interface_type->config['fields'] ?? [];
+				if ( is_callable( $interface_fields ) ) {
+					try {
+						$interface_fields = $interface_fields();
+					} catch ( \Throwable $e ) {
+						unset( $e );
+						$interface_fields = [];
+					}
+				}
+
+				if ( is_array( $interface_fields ) && isset( $interface_fields[ $field_name ] ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }
