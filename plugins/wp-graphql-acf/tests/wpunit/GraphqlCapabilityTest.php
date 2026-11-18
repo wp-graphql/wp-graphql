@@ -38,12 +38,23 @@ class GraphqlCapabilityTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTest
 	 */
 	protected $options_page_slugs = [];
 
+	/**
+	 * ACF's filter state (local, clone, ...) when the test started, restored in tearDown.
+	 *
+	 * Deleting a field group or options page through ACF turns every ACF filter off and leaves
+	 * it off, which stops later tests from expanding seamless clones or reading local fields.
+	 *
+	 * @var array<string,bool>
+	 */
+	protected $acf_filters = [];
+
 	public function setUp(): void {
 		WPGraphQL::clear_schema();
 		parent::setUp();
 
-		$this->subscriber = self::factory()->user->create_and_get( [ 'role' => 'subscriber' ] );
-		$this->suffix     = str_replace( '.', '', uniqid( '', true ) );
+		$this->subscriber  = self::factory()->user->create_and_get( [ 'role' => 'subscriber' ] );
+		$this->suffix      = str_replace( '.', '', uniqid( '', true ) );
+		$this->acf_filters = acf_get_filters();
 	}
 
 	/**
@@ -68,6 +79,7 @@ class GraphqlCapabilityTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTest
 		}
 		wp_delete_user( $this->subscriber->ID );
 		wp_set_current_user( 0 );
+		acf_set_filters( $this->acf_filters );
 		parent::tearDown();
 	}
 
