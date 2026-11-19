@@ -116,6 +116,12 @@ Learn more about how [Appsero collects and uses data](https://appsero.com/privac
 
 == Upgrade Notice ==
 
+= 3.3.0 =
+
+**A field group no longer replaces a field its type already has.** The field that gives access to a field group is named after its "GraphQL Type Name" setting, so a field group named "Title" adds a `title` field. When that name matched one of the type's own fields, or a field it gets from an interface, such as `title` on posts, the field group's field replaced it. Now the field group isn't added to that type, the type keeps its own field, and, with `GRAPHQL_DEBUG` enabled, a `FIELD_GROUP_FIELD_COLLISION` debug message names the field group, the type and the field. The field group is still added to its other types.
+
+If a query reads one of these field groups on a type where it collided, the field now returns the type's own field again, and a fragment on the field group's `WithAcf…` interface no longer applies to that type, so spreading it directly on that type fails validation. To keep the field group on that type, change its "GraphQL Type Name" to one the type doesn't already use, and update those queries to the new field name.
+
 = 3.1.0 =
 
 **Read before updating.** This release fixes a long list of bugs. Five of the fixes can change results a client depends on, either what a query returns or which types a field group appears on, and one asks sites on ACF older than 6.1 to check their field groups. Each of those is described below, followed by the other fixes. If you rely on any of these areas, test the update on a staging site first.
