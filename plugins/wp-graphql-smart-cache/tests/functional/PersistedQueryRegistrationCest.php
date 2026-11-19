@@ -18,6 +18,11 @@ class PersistedQueryRegistrationCest {
 	// graphql-php's printer output for RAW_QUERY (definitions joined, trailing newline).
 	const NORMALIZED_QUERY = "{\n  posts {\n    nodes {\n      title\n    }\n  }\n}\n";
 
+	// A query with a value written into an argument, and its printer output.
+	const LITERAL_RAW_QUERY        = '{ posts(first: 5) { nodes { title } } }';
+	const LITERAL_NORMALIZED_QUERY = "{\n  posts(first: 5) {\n    nodes {\n      title\n    }\n  }\n}\n";
+	const LITERAL_ARGUMENTS_REJECT_MESSAGE = 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value. Arguments with written values: posts.first.';
+
 	public function _before( FunctionalTester $I ) {
 		$I->dontHavePostInDatabase( [ 'post_type' => 'graphql_document' ] );
 		$I->dontHaveTermInDatabase( [ 'taxonomy' => 'graphql_query_alias' ] );
@@ -287,5 +292,58 @@ class PersistedQueryRegistrationCest {
 		$I->sendPost( 'graphql', json_encode( [ 'queryId' => 'known-frontend-query' ] ) );
 		$I->seeResponseContainsJson( [ 'errors' => [ [ 'message' => 'PersistedQueryNotFound' ] ] ] );
 		$I->dontSeeUserInDatabase( [ 'user_login' => 'poison' ] );
+	}
+
+	public function literalArgumentsRejectReturnsErrorTest( FunctionalTester $I ) {
+		$I->wantTo( 'Refuse a new automatically saved query with a value written into an argument, with an error and no data, when the literal arguments setting is Reject' );
+
+		$I->haveOptionInDatabase( 'graphql_persisted_queries_section', [ 'apq_literal_arguments_mode' => 'reject' ] );
+
+		$raw_hash = hash( 'sha256', self::LITERAL_RAW_QUERY );
+
+		$I->sendPost( 'graphql', json_encode( [
+			'query'   => self::LITERAL_RAW_QUERY,
+			'queryId' => $raw_hash,
+		] ) );
+
+		$I->seeResponseContainsJson( [
+			'errors' => [
+				[ 'message' => self::LITERAL_ARGUMENTS_REJECT_MESSAGE ],
+			],
+		] );
+		$I->dontSeeResponseContainsJson( [ 'data' => [ 'posts' => [] ] ] );
+		$I->dontSeePostInDatabase( [ 'post_type' => 'graphql_document' ] );
+		$I->dontSeeTermInDatabase( [ 'name' => $raw_hash ] );
+	}
+
+	public function literalArgumentsRejectKeepsStoredQueryWorkingByRawHashTest( FunctionalTester $I ) {
+		$I->wantTo( 'Serve a stored query with a value written into an argument under Reject, when the client sends the hash of the query text as it wrote it' );
+
+		$normalized_hash = hash( 'sha256', self::LITERAL_NORMALIZED_QUERY );
+		$raw_hash        = hash( 'sha256', self::LITERAL_RAW_QUERY );
+		$I->assertNotEquals( $normalized_hash, $raw_hash );
+
+		$I->haveTermInDatabase( $normalized_hash, 'graphql_query_alias' );
+		$post_id = $I->havePostInDatabase( [
+			'post_type'    => 'graphql_document',
+			'post_status'  => 'publish',
+			'post_title'   => 'Latest Posts',
+			'post_name'    => $normalized_hash,
+			'post_content' => self::LITERAL_NORMALIZED_QUERY,
+			'tax_input'    => [
+				'graphql_query_alias' => [ $normalized_hash ],
+			],
+		] );
+		$I->haveOptionInDatabase( 'graphql_persisted_queries_section', [ 'apq_literal_arguments_mode' => 'reject' ] );
+
+		$I->sendPost( 'graphql', json_encode( [
+			'query'   => self::LITERAL_RAW_QUERY,
+			'queryId' => $raw_hash,
+		] ) );
+
+		$I->seeResponseContainsJson( [ 'data' => [ 'posts' => [ 'nodes' => [] ] ] ] );
+		$I->dontSeeResponseContainsJson( [ 'errors' => [] ] );
+		$I->assertEquals( 1, $I->grabNumRecords( $I->grabPostsTableName(), [ 'post_type' => 'graphql_document' ] ) );
+		$I->seePostInDatabase( [ 'ID' => $post_id, 'post_content' => self::LITERAL_NORMALIZED_QUERY ] );
 	}
 }
