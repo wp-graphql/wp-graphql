@@ -116,9 +116,9 @@ class Settings {
 						'type'              => 'radio',
 						'default'           => Grant::GLOBAL_DEFAULT,
 						'options'           => [
-							Grant::GLOBAL_PUBLIC  => 'Public',
-							Grant::GLOBAL_ALLOWED => 'Allow only specific queries',
-							Grant::GLOBAL_DENIED  => 'Deny some specific queries',
+							Grant::GLOBAL_PUBLIC  => __( 'Public', 'wp-graphql-smart-cache' ),
+							Grant::GLOBAL_ALLOWED => __( 'Allow only specific queries', 'wp-graphql-smart-cache' ),
+							Grant::GLOBAL_DENIED  => __( 'Deny some specific queries', 'wp-graphql-smart-cache' ),
 						],
 						'sanitize_callback' => function ( $value ) {
 							// If the value changed, trigger cache purge
@@ -143,9 +143,9 @@ class Settings {
 						'type'    => 'radio',
 						'default' => Document::AUTO_PERSIST_PUBLIC,
 						'options' => [
-							Document::AUTO_PERSIST_PUBLIC => 'Anyone, including logged out visitors',
-							Document::AUTO_PERSIST_AUTHENTICATED => 'Logged in users only',
-							Document::AUTO_PERSIST_OFF    => 'Nobody, saved queries must be created deliberately',
+							Document::AUTO_PERSIST_PUBLIC => __( 'Anyone, including logged out visitors', 'wp-graphql-smart-cache' ),
+							Document::AUTO_PERSIST_AUTHENTICATED => __( 'Logged in users only', 'wp-graphql-smart-cache' ),
+							Document::AUTO_PERSIST_OFF    => __( 'Nobody, saved queries must be created deliberately', 'wp-graphql-smart-cache' ),
 						],
 					]
 				);

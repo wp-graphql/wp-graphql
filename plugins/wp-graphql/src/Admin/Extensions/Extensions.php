@@ -14,9 +14,12 @@ use WP_REST_Response;
  * @phpstan-import-type ExtensionAuthor from \WPGraphQL\Admin\Extensions\Registry
  * @phpstan-import-type Extension from \WPGraphQL\Admin\Extensions\Registry
  *
+ * The description is never empty: is_valid_extension() drops extensions without one. It's typed
+ * string because translated descriptions can't be proven non-empty statically.
+ *
  * @phpstan-type PopulatedExtension array{
  *   name: non-empty-string,
- *   description: non-empty-string,
+ *   description: string,
  *   plugin_url: non-empty-string,
  *   support_url: non-empty-string,
  *   documentation_url: non-empty-string,
