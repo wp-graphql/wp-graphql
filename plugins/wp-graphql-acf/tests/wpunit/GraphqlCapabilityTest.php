@@ -872,6 +872,202 @@ class GraphqlCapabilityTest extends \Tests\WPGraphQL\Acf\WPUnit\WPGraphQLAcfTest
 	}
 
 	/**
+	 * A field group on posts with a top-level text field and a group field with two sub-fields.
+	 *
+	 * @return array
+	 */
+	protected function nested_field_group_config(): array {
+		return [
+			'key'                => $this->key( 'group_capability_nested' ),
+			'title'              => 'Nested Lookup Group',
+			'show_in_graphql'    => true,
+			'graphql_field_name' => 'nestedLookupGroup',
+			'fields'             => [
+				[
+					'key'             => $this->key( 'field_capability_nested_top' ),
+					'name'            => 'top',
+					'label'           => 'Top',
+					'type'            => 'text',
+					'show_in_graphql' => true,
+				],
+				[
+					'key'             => $this->key( 'field_capability_nested_details' ),
+					'name'            => 'details',
+					'label'           => 'Details',
+					'type'            => 'group',
+					'layout'          => 'block',
+					'show_in_graphql' => true,
+					'sub_fields'      => [
+						[
+							'key'             => $this->key( 'field_capability_nested_first' ),
+							'name'            => 'first',
+							'label'           => 'First',
+							'type'            => 'text',
+							'show_in_graphql' => true,
+						],
+						[
+							'key'             => $this->key( 'field_capability_nested_second' ),
+							'name'            => 'second',
+							'label'           => 'Second',
+							'type'            => 'text',
+							'show_in_graphql' => true,
+						],
+					],
+				],
+			],
+			'location'           => [
+				[
+					[
+						'param'    => 'post_type',
+						'operator' => '==',
+						'value'    => 'post',
+					],
+				],
+			],
+		];
+	}
+
+	protected function nested_field_group_query(): string {
+		return '
+		query GetPost( $id: ID! ) {
+		  post( id: $id, idType: DATABASE_ID ) {
+		    nestedLookupGroup {
+		      top
+		      details {
+		        first
+		        second
+		      }
+		    }
+		  }
+		}
+		';
+	}
+
+	/**
+	 * Store values for the fields of the nested field group on the published post.
+	 */
+	protected function update_nested_field_group_values(): void {
+		update_field( $this->key( 'field_capability_nested_top' ), 'top value', $this->published_post->ID );
+		update_field(
+			$this->key( 'field_capability_nested_details' ),
+			[
+				$this->key( 'field_capability_nested_first' )  => 'first value',
+				$this->key( 'field_capability_nested_second' ) => 'second value',
+			],
+			$this->published_post->ID
+		);
+	}
+
+	/**
+	 * A field nested in another field of a local field group doesn't look its parent up as a
+	 * field group.
+	 *
+	 * The parent of a nested field of a local field group is the key of the field it's nested in.
+	 * ACF can't find a field group for that key locally, so it queries the database for it, once
+	 * per request for each field that has nested fields when there's no persistent object cache.
+	 */
+	public function testNestedFieldsDoNotQueryForTheirParentAsAFieldGroup(): void {
+		acf_add_local_field_group( $this->nested_field_group_config() );
+		$this->update_nested_field_group_values();
+
+		$field_keys = [
+			$this->key( 'field_capability_nested_top' ),
+			$this->key( 'field_capability_nested_details' ),
+			$this->key( 'field_capability_nested_first' ),
+			$this->key( 'field_capability_nested_second' ),
+		];
+
+		// The field keys that were looked up as a field group in the database.
+		$looked_up = [];
+		$record    = static function ( \WP_Query $query ) use ( $field_keys, &$looked_up ) {
+			if ( 'acf-field-group' !== $query->get( 'post_type' ) ) {
+				return;
+			}
+
+			foreach ( $query->query_vars as $value ) {
+				if ( is_string( $value ) && in_array( $value, $field_keys, true ) ) {
+					$looked_up[] = $value;
+				}
+			}
+		};
+		add_action( 'pre_get_posts', $record );
+
+		$actual = $this->query_as( $this->admin, $this->nested_field_group_query(), [ 'id' => $this->published_post->ID ] );
+
+		remove_action( 'pre_get_posts', $record );
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.nestedLookupGroup.top', 'top value' ),
+				$this->expectedField( 'post.nestedLookupGroup.details.first', 'first value' ),
+				$this->expectedField( 'post.nestedLookupGroup.details.second', 'second value' ),
+			]
+		);
+		$this->assertSame( [], $looked_up, 'No field key should be looked up as a field group in the database.' );
+	}
+
+	public function fieldGroupStorageProvider(): array {
+		return [
+			'local'    => [ 'local' ],
+			'database' => [ 'database' ],
+		];
+	}
+
+	/**
+	 * A top-level field is defined in its field group, a nested field is defined in another field,
+	 * whether the field group is registered locally or stored in the database.
+	 *
+	 * @dataProvider fieldGroupStorageProvider
+	 *
+	 * @param string $storage Where the field group is registered: "local" or "database".
+	 */
+	public function testDefiningFieldGroupOfTopLevelAndNestedFields( string $storage ): void {
+		$imported = null;
+		if ( 'database' === $storage ) {
+			$imported = acf_import_field_group( $this->nested_field_group_config() );
+			$this->assertNotEmpty( $imported['ID'] );
+			$this->assertIsInt( acf_get_field( $this->key( 'field_capability_nested_first' ) )['parent'], 'A nested field stored in the database has the post ID of its parent field as its parent.' );
+		} else {
+			acf_add_local_field_group( $this->nested_field_group_config() );
+		}
+		$this->update_nested_field_group_values();
+
+		$field_configs = [];
+		$capture       = static function ( $config, $field_config ) use ( &$field_configs ) {
+			$acf_field = $field_config->get_acf_field();
+			if ( isset( $acf_field['key'] ) ) {
+				$field_configs[ $acf_field['key'] ] = $field_config;
+			}
+
+			return $config;
+		};
+		add_filter( 'wpgraphql/acf/get_graphql_field_config', $capture, 10, 2 );
+
+		$actual = $this->query_as( $this->admin, $this->nested_field_group_query(), [ 'id' => $this->published_post->ID ] );
+
+		remove_filter( 'wpgraphql/acf/get_graphql_field_config', $capture, 10 );
+
+		self::assertQuerySuccessful( $actual, [ $this->expectedField( 'post.nestedLookupGroup.details.first', 'first value' ) ] );
+
+		foreach ( [ 'field_capability_nested_top', 'field_capability_nested_details' ] as $name ) {
+			$this->assertArrayHasKey( $this->key( $name ), $field_configs );
+			$defining_group = $field_configs[ $this->key( $name ) ]->get_defining_field_group();
+			$this->assertIsArray( $defining_group, $name . ' should be defined in the field group.' );
+			$this->assertSame( $this->key( 'group_capability_nested' ), $defining_group['key'] );
+		}
+
+		foreach ( [ 'field_capability_nested_first', 'field_capability_nested_second' ] as $name ) {
+			$this->assertArrayHasKey( $this->key( $name ), $field_configs );
+			$this->assertNull( $field_configs[ $this->key( $name ) ]->get_defining_field_group(), $name . ' is defined in another field, not a field group.' );
+		}
+
+		if ( null !== $imported ) {
+			acf_delete_field_group( $imported['ID'] );
+		}
+	}
+
+	/**
 	 * Register an options page with a field group on it.
 	 *
 	 * @param array $config Overrides for the options page config.

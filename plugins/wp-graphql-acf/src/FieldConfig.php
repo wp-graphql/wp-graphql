@@ -343,7 +343,13 @@ class FieldConfig {
 	public function get_defining_field_group(): ?array {
 		if ( false === $this->defining_field_group ) {
 			$parent = $this->acf_field['parent'] ?? null;
-			$group  = ! empty( $parent ) && ( is_string( $parent ) || is_int( $parent ) ) ? acf_get_field_group( $parent ) : false;
+
+			// A field nested in another field of a local field group has that field's key as its
+			// parent. ACF can't find a field group by a field key locally and falls back to a
+			// database query, so only a field group key (or a post ID, which is a cached post
+			// lookup) is looked up.
+			$may_be_group = is_int( $parent ) || ( is_string( $parent ) && ( is_numeric( $parent ) || acf_is_field_group_key( $parent ) ) );
+			$group        = ! empty( $parent ) && $may_be_group ? acf_get_field_group( $parent ) : false;
 
 			$this->defining_field_group = is_array( $group ) ? $group : null;
 		}
