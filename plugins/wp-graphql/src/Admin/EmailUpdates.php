@@ -6,8 +6,8 @@ namespace WPGraphQL\Admin;
  * Class EmailUpdates
  *
  * The Email Updates part of the Data Sharing tab: one address field, and one "email me about
- * security releases and breaking changes" checkbox for each plugin registered with
- * register_graphql_data_sharing_plugin().
+ * security releases, breaking changes and occasional product news" checkbox for each plugin
+ * registered with register_graphql_data_sharing_plugin().
  *
  * Each checkbox is its own consent, for that plugin's own mailing list. Saving the tab sends one
  * request to the telemetry service for every plugin whose box was just checked, and the service
@@ -176,7 +176,7 @@ final class EmailUpdates {
 			[
 				'name'  => self::HEADING_FIELD_NAME,
 				'label' => __( 'Email Updates', 'wp-graphql' ),
-				'desc'  => esc_html__( 'Get emails about security releases and breaking changes. Each box below is a separate signup, for that plugin\'s own mailing list. When you check boxes and save, a confirmation email is sent to the address below for the plugins you checked, unless it\'s already subscribed to them, and nothing is subscribed until you click the link in it. This is separate from sharing usage data. To unsubscribe, use the link in any of the emails.', 'wp-graphql' ),
+				'desc'  => esc_html__( 'Get emails about security releases and breaking changes, along with occasional product news. Each box below is a separate signup, for that plugin\'s own mailing list. When you check boxes and save, a confirmation email is sent to the address below for the plugins you checked, unless it\'s already subscribed to them, and nothing is subscribed until you click the link in it. This is separate from sharing usage data. To unsubscribe, use the link in any of the emails.', 'wp-graphql' ),
 				'type'  => 'html',
 			]
 		);
@@ -199,7 +199,7 @@ final class EmailUpdates {
 		foreach ( $plugins as $slug => $plugin ) {
 			$desc = sprintf(
 				// translators: %s is the plugin name.
-				esc_html__( 'Email me about security releases and breaking changes in %s', 'wp-graphql' ),
+				esc_html__( 'Email me about security releases, breaking changes and occasional product news in %s', 'wp-graphql' ),
 				esc_html( $plugin['name'] )
 			);
 

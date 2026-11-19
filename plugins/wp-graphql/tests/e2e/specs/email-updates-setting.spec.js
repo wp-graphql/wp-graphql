@@ -107,7 +107,7 @@ test.describe('Email updates setting', () => {
 		});
 		await expect(row.locator('th')).toHaveText('WPGraphQL');
 		await expect(row.locator('td label')).toHaveText(
-			'Email me about security releases and breaking changes in WPGraphQL'
+			'Email me about security releases, breaking changes and occasional product news in WPGraphQL'
 		);
 
 		await expect(page.locator(checkbox)).not.toBeChecked();

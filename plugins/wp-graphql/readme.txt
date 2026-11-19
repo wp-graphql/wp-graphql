@@ -73,7 +73,7 @@ When you opt in, each telemetry request is sent to Appsero and a duplicate is se
 
 Sharing usage data doesn't sign anyone up for email, even though the usage data sent to Appsero includes this site's admin email address and an administrator's name.
 
-Email updates about security releases and breaking changes are a separate choice, also under **GraphQL → Settings → Data Sharing**. Checking **Email me about security releases and breaking changes in WPGraphQL** and saving sends the address you enter, this site's URL and the WPGraphQL version to https://telemetry.wpgraphql.com, which emails a confirmation link to that address unless it's already subscribed. Nothing is subscribed until the link is clicked. The site keeps a record of the address and when the confirmation was requested until you uncheck the box. Unchecking it doesn't unsubscribe the address; use the unsubscribe link in any of the emails.
+Email updates about security releases and breaking changes, along with occasional product news, are a separate choice, also under **GraphQL → Settings → Data Sharing**. Checking **Email me about security releases, breaking changes and occasional product news in WPGraphQL** and saving sends the address you enter, this site's URL and the WPGraphQL version to https://telemetry.wpgraphql.com, which emails a confirmation link to that address unless it's already subscribed. Nothing is subscribed until the link is clicked. The site keeps a record of the address and when the confirmation was requested until you uncheck the box. Unchecking it doesn't unsubscribe the address; use the unsubscribe link in any of the emails.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -86,7 +86,7 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 = 2.29.0 =
 
-**Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and nothing changes in what is shared.
+**Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and the same data is shared, except that the copy sent to https://telemetry.wpgraphql.com no longer includes this site's admin email address or an administrator's name.
 
 **`updateMediaItem` no longer resets fields left out of the input.** Updating a media item without a `description` used to erase it, and updating it without a `status` reset the status to `inherit`, so a private media item stopped being private. Fields that are left out or `null` now keep their stored values. An empty string now clears `caption`, `description` and `altText`, where it used to be ignored, so check any client that sends empty strings for fields it doesn't mean to change.
 
