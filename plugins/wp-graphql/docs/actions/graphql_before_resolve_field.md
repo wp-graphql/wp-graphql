@@ -35,7 +35,7 @@ Fire an action BEFORE the field resolves
 
 ## Source
 
-- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L121)
+- [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:126`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L126)
 
 ```php
 do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
@@ -43,4 +43,4 @@ do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $fie
 
 ## Related
 
-- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:121`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L121)
+- `InstrumentSchema::wrap_fields()` in [`plugins/wp-graphql/src/Utils/InstrumentSchema.php:126`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Utils/InstrumentSchema.php#L126)

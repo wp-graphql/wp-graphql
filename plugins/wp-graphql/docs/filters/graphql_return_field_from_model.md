@@ -34,7 +34,7 @@ Filter the data returned by the default callback for the field
 
 ## Source
 
-- [`plugins/wp-graphql/src/Model/Model.php:470`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L470)
+- [`plugins/wp-graphql/src/Model/Model.php:513`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L513)
 
 ```php
 apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
@@ -42,4 +42,4 @@ apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->ge
 
 ## Related
 
-- `Model::prepare_field()` in [`plugins/wp-graphql/src/Model/Model.php:470`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L470)
+- `Model::prepare_field()` in [`plugins/wp-graphql/src/Model/Model.php:513`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Model/Model.php#L513)

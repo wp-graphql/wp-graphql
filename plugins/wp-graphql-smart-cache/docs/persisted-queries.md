@@ -105,7 +105,17 @@ Custom Alias Names are assigned by authorized users only: through the GraphQL Do
 
 ### GraphQL Variables
 
-Persisted queries support GraphQL variables which can passed in the query string, e.g. `?queryId=getPostById&variables={"id":"yourId"}`
+Persisted queries support GraphQL variables, which can be passed in the query string, e.g. `?queryId=getPostById&variables={"id":"yourId"}`
+
+Values that change between requests should be sent as variables. A client that builds values into the query text instead, such as `post(id: 123)` or `post(id: "hello-world", idType: SLUG)`, saves a separate document for every value it sends. Declare a variable instead, e.g. `query ($id: ID!) { post(id: $id) { title } }`.
+
+The **Automatically saved queries with values written into their arguments** setting controls what happens when a query like that is saved through a `query` and `queryId` request:
+
+- **Off** (the default): the query is stored, as it always has been.
+- **Warn**: the query is stored, and the response's debug messages name the arguments that hold written values. Debug messages are only in the response when GraphQL debugging is enabled. Use this to see what Reject would refuse before turning it on.
+- **Reject**: the query isn't run or stored, and the request returns an error asking the client to use variables. Turn it on once your clients send variables, since those requests get an error instead of data.
+
+String and number values count, so a constant like `posts(first: 10)` counts too. Enum, boolean and null values, and variable default values, do not. Documents saved in the admin or through the GraphQL document mutations, and documents already saved are not affected, including when the client's `queryId` is the hash of the query text as the client wrote it rather than of the stored document. Requests that only send a `queryId`, or only a `query`, aren't saving anything, so they aren't affected either. When automatic saving isn't allowed for the request, nothing is refused, and under Reject the query is still not saved if the request becomes allowed while it runs, for example by logging a user in.
 
 #### Allow / Deny Rules
 

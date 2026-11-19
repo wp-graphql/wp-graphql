@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.4
+Stable tag: 2.5.0
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -66,7 +66,7 @@ Appsero SDK **does not gather any data by default.** The SDK only starts gatheri
 
 Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without confirmation from users in any case.**
 
-When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below).
+When you opt in, each telemetry request is sent to Appsero and a duplicate is sent in a non-blocking request to WPGraphQL-operated infrastructure at https://telemetry.wpgraphql.com (the same categories of data as described for Appsero below, except this site's admin email address and an administrator's name, which the copy leaves out). If you deactivate the plugin from the Plugins screen while opted in, a feedback form may ask why; submitting it sends that reason with the same categories of site details as a regular check-in. If you have not opted in, deactivation skips the form and sends nothing.
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -140,6 +140,37 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.5.0 =
+
+**New Features**
+
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707))
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.25.0 to 2.26.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4683](https://github.com/wp-graphql/wp-graphql/issues/4683))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.26.0 to 2.26.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4719](https://github.com/wp-graphql/wp-graphql/issues/4719))
+* translate the Extensions page descriptions and Smart Cache setting labels ([#4730](https://github.com/wp-graphql/wp-graphql/issues/4730))
+
+= 2.4.1 =
+
+**Bug Fixes**
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655))
+
+= 2.4.0 =
+
+**New Features**
+
+* **smart-cache:** pass structured context to graphql_purge listeners ([#4622](https://github.com/wp-graphql/wp-graphql/issues/4622))
+
+**Bug Fixes**
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4588](https://github.com/wp-graphql/wp-graphql/issues/4588))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.24.2 to 2.25.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4628](https://github.com/wp-graphql/wp-graphql/issues/4628))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-smart-cache ([#4598](https://github.com/wp-graphql/wp-graphql/issues/4598))
+* **smart-cache:** stop purging a user's cached data on every login and logout ([#4671](https://github.com/wp-graphql/wp-graphql/issues/4671))
 
 = 2.3.4 =
 

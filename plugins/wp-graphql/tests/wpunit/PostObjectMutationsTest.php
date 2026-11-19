@@ -1706,4 +1706,264 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'No post could be found to update', $actual['errors'][0]['message'] );
 	}
+
+	/**
+	 * Runs an update mutation for the given post type and returns the response.
+	 *
+	 * @param string              $type_name The singular type name, such as Post or Page.
+	 * @param array<string,mixed> $input     The mutation input.
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected function updatePostObject( string $type_name, array $input ): array {
+		$query = sprintf(
+			'mutation Update( $input: Update%1$sInput! ) {
+				update%1$s( input: $input ) {
+					clientMutationId
+				}
+			}',
+			$type_name
+		);
+
+		return $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'input' => $input ],
+			]
+		);
+	}
+
+	/**
+	 * An empty string is an explicit request to clear the field, the same as saving an empty
+	 * field in the editor. This is the only way to stop a post being password protected.
+	 */
+	public function testUpdatePostClearsFieldsGivenAnEmptyString() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author'   => $this->admin,
+				'post_title'    => 'The title',
+				'post_content'  => 'The content',
+				'post_excerpt'  => 'The excerpt',
+				'post_password' => 'secret',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Post',
+			[
+				'id'       => (string) $post_id,
+				'content'  => '',
+				'excerpt'  => '',
+				'password' => '',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$post = get_post( $post_id );
+
+		$this->assertSame( 'The title', $post->post_title );
+		$this->assertSame( '', $post->post_content );
+		$this->assertSame( '', $post->post_excerpt );
+		$this->assertSame( '', $post->post_password );
+	}
+
+	/**
+	 * A field that is omitted, or given an explicit null, keeps its stored value.
+	 */
+	public function testUpdatePostKeepsFieldsThatAreOmittedOrNull() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author'   => $this->admin,
+				'post_title'    => 'The title',
+				'post_content'  => 'The content',
+				'post_excerpt'  => 'The excerpt',
+				'post_password' => 'secret',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Post',
+			[
+				'id'      => (string) $post_id,
+				'title'   => null,
+				'content' => null,
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$post = get_post( $post_id );
+
+		$this->assertSame( 'The title', $post->post_title );
+		$this->assertSame( 'The content', $post->post_content );
+		$this->assertSame( 'The excerpt', $post->post_excerpt );
+		$this->assertSame( 'secret', $post->post_password );
+	}
+
+	/**
+	 * Clearing everything still gets the error WordPress gives for a post with no content,
+	 * rather than saving an empty post.
+	 */
+	public function testUpdatePostCannotClearTitleContentAndExcerptTogether() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author'  => $this->admin,
+				'post_title'   => 'The title',
+				'post_content' => 'The content',
+				'post_excerpt' => 'The excerpt',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Post',
+			[
+				'id'      => (string) $post_id,
+				'title'   => '',
+				'content' => '',
+				'excerpt' => '',
+			]
+		);
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertSame( 'The title', get_post( $post_id )->post_title );
+	}
+
+	/**
+	 * The string "0" is a value, even though PHP considers it empty.
+	 */
+	public function testUpdatePostSavesTheStringZero() {
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_title'  => 'The title',
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Post',
+			[
+				'id'    => (string) $post_id,
+				'title' => '0',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( '0', get_post( $post_id )->post_title );
+	}
+
+	/**
+	 * Zero is the first position in the menu order, and a parent of zero makes a page top-level.
+	 */
+	public function testUpdatePageResetsMenuOrderAndParentGivenZero() {
+		$parent_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+			]
+		);
+		$page_id   = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+				'post_parent' => $parent_id,
+				'menu_order'  => 5,
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Page',
+			[
+				'id'        => (string) $page_id,
+				'menuOrder' => 0,
+				'parentId'  => 0,
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$page = get_post( $page_id );
+
+		$this->assertSame( 0, $page->menu_order );
+		$this->assertSame( 0, $page->post_parent );
+	}
+
+	/**
+	 * An empty parent ID is the same as a parent of zero.
+	 */
+	public function testUpdatePageRemovesParentGivenAnEmptyId() {
+		$parent_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+			]
+		);
+		$page_id   = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+				'post_parent' => $parent_id,
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Page',
+			[
+				'id'       => (string) $page_id,
+				'parentId' => '',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 0, get_post( $page_id )->post_parent );
+	}
+
+	/**
+	 * Leaving the menu order and parent out of an update keeps them.
+	 */
+	public function testUpdatePageKeepsMenuOrderAndParentWhenOmitted() {
+		$parent_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+			]
+		);
+		$page_id   = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_author' => $this->admin,
+				'post_parent' => $parent_id,
+				'menu_order'  => 5,
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->updatePostObject(
+			'Page',
+			[
+				'id'    => (string) $page_id,
+				'title' => 'A new title',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$page = get_post( $page_id );
+
+		$this->assertSame( 5, $page->menu_order );
+		$this->assertSame( $parent_id, $page->post_parent );
+	}
 }

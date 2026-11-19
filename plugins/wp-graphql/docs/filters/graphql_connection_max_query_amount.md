@@ -32,7 +32,7 @@ Filter the maximum number of posts per page that should be queried. This prevent
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:646`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L646)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:647`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L647)
 
 ```php
 apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(),
 
 ## Related
 
-- `AbstractConnectionResolver::get_query_amount()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:646`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L646)
+- `AbstractConnectionResolver::get_query_amount()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:647`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L647)

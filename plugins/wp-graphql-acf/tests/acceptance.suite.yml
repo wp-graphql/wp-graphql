@@ -29,11 +29,13 @@ modules:
         - wp-graphql/wp-graphql.php
         - advanced-custom-fields-pro/acf.php
         - wp-graphql-acf/wpgraphql-acf.php
+        - acf-extended-pro/acf-extended.php
         - wp-graphql-content-blocks/wp-graphql-content-blocks.php
       activatePlugins:
         - wp-graphql/wp-graphql.php
         - advanced-custom-fields-pro/acf.php
         - wp-graphql-acf/wpgraphql-acf.php
+        - acf-extended-pro/acf-extended.php
         - wp-graphql-content-blocks/wp-graphql-content-blocks.php
       configFile: 'tests/_data/config.php'
 bootstrap: bootstrap.php

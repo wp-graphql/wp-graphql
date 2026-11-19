@@ -116,9 +116,9 @@ class Settings {
 						'type'              => 'radio',
 						'default'           => Grant::GLOBAL_DEFAULT,
 						'options'           => [
-							Grant::GLOBAL_PUBLIC  => 'Public',
-							Grant::GLOBAL_ALLOWED => 'Allow only specific queries',
-							Grant::GLOBAL_DENIED  => 'Deny some specific queries',
+							Grant::GLOBAL_PUBLIC  => __( 'Public', 'wp-graphql-smart-cache' ),
+							Grant::GLOBAL_ALLOWED => __( 'Allow only specific queries', 'wp-graphql-smart-cache' ),
+							Grant::GLOBAL_DENIED  => __( 'Deny some specific queries', 'wp-graphql-smart-cache' ),
 						],
 						'sanitize_callback' => function ( $value ) {
 							// If the value changed, trigger cache purge
@@ -143,10 +143,31 @@ class Settings {
 						'type'    => 'radio',
 						'default' => Document::AUTO_PERSIST_PUBLIC,
 						'options' => [
-							Document::AUTO_PERSIST_PUBLIC => 'Anyone, including logged out visitors',
-							Document::AUTO_PERSIST_AUTHENTICATED => 'Logged in users only',
-							Document::AUTO_PERSIST_OFF    => 'Nobody, saved queries must be created deliberately',
+							Document::AUTO_PERSIST_PUBLIC => __( 'Anyone, including logged out visitors', 'wp-graphql-smart-cache' ),
+							Document::AUTO_PERSIST_AUTHENTICATED => __( 'Logged in users only', 'wp-graphql-smart-cache' ),
+							Document::AUTO_PERSIST_OFF    => __( 'Nobody, saved queries must be created deliberately', 'wp-graphql-smart-cache' ),
 						],
+					]
+				);
+
+				register_graphql_settings_field(
+					'graphql_persisted_queries_section',
+					[
+						'name'              => 'apq_literal_arguments_mode',
+						'label'             => __( 'Automatically saved queries with values written into their arguments', 'wp-graphql-smart-cache' ),
+						'desc'              => __( 'A client that builds values into the query text, such as an ID from the URL, instead of sending them as variables saves a new query for every value. Choose what happens when such a query is saved automatically. String and number values count, enum, boolean and null values do not, so a constant like first: 10 counts too. Try "Warn" first to see which queries would be refused: its messages are in the debug output of the response, so GraphQL debugging must be enabled. "Reject" returns an error instead of data for those requests, so turn it on once your clients send variables. Queries saved in the admin or through the GraphQL document mutations, and queries already saved, are not affected.', 'wp-graphql-smart-cache' ),
+						'type'              => 'radio',
+						'default'           => Document::LITERAL_ARGUMENTS_DEFAULT_MODE,
+						'options'           => [
+							Document::LITERAL_ARGUMENTS_OFF    => __( 'Off: save them as usual', 'wp-graphql-smart-cache' ),
+							Document::LITERAL_ARGUMENTS_WARN   => __( 'Warn: save them, and add a debug message naming the arguments', 'wp-graphql-smart-cache' ),
+							Document::LITERAL_ARGUMENTS_REJECT => __( 'Reject: don\'t run or save them, and return an error asking for variables', 'wp-graphql-smart-cache' ),
+						],
+						'sanitize_callback' => static function ( $value ) {
+							$modes = [ Document::LITERAL_ARGUMENTS_OFF, Document::LITERAL_ARGUMENTS_WARN, Document::LITERAL_ARGUMENTS_REJECT ];
+
+							return in_array( $value, $modes, true ) ? $value : Document::LITERAL_ARGUMENTS_DEFAULT_MODE;
+						},
 					]
 				);
 

@@ -118,6 +118,59 @@ class SettingsRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Section descriptions with double-quoted attributes should render without backslashes.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/4698
+	 */
+	public function testSectionDescriptionPreservesDoubleQuotedAttributes() {
+		$this->registry->register_section(
+			'graphql_quote_test_settings',
+			[
+				'title' => 'Quote Test',
+				'desc'  => '<div class="notice notice-info inline"><p>Choose "Allow" to continue. <a href="https://example.com" target="_blank">link</a></p></div>',
+			]
+		);
+
+		$this->registry->admin_init();
+
+		global $wp_settings_sections;
+		$callback = $wp_settings_sections['graphql_quote_test_settings']['graphql_quote_test_settings']['callback'];
+
+		ob_start();
+		$callback();
+		$html = (string) ob_get_clean();
+
+		// Quotes in the text are where the old escaping showed on every WordPress version. Some versions of
+		// kses remove backslashes inside tags, so the attribute checks alone don't catch it everywhere.
+		$this->assertStringContainsString( 'Choose "Allow" to continue.', $html );
+		$this->assertStringContainsString( '<div class="inside">', $html );
+		$this->assertStringContainsString( 'class="notice notice-info inline"', $html );
+		$this->assertStringContainsString( 'href="https://example.com"', $html );
+		$this->assertStringContainsString( 'target="_blank"', $html );
+		$this->assertStringNotContainsString( '\"', $html );
+	}
+
+	/**
+	 * A text field's placeholder is shown, and escaped, rather than stripped from the markup.
+	 */
+	public function testTextFieldShowsItsPlaceholder() {
+		ob_start();
+		$this->registry->callback_text(
+			[
+				'id'          => 'placeholder_test',
+				'section'     => 'graphql_placeholder_test_settings',
+				'std'         => '',
+				'desc'        => '',
+				'placeholder' => 'someone@example.com "quoted"',
+			]
+		);
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'placeholder="someone@example.com &quot;quoted&quot;"', $html );
+		$this->assertStringContainsString( 'value=""', $html );
+	}
+
+	/**
 	 * Test that sanitize_options() works with WordPress sanitize_option filter
 	 * 
 	 * This simulates how WordPress calls the sanitization callback via the filter

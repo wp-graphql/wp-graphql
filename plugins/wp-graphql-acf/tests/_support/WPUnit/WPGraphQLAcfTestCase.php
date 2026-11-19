@@ -102,6 +102,13 @@ class WPGraphQLAcfTestCase extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function setUp(): void {
 
+		// ACF adds the filters that serve block field values when its local meta class is first
+		// used. Create it before the first test saves the hooks it restores after each test,
+		// otherwise the first test to resolve a block removes those filters for every later test.
+		if ( function_exists( 'acf_get_instance' ) && class_exists( 'ACF_Local_Meta' ) ) {
+			acf_get_instance( 'ACF_Local_Meta' );
+		}
+
 		parent::setUp();
 
 		$this->clearSchema();

@@ -28,7 +28,7 @@ This action runs before execution of a GraphQL request (regardless if it's a sin
 
 ## Source
 
-- [`plugins/wp-graphql/src/Request.php:374`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L374)
+- [`plugins/wp-graphql/src/Request.php:375`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L375)
 
 ```php
 do_action( 'graphql_before_execute', $this );
@@ -36,4 +36,4 @@ do_action( 'graphql_before_execute', $this );
 
 ## Related
 
-- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:374`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L374)
+- `Request::before_execute()` in [`plugins/wp-graphql/src/Request.php:375`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Request.php#L375)

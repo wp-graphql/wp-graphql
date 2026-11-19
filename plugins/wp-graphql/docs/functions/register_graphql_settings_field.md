@@ -26,7 +26,7 @@ Registers a GraphQL Settings Field Set `depends_on` to the name of a checkbox fi
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:798`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L798)
+- [`plugins/wp-graphql/access-functions.php:829`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L829)
 
 ```php
 function register_graphql_settings_field( string $group, array $config ): void {

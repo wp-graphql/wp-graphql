@@ -26,7 +26,7 @@ Registers a step in the WPGraphQL settings review. The settings review walks sit
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:828`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L828)
+- [`plugins/wp-graphql/access-functions.php:859`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L859)
 
 ```php
 function register_graphql_settings_review_step( string $slug, array $config ): void {

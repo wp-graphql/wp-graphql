@@ -3,15 +3,19 @@ import { loginToWordPressAdmin, wpAdminUrl } from '../utils.js';
 
 /**
  * @file usage-tracking-setting.spec.js
- * @description Checks that the "Share Usage Data" toggle on the settings page shows the site's real
- * opt-in state and that saving it opts the site in or out. The
+ * @description Checks that WPGraphQL's "Share usage data with the WPGraphQL team" checkbox on the
+ * Data Sharing tab of the settings page shows the site's real opt-in state and that saving it opts
+ * the site in or out. The
  * `settings-page-spec/usage-tracking-spec.php` test plugin blocks usage tracking requests, prints the
  * real opt-in state, and sets it from the `wpgraphql_e2e_tracking` query argument.
  */
 
 const trackingPluginFile = 'settings-page-spec/usage-tracking-spec.php';
-const settingsUrl = `${wpAdminUrl}/admin.php?page=graphql-settings`;
-const toggle = '#wpuf-graphql_general_settings\\[share_usage_data\\]';
+const settingsUrl = `${wpAdminUrl}/admin.php?page=graphql-settings#graphql_data_sharing_settings`;
+// The field is named for WPGraphQL's Appsero client slug, its folder name.
+const toggle =
+	'#wpuf-graphql_data_sharing_settings\\[share_usage_data_wp-graphql\\]';
+const legacyToggle = '#wpuf-graphql_general_settings\\[share_usage_data\\]';
 
 /**
  * Activates or deactivates a plugin from the Plugins screen.
@@ -92,6 +96,41 @@ test.describe('Usage tracking setting', () => {
 
 		await page.goto(settingsUrl);
 		await expect(page.locator(toggle)).not.toBeChecked();
+	});
+
+	test('the toggle is on the Data Sharing tab, not the general settings', async ({
+		page,
+	}) => {
+		await page.goto(settingsUrl);
+
+		await expect(
+			page.locator('#graphql_data_sharing_settings-tab')
+		).toHaveText('Data Sharing');
+		await expect(
+			page.locator('#graphql_data_sharing_settings-tab')
+		).toHaveClass(/nav-tab-active/);
+		await expect(page.locator(toggle)).toBeVisible();
+
+		// The row is labeled with the plugin's name, and the checkbox text is short.
+		const row = page.locator('#graphql_data_sharing_settings tr', {
+			has: page.locator(toggle),
+		});
+		await expect(row.locator('th')).toHaveText('WPGraphQL');
+		await expect(row.locator('td label')).toHaveText(
+			'Share usage data with the WPGraphQL team'
+		);
+
+		// What is shared is described once, on the tab.
+		const description = page.locator(
+			'#graphql_data_sharing_settings .inside'
+		);
+		await expect(description).toContainText('about once a week');
+		await expect(description).toContainText('may show a form asking why');
+		await expect(
+			description.getByRole('link', { name: 'Learn more' })
+		).toHaveAttribute('href', 'https://appsero.com/privacy-policy/');
+
+		await expect(page.locator(legacyToggle)).toHaveCount(0);
 	});
 
 	test('checking the toggle opts the site in', async ({ page }) => {

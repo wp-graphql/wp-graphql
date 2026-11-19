@@ -25,7 +25,7 @@ Given a Type Name, this removes the type from the entire schema
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:594`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L594)
+- [`plugins/wp-graphql/access-functions.php:625`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L625)
 
 ```php
 function deregister_graphql_type( string $type_name ): void {

@@ -285,6 +285,7 @@ class Editor {
 		if ( is_wp_error( $value ) ) {
 			AdminErrors::add_message(
 				sprintf(
+					/* translators: %s: The reason the max age value is not valid. */
 					__( 'Invalid max age %s.', 'wp-graphql-smart-cache' ),
 					$value->get_error_message()
 				)

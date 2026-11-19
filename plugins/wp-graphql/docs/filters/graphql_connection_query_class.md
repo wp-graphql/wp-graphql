@@ -29,7 +29,7 @@ Filters the `$query_class` that will be used to execute the query. This is usefu
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:713`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L713)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:714`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L714)
 
 ```php
 apply_filters( 'graphql_connection_query_class', $query_class, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_query_class', $query_class, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_query_class()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:713`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L713)
+- `AbstractConnectionResolver::get_query_class()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:714`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L714)

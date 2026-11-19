@@ -318,6 +318,77 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
+	/**
+	 * Each comment mutation passes its own name to
+	 * graphql_comment_object_mutation_update_additional_data.
+	 */
+	public function testUpdateAdditionalDataActionReceivesTheMutationName() {
+		add_filter( 'duplicate_comment_id', '__return_false' );
+		add_filter( 'comment_flood_filter', '__return_false' );
+
+		$mutation_names = [];
+		add_action(
+			'graphql_comment_object_mutation_update_additional_data',
+			static function ( $comment_id, $input, $mutation_name ) use ( &$mutation_names ) {
+				$mutation_names[] = $mutation_name;
+			},
+			10,
+			3
+		);
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$create = $this->graphql(
+			[
+				'query'     => '
+				mutation createComment( $commentOn: Int!, $content: String! ) {
+					createComment( input: { commentOn: $commentOn, content: $content } ) {
+						comment {
+							databaseId
+						}
+					}
+				}
+				',
+				'variables' => [
+					'commentOn' => $post_id,
+					'content'   => 'Created comment',
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $create );
+
+		$update = $this->graphql(
+			[
+				'query'     => '
+				mutation updateComment( $id: ID!, $content: String! ) {
+					updateComment( input: { id: $id, content: $content } ) {
+						success
+					}
+				}
+				',
+				'variables' => [
+					'id'      => $create['data']['createComment']['comment']['databaseId'],
+					'content' => 'Updated comment',
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $update );
+		$this->assertTrue( $update['data']['updateComment']['success'] );
+
+		// Each mutation passes its own name, so a hook can tell create and update apart.
+		$this->assertSame( [ 'createComment', 'updateComment' ], $mutation_names );
+	}
+
 	public function testUpdateCommentWithStatus() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 

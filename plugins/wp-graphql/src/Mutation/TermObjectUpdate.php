@@ -200,6 +200,14 @@ class TermObjectUpdate {
 			do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name, $context, $info );
 
 			/**
+			 * Lets extensions update additional data related to the term (termmeta, relations, etc)
+			 *
+			 * The input for the mutation will be passed, along with the ID of the term
+			 * that was updated so that meta can be updated, relations can be set, etc.
+			 */
+			TermObjectMutation::update_additional_term_object_data( $existing_term->term_id, $input, $taxonomy, $mutation_name, $context, $info );
+
+			/**
 			 * Return the payload
 			 */
 			return [

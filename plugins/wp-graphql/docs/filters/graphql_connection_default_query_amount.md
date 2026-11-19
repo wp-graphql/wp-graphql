@@ -29,7 +29,7 @@ Filters the default query amount for a connection, if no `first` or `last` Graph
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:963`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L963)
+- [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:964`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L964)
 
 ```php
 apply_filters( 'graphql_connection_default_query_amount', 10, $this );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_connection_default_query_amount', 10, $this );
 
 ## Related
 
-- `AbstractConnectionResolver::get_amount_requested()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:963`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L963)
+- `AbstractConnectionResolver::get_amount_requested()` in [`plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php:964`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/AbstractConnectionResolver.php#L964)

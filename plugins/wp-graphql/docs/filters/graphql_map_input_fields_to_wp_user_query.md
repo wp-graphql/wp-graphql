@@ -33,7 +33,7 @@ Filter the input fields This allows plugins/themes to hook in and alter what $ar
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:261`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L261)
+- [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:257`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L257)
 
 ```php
 apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
@@ -41,4 +41,4 @@ apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, 
 
 ## Related
 
-- `UserConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:261`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L261)
+- `UserConnectionResolver::sanitize_input_fields()` in [`plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php:257`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/Connection/UserConnectionResolver.php#L257)

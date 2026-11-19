@@ -19,7 +19,7 @@ This document shows how to wire that up. The running example uses Next.js, but t
 Every time WPGraphQL Smart Cache decides a cache entry should be invalidated, it fires:
 
 ```php
-do_action( 'graphql_purge', $key, $event, $hostname );
+do_action( 'graphql_purge', $key, $event, $hostname, $context );
 ```
 
 | Argument | Type | Example | Description |
@@ -27,6 +27,7 @@ do_action( 'graphql_purge', $key, $event, $hostname );
 | `$key` | `string` | `UG9zdDoxMjM=` | The cache key being purged. See [Key formats](#key-formats). |
 | `$event` | `string` | `post_UPDATE` | A short label describing what triggered the purge. Useful for logging/debugging. |
 | `$hostname` | `string` | `example.com/graphql` | The GraphQL endpoint host (no scheme). |
+| `$context` | `array` | `[ 'meta_key' => 'foo' ]` | Structured details about the event. Meta-change events include `meta_key`, the key of the meta that changed; other events pass an empty array. Register your callback with 4 accepted args to receive it. |
 
 A single content change typically fires the action multiple times — for example, updating a published post fires once for the post's node ID and once for `skipped:post`. See [Batching events per request](#batching-events-per-request) for how to handle this efficiently.
 

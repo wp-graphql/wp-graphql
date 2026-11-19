@@ -176,14 +176,22 @@ class SendPasswordResetEmail {
 			$subject = self::get_email_subject( $user_data );
 			$message = self::get_email_message( $user_data, $key );
 
+			// An empty message is how the `retrieve_password_message` filter turns the email off.
+			if ( empty( $message ) ) {
+				self::debug_reason( __( 'The password reset message is empty, so no email was sent.', 'wp-graphql' ) );
+
+				return $payload;
+			}
+
 			$email_sent = wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 				$user_data->user_email,
 				wp_specialchars_decode( $subject ),
 				$message
 			);
 
-			// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
-			if ( is_wp_error( $email_sent ) ) {
+			// wp_mail returns false when sending fails. It can also return a WP_Error through the
+			// `pre_wp_mail` filter, although the docblock for it in WP Core doesn't say so.
+			if ( ! $email_sent || is_wp_error( $email_sent ) ) {
 				self::debug_reason( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
 
 				return $payload;

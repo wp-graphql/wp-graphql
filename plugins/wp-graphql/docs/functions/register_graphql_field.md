@@ -43,7 +43,7 @@ Given a Type Name, Field Name, and a $config array, this adds a Field to a regis
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:337`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L337)
+- [`plugins/wp-graphql/access-functions.php:368`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L368)
 
 ```php
 function register_graphql_field( string $type_name, string $field_name, array $config ): void {
