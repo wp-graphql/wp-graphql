@@ -1708,7 +1708,7 @@ class TypeRegistry {
 	 * @param string $field_name The name of the field as it appears in the schema. register_field()
 	 *                           formats names, so a field registered as `my_field` is `myField`.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.29.0
 	 */
 	public function has_registered_field( string $type_name, string $field_name ): bool {
 		$registered = false;

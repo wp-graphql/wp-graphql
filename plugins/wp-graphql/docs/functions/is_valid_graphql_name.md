@@ -29,7 +29,7 @@ Check if the name is valid for use in GraphQL
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:922`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L922)
+- [`plugins/wp-graphql/access-functions.php:993`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L993)
 
 ```php
 function is_valid_graphql_name( string $type_name ): bool {

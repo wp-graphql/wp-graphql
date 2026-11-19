@@ -35,7 +35,7 @@ Run an action after the additional data has been updated. This is a great spot t
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L199)
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L203)
 
 ```php
 do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
@@ -43,4 +43,4 @@ do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $inp
 
 ## Related
 
-- `PostObjectMutation::update_additional_post_object_data()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:199`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L199)
+- `PostObjectMutation::update_additional_post_object_data()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:203`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L203)

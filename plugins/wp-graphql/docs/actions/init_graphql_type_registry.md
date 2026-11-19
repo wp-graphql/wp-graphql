@@ -28,7 +28,7 @@ Fire an action as the Type registry is being initiated.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:300`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L300)
 
 ```php
 do_action( 'init_graphql_type_registry', $this );
@@ -36,4 +36,4 @@ do_action( 'init_graphql_type_registry', $this );
 
 ## Related
 
-- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:291`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L291)
+- `TypeRegistry::init()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:300`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L300)

@@ -32,6 +32,10 @@ The functions documented below are provided by WPGraphQL to extend the schema or
 
   Adds several input fields to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name.
 
+- [`register_graphql_data_sharing_plugin`](/functions/register_graphql_data_sharing_plugin)
+
+  Registers a plugin on the Data Sharing tab of the WPGraphQL settings page.
+
 - [`register_graphql_edge_field`](/functions/register_graphql_edge_field)
 
   Adds a field to the Connection Edge between the provided 'From' Type Name and 'To' Type Name.
