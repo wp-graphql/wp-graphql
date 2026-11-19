@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.4.1...wp-graphql-smart-cache/v2.5.0) (2026-11-19)
+
+
+### New Features
+
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707)) ([154dade](https://github.com/wp-graphql/wp-graphql/commit/154dadedcdcdb1998bd00a3cbab353f4f500d944))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.25.0 to 2.26.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4683](https://github.com/wp-graphql/wp-graphql/issues/4683)) ([4904d70](https://github.com/wp-graphql/wp-graphql/commit/4904d706d744954bfd2ab8c1b69c98c75ef00171))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.26.0 to 2.26.2 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4719](https://github.com/wp-graphql/wp-graphql/issues/4719)) ([f8b5c90](https://github.com/wp-graphql/wp-graphql/commit/f8b5c90808103966bb15ac127ecd135819c0790a))
+* translate the Extensions page descriptions and Smart Cache setting labels ([#4730](https://github.com/wp-graphql/wp-graphql/issues/4730)) ([382292c](https://github.com/wp-graphql/wp-graphql/commit/382292c389b9eb5bdbc80707a40e1146009c9b10))
+
 ## [2.4.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.4.0...wp-graphql-smart-cache/v2.4.1) (2026-11-10)
 
 
