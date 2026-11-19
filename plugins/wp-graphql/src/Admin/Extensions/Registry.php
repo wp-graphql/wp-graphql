@@ -20,7 +20,7 @@ namespace WPGraphQL\Admin\Extensions;
  * }
  * @phpstan-type Extension array{
  *  name: non-empty-string,
- *  description: non-empty-string,
+ *  description: string,
  *  plugin_url: non-empty-string,
  *  support_url: non-empty-string,
  *  documentation_url: non-empty-string,
@@ -38,7 +38,7 @@ final class Registry {
 	 *
 	 * Fields:
 	 * - name: Required. The name of the extension.
-	 * - description: Required. A description of the extension.
+	 * - description: Required. A description of the extension, translated. An extension whose description is empty is left off the Extensions page.
 	 * - plugin_url: Required. The URL to the plugin.
 	 * - repo_url: Optional. The URL to the repository for the plugin.
 	 * - plugin_file: Optional. The file name of the plugin's main file (e.g. `wp-graphql-smart-cache.php`). When set, the extension is detected as installed/active by this file regardless of the directory it was installed into (WordPress.org installs and git checkouts often differ). Without it, detection falls back to matching the directory name against the last segment of `plugin_url`.
