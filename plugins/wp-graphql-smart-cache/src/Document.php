@@ -1056,6 +1056,7 @@ class Document {
 		}
 
 		if ( is_wp_error( $post_id ) ) {
+			/* translators: %s: The hash that identifies the query document. */
 			throw new RequestError( sprintf( __( 'Error save the document data for "%s"', 'wp-graphql-smart-cache' ), $normalized_hash ) );
 		}
 

@@ -90,7 +90,7 @@ class TestExperiment extends AbstractExperiment {
 			'testExperiment',
 			[
 				'type'        => 'String',
-				'description' => 'A test field for the Test Experiment.',
+				'description' => __( 'A test field for the Test Experiment.', 'wp-graphql' ),
 				'resolve'     => static function () {
 					return 'This is a test field for the Test Experiment.';
 				},

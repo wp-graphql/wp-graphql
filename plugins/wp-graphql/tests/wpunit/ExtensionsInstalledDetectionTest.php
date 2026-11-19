@@ -228,4 +228,25 @@ class ExtensionsInstalledDetectionTest extends \Tests\WPGraphQL\TestCase\WPGraph
 			$this->assertSame( $plugin_file, $registry[ $key ]['plugin_file'], "Unexpected plugin_file for $key" );
 		}
 	}
+
+	/**
+	 * Every extension description is passed through translation, so the Extensions page can be translated.
+	 */
+	public function testExtensionDescriptionsAreTranslatable(): void {
+		$translate = static function ( $translation, $text, $domain ) {
+			return 'wp-graphql' === $domain ? '[translated] ' . $text : $translation;
+		};
+		add_filter( 'gettext', $translate, 10, 3 );
+
+		try {
+			$registry = Registry::get_extensions();
+		} finally {
+			remove_filter( 'gettext', $translate, 10 );
+		}
+
+		$this->assertNotEmpty( $registry );
+		foreach ( $registry as $key => $extension ) {
+			$this->assertStringStartsWith( '[translated] ', $extension['description'], "The description of $key is not translatable" );
+		}
+	}
 }

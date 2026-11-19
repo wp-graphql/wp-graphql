@@ -39,6 +39,7 @@ jobs:
       wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       wp-graphql-ide: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}
       wp-graphql-acf: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}
+      php-conventions: ${{ steps.filter.outputs.php-conventions_any_changed }}
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
@@ -127,6 +128,13 @@ jobs:
               - plugins/wp-graphql-acf/composer.lock
               - plugins/wp-graphql-acf/phpcs.xml.dist
               - plugins/wp-graphql-acf/phpstan.neon.dist
+            # Every input to check-php-conventions.js: the files it checks, and the
+            # script and workflow that run the check.
+            php-conventions:
+              - .github/workflows/lint.yml
+              - scripts/check-php-conventions.js
+              - plugins/*/src/**/*.php
+              - plugins/*/access-functions.php
 
       - name: Log detected changes
         run: |
@@ -134,6 +142,7 @@ jobs:
           echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
           echo "wp-graphql-ide changed: ${{ steps.filter.outputs.wp-graphql-ide_any_changed }}"
           echo "wp-graphql-acf changed: ${{ steps.filter.outputs.wp-graphql-acf_any_changed }}"
+          echo "php-conventions inputs changed: ${{ steps.filter.outputs.php-conventions_any_changed }}"
 
   # ===========================================
   # LINT JOBS
@@ -189,6 +198,32 @@ jobs:
             --plugin=wp-graphql \
             --base-ref="${{ steps.base-ref.outputs.value }}"
 
+  # Checks the plugin PHP a change adds for @since tags on new declarations and
+  # for user-facing strings that aren't translated. See scripts/check-php-conventions.js.
+  php-conventions:
+    name: Check PHP conventions
+    needs: detect-changes
+    if: needs.detect-changes.outputs.php-conventions == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The script diffs against the base branch, so it needs the history.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Check @since tags and translated strings
+        env:
+          # The script reads GITHUB_EVENT_NAME and GITHUB_BASE_REF from the runner,
+          # and the commit before a push from here, to pick the ref to compare against.
+          EVENT_BEFORE: ${{ github.event.before }}
+        run: node scripts/check-php-conventions.js
+
   wp-graphql-smart-cache:
     name: Lint wp-graphql-smart-cache
     needs: detect-changes
@@ -235,6 +270,7 @@ jobs:
         detect-changes,
         wp-graphql,
         wp-graphql-hook-legacy-coverage,
+        php-conventions,
         wp-graphql-smart-cache,
         wp-graphql-ide,
         wp-graphql-acf,
@@ -254,6 +290,12 @@ jobs:
           fi
           if [ "${{ needs.wp-graphql-smart-cache.result }}" == "failure" ]; then
             echo "❌ wp-graphql-smart-cache linting failed"
+            exit 1
+          fi
+          # Only success or skipped pass, so a cancelled or timed-out run fails too.
+          PHP_CONVENTIONS_RESULT="${{ needs.php-conventions.result }}"
+          if [ "$PHP_CONVENTIONS_RESULT" != "success" ] && [ "$PHP_CONVENTIONS_RESULT" != "skipped" ]; then
+            echo "❌ PHP conventions check did not pass ($PHP_CONVENTIONS_RESULT)"
             exit 1
           fi
           # Allow skipped jobs (expected when files don't change)

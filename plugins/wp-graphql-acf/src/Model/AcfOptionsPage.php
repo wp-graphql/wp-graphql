@@ -41,6 +41,8 @@ class AcfOptionsPage extends Model {
 	 * @see \WPGraphQL\Acf\AccessControl::can_resolve_options_page()
 	 *
 	 * @return bool
+	 *
+	 * @since x-release-please-version
 	 */
 	protected function is_private() {
 		return ! AccessControl::can_resolve_options_page( $this->data );
