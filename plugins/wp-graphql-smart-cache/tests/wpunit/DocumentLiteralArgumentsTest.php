@@ -121,6 +121,62 @@ class DocumentLiteralArgumentsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * With the setting Off, a new query isn't looked up under its normalized hash
+	 * before it runs, so leaving the setting alone adds no query to the request.
+	 *
+	 * @dataProvider modeLookupProvider
+	 */
+	public function testNormalizedHashIsOnlyLookedUpWhenTheSettingActs( string $mode, bool $looks_up ) {
+		$this->set_mode( $mode );
+
+		$query           = '{ post(id: 123, idType: DATABASE_ID) { id title } }';
+		$normalized_hash = Utils::getHashFromFormattedString( \GraphQL\Language\Printer::doPrint( \GraphQL\Language\Parser::parse( $query ) ) );
+		$lookups         = 0;
+		$recording       = true;
+
+		$record = static function ( $wp_query ) use ( $normalized_hash, &$lookups, &$recording ) {
+			if ( ! $recording ) {
+				return;
+			}
+			foreach ( (array) $wp_query->get( 'tax_query' ) as $clause ) {
+				if ( is_array( $clause ) && Document::ALIAS_TAXONOMY_NAME === ( $clause['taxonomy'] ?? null ) && $normalized_hash === ( $clause['terms'] ?? null ) ) {
+					++$lookups;
+				}
+			}
+		};
+		// Saving the document looks the hash up too, so stop counting once the response is ready.
+		$stop = static function () use ( &$recording ) {
+			$recording = false;
+		};
+
+		add_action( 'pre_get_posts', $record );
+		add_action( 'graphql_return_response', $stop, 0 );
+		// The hash of the raw text, so looking up the queryId itself isn't counted.
+		$response = graphql(
+			[
+				'queryId' => Utils::getHashFromFormattedString( $query ),
+				'query'   => $query,
+			]
+		);
+		remove_action( 'pre_get_posts', $record );
+		remove_action( 'graphql_return_response', $stop, 0 );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		if ( $looks_up ) {
+			$this->assertGreaterThan( 0, $lookups, 'When the setting acts, a new query is checked against the stored ones.' );
+		} else {
+			$this->assertSame( 0, $lookups, 'With the setting Off, a new query is not looked up.' );
+		}
+	}
+
+	public function modeLookupProvider(): array {
+		return [
+			'off'  => [ Document::LITERAL_ARGUMENTS_OFF, false ],
+			'warn' => [ Document::LITERAL_ARGUMENTS_WARN, true ],
+		];
+	}
+
+	/**
 	 * @dataProvider literalArgumentProvider
 	 */
 	public function testWarnStoresQueryAndNamesTheArguments( string $query, array $arguments ) {

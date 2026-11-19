@@ -405,8 +405,9 @@ class Document {
 				if ( ! $resolved['post'] ) {
 					// A query already stored under its normalized hash, such as one saved in the
 					// admin, only gains this queryId as another alias when it's saved, so it isn't
-					// a new document and the literal arguments setting doesn't apply to it.
-					$literal_arguments = self::is_stored_query( $resolved['normalized'], $resolved['normalized_hash'] )
+					// a new document and the literal arguments setting doesn't apply to it. The
+					// setting is checked first, so a site that leaves it Off doesn't look the query up.
+					$literal_arguments = self::LITERAL_ARGUMENTS_OFF === self::literal_arguments_mode() || self::is_stored_query( $resolved['normalized'], $resolved['normalized_hash'] )
 						? []
 						: $this->check_literal_arguments( $resolved['ast'], $query_id );
 
