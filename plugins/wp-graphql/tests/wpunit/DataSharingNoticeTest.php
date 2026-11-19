@@ -272,7 +272,7 @@ class DataSharingNoticeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertStringContainsString( 'Your choice was saved. Want email updates too?', $html );
 		$this->assertStringNotContainsString( 'value="allow"', $html );
 		// With one plugin there's nothing to choose, so the button is the choice.
-		$this->assertStringContainsString( 'Email me about security releases and breaking changes in Plugin A.', $html );
+		$this->assertStringContainsString( 'Email me about security releases, breaking changes and occasional product news in Plugin A.', $html );
 		$this->assertStringContainsString( 'type="hidden" name="plugins[]" value="' . $a . '"', $html );
 	}
 

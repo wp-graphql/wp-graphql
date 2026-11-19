@@ -198,12 +198,12 @@ final class DataSharingNotice {
 			echo '<p>';
 			printf(
 				// translators: %s is the plugin name.
-				esc_html__( 'Email me about security releases and breaking changes in %s.', 'wp-graphql' ),
+				esc_html__( 'Email me about security releases, breaking changes and occasional product news in %s.', 'wp-graphql' ),
 				esc_html( $plugin['name'] )
 			);
 			echo '</p>';
 		} else {
-			echo '<p>' . esc_html__( 'Email me about security releases and breaking changes in:', 'wp-graphql' ) . '</p>';
+			echo '<p>' . esc_html__( 'Email me about security releases, breaking changes and occasional product news in:', 'wp-graphql' ) . '</p>';
 			echo '<p>';
 			foreach ( $plugins as $plugin ) {
 				echo '<label style="margin-right:1em"><input type="checkbox" name="plugins[]" value="' . esc_attr( $plugin['slug'] ) . '"> ' . esc_html( $plugin['name'] ) . '</label>';

@@ -319,7 +319,7 @@ class EmailUpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->assertGreaterThan( $heading + 1, array_search( $field['name'], $names, true ) );
 			$this->assertSame( 'checkbox', $field['type'] );
 			$this->assertSame( $name, $field['label'] );
-			$this->assertSame( 'Email me about security releases and breaking changes in ' . $name, $field['desc'] );
+			$this->assertSame( 'Email me about security releases, breaking changes and occasional product news in ' . $name, $field['desc'] );
 			$this->assertSame( 'off', $field['value'] );
 		}
 	}
