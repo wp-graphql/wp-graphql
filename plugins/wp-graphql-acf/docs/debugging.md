@@ -83,6 +83,14 @@ Also, if using ACF Options Pages or ACF Blocks, be sure to name your GraphQL Typ
 
 For example, if you have an ACF Options page with the “graphql\_type\_name” of “Settings” and then you create an ACF Field Group and also give it a “graphql\_type\_name” of “Settings” then both the Options Page and the Field Group will attempt to be added to the schema as “Settings” which will lead to unwanted behavior.
 
+#### Does the field name collide with a field the type already has?
+
+The field that gives access to a field group is its GraphQL Type Name with a lowercase first letter, so a field group named "Title" adds a `title` field. If a type already has a field with that name, such as `title` on posts, the field group isn't added to that type, and the type keeps its own field. The field group is still added to its other types.
+
+This covers the fields a type is defined with and the fields it gets from its interfaces. A field another plugin adds with `register_graphql_field()` isn't detected yet, so a field group with the same name still replaces that field.
+
+With [`GRAPHQL_DEBUG`](#general-wpgraphql-debugging) enabled, the response includes a debug message with the type `FIELD_GROUP_FIELD_COLLISION`, naming the field group, the type and the field. To add the field group to that type, change its GraphQL Type Name to one the type doesn't already use.
+
 #### GraphQL Types / Location Rules
 
 Double check your field group’s “graphql\_types” setting. Whatever types are defined here will be the types that have a field registered to them that provides access to the ACF Field Group.
