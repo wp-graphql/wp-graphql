@@ -307,16 +307,22 @@ class Router {
 		 * @hookGroup request-lifecycle
 		 * @since 0.0.5
 		 */
+		$default_allowed_headers = [
+			'Authorization',
+			'Content-Type',
+			'X-GraphQL-Preview',
+		];
+
+		$registered_extensions = \WPGraphQL::get_request_extension_registry()->get_registered_request_extensions();
+		foreach ( $registered_extensions as $extension ) {
+			if ( ! empty( $extension['header'] ) && ! in_array( $extension['header'], $default_allowed_headers, true ) ) {
+				$default_allowed_headers[] = $extension['header'];
+			}
+		}
+
 		$access_control_allow_headers = apply_filters(
 			'graphql_access_control_allow_headers',
-			[
-				'Authorization',
-				'Content-Type',
-				// Allows cross-origin clients to send request-level preview context via the
-				// `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview`
-				// in the request body is the fallback). See WPGraphQL\Request::get_preview_input().
-				'X-GraphQL-Preview',
-			]
+			$default_allowed_headers
 		);
 
 		// For cache url header, use the domain without protocol. Path for when it's multisite.
@@ -372,22 +378,43 @@ class Router {
 		}
 
 		/**
-		 * Responses vary on the preview context header: a cache that keys responses
-		 * without it could otherwise serve a previewed response in place of the
-		 * published one, or vice versa. Sent unconditionally so caches learn the axis
+		 * Responses vary on registered extension headers with cache participation
+		 * (or preview context). Sent unconditionally so caches learn the axis
 		 * before ever storing a response.
 		 */
-		$headers['Vary'] = isset( $headers['Vary'] ) && '' !== $headers['Vary']
-			? $headers['Vary'] . ', X-GraphQL-Preview'
-			: 'X-GraphQL-Preview';
+		$vary_headers    = [ 'X-GraphQL-Preview' ];
+		$should_no_store = false;
+
+		foreach ( $registered_extensions as $namespace => $extension ) {
+			if ( ! empty( $extension['header'] ) && ! in_array( $extension['header'], $vary_headers, true ) ) {
+				if ( ! empty( $extension['cache'] ) && in_array( $extension['cache'], [ 'vary', 'private', 'no-store' ], true ) ) {
+					$vary_headers[] = $extension['header'];
+				}
+			}
+
+			if ( $request instanceof Request ) {
+				$has_context = ( 'preview' === $namespace && is_array( $request->app_context->preview ) )
+					|| ! empty( $request->app_context->get_request_extension( $namespace ) );
+
+				if ( $has_context && ! empty( $extension['cache'] ) && in_array( $extension['cache'], [ 'private', 'no-store' ], true ) ) {
+					$should_no_store = true;
+				}
+			}
+		}
+
+		foreach ( $vary_headers as $vary_header ) {
+			if ( ! isset( $headers['Vary'] ) || '' === $headers['Vary'] ) {
+				$headers['Vary'] = $vary_header;
+			} elseif ( false === strpos( $headers['Vary'], $vary_header ) ) {
+				$headers['Vary'] .= ', ' . $vary_header;
+			}
+		}
 
 		/**
-		 * A request carrying preview context may expose draft content to the authorized
-		 * viewer, so no cache may store the response at all. This is deliberately
-		 * stronger than the authenticated no-cache headers above: `no-cache` only
-		 * requires revalidation before reuse, while `no-store` forbids storage.
+		 * A request carrying preview context or a private/secret request extension may expose
+		 * sensitive/draft content to the viewer, so no cache may store the response at all.
 		 */
-		if ( $request instanceof Request && is_array( $request->app_context->preview ) ) {
+		if ( $should_no_store || ( $request instanceof Request && is_array( $request->app_context->preview ) ) ) {
 			$headers['Cache-Control'] = 'no-store, private';
 		}
 
