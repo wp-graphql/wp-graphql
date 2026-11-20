@@ -78,11 +78,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_delete_term( $this->category, 'category' );
 		WPGraphQL::clear_schema();
 
-		// Preview context members are a static registry; reset it between tests.
-		$members = new \ReflectionProperty( \WPGraphQL\Utils\Preview::class, 'context_members' );
-		$members->setAccessible( true );
-		$members->setValue( null, [] );
-		\WPGraphQL\Utils\Preview::set_context_members_read( false );
+		// Preview context members live in the static request extension registry; reset it between tests.
+		$registry = new \ReflectionProperty( WPGraphQL::class, 'request_extension_registry' );
+		$registry->setAccessible( true );
+		$registry->setValue( null, null );
 	}
 
 	/**
@@ -275,9 +274,9 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_preview_context_member( 'locale', [ 'type' => 'integer', 'sanitize' => $sanitize ] );
 		register_graphql_preview_context_member( 'otherLocale', [ 'type' => 'integer', 'header_key' => 'locale', 'sanitize' => $sanitize ] );
 
-		$members = \WPGraphQL\Utils\Preview::get_context_members();
-		$this->assertSame( [ 'locale' ], array_keys( $members ) );
-		$this->assertSame( 'string', $members['locale']['type'], 'The first registration wins' );
+		$members = WPGraphQL::get_request_extension_registry()->get_extension( 'preview' )['members'];
+		$this->assertSame( [ 'databaseId', 'featuredImageDatabaseId', 'postFormat', 'nonce', 'locale' ], array_keys( $members ), 'Only the valid, non-colliding member is added to the core members' );
+		$this->assertSame( [ 'string' ], $members['locale']['types'], 'The first registration wins' );
 
 		$this->register_preview_context_member_field( [ 'databaseId', 'locale' ] );
 		wp_set_current_user( $this->admin );

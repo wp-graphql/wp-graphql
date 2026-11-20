@@ -7,6 +7,7 @@
 
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
+use WPGraphQL\Registry\RequestExtensionRegistry;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
@@ -41,6 +42,15 @@ final class WPGraphQL {
 	 * @var ?\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
+
+	/**
+	 * Holds the RequestExtensionRegistry instance
+	 *
+	 * @var ?\WPGraphQL\Registry\RequestExtensionRegistry $request_extension_registry The registry that holds the request extension namespaces
+	 *
+	 * @since x-release-please-version
+	 */
+	protected static $request_extension_registry;
 
 	/**
 	 * Stores an array of allowed post types
@@ -991,6 +1001,64 @@ final class WPGraphQL {
 		 * @since 1.1.5
 		 */
 		return (bool) apply_filters( 'graphql_debug_enabled', $enabled );
+	}
+
+	/**
+	 * Returns the request extension registry, instantiating it if it doesn't exist.
+	 *
+	 * It is instantiated the first time it is read (when a request reads its request
+	 * extensions, or when the response headers are built), at which point core's
+	 * namespaces are registered and the `graphql_register_request_extensions` action fires.
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function get_request_extension_registry(): RequestExtensionRegistry {
+		if ( ! isset( self::$request_extension_registry ) ) {
+			// Set before the action fires, so a registration made during it lands on this instance.
+			self::$request_extension_registry = new RequestExtensionRegistry();
+
+			/**
+			 * Fires when the request extension registry is first read, so extensions can register
+			 * their own request extension namespaces and members.
+			 *
+			 * Core's namespaces (`preview`) are already registered, so they and their members are
+			 * reserved; for every other collision the first registration wins.
+			 *
+			 * @param \WPGraphQL\Registry\RequestExtensionRegistry $registry The registry holding the request extension namespaces.
+			 *
+			 * @hookGroup request-lifecycle
+			 * @since x-release-please-version
+			 */
+			do_action( 'graphql_register_request_extensions', self::$request_extension_registry );
+		}
+
+		return self::$request_extension_registry;
+	}
+
+	/**
+	 * Runs a registration against the request extension registry: now, when the registry has
+	 * already been read, or else when it is first read (on the
+	 * `graphql_register_request_extensions` action).
+	 *
+	 * Deferring until the registry is read means a registration never instantiates it early,
+	 * so an extension hooking the action later in the load still gets to register.
+	 *
+	 * @internal Plumbing behind register_graphql_request_extension() and the other
+	 *           registration functions, which are the public API.
+	 *
+	 * @param callable $registration Receives the RequestExtensionRegistry.
+	 *
+	 * @phpstan-param callable(RequestExtensionRegistry):void $registration
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function register_request_extension_with_registry( callable $registration ): void {
+		if ( isset( self::$request_extension_registry ) ) {
+			$registration( self::$request_extension_registry );
+			return;
+		}
+
+		add_action( 'graphql_register_request_extensions', $registration );
 	}
 
 	/**

@@ -98,6 +98,20 @@ class AppContext {
 	public $preview = null;
 
 	/**
+	 * Stores the request extensions the request carries, keyed by namespace: each one
+	 * registered with register_graphql_request_extension() (and core's `preview`, the same
+	 * array as $preview), parsed from its header or its object in the request `extensions`.
+	 * Every registered member is present, null when absent or invalid.
+	 *
+	 * Read it with get_request_extension().
+	 *
+	 * @var array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
+	 */
+	public $request_extensions = [];
+
+	/**
 	 * Stores additional $config properties
 	 *
 	 * @var mixed $config
@@ -431,6 +445,25 @@ class AppContext {
 	 */
 	public function get( string $namespace, string $key, $default = null ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound, Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Semantically appropriate.
 		return $this->store[ $namespace ][ $key ] ?? $default;
+	}
+
+	/**
+	 * Returns the parsed members of a request extension namespace the request carries.
+	 *
+	 * Example, for a namespace registered with register_graphql_request_extension():
+	 * ```php
+	 * $post_password = $context->get_request_extension( 'postPassword' );
+	 * $password      = $post_password['password'] ?? null;
+	 * ```
+	 *
+	 * @param string $name The namespace, e.g. `preview`.
+	 *
+	 * @return array<string,mixed>|null Every registered member (null when absent or invalid), or null when the request does not carry the namespace.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function get_request_extension( string $name ): ?array {
+		return $this->request_extensions[ $name ] ?? null;
 	}
 
 	/**

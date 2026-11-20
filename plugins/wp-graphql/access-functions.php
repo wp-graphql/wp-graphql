@@ -1205,9 +1205,11 @@ function get_graphql_admin_notices(): array {
  * grants no access by itself: previewed values only apply for a viewer allowed to preview
  * the post.
  *
- * Register members on `init` or earlier. A request reads them before it builds the schema, so a
- * member registered on `graphql_register_types`, or later, is not parsed for that request, and a
- * debug notice says so.
+ * Register members on `init` or earlier (or on the `graphql_register_request_extensions`
+ * action). A request reads them before it builds the schema, so a member registered on
+ * `graphql_register_types`, or later, is not parsed for that request, and a debug notice says so.
+ *
+ * This is register_graphql_request_extension_member() for core's `preview` namespace.
  *
  * @param string              $name   The camelCase member name, e.g. `locale`.
  * @param array<string,mixed> $config The member config.
@@ -1223,5 +1225,98 @@ function get_graphql_admin_notices(): array {
  * @since x-release-please-version
  */
 function register_graphql_preview_context_member( string $name, array $config ): void {
-	\WPGraphQL\Utils\Preview::register_context_member( $name, $config );
+	register_graphql_request_extension_member( 'preview', $name, $config );
+}
+
+/**
+ * Registers a request extension namespace: a root-level key of the request `extensions`
+ * object, optionally also carried by its own HTTP header, with typed members.
+ *
+ * A client sends the namespace either as a JSON object in the request `extensions` (keyed by
+ * the camelCase member names) or, when the namespace declares a `header`, as that header with
+ * an RFC 8941 dictionary value (keyed by the snake_case header keys). The header takes
+ * precedence; a header that fails to parse, or carries none of the namespace's keys, is
+ * ignored with a debug notice and the `extensions` object applies. In a batch request only
+ * the header applies (to every operation); per-operation `extensions` objects are ignored
+ * with a debug notice.
+ *
+ * Resolvers read the parsed namespace with `AppContext::get_request_extension( $name )`,
+ * which returns every registered member (null when absent or invalid), or null when the
+ * request does not carry the namespace. Keys no member registered are dropped, and members
+ * follow the contract of register_graphql_request_extension_member().
+ *
+ * A registered header is added to the CORS allowed headers and to the response's `Vary`
+ * header. With `'cache' => 'no-store'`, a response to a request carrying the namespace is
+ * sent with `Cache-Control: no-store, private`, so no cache stores it: use it for anything
+ * secret or viewer-specific, such as a password.
+ *
+ * Core's namespaces (`preview`) are reserved, and when two extensions register the same
+ * namespace or header the first registration wins; refused registrations surface a debug
+ * notice saying why. Register namespaces on the `graphql_register_request_extensions` action,
+ * or on `init` or earlier.
+ *
+ * @param string              $name   The camelCase namespace, e.g. `postPassword`.
+ * @param array<string,mixed> $config The namespace config.
+ *
+ * @phpstan-param array{
+ *  description?: string,
+ *  header?: string,
+ *  cache?: 'vary'|'no-store',
+ *  members?: array<string,array{
+ *   type: 'integer'|'string'|'boolean'|'inner-list',
+ *   items?: 'integer'|'string'|'boolean',
+ *   description?: string,
+ *   sanitize: callable(mixed):mixed,
+ *   header_key?: string
+ *  }>
+ * } $config
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_request_extension( string $name, array $config ): void {
+	\WPGraphQL::register_request_extension_with_registry(
+		static function ( \WPGraphQL\Registry\RequestExtensionRegistry $registry ) use ( $name, $config ): void {
+			$registry->register_extension( $name, $config );
+		}
+	);
+}
+
+/**
+ * Registers a member of a request extension namespace, so an extension can receive its own
+ * client-supplied value through the namespace's header or its object in the request
+ * `extensions`.
+ *
+ * The member arrives on `AppContext::get_request_extension( $extension_name )` under its
+ * camelCase name (null when absent or invalid). The header key is derived from the name
+ * (`postId` becomes `post_id`) unless `header_key` overrides it.
+ *
+ * The value must match the declared type exactly, on both transports; nothing is coerced, and
+ * anything else is discarded with a debug notice. The required `sanitize` callback then
+ * receives the type-checked value, and its return value is what lands on the context;
+ * returning null treats the member as absent.
+ *
+ * Core's members are reserved, and when two registrations use the same name or header key
+ * within a namespace the first wins; refused registrations surface a debug notice. A member
+ * may be registered before its namespace: it is added when the namespace is registered.
+ *
+ * @param string              $extension_name The namespace the member belongs to, e.g. `postPassword`.
+ * @param string              $name           The camelCase member name, e.g. `password`.
+ * @param array<string,mixed> $config         The member config.
+ *
+ * @phpstan-param array{
+ *  type: 'integer'|'string'|'boolean'|'inner-list',
+ *  items?: 'integer'|'string'|'boolean',
+ *  description?: string,
+ *  sanitize: callable(mixed):mixed,
+ *  header_key?: string
+ * } $config
+ *
+ * @since x-release-please-version
+ */
+function register_graphql_request_extension_member( string $extension_name, string $name, array $config ): void {
+	\WPGraphQL::register_request_extension_with_registry(
+		static function ( \WPGraphQL\Registry\RequestExtensionRegistry $registry ) use ( $extension_name, $name, $config ): void {
+			$registry->register_member( $extension_name, $name, $config );
+		}
+	);
 }
