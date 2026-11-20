@@ -58,7 +58,7 @@ The same object may instead be sent as a `preview` entry in the request `extensi
 }
 ```
 
-This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them.
+This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them. Keys other than core's and those [registered by an extension](#adding-your-own-preview-context-members) are dropped, on either transport.
 
 ### Batch and GET requests
 
@@ -224,14 +224,32 @@ add_action(
 );
 ```
 
-The member is then accepted from both transports: as `translationLocale` in `extensions.preview`, and as `translation_locale` in the `X-GraphQL-Preview` header. The header key is derived from the camelCase name; pass `header_key` to override it. It arrives on `AppContext::$preview` under its camelCase name (`null` when it was not sent or was invalid), so a field's `previewResolve` callback reads it from its `$preview` argument, just like `featuredImageDatabaseId`.
+The member is then accepted from both transports: as `translationLocale` in `extensions.preview`, and as `translation_locale` in the `X-GraphQL-Preview` header. The header key is derived from the camelCase name; pass `header_key` to override it. It arrives on `AppContext::$preview` under its camelCase name (`null` when it was not sent or was invalid), so a field's `previewResolve` callback reads it from its `$preview` argument, just like `featuredImageDatabaseId`:
+
+```php
+register_graphql_field(
+	'Post',
+	'translationLocale',
+	[
+		'type'           => 'String',
+		'resolve'        => static fn () => null,
+		'previewResolve' => static function ( $post, $args, $context, $info, array $preview ) {
+			return $preview['translationLocale'];
+		},
+	]
+);
+```
+
+Any other resolver can read the same values with `$context->get_request_extension( 'preview' )`, which returns the same array as `AppContext::$preview`.
+
+Preview is one of WPGraphQL's [request extension namespaces](/docs/request-extensions/), the one core registers, so `register_graphql_preview_context_member( $name, $config )` is shorthand for `register_graphql_request_extension_member( 'preview', $name, $config )`, and the member follows the same contract as any request extension member:
 
 - **`type`** (required) is one of `integer`, `string`, `boolean` or `inner-list`. An `inner-list` also declares its item type in `items` (`integer`, `string` or `boolean`), for example `[ 'type' => 'inner-list', 'items' => 'integer' ]`, sent as `translation_ids=(1 2)` in the header or `[1, 2]` in JSON.
 - Values must match the declared type exactly; nothing is coerced. A value of the wrong type is discarded, with a `PREVIEW_CONTEXT_MEMBER_INVALID` debug notice naming the key and the expected type.
 - **`sanitize`** (required) runs after the type check and receives the type-checked value. Whatever it returns lands on the context; return `null` to treat the value as absent.
 - Core's keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`, and their header keys) are reserved and can't be registered. If two extensions register the same name or header key, the first registration wins. Refused registrations surface a `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` debug notice.
 
-Register members on `init` or earlier. A request reads the registered members before it builds the schema, so a member registered on `graphql_register_types`, or later, is not parsed for that request, and a `PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE` debug notice says so.
+Register members on `init` or earlier, or on the `graphql_register_request_extensions` action. A request reads the registered members before it builds the schema, so a member registered on `graphql_register_types`, or later, is not parsed for that request, and a `PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE` debug notice says so.
 
 Declaring a member grants no access by itself. As with core's own members, previewed values only apply to a viewer who is allowed to preview the post.
 
