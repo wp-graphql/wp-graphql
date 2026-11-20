@@ -71,7 +71,8 @@ class StructuredFields {
 			// Duplicate keys: the last member wins (RFC 8941 Section 4.2.2).
 			$dictionary[ $key ] = $member;
 
-			self::discard_sp( $input, $pos, $end );
+			// Between members the RFC allows OWS (SP or HTAB), not only SP.
+			self::discard_ows( $input, $pos, $end );
 
 			if ( $pos >= $end ) {
 				return $dictionary;
@@ -82,7 +83,7 @@ class StructuredFields {
 			}
 
 			++$pos;
-			self::discard_sp( $input, $pos, $end );
+			self::discard_ows( $input, $pos, $end );
 
 			// A trailing comma is a parse error.
 			if ( $pos >= $end ) {
@@ -94,7 +95,21 @@ class StructuredFields {
 	}
 
 	/**
-	 * Discards leading SP characters (RFC 8941 uses SP only, not OWS-with-HTAB).
+	 * Discards leading OWS characters (SP or HTAB), which RFC 8941 Section 4.2.2 allows
+	 * around the commas between dictionary members.
+	 *
+	 * @param string $input The field value.
+	 * @param int    $pos   The current parse position, advanced past any OWS.
+	 * @param int    $end   The field value length.
+	 */
+	private static function discard_ows( string $input, int &$pos, int $end ): void {
+		while ( $pos < $end && ( ' ' === $input[ $pos ] || "\t" === $input[ $pos ] ) ) {
+			++$pos;
+		}
+	}
+
+	/**
+	 * Discards leading SP characters (elsewhere RFC 8941 uses SP only, not OWS-with-HTAB).
 	 *
 	 * @param string $input The field value.
 	 * @param int    $pos   The current parse position, advanced past any SP.

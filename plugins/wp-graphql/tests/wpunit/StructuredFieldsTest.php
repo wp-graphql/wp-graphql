@@ -116,6 +116,13 @@ class StructuredFieldsTest extends \Codeception\TestCase\WPTestCase {
 				'  a=1  ',
 				[ 'a' => [ 'type' => 'integer', 'value' => 1 ] ],
 			],
+			'tabs around the comma between members'   => [
+				"a=1\t,\tb=2",
+				[
+					'a' => [ 'type' => 'integer', 'value' => 1 ],
+					'b' => [ 'type' => 'integer', 'value' => 2 ],
+				],
+			],
 			'fifteen digit integer'                   => [
 				'a=123456789012345',
 				[ 'a' => [ 'type' => 'integer', 'value' => 123456789012345 ] ],
