@@ -33,28 +33,28 @@ class Document {
 	/**
 	 * Literal arguments mode: queries with values written into their arguments are saved as usual.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	const LITERAL_ARGUMENTS_OFF = 'off';
 
 	/**
 	 * Literal arguments mode: such queries are saved, with a debug message naming the arguments.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	const LITERAL_ARGUMENTS_WARN = 'warn';
 
 	/**
 	 * Literal arguments mode: such queries are refused, not run and not saved.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	const LITERAL_ARGUMENTS_REJECT = 'reject';
 
 	/**
 	 * The literal arguments mode used when none is set.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	const LITERAL_ARGUMENTS_DEFAULT_MODE = self::LITERAL_ARGUMENTS_OFF;
 
@@ -494,7 +494,7 @@ class Document {
 	 *
 	 * @return string One of the LITERAL_ARGUMENTS_* modes.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	public static function literal_arguments_mode(): string {
 		$mode = function_exists( 'get_graphql_setting' )
@@ -790,7 +790,7 @@ class Document {
 	 *
 	 * @return string
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	public static function literalArgumentsMessage( array $arguments = [] ) {
 		$message = __( 'This query cannot be saved as a persisted query because it has string or number values written into its arguments. Declare variables for those values and send them in "variables", so one persisted query serves every value.', 'wp-graphql-smart-cache' );
@@ -810,7 +810,7 @@ class Document {
 	 *
 	 * @return string
 	 *
-	 * @since x-release-please-version
+	 * @since 2.6.0
 	 */
 	public static function literalArgumentsWarningMessage( array $arguments ) {
 		// translators: %s is a comma separated list of arguments, such as "post.id, posts.first".
