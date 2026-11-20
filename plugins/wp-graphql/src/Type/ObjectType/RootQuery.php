@@ -176,7 +176,7 @@ class RootQuery {
 								return true;
 							},
 						],
-						'comment'     => [
+						'comment'       => [
 							'type'        => 'Comment',
 							'description' => static function () {
 								return __( 'Returns a Comment', 'wp-graphql' );
@@ -215,6 +215,52 @@ class RootQuery {
 								}
 
 								return $context->get_loader( 'comment' )->load_deferred( $id );
+							},
+						],
+						'commentAuthor' => [
+							'type'        => 'CommentAuthor',
+							'description' => static function () {
+								return __( 'Returns a CommentAuthor for a guest (non-user) comment. The ID is the comment database ID associated with that guest author.', 'wp-graphql' );
+							},
+							'args'        => [
+								'id'     => [
+									'type'        => [
+										'non_null' => 'ID',
+									],
+									'description' => static function () {
+										return __( 'Unique identifier for the comment author. Uses the related comment ID.', 'wp-graphql' );
+									},
+								],
+								'idType' => [
+									'type'        => 'CommentNodeIdTypeEnum',
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a comment author by. Default is Global ID', 'wp-graphql' );
+									},
+								],
+							],
+							'resolve'     => static function ( $_source, array $args, AppContext $context ) {
+								$id_type = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
+
+								switch ( $id_type ) {
+									case 'database_id':
+										$id = absint( $args['id'] );
+										break;
+									default:
+										$id_components = Relay::fromGlobalId( $args['id'] );
+										if ( empty( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+											throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
+										}
+										// Accept both comment_author and legacy comment global IDs that share the numeric comment ID.
+										$id = absint( $id_components['id'] );
+										break;
+								}
+
+								$comment = get_comment( $id );
+								if ( empty( $comment ) || ! empty( $comment->user_id ) ) {
+									return null;
+								}
+
+								return $context->get_loader( 'comment_author' )->load_deferred( $id );
 							},
 						],
 						'contentNode' => [
