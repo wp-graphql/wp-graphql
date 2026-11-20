@@ -29,7 +29,7 @@ Fires the update routine.
 
 ## Source
 
-- [`plugins/wp-graphql/src/WPGraphQL.php:542`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L542)
+- [`plugins/wp-graphql/src/WPGraphQL.php:545`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L545)
 
 ```php
 do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
@@ -37,4 +37,4 @@ do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
 
 ## Related
 
-- `WPGraphQL::run_update_routines()` in [`plugins/wp-graphql/src/WPGraphQL.php:542`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L542)
+- `WPGraphQL::run_update_routines()` in [`plugins/wp-graphql/src/WPGraphQL.php:545`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/WPGraphQL.php#L545)

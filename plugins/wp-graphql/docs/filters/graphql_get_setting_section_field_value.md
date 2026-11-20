@@ -32,7 +32,7 @@ Filter the value before returning it
 
 ## Source
 
-- [`plugins/wp-graphql/access-functions.php:992`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L992)
+- [`plugins/wp-graphql/access-functions.php:1063`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1063)
 
 ```php
 apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
@@ -40,4 +40,4 @@ apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value
 
 ## Related
 
-- `get_graphql_setting()` in [`plugins/wp-graphql/access-functions.php:992`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L992)
+- `get_graphql_setting()` in [`plugins/wp-graphql/access-functions.php:1063`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/access-functions.php#L1063)

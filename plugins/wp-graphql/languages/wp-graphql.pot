@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPGraphQL 2.28.0\n"
+"Project-Id-Version: WPGraphQL 2.29.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T22:45:09+00:00\n"
+"POT-Creation-Date: 2026-11-19T23:37:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-graphql\n"
@@ -110,28 +110,248 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:66
+#: src/Admin/DataSharing.php:59
+msgid "A data sharing plugin needs the slug of its Appsero client."
+msgstr ""
+
+#: src/Admin/DataSharing.php:64
+msgid "A data sharing plugin needs its initialized Appsero insights instance as \"insights\"."
+msgstr ""
+
+#. translators: %s is the name of the missing config key.
+#: src/Admin/DataSharing.php:73
+#, php-format
+msgid "A data sharing plugin needs \"%s\"."
+msgstr ""
+
+#: src/Admin/DataSharing.php:82
+msgid "A data sharing plugin's \"version\" must be a string."
+msgstr ""
+
+#. translators: %s is the Appsero client slug.
+#: src/Admin/DataSharing.php:92
+#, php-format
+msgid "A data sharing plugin with the slug \"%s\" is already registered."
+msgstr ""
+
+#: src/Admin/DataSharing.php:158
+msgid "Data Sharing"
+msgstr ""
+
+#: src/Admin/DataSharing.php:170
+#: src/Admin/DataSharingNotice.php:161
+#: src/Admin/UsageTracking.php:218
+msgid "Learn more"
+msgstr ""
+
+#: src/Admin/DataSharing.php:172
+msgid "Choose what this site shares with the WPGraphQL team. These settings don't change how WPGraphQL works on your site."
+msgstr ""
+
+#. translators: %s is a link to the privacy policy of the telemetry provider.
+#: src/Admin/DataSharing.php:175
+#, php-format
+msgid "A plugin whose box is checked sends details about this site to help guide its development, once when the box is checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site's admin email address and an administrator's name. Sharing usage data doesn't sign anyone up for emails. Uncheck a plugin's box to stop sharing for it at any time. %s"
+msgstr ""
+
+#: src/Admin/DataSharing.php:178
+msgid "While a plugin is opted in, deactivating it from the Plugins screen may show a form asking why. Submitting it sends that reason with the same site details as a check-in."
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:135
+msgid "Your choice was saved. Want email updates too?"
+msgstr ""
+
+#. translators: %s is a list of plugin names.
+#: src/Admin/DataSharingNotice.php:154
+#, php-format
+msgid "Help improve %s? Share usage data with the WPGraphQL team."
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:160
+msgid "Allowing sends details about this site to help guide development, now and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site's admin email address and an administrator's name. It doesn't sign anyone up for emails."
+msgstr ""
+
+#. translators: %s is a link to the Data Sharing tab of the WPGraphQL settings page.
+#: src/Admin/DataSharingNotice.php:164
+#, php-format
+msgid "You can change this at any time under %s."
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:165
+msgid "GraphQL → Settings → Data Sharing"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:173
+msgid "Allow"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:174
+msgid "No thanks"
+msgstr ""
+
+#. translators: %s is the plugin name.
+#: src/Admin/DataSharingNotice.php:201
+#, php-format
+msgid "Email me about security releases, breaking changes and occasional product news in %s."
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:206
+msgid "Email me about security releases, breaking changes and occasional product news in:"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:217
+msgid "Email address"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:219
+msgid "Send confirmation email"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:220
+msgid "Don't ask me about email"
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:223
+msgid "This is separate from sharing usage data. Nothing is subscribed until you click the link in the confirmation email, and you can unsubscribe with the link in any of the emails."
+msgstr ""
+
+#: src/Admin/DataSharingNotice.php:341
+msgid "Sorry, you are not allowed to change what this site shares."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:178
+msgid "Email Updates"
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:179
+msgid "Get emails about security releases and breaking changes, along with occasional product news. Each box below is a separate signup, for that plugin's own mailing list. When you check boxes and save, a confirmation email is sent to the address below for the plugins you checked, unless it's already subscribed to them, and nothing is subscribed until you click the link in it. This is separate from sharing usage data. To unsubscribe, use the link in any of the emails."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:188
+msgid "Email Address"
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:189
+msgid "Where the confirmation email and the updates are sent. Changing it while a box is checked sends a confirmation email to the new address, and doesn't unsubscribe the old one."
+msgstr ""
+
+#. translators: %s is the plugin name.
+#: src/Admin/EmailUpdates.php:202
+#, php-format
+msgid "Email me about security releases, breaking changes and occasional product news in %s"
+msgstr ""
+
+#. translators: %1$s is an email address, %2$s is the date the confirmation email was requested.
+#: src/Admin/EmailUpdates.php:209
+#, php-format
+msgid "A confirmation email was requested for %1$s on %2$s. Unchecking this box doesn't unsubscribe that address."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:382
+msgid "No confirmation email was requested for email updates. Choose at least one plugin and try again."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:406
+msgid "No confirmation email was requested for email updates. Only an administrator can sign up for them."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:414
+msgid "No confirmation email was requested for email updates. Enter a valid email address and try again."
+msgstr ""
+
+#. translators: %s is the error message of the request, such as a timeout.
+#: src/Admin/EmailUpdates.php:460
+#, php-format
+msgid "The telemetry service couldn't be reached or didn't answer in time (%s), so it isn't known whether the confirmation email for email updates was requested. If it was, it will arrive shortly. Otherwise, try again later."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:474
+msgid "No confirmation email was requested for email updates, because too many were requested recently. Try again later."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:485
+msgid "No confirmation email was requested for email updates. The address wasn't accepted. Check it and try again."
+msgstr ""
+
+#. translators: %d is the HTTP status code of the response.
+#: src/Admin/EmailUpdates.php:494
+#, php-format
+msgid "The confirmation email for email updates couldn't be requested: the telemetry service gave an unexpected response (HTTP %d). Try again later."
+msgstr ""
+
+#. translators: %1$s is an email address, %2$s is a list of plugin names.
+#: src/Admin/EmailUpdates.php:528
+#, php-format
+msgid "A confirmation email was requested for %1$s for %2$s updates. If the address isn't subscribed yet, it's on its way, and nothing is subscribed until you click the link in it."
+msgstr ""
+
+#. translators: %s is a list of plugin names.
+#: src/Admin/EmailUpdates.php:541
+#, php-format
+msgid "Email updates aren't available for %s yet."
+msgstr ""
+
+#. translators: %s is a list of plugin names.
+#: src/Admin/EmailUpdates.php:553
+#, php-format
+msgid "Email updates couldn't be requested for %s."
+msgstr ""
+
+#: src/Admin/EmailUpdates.php:642
+msgid "Settings saved."
+msgstr ""
+
+#: src/Admin/Extensions/Extensions.php:69
 msgid "WPGraphQL Extensions"
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:67
+#: src/Admin/Extensions/Extensions.php:70
 msgid "Extensions"
 msgstr ""
 
 #. translators: 1: npm ci command, 2: npm run build command, 3: releases URL
-#: src/Admin/Extensions/Extensions.php:87
+#: src/Admin/Extensions/Extensions.php:90
 #, php-format
 msgid "The Extensions page requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
 msgstr ""
 
 #. translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
-#: src/Admin/Extensions/Extensions.php:299
+#: src/Admin/Extensions/Extensions.php:302
 #, php-format
 msgid "Invalid extension %1$s is missing a valid value for %2$s."
 msgstr ""
 
-#: src/Admin/Extensions/Extensions.php:303
+#: src/Admin/Extensions/Extensions.php:306
 msgid "Invalid extension. All extensions must have a `name`."
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:59
+msgid "GraphQL IDE for WPGraphQL"
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:71
+msgid "A smart cache for WPGraphQL that caches only the data you need."
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:83
+msgid "WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends."
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:95
+msgid "This plugin enables Yoast SEO Support for WPGraphQL"
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:106
+msgid "Adds Gravity Forms support to WPGraphQL"
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:117
+msgid "A WordPress plugin that provides headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OIDC, JWT, cookies, header management, and more."
+msgstr ""
+
+#: src/Admin/Extensions/Registry.php:128
+msgid "Adds Rank Math SEO support to WPGraphQL"
 msgstr ""
 
 #: src/Admin/GraphiQL/GraphiQL.php:199
@@ -781,18 +1001,18 @@ msgstr ""
 msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
 msgstr ""
 
-#: src/Admin/UsageTracking.php:160
+#: src/Admin/UsageTracking.php:211
+msgid "Share usage data with the WPGraphQL team"
+msgstr ""
+
+#: src/Admin/UsageTracking.php:213
 msgid "Share Usage Data"
 msgstr ""
 
 #. translators: %1$s is the product name, %2$s is a link to the privacy policy of the telemetry provider.
-#: src/Admin/UsageTracking.php:163
+#: src/Admin/UsageTracking.php:216
 #, php-format
 msgid "Send details about this site to help guide %1$s development, when checked and then about once a week: server environment and WordPress version, site name, URL and IP address, site language, active theme and plugins, number of users, and this site's admin email address and an administrator's name. Sharing usage data doesn't sign anyone up for emails. Uncheck to stop sharing at any time. %2$s"
-msgstr ""
-
-#: src/Admin/UsageTracking.php:165
-msgid "Learn more"
 msgstr ""
 
 #: src/AppContext.php:241
@@ -1055,16 +1275,16 @@ msgstr ""
 msgid "Cannot return a resource for an external URI"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:56
+#: src/Data/TermObjectMutation.php:57
 msgid "Please provide only one of parentId or parentDatabaseId"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:69
+#: src/Data/TermObjectMutation.php:70
 msgid "The parent ID is not a valid ID"
 msgstr ""
 
-#: src/Data/TermObjectMutation.php:78
-#: src/Data/TermObjectMutation.php:95
+#: src/Data/TermObjectMutation.php:79
+#: src/Data/TermObjectMutation.php:96
 msgid "The parent does not exist"
 msgstr ""
 
@@ -1494,6 +1714,10 @@ msgstr ""
 
 #: src/Experimental/Experiment/TestExperiment/TestExperiment.php:72
 msgid "Test Experiment deactivated. The `testExperiment` field has been removed from your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestExperiment/TestExperiment.php:93
+msgid "A test field for the Test Experiment."
 msgstr ""
 
 #: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:70
@@ -2168,49 +2392,53 @@ msgstr ""
 msgid "Unable to generate a password reset key."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:187
+#: src/Mutation/SendPasswordResetEmail.php:181
+msgid "The password reset message is empty, so no email was sent."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:195
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:187
+#: src/Mutation/SendPasswordResetEmail.php:195
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:239
+#: src/Mutation/SendPasswordResetEmail.php:247
 msgid "There is no user registered with that email address."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:242
+#: src/Mutation/SendPasswordResetEmail.php:250
 msgid "Invalid username."
 msgstr ""
 
 #. translators: Password reset email subject. %s: Site name
-#: src/Mutation/SendPasswordResetEmail.php:261
+#: src/Mutation/SendPasswordResetEmail.php:269
 #, php-format
 msgid "[%s] Password Reset"
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:299
+#: src/Mutation/SendPasswordResetEmail.php:307
 msgid "Someone has requested a password reset for the following account:"
 msgstr ""
 
 #. translators: %s: site name
-#: src/Mutation/SendPasswordResetEmail.php:301
+#: src/Mutation/SendPasswordResetEmail.php:309
 #, php-format
 msgid "Site Name: %s"
 msgstr ""
 
 #. translators: %s: user login
-#: src/Mutation/SendPasswordResetEmail.php:303
+#: src/Mutation/SendPasswordResetEmail.php:311
 #, php-format
 msgid "Username: %s"
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:304
+#: src/Mutation/SendPasswordResetEmail.php:312
 msgid "If this was a mistake, just ignore this email and nothing will happen."
 msgstr ""
 
-#: src/Mutation/SendPasswordResetEmail.php:305
+#: src/Mutation/SendPasswordResetEmail.php:313
 msgid "To reset your password, visit the following address:"
 msgstr ""
 
@@ -2456,101 +2684,101 @@ msgid "The user failed to update"
 msgstr ""
 
 #. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-#: src/Registry/TypeRegistry.php:477
+#: src/Registry/TypeRegistry.php:486
 #, php-format
 msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-#: src/Registry/TypeRegistry.php:488
+#: src/Registry/TypeRegistry.php:497
 #, php-format
 msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:499
+#: src/Registry/TypeRegistry.php:508
 #, php-format
 msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:509
+#: src/Registry/TypeRegistry.php:518
 #, php-format
 msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:519
+#: src/Registry/TypeRegistry.php:528
 #, php-format
 msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:534
+#: src/Registry/TypeRegistry.php:543
 #, php-format
 msgid "Set relationships between the %1$s to %2$s"
 msgstr ""
 
 #. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-#: src/Registry/TypeRegistry.php:545
+#: src/Registry/TypeRegistry.php:554
 #, php-format
 msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:556
+#: src/Registry/TypeRegistry.php:565
 msgid "The input list of items to set."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:613
+#: src/Registry/TypeRegistry.php:622
 msgid "Site icon URL configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:619
+#: src/Registry/TypeRegistry.php:628
 msgid "Size of the site icon in pixels. Defaults to 512. Max 512."
 msgstr ""
 
-#: src/Registry/TypeRegistry.php:659
+#: src/Registry/TypeRegistry.php:668
 msgid "The media item representing the site icon configured in site settings, used as the site's favicon and app icon."
 msgstr ""
 
 #. translators: %s is the GraphQL name of the settings group.
-#: src/Registry/TypeRegistry.php:693
+#: src/Registry/TypeRegistry.php:702
 #, php-format
 msgid "Fields of the '%s' settings group"
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:792
+#: src/Registry/TypeRegistry.php:801
 #, php-format
 msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
 msgstr ""
 
 #. translators: %s is the name of the type.
-#: src/Registry/TypeRegistry.php:810
+#: src/Registry/TypeRegistry.php:819
 #, php-format
 msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
 msgstr ""
 
 #. translators: %s is the Field name.
-#: src/Registry/TypeRegistry.php:1115
+#: src/Registry/TypeRegistry.php:1127
 #, php-format
 msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
 msgstr ""
 
 #. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
-#: src/Registry/TypeRegistry.php:1144
+#: src/Registry/TypeRegistry.php:1156
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1274
+#: src/Registry/TypeRegistry.php:1292
 #, php-format
 msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
 msgstr ""
 
 #. translators: %1$s is the field name, %2$s is the type name.
-#: src/Registry/TypeRegistry.php:1336
+#: src/Registry/TypeRegistry.php:1354
 #, php-format
 msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
 msgstr ""
@@ -5886,43 +6114,43 @@ msgid "De-serializing instances of the WPGraphQL class is not allowed"
 msgstr ""
 
 #. translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
-#: src/WPGraphQL.php:339
+#: src/WPGraphQL.php:342
 #, php-format
 msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
 msgstr ""
 
-#: src/WPGraphQL.php:595
+#: src/WPGraphQL.php:598
 msgid "Represents uploaded media, including images, videos, documents, and audio files."
 msgstr ""
 
-#: src/WPGraphQL.php:600
+#: src/WPGraphQL.php:603
 msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
 msgstr ""
 
-#: src/WPGraphQL.php:605
+#: src/WPGraphQL.php:608
 msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
 msgstr ""
 
-#: src/WPGraphQL.php:626
+#: src/WPGraphQL.php:629
 msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
 msgstr ""
 
-#: src/WPGraphQL.php:631
+#: src/WPGraphQL.php:634
 msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
 msgstr ""
 
-#: src/WPGraphQL.php:636
+#: src/WPGraphQL.php:639
 msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
 msgstr ""
 
 #. translators: %s will replaced with the registered type
-#: src/WPGraphQL.php:806
+#: src/WPGraphQL.php:809
 #, php-format
 msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
 
 #. translators: %s will replaced with the registered taxonomy
-#: src/WPGraphQL.php:891
+#: src/WPGraphQL.php:894
 #, php-format
 msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
 msgstr ""
@@ -5931,18 +6159,8 @@ msgstr ""
 msgid "WPGraphQL appears to have been installed without it's dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`."
 msgstr ""
 
-#. translators: %s is a link to the WPGraphQL settings page.
-#: wp-graphql.php:186
-#, php-format
-msgid "Want to help make <strong>WPGraphQL</strong> even more awesome? Allow WPGraphQL to collect diagnostic data and usage information, including this site's admin email address and an administrator's name. This doesn't sign anyone up for emails. You can stop sharing at any time under %s."
-msgstr ""
-
-#: wp-graphql.php:187
-msgid "GraphQL → Settings"
-msgstr ""
-
 #. translators: %s is the error message
-#: wp-graphql.php:201
+#: wp-graphql.php:196
 #, php-format
 msgid "Error initializing Appsero: %s"
 msgstr ""

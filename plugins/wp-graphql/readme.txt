@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.28.0
+Stable tag: 2.29.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -391,6 +391,30 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.29.0 =
+
+**New Features**
+
+* add a Data Sharing settings tab for usage data opt-ins ([#4697](https://github.com/wp-graphql/wp-graphql/issues/4697))
+* add email updates to the Data Sharing tab and its opt-in notice ([#4708](https://github.com/wp-graphql/wp-graphql/issues/4708))
+* add TypeRegistry::has_registered_field() to check a field name before a type is built ([#4728](https://github.com/wp-graphql/wp-graphql/issues/4728))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4715](https://github.com/wp-graphql/wp-graphql/issues/4715))
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/babel-preset-default from 8.56.0 to 9.0.0 ([#4689](https://github.com/wp-graphql/wp-graphql/issues/4689))
+* **deps-dev:** bump phpstan/phpstan from 2.3.4 to 2.3.5 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4718](https://github.com/wp-graphql/wp-graphql/issues/4718))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714))
+* **deps-dev:** bump the wp-graphql-composer-dev-minor-patch group in /plugins/wp-graphql with 2 updates ([#4684](https://github.com/wp-graphql/wp-graphql/issues/4684))
+* **mutations:** handle failed and disabled password reset emails ([#4680](https://github.com/wp-graphql/wp-graphql/issues/4680))
+* **mutations:** save empty values in post and term mutations ([#4679](https://github.com/wp-graphql/wp-graphql/issues/4679))
+* **mutations:** stop updateMediaItem erasing fields left out of the input ([#4678](https://github.com/wp-graphql/wp-graphql/issues/4678))
+* say that email updates include occasional product news ([#4733](https://github.com/wp-graphql/wp-graphql/issues/4733))
+* stop calling descriptions that name a PHP function ([#4717](https://github.com/wp-graphql/wp-graphql/issues/4717))
+* stop escaping quotes in settings section descriptions ([#4699](https://github.com/wp-graphql/wp-graphql/issues/4699))
+* translate the Extensions page descriptions and Smart Cache setting labels ([#4730](https://github.com/wp-graphql/wp-graphql/issues/4730))
 
 = 2.28.0 =
 
