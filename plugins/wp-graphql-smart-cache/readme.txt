@@ -4,7 +4,7 @@ Tags: WPGraphQL, Cache, API, Persisted Queries, Performance
 Requires at least: 5.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 Requires WPGraphQL: 2.0.0
 WPGraphQL Tested Up To: 2.0.0
 License: GPLv2 or later
@@ -140,6 +140,12 @@ This release removes a lot of code that has since been released as part of WPGra
 In order to use v0.2.0+ of WPGraphQL Smart Cache, you will need WPGraphQL v1.12.0 or newer.
 
 == Changelog ==
+
+= 2.6.0 =
+
+**New Features**
+
+* **smart-cache:** add a setting for automatically saved queries with literal argument values ([#4723](https://github.com/wp-graphql/wp-graphql/issues/4723))
 
 = 2.5.0 =
 
