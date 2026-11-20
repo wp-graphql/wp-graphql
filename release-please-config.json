@@ -284,6 +284,7 @@
 		}
 	},
 	"separate-pull-requests": true,
+	"always-update": true,
 	"sequential-calls": true,
 	"tag-separator": "/",
 	"include-component-in-tag": true,
