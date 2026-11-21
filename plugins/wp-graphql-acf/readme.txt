@@ -4,7 +4,7 @@ Tags: GraphQL, ACF, API, NextJS, Headless
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.3
-Stable tag: 3.2.1
+Stable tag: 3.3.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -169,6 +169,22 @@ ACF Field Groups that did not have "graphql_types" defined AND were assigned to 
 This release is a complete re-architecture of WPGraphQL for ACF, introducing breaking changes to the GraphQL Schema and PHP API. Please read the [upgrade guide](https://www.wpgraphql.com/docs/acf/upgrade-guide) before upgrading.
 
 == Changelog ==
+
+= 3.3.0 =
+
+**New Features**
+
+* **acf:** add a graphql_capability setting for field groups, fields and options pages ([#4650](https://github.com/wp-graphql/wp-graphql/issues/4650))
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707))
+
+**Bug Fixes**
+
+* **acf:** link unsupported field type message to the field type guide ([#4700](https://github.com/wp-graphql/wp-graphql/issues/4700))
+* **acf:** skip attaching field group interface to types where field name collides ([#4709](https://github.com/wp-graphql/wp-graphql/issues/4709))
+* **acf:** skip the field group lookup for fields nested in another field ([#4736](https://github.com/wp-graphql/wp-graphql/issues/4736))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.25.0 to 2.26.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4682](https://github.com/wp-graphql/wp-graphql/issues/4682))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.26.0 to 2.26.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4721](https://github.com/wp-graphql/wp-graphql/issues/4721))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714))
 
 = 3.2.1 =
 

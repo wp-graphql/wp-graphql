@@ -14,7 +14,7 @@ use WPGraphQL\AppContext;
  * Predicates are ordered cheapest and most general first. Today there is one, the capability
  * check. A check of the node's own visibility belongs before it.
  *
- * @since x-release-please-version
+ * @since 3.3.0
  */
 class AccessControl {
 
@@ -31,7 +31,7 @@ class AccessControl {
 	 * @return string|false|null The capability. Null if none is required. False if the setting is
 	 *                           not a valid capability, which no one is considered to have.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public static function get_required_capability( array $config ) {
 		if ( ! array_key_exists( 'graphql_capability', $config ) ) {
@@ -63,7 +63,7 @@ class AccessControl {
 	 * @param \WPGraphQL\AppContext                $context         The AppContext of the request.
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info            The ResolveInfo of the field group field.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public static function can_resolve_field_group( array $acf_field_group, $node, AppContext $context, ResolveInfo $info ): bool {
 		$denial = self::get_first_denial(
@@ -87,7 +87,7 @@ class AccessControl {
 		 * @param \WPGraphQL\AppContext                $context         The AppContext of the request.
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info            The ResolveInfo of the field group field.
 		 *
-		 * @since x-release-please-version
+		 * @since 3.3.0
 		 * @hookGroup authentication
 		 */
 		$should_resolve = (bool) apply_filters( 'wpgraphql/acf/field_group_should_resolve', null === $denial, $node, $acf_field_group, $context, $info );
@@ -108,7 +108,7 @@ class AccessControl {
 	 * @param \WPGraphQL\AppContext                $context               The AppContext of the request.
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info                  The ResolveInfo of the field.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public static function can_resolve_field( array $acf_field, array $required_capabilities, $root, AppContext $context, ResolveInfo $info ): bool {
 		array_unshift( $required_capabilities, self::get_required_capability( $acf_field ) );
@@ -137,7 +137,7 @@ class AccessControl {
 		 * @param \WPGraphQL\AppContext                $context        The AppContext of the request.
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info           The ResolveInfo of the field.
 		 *
-		 * @since x-release-please-version
+		 * @since 3.3.0
 		 * @hookGroup authentication
 		 */
 		$should_resolve = (bool) apply_filters( 'wpgraphql/acf/field_should_resolve', null === $denial, $root, $acf_field, $context, $info );
@@ -154,7 +154,7 @@ class AccessControl {
 	 *
 	 * @param array<mixed> $options_page The ACF Options Page config.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public static function can_resolve_options_page( array $options_page ): bool {
 		$denial = self::get_first_denial(
@@ -176,7 +176,7 @@ class AccessControl {
 		 * @param bool         $should_resolve Whether the options page resolves. False when the current user lacks the options page's capability, or the setting isn't a valid capability.
 		 * @param array<mixed> $options_page   The ACF Options Page config.
 		 *
-		 * @since x-release-please-version
+		 * @since 3.3.0
 		 * @hookGroup authentication
 		 */
 		$should_resolve = (bool) apply_filters( 'wpgraphql/acf/options_page_should_resolve', null === $denial, $options_page );
@@ -198,7 +198,7 @@ class AccessControl {
 	 *
 	 * @return array{required_capability:string}|null The denial, or null if nothing denied.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected static function get_first_denial( array $predicates ): ?array {
 		foreach ( $predicates as $predicate ) {
@@ -219,7 +219,7 @@ class AccessControl {
 	 *
 	 * @return array{required_capability:string}|null The denial, or null if the current user has every capability.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected static function check_capabilities( array $required_capabilities ): ?array {
 		foreach ( $required_capabilities as $capability ) {
@@ -245,7 +245,7 @@ class AccessControl {
 	 *
 	 * @param array<mixed> $options_page The ACF Options Page config.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected static function get_options_page_type_name( array $options_page ): string {
 		$name     = Utils::get_field_group_name( $options_page );
@@ -263,7 +263,7 @@ class AccessControl {
 	 *
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo of the field.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected static function get_field_coordinate( ResolveInfo $info ): string {
 		return $info->parentType->name . '.' . $info->fieldName;
@@ -277,7 +277,7 @@ class AccessControl {
 	 * @param array{required_capability:string}|null $denial          The denial of the predicate that denied. Null if the decision came from a filter.
 	 * @param bool                                   $is_options_page Whether the subject is an options page.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected static function debug_denial( string $subject, ?array $denial, bool $is_options_page = false ): void {
 		$config = [

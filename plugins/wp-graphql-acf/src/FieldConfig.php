@@ -338,7 +338,7 @@ class FieldConfig {
 	 *
 	 * @return array<mixed>|null
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public function get_defining_field_group(): ?array {
 		if ( false === $this->defining_field_group ) {
@@ -370,7 +370,7 @@ class FieldConfig {
 	 *
 	 * @return array<int,string|false|null>
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected function get_field_group_capabilities( $root ): array {
 		$defining_group = $this->get_defining_field_group();
@@ -395,7 +395,7 @@ class FieldConfig {
 	 *
 	 * @param callable $resolve The resolver to wrap.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	public function gate_resolver( callable $resolve ): callable {
 		return function ( $root, $args, AppContext $context, ResolveInfo $info ) use ( $resolve ) {
@@ -415,7 +415,7 @@ class FieldConfig {
 	 *
 	 * @param array<mixed> $field_config The GraphQL field config.
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected function maybe_warn_non_null_with_capability( array $field_config ): void {
 		if ( ! isset( $field_config['type'] ) || ! is_array( $field_config['type'] ) || ! isset( $field_config['type']['non_null'] ) ) {
