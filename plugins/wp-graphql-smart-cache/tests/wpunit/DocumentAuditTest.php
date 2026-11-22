@@ -138,7 +138,7 @@ class DocumentAuditTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( "{\n  __typename\n}\n", $filtered['query'] );
 		$this->assertSame( 0, count( Audit::get_automatic_document_ids() ), 'Nothing is written before execution' );
 
-		$document->persist_pending_document_cb( [ 'data' => [ '__typename' => 'RootQuery' ] ], [ 'data' => [ '__typename' => 'RootQuery' ] ], null, null, $filtered['query'], null, null, null );
+		$document->persist_pending_document_cb( [ 'data' => [ '__typename' => 'RootQuery' ] ], null, null, $filtered['query'], null, null, null );
 
 		$ids = Audit::get_automatic_document_ids();
 		$this->assertCount( 1, $ids );
@@ -151,9 +151,117 @@ class DocumentAuditTest extends \Codeception\TestCase\WPTestCase {
 
 		$document = new Document();
 		$filtered = $document->graphql_query_contains_query_id_cb( $request, [] );
-		$document->persist_pending_document_cb( [ 'errors' => [ [ 'message' => 'Cannot query field' ] ] ], [ 'errors' => [ [ 'message' => 'Cannot query field' ] ] ], null, null, $filtered['query'], null, null, null );
+		$document->persist_pending_document_cb( [ 'errors' => [ [ 'message' => 'Cannot query field' ] ] ], null, null, $filtered['query'], null, null, null );
 
 		$this->assertSame( [], Audit::get_automatic_document_ids() );
 		$this->assertNull( ( new Document() )->get( hash( 'sha256', $query ) ) );
+	}
+
+	/**
+	 * A failed save must leave the executed data intact and report the failure only when debug is enabled.
+	 *
+	 * @dataProvider saveFailureDebugProvider
+	 * @since x-release-please-version
+	 */
+	public function testRequestReportsSaveFailureInDebugLog( bool $debug_enabled, bool $object_response, bool $redact_debug ): void {
+		$query    = sprintf( 'query SaveFailure%d%d%d { __typename }', (int) $debug_enabled, (int) $object_response, (int) $redact_debug );
+		$query_id = hash( 'sha256', $query );
+		$debug    = $debug_enabled ? '__return_true' : '__return_false';
+		$attempts = 0;
+		$fail     = static function ( $data ) use ( &$attempts ) {
+			if ( Document::TYPE_NAME === $data['post_type'] ) {
+				++$attempts;
+				throw new \RuntimeException( 'Simulated document write failure' );
+			}
+
+			return $data;
+		};
+		$redact   = static function ( $response ) {
+			if ( is_array( $response ) ) {
+				unset( $response['extensions']['debug'] );
+			} else {
+				unset( $response->extensions['debug'] );
+			}
+			return $response;
+		};
+		$previous_get    = $_GET;
+		$previous_method = $_SERVER['REQUEST_METHOD'] ?? null;
+
+		add_filter( 'graphql_debug_enabled', $debug );
+		add_filter( 'wp_insert_post_data', $fail );
+		if ( $redact_debug ) {
+			add_filter( 'graphql_request_results', $redact, 5 );
+		}
+		try {
+			if ( $object_response ) {
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				$_GET                     = [ 'query' => $query, 'queryId' => $query_id ];
+				$response                 = ( new \WPGraphQL\Request() )->execute_http();
+				$this->assertInstanceOf( \GraphQL\Executor\ExecutionResult::class, $response );
+				$response = $response->toArray();
+			} else {
+				$response = graphql( [ 'query' => $query, 'queryId' => $query_id ] );
+			}
+		} finally {
+			$_GET = $previous_get;
+			if ( null === $previous_method ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $previous_method;
+			}
+			remove_filter( 'graphql_request_results', $redact, 5 );
+			remove_filter( 'wp_insert_post_data', $fail );
+			remove_filter( 'graphql_debug_enabled', $debug );
+		}
+
+		$this->assertSame( 1, $attempts );
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertSame( [ '__typename' => 'RootQuery' ], $response['data'] );
+		$this->assertSame( [], Audit::get_automatic_document_ids() );
+		$this->assertNull( ( new Document() )->get( $query_id ) );
+
+		if ( $redact_debug ) {
+			$this->assertArrayNotHasKey( 'debug', $response['extensions'] ?? [] );
+		} elseif ( $debug_enabled ) {
+			$logs = $response['extensions']['debug'];
+			$failures = array_values( array_filter( $logs, static function ( $entry ) use ( $query_id ) {
+				return $query_id === ( $entry['queryId'] ?? null );
+			} ) );
+			$this->assertCount( 1, $failures );
+			$this->assertStringContainsString( 'Persisted query document could not be saved', $failures[0]['message'] );
+		} else {
+			$this->assertSame( [ 'DEBUG_LOGS_INACTIVE' ], wp_list_pluck( $response['extensions']['debug'], 'type' ) );
+		}
+	}
+
+	/**
+	 * @since x-release-please-version
+	 * @return array<string,array{bool,bool,bool}>
+	 */
+	public function saveFailureDebugProvider(): array {
+		return [
+			'debug enabled, array response'   => [ true, false, false ],
+			'debug disabled, array response'  => [ false, false, false ],
+			'debug enabled, HTTP response'    => [ true, true, false ],
+			'debug disabled, HTTP response'   => [ false, true, false ],
+			'debug redacted, array response'  => [ true, false, true ],
+			'debug redacted, HTTP response'   => [ true, true, true ],
+		];
+	}
+
+	/**
+	 * @since x-release-please-version
+	 */
+	public function testSuccessfulRequestPersistsDocument(): void {
+		$query    = 'query SuccessfulSave { __typename }';
+		$query_id = hash( 'sha256', $query );
+		$response = graphql( [ 'query' => $query, 'queryId' => $query_id ] );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertSame( [ '__typename' => 'RootQuery' ], $response['data'] );
+		$ids = Audit::get_automatic_document_ids();
+		$this->assertCount( 1, $ids );
+		$this->assertSame( Document::SOURCE_AUTOMATIC, get_post_meta( $ids[0], Document::SOURCE_META_KEY, true ) );
+		$this->assertSame( "query SuccessfulSave {\n  __typename\n}\n", ( new Document() )->get( $query_id ) );
 	}
 }
