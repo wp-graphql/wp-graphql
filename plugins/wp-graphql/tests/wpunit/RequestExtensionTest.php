@@ -114,7 +114,7 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Queries the parsed request extension namespace.
+	 * Queries the parsed request extension namespace over HTTP, so headers are read.
 	 *
 	 * @param string                   $name       The namespace.
 	 * @param array<string,mixed>|null $extensions The request `extensions`, if any.
@@ -131,7 +131,7 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$request['extensions'] = $extensions;
 		}
 
-		return $this->graphql( $request );
+		return $this->http_graphql( $request );
 	}
 
 	/**
@@ -172,6 +172,45 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$get_headers->setAccessible( true );
 
 		return $get_headers->invoke( null );
+	}
+
+
+	/**
+	 * Runs a query the way the GraphQL endpoint does, as an HTTP GET request through
+	 * Request::execute_http(), so the request extension headers set in $_SERVER are read.
+	 * graphql() from PHP never reads them.
+	 *
+	 * @param array<string,mixed>     $request  The `query`, and optionally `variables` and `extensions`.
+	 * @param \WPGraphQL\Request|null $executed Set to the Request that ran.
+	 *
+	 * @return array<string,mixed> The GraphQL response.
+	 */
+	private function http_graphql( array $request, ?\WPGraphQL\Request &$executed = null ): array {
+		$server_method = $_SERVER['REQUEST_METHOD'] ?? null;
+		$get           = $_GET;
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET                      = [ 'query' => $request['query'] ];
+
+		foreach ( [ 'variables', 'extensions' ] as $key ) {
+			if ( isset( $request[ $key ] ) ) {
+				$_GET[ $key ] = wp_json_encode( $request[ $key ] );
+			}
+		}
+
+		try {
+			$executed = new \WPGraphQL\Request();
+			$response = $executed->execute_http();
+		} finally {
+			if ( null === $server_method ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $server_method;
+			}
+			$_GET = $get;
+		}
+
+		return is_array( $response ) ? $response : $response->toArray();
 	}
 
 	public function testRegisterRequestExtensionAndMembers() {
@@ -302,6 +341,11 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->query_request_extension( 'postPassword', $extensions );
 		$this->assertSame( $extensions['postPassword'], $this->get_request_extension_from_response( $actual ) );
 		$this->assertContains( 'REQUEST_EXTENSION_MALFORMED', $this->get_debug_types( $actual ) );
+		$this->assertStringContainsString(
+			'e.g. `post_id`, not `postId`',
+			implode( "\n", wp_list_pluck( $actual['extensions']['debug'], 'message' ) ),
+			'The malformed-header notice gives an example from the namespace\'s own keys, not preview\'s'
+		);
 
 		unset( $_SERVER['HTTP_X_GRAPHQL_POST_PASSWORD'] );
 
@@ -359,8 +403,7 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$execute = function ( array $params ): Request {
-			$request = new Request( $params );
-			$request->execute();
+			$this->http_graphql( $params, $request );
 			return $request;
 		};
 
@@ -437,7 +480,7 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, translation_locale="fr_FR", variant=2', $this->post );
 
-		$actual = $this->graphql(
+		$actual = $this->http_graphql(
 			[
 				'query'     => $query,
 				'variables' => [ 'id' => $this->post ],
@@ -627,8 +670,7 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( "database_id=%d,\tfeatured_image_database_id=0 ,\tnonce=\"<b>abc</b>\"", $this->post );
 
-		$request = new Request( [ 'query' => '{ __typename }' ] );
-		$request->execute();
+		$this->http_graphql( [ 'query' => '{ __typename }' ], $request );
 
 		$this->assertIsArray( $request->app_context->preview );
 		$this->assertSame( $this->post, $request->app_context->preview['databaseId'] );
@@ -719,6 +761,223 @@ class RequestExtensionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString( 'The request extension namespace `snake_case` was not registered: the name must be camelCase', $messages );
 		$this->assertStringContainsString( 'The request extension namespace `badCache` was not registered: the `cache` rule must be `vary` or `no-store`.', $messages );
 		$this->assertStringContainsString( 'The request extension namespace `badHeader` was not registered: the `header` must be', $messages );
+	}
+
+	/**
+	 * Only an HTTP request reads the registered headers. A graphql() call from PHP reads its
+	 * own `extensions`, even while the surrounding HTTP request sent the headers, so a query
+	 * run from PHP never picks up a password or preview context it wasn't given.
+	 */
+	public function testGraphqlFromPhpReadsExtensionsNotHeaders() {
+		$this->register_post_password_extension();
+		wp_set_current_user( $this->admin );
+
+		$_SERVER['HTTP_X_GRAPHQL_POST_PASSWORD'] = 'post_id=42, password="from-header"';
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW']       = sprintf( 'database_id=%d', $this->post );
+
+		$query = [
+			'query'     => 'query( $name: String! ) { requestExtension( name: $name ) }',
+			'variables' => [ 'name' => 'postPassword' ],
+		];
+
+		// Over HTTP, the header is read.
+		$this->assertSame(
+			[
+				'postId'   => 42,
+				'password' => 'from-header',
+			],
+			$this->get_request_extension_from_response( $this->http_graphql( $query ) )
+		);
+
+		// From PHP, the header is not.
+		$this->assertNull( $this->get_request_extension_from_response( $this->graphql( $query ) ) );
+
+		$request = new Request( [ 'query' => '{ __typename }' ] );
+		$request->execute();
+		$this->assertNull( $request->app_context->preview, 'The preview header is not read from PHP either' );
+		$this->assertSame( [], $request->app_context->request_extensions );
+
+		// From PHP, the request's own `extensions` are, and the header doesn't override them.
+		$this->assertSame(
+			[
+				'postId'   => 7,
+				'password' => 'from-php',
+			],
+			$this->get_request_extension_from_response(
+				$this->graphql(
+					$query + [
+						'extensions' => [
+							'postPassword' => [
+								'postId'   => 7,
+								'password' => 'from-php',
+							],
+						],
+					]
+				)
+			)
+		);
+
+		$request = new Request(
+			[
+				'query'      => '{ __typename }',
+				'extensions' => [ 'preview' => [ 'databaseId' => $this->post ] ],
+			]
+		);
+		$request->execute();
+		$this->assertSame( $this->post, $request->app_context->preview['databaseId'], 'Preview context reaches a PHP request through `extensions`' );
+	}
+
+	/**
+	 * A nested graphql() call doesn't end the outer request's read of the registry, and a
+	 * request that throws still releases it, so a late registration is reported exactly
+	 * while a request is in progress.
+	 */
+	public function testNestedAndFailedRequestsLeaveTheRegistryReadStateCorrect() {
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_field(
+					'RootQuery',
+					'nestedThenRegister',
+					[
+						'type'    => 'String',
+						'resolve' => static function () {
+							graphql( [ 'query' => '{ __typename }' ] );
+
+							// Still too late for the outer request, which is in progress.
+							register_graphql_request_extension( 'registeredAfterNested', [ 'members' => [] ] );
+
+							return 'ok';
+						},
+					]
+				);
+			}
+		);
+
+		$actual = $this->graphql( [ 'query' => '{ nestedThenRegister }' ] );
+
+		$this->assertSame( 'ok', $actual['data']['nestedThenRegister'] );
+		$this->assertStringContainsString(
+			'The request extension namespace `registeredAfterNested` was registered after this request read the request extensions',
+			implode( "\n", wp_list_pluck( $actual['extensions']['debug'] ?? [], 'message' ) ),
+			'The nested call did not end the outer request\'s read'
+		);
+
+		// A request that throws during execution still releases the registry.
+		$throw = static function () {
+			throw new \RuntimeException( 'Execution failed' );
+		};
+		add_filter( 'pre_graphql_execute_request', $throw );
+
+		try {
+			( new Request( [ 'query' => '{ __typename }' ] ) )->execute();
+			$this->fail( 'The request should have thrown' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Execution failed', $e->getMessage() );
+		} finally {
+			remove_filter( 'pre_graphql_execute_request', $throw );
+		}
+
+		// Both requests, and the one that threw, released the registry, so a registration
+		// between requests is not reported as late. (Debug notices accumulate for the PHP
+		// process, so look for this namespace's notice by name.)
+		$this->register_post_password_extension();
+		$actual = $this->query_request_extension( 'postPassword' );
+		$this->assertStringNotContainsString(
+			'The request extension namespace `postPassword` was registered after this request read the request extensions',
+			implode( "\n", wp_list_pluck( $actual['extensions']['debug'] ?? [], 'message' ) )
+		);
+	}
+
+	/**
+	 * A member registered for a namespace before the namespace itself loses to a member of
+	 * the same name or header key in the namespace's own config, with a notice: whoever
+	 * registers the namespace defines its shape.
+	 */
+	public function testTheNamespacesOwnMembersWinOverMembersRegisteredAheadOfIt() {
+		register_graphql_request_extension_member(
+			'postPassword',
+			'password',
+			[
+				'type'     => 'integer',
+				'sanitize' => 'absint',
+			]
+		);
+		register_graphql_request_extension_member(
+			'postPassword',
+			'remember',
+			[
+				'type'     => 'boolean',
+				'sanitize' => static fn ( $value ) => $value,
+			]
+		);
+		$this->register_post_password_extension();
+
+		$members = WPGraphQL::get_request_extension_registry()->get_extension( 'postPassword' )['members'];
+
+		$this->assertSame( [ 'postId', 'password', 'remember' ], array_keys( $members ), 'A pending member with its own name is added after the namespace\'s members' );
+		$this->assertSame( [ 'string' ], $members['password']['types'], 'The namespace\'s own `password` member is kept' );
+
+		$actual   = $this->query_request_extension( 'postPassword' );
+		$messages = implode( "\n", wp_list_pluck( $actual['extensions']['debug'] ?? [], 'message' ) );
+		$this->assertStringContainsString( 'The request extension member `password` of `postPassword` was not registered: a member with the same name or header key is already registered.', $messages );
+	}
+
+	/**
+	 * A namespace can't claim a header WordPress, browsers or proxies already use, matched
+	 * case-insensitively, including the `Sec-`, `Access-Control-` and `Proxy-` prefixes.
+	 */
+	public function testReservedHeadersCannotBeClaimed() {
+		$headers = [
+			'cookieJar'  => 'Cookie',
+			'wpNonce'    => 'x-wp-nonce',
+			'origin'     => 'Origin',
+			'host'       => 'HOST',
+			'forwarded'  => 'X-Forwarded-For',
+			'fetchMode'  => 'Sec-Fetch-Mode',
+			'corsMethod' => 'Access-Control-Request-Method',
+			'proxyAuth'  => 'Proxy-Authorization',
+		];
+
+		foreach ( $headers as $name => $header ) {
+			register_graphql_request_extension( $name, [ 'header' => $header ] );
+		}
+
+		// Prefixes only match at the start of the name.
+		register_graphql_request_extension( 'notReserved', [ 'header' => 'X-Sec-Token' ] );
+
+		$this->assertSame( [ 'preview', 'notReserved' ], array_keys( WPGraphQL::get_request_extension_registry()->get_extensions() ) );
+
+		$actual   = $this->query_request_extension( 'preview' );
+		$messages = implode( "\n", wp_list_pluck( $actual['extensions']['debug'] ?? [], 'message' ) );
+
+		foreach ( array_keys( $headers ) as $name ) {
+			$this->assertStringContainsString( sprintf( 'The request extension namespace `%s` was not registered: its header is reserved by WPGraphQL core or already used by another namespace.', $name ), $messages );
+		}
+	}
+
+	/**
+	 * Vary keeps the values already set (by a `nocache_headers` filter, say) without empty
+	 * items, and adds each registered header once.
+	 */
+	public function testVaryHasNoEmptyItems() {
+		$this->register_post_password_extension();
+
+		$nocache = static function ( $headers ) {
+			$headers['Vary'] = 'Accept-Encoding, , Origin,';
+			return $headers;
+		};
+		add_filter( 'graphql_send_nocache_headers', '__return_true' );
+		add_filter( 'nocache_headers', $nocache );
+
+		try {
+			$headers = $this->get_response_headers( null );
+		} finally {
+			remove_filter( 'graphql_send_nocache_headers', '__return_true' );
+			remove_filter( 'nocache_headers', $nocache );
+		}
+
+		$this->assertSame( 'Accept-Encoding, Origin, X-GraphQL-Preview, X-GraphQL-Post-Password', $headers['Vary'] );
 	}
 
 	/**

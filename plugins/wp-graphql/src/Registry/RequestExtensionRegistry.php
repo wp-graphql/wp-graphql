@@ -14,8 +14,10 @@ use WPGraphQL\Utils\Preview;
  * Core's namespaces are registered when the registry is created, before the
  * `graphql_register_request_extensions` action fires, so they and their members are
  * reserved. Every other collision is resolved by the first registration winning, so
- * behavior never depends on plugin load order. Every refused registration surfaces a
- * debug notice saying why.
+ * behavior never depends on plugin load order, with one exception: a namespace's own
+ * members (from its `members` config) are registered before any member registered for it
+ * ahead of the namespace, so the namespace's owner defines its shape. Every refused
+ * registration surfaces a debug notice saying why.
  *
  * phpcs:disable -- PHPStan annotation.
  * @phpstan-type RequestExtensionMember array{
@@ -69,10 +71,38 @@ class RequestExtensionRegistry {
 	public const CACHE_RULES = [ 'vary', 'no-store' ];
 
 	/**
-	 * Request headers WPGraphQL already reads for its own purposes, which a namespace may
-	 * not claim as its header.
+	 * Request headers a namespace may not claim as its header: the ones WordPress and
+	 * WPGraphQL read for authentication and request handling, the ones browsers send on
+	 * their own (so a namespace would read ambient browser state, not what the client chose
+	 * to send), and the ones proxies and caches act on. Compared case-insensitively.
 	 */
-	private const RESERVED_HEADERS = [ 'Authorization', 'Content-Type' ];
+	private const RESERVED_HEADERS = [
+		'Accept',
+		'Authorization',
+		'Cache-Control',
+		'Connection',
+		'Content-Length',
+		'Content-Type',
+		'Cookie',
+		'Forwarded',
+		'Host',
+		'If-Modified-Since',
+		'If-None-Match',
+		'Origin',
+		'Pragma',
+		'Referer',
+		'User-Agent',
+		'X-Forwarded-For',
+		'X-Forwarded-Host',
+		'X-Forwarded-Proto',
+		'X-WP-Nonce',
+	];
+
+	/**
+	 * Header name prefixes a namespace may not claim: browsers set `Sec-` headers
+	 * themselves, and `Access-Control-` and `Proxy-` headers belong to CORS and to proxies.
+	 */
+	private const RESERVED_HEADER_PREFIXES = [ 'access-control-', 'proxy-', 'sec-' ];
 
 	/**
 	 * The registered namespaces, keyed by namespace.
@@ -90,12 +120,13 @@ class RequestExtensionRegistry {
 	private $pending_members = [];
 
 	/**
-	 * Whether the request in progress has already read the registered namespaces, so a
-	 * namespace or member registered now is not parsed for it.
+	 * How many requests in progress have read the registered namespaces, so a namespace or
+	 * member registered now is not parsed for them. More than one when a resolver runs a
+	 * nested graphql() call.
 	 *
-	 * @var bool
+	 * @var int
 	 */
-	private $read = false;
+	private $readers = 0;
 
 	/**
 	 * Registers core's namespaces. They are registered before any extension can register
@@ -164,7 +195,7 @@ class RequestExtensionRegistry {
 				return;
 			}
 
-			if ( null !== $this->get_header_owner( $header ) || in_array( strtolower( $header ), array_map( 'strtolower', self::RESERVED_HEADERS ), true ) ) {
+			if ( null !== $this->get_header_owner( $header ) || $this->is_reserved_header( $header ) ) {
 				$this->debug_not_registered( $name, __( 'its header is reserved by WPGraphQL core or already used by another namespace', 'wp-graphql' ) );
 				return;
 			}
@@ -195,7 +226,7 @@ class RequestExtensionRegistry {
 			'core'             => false,
 		];
 
-		if ( $this->read ) {
+		if ( $this->readers > 0 ) {
 			graphql_debug(
 				sprintf(
 					/* translators: %s: the request extension namespace */
@@ -206,7 +237,8 @@ class RequestExtensionRegistry {
 			);
 		}
 
-		// The namespace's own members first, then any registered for it ahead of it.
+		// The namespace's own members first, then any registered for it ahead of it, so a
+		// pending member with the same name or header key as one of its own is refused.
 		foreach ( $members as $member_name => $member_config ) {
 			$this->register_member( $name, (string) $member_name, is_array( $member_config ) ? $member_config : [] );
 		}
@@ -312,7 +344,7 @@ class RequestExtensionRegistry {
 
 		// The request reads the registered members before it builds the schema, so a member
 		// registered on `graphql_register_types`, or later, is not parsed for the request in progress.
-		if ( $this->read ) {
+		if ( $this->readers > 0 ) {
 			graphql_debug(
 				'preview' === $namespace_name
 					? sprintf(
@@ -367,23 +399,21 @@ class RequestExtensionRegistry {
 	}
 
 	/**
-	 * Marks whether the request in progress has read the registered namespaces.
+	 * Marks the registered namespaces as read by a request in progress.
 	 *
-	 * The request sets it before it parses its request extensions and clears it when it
-	 * finishes, so only a registration too late for the request in progress surfaces a
-	 * notice. Reading also reports members still waiting for a namespace that was never
-	 * registered.
+	 * A request calls it before it parses its request extensions, and calls end_read()
+	 * when it finishes, so only a registration too late for a request in progress surfaces
+	 * a notice. Calls nest, for a resolver that runs a nested graphql() call. The first
+	 * read also reports members still waiting for a namespace that was never registered.
 	 *
 	 * @internal
 	 *
-	 * @param bool $read Whether the namespaces have been read.
-	 *
 	 * @since x-release-please-version
 	 */
-	public function set_read( bool $read ): void {
-		$this->read = $read;
+	public function begin_read(): void {
+		++$this->readers;
 
-		if ( ! $read ) {
+		if ( 1 !== $this->readers ) {
 			return;
 		}
 
@@ -392,6 +422,38 @@ class RequestExtensionRegistry {
 				$this->debug_member_not_registered( (string) $namespace_name, $name, __( 'its namespace is not registered', 'wp-graphql' ) );
 			}
 		}
+	}
+
+	/**
+	 * Marks a request that called begin_read() as finished with the registered namespaces.
+	 *
+	 * @internal
+	 *
+	 * @since x-release-please-version
+	 */
+	public function end_read(): void {
+		$this->readers = max( 0, $this->readers - 1 );
+	}
+
+	/**
+	 * Whether a header name is reserved (see RESERVED_HEADERS and RESERVED_HEADER_PREFIXES).
+	 *
+	 * @param string $header The header name.
+	 */
+	private function is_reserved_header( string $header ): bool {
+		$header = strtolower( $header );
+
+		if ( in_array( $header, array_map( 'strtolower', self::RESERVED_HEADERS ), true ) ) {
+			return true;
+		}
+
+		foreach ( self::RESERVED_HEADER_PREFIXES as $prefix ) {
+			if ( 0 === strpos( $header, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

@@ -65,6 +65,24 @@ This is useful when you want the preview context to travel inside the operation 
 - **Batch requests** (an array of operations in one HTTP request): `extensions.preview` is per-operation, while the preview overlay is request-level, so it is **not supported in a batch**. Send the `X-GraphQL-Preview` header instead; it applies to **every** operation in the batch. A per-operation `extensions.preview` inside a batch is ignored, with a debug notice under `GRAPHQL_DEBUG`.
 - **GET requests**: both transports work. With the query-string form of `extensions`, the preview parameters become part of the URL (and any access logs); the header keeps them out of the URL.
 
+### Previews from PHP
+
+The `X-GraphQL-Preview` header is only read from HTTP requests to the GraphQL endpoint. A query run from PHP with `graphql()` passes the preview context in its `extensions` instead:
+
+```php
+$result = graphql(
+	[
+		'query'      => 'query Post($id: ID!) { post(id: $id, idType: DATABASE_ID) { title content } }',
+		'variables'  => [ 'id' => 123 ],
+		'extensions' => [
+			'preview' => [ 'databaseId' => 123 ],
+		],
+	]
+);
+```
+
+A `graphql()` call never reads the header, even when it runs during an HTTP request that sent one, such as a resolver that runs a nested query. That keeps a query run from PHP from quietly becoming a preview because of whatever headers the surrounding request carried. The same authorization applies: the current user must be allowed to preview the post.
+
 ### Sending the preview context from clients and IDEs
 
 - **WPGraphQL IDE** (the standalone plugin): add the header in the Headers panel:
@@ -240,7 +258,15 @@ register_graphql_field(
 );
 ```
 
-Any other resolver can read the same values with `$context->get_request_extension( 'preview' )`, which returns the same array as `AppContext::$preview`.
+Any other resolver can read the same values with `$context->get_request_extension( 'preview' )`, which returns the same array as `AppContext::$preview`. Those are the values the client sent, checked for type and sanitized, and they're set whoever the viewer is. A `previewResolve` callback only runs for a viewer who is allowed to preview the post, but a resolver that reads the context directly has to check that itself:
+
+```php
+$preview = $context->get_request_extension( 'preview' );
+
+if ( null !== $preview && \WPGraphQL\Utils\Preview::viewer_can_preview( $preview['databaseId'] ) ) {
+	// Use $preview['translationLocale'].
+}
+```
 
 Preview is one of WPGraphQL's [request extension namespaces](/docs/request-extensions/), the one core registers, so `register_graphql_preview_context_member( $name, $config )` is shorthand for `register_graphql_request_extension_member( 'preview', $name, $config )`, and the member follows the same contract as any request extension member:
 
@@ -251,7 +277,7 @@ Preview is one of WPGraphQL's [request extension namespaces](/docs/request-exten
 
 Register members on `init` or earlier, or on the `graphql_register_request_extensions` action. A request reads the registered members before it builds the schema, so a member registered on `graphql_register_types`, or later, is not parsed for that request, and a `PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE` debug notice says so.
 
-Declaring a member grants no access by itself. As with core's own members, previewed values only apply to a viewer who is allowed to preview the post.
+Declaring a member grants no access by itself. Through `previewResolve`, as with core's own members, previewed values only apply to a viewer who is allowed to preview the post. Code that reads the context directly gets the client's values for any viewer, so it must check `Preview::viewer_can_preview()` itself, as shown above.
 
 ### The preview flow, end to end
 

@@ -106,6 +106,45 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 	}
 
+
+	/**
+	 * Runs a query the way the GraphQL endpoint does, as an HTTP GET request through
+	 * Request::execute_http(), so the request extension headers set in $_SERVER are read.
+	 * graphql() from PHP never reads them.
+	 *
+	 * @param array<string,mixed>     $request  The `query`, and optionally `variables` and `extensions`.
+	 * @param \WPGraphQL\Request|null $executed Set to the Request that ran.
+	 *
+	 * @return array<string,mixed> The GraphQL response.
+	 */
+	private function http_graphql( array $request, ?\WPGraphQL\Request &$executed = null ): array {
+		$server_method = $_SERVER['REQUEST_METHOD'] ?? null;
+		$get           = $_GET;
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET                      = [ 'query' => $request['query'] ];
+
+		foreach ( [ 'variables', 'extensions' ] as $key ) {
+			if ( isset( $request[ $key ] ) ) {
+				$_GET[ $key ] = wp_json_encode( $request[ $key ] );
+			}
+		}
+
+		try {
+			$executed = new \WPGraphQL\Request();
+			$response = $executed->execute_http();
+		} finally {
+			if ( null === $server_method ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $server_method;
+			}
+			$_GET = $get;
+		}
+
+		return is_array( $response ) ? $response : $response->toArray();
+	}
+
 	/**
 	 * Extensions can register their own preview context members, which arrive on
 	 * AppContext::$preview from both transports, type-checked and sanitized.
@@ -179,7 +218,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, translation_locale="de_DE", translation_ids=(5 6), draft_notes', $this->post );
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'     => $query,
 					'variables' => [ 'id' => $this->post ],
@@ -205,7 +244,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d, translation_locale=de_DE, translation_ids=(5 "6"), draft_notes=1', $this->post );
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'     => $query,
 					'variables' => [ 'id' => $this->post ],
@@ -227,7 +266,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$debug_types = wp_list_pluck( $actual['extensions']['debug'] ?? [], 'type' );
 		$this->assertContains( 'PREVIEW_CONTEXT_MEMBER_INVALID', $debug_types, 'A member of the wrong type must surface a debug notice' );
 
-		$actual = $this->graphql(
+		$actual = $this->http_graphql(
 			[
 				'query'      => $query,
 				'variables'  => [ 'id' => $this->post ],
@@ -1824,7 +1863,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content featuredImageDatabaseId } }',
 					'variables' => [ 'id' => $this->post ],
@@ -1857,7 +1896,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { databaseId content } }',
 					'variables' => [ 'id' => $this->post ],
@@ -1886,7 +1925,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=99999999,';
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
 					'variables'  => [ 'id' => $this->post ],
@@ -1917,7 +1956,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'post_id=' . $this->post;
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
 					'variables'  => [ 'id' => $this->post ],
@@ -1947,7 +1986,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = 'database_id=' . $this->post;
 
 		try {
-			$actual = $this->graphql(
+			$actual = $this->http_graphql(
 				[
 					'query'      => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
 					'variables'  => [ 'id' => $this->post ],
@@ -2687,7 +2726,8 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$request['extensions'] = [ 'preview' => $preview ];
 		}
 
-		$actual = $this->graphql( $request );
+		// Over HTTP, so the header transport can be checked too.
+		$actual = $this->http_graphql( $request );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 

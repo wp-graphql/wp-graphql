@@ -299,19 +299,13 @@ class Router {
 	 * @return array<string,string>
 	 */
 	protected static function get_response_headers() {
-		$request_extensions = \WPGraphQL::get_request_extension_registry()->get_extensions();
+		$request_extension_registry = \WPGraphQL::get_request_extension_registry();
+		$request_extension_headers  = $request_extension_registry->get_headers();
 
-		// Allows cross-origin clients to send request-level preview context via the
-		// `X-GraphQL-Preview` header, the primary preview transport (`extensions.preview`
-		// in the request body is the fallback), and the header of every other registered
-		// request extension namespace. See WPGraphQL\Request::set_request_extensions().
-		$default_allow_headers = [ 'Authorization', 'Content-Type', 'X-GraphQL-Preview' ];
-
-		foreach ( $request_extensions as $request_extension ) {
-			if ( null !== $request_extension['header'] && ! in_array( strtolower( $request_extension['header'] ), array_map( 'strtolower', $default_allow_headers ), true ) ) {
-				$default_allow_headers[] = $request_extension['header'];
-			}
-		}
+		// Allows cross-origin clients to send the header of every registered request
+		// extension namespace, such as `X-GraphQL-Preview` for the preview context.
+		// See WPGraphQL\Request::set_request_extensions().
+		$default_allow_headers = array_merge( [ 'Authorization', 'Content-Type' ], $request_extension_headers );
 
 		/**
 		 * Filtered list of access control headers.
@@ -381,11 +375,11 @@ class Router {
 		 * vice versa. Sent unconditionally so caches learn the axis before ever storing
 		 * a response.
 		 */
-		$vary = isset( $headers['Vary'] ) && '' !== $headers['Vary'] ? array_map( 'trim', explode( ',', $headers['Vary'] ) ) : [];
+		$vary = isset( $headers['Vary'] ) ? array_values( array_filter( array_map( 'trim', explode( ',', $headers['Vary'] ) ), static fn ( string $value ): bool => '' !== $value ) ) : [];
 
-		foreach ( $request_extensions as $request_extension ) {
-			if ( null !== $request_extension['header'] && ! in_array( strtolower( $request_extension['header'] ), array_map( 'strtolower', $vary ), true ) ) {
-				$vary[] = $request_extension['header'];
+		foreach ( $request_extension_headers as $request_extension_header ) {
+			if ( ! in_array( strtolower( $request_extension_header ), array_map( 'strtolower', $vary ), true ) ) {
+				$vary[] = $request_extension_header;
 			}
 		}
 
@@ -397,12 +391,14 @@ class Router {
 		 * password, say) may expose content meant only for that client, so no cache may
 		 * store the response at all. This is deliberately stronger than the authenticated
 		 * no-cache headers above: `no-cache` only requires revalidation before reuse,
-		 * while `no-store` forbids storage.
+		 * while `no-store` forbids storage. Core registers `preview` as a `no-store`
+		 * namespace, so the loop below covers it too, but AppContext::$preview is public
+		 * and may be set by code other than the registry, so it is checked on its own as well.
 		 */
 		$no_store = $request instanceof Request && is_array( $request->app_context->preview );
 
 		if ( ! $no_store && $request instanceof Request ) {
-			foreach ( $request_extensions as $name => $request_extension ) {
+			foreach ( $request_extension_registry->get_extensions() as $name => $request_extension ) {
 				if ( 'no-store' === $request_extension['cache'] && null !== $request->app_context->get_request_extension( $name ) ) {
 					$no_store = true;
 					break;

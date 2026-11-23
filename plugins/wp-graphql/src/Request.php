@@ -127,6 +127,23 @@ class Request {
 	protected $authentication_error = null;
 
 	/**
+	 * Whether the request came in over HTTP (execute_http()), as opposed to a call to
+	 * graphql() from PHP. Only an HTTP request reads the headers of the registered request
+	 * extension namespaces; a call from PHP passes them in its `extensions` instead.
+	 *
+	 * @var bool
+	 */
+	private $is_http_request = false;
+
+	/**
+	 * Whether this request has marked the request extension registry as read and still
+	 * has to release it (see release_request_extensions()).
+	 *
+	 * @var bool
+	 */
+	private $holds_request_extension_read = false;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array<string,mixed> $data The request data (for Non-HTTP requests).
@@ -383,17 +400,23 @@ class Request {
 	 *
 	 * Each namespace registered in the RequestExtensionRegistry (core's `preview`, and any
 	 * registered with register_graphql_request_extension()) is read from its header, when it
-	 * declares one and the request sends it, or else from its object in the request
-	 * `extensions`. A namespace the request carries lands on AppContext::$request_extensions
-	 * under its name (see AppContext::get_request_extension()), with every registered member
-	 * present (null when absent or invalid). The preview context is set on
+	 * declares one and the request came in over HTTP and sends it, or else from its object
+	 * in the request `extensions`. A call to graphql() from PHP never reads the headers, even
+	 * when it runs during an HTTP request that sent them: it passes its request extensions
+	 * in its own `extensions`. A namespace the request carries lands on
+	 * AppContext::$request_extensions under its name (see AppContext::get_request_extension()),
+	 * with every registered member present (null when absent or invalid). The preview context is set on
 	 * AppContext::$preview from the same parsed values (see get_preview_context()).
 	 */
 	private function set_request_extensions(): void {
 		$registry = \WPGraphQL::get_request_extension_registry();
 
-		// Registered namespaces and members are read from here on; one registered later is reported as too late.
-		$registry->set_read( true );
+		// Registered namespaces and members are read from here on; one registered later is
+		// reported as too late. Released by release_request_extensions(), even if execution throws.
+		if ( ! $this->holds_request_extension_read ) {
+			$registry->begin_read();
+			$this->holds_request_extension_read = true;
+		}
 
 		$this->app_context->request_extensions = [];
 		$this->app_context->preview            = null;
@@ -487,7 +510,7 @@ class Request {
 	/**
 	 * Returns the parsed and sanitized members of a registered namespace for the request.
 	 *
-	 * The namespace's header, when it declares one and the request sends a usable value,
+	 * The namespace's header, when it declares one and an HTTP request sends a usable value,
 	 * takes precedence over its object in the request `extensions`. Only registered members
 	 * are kept: keys no member registered are dropped, since nothing validated or sanitized
 	 * them. Each value must match the member's declared type, with no coercion, and the
@@ -505,7 +528,9 @@ class Request {
 			return null;
 		}
 
-		$input = null !== $extension['header'] ? $this->get_request_extension_header_input( $extension ) : null;
+		// Only an HTTP request reads headers: a call to graphql() from PHP would otherwise
+		// pick up whatever headers the surrounding HTTP request happened to send.
+		$input = $this->is_http_request && null !== $extension['header'] ? $this->get_request_extension_header_input( $extension ) : null;
 
 		if ( null === $input ) {
 			$input = $this->get_request_extension_body_input( $extension );
@@ -568,9 +593,10 @@ class Request {
 		if ( null === $dictionary ) {
 			graphql_debug(
 				sprintf(
-					/* translators: 1: the header name, 2: the request extension namespace */
-					__( 'The `%1$s` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.%2$s` fallback applies if present.', 'wp-graphql' ),
+					/* translators: 1: the header name, 2: an example of the namespace's header keys, 3: the request extension namespace */
+					__( 'The `%1$s` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase%2$s). The `extensions.%3$s` fallback applies if present.', 'wp-graphql' ),
 					$header,
+					$this->get_request_extension_header_key_example( $extension ),
 					$extension['namespace']
 				),
 				[ 'type' => $extension['debug_prefix'] . '_MALFORMED' ]
@@ -617,6 +643,45 @@ class Request {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Returns an example of a namespace's header keys for the malformed-header notice, built
+	 * from its first member whose header key differs from its camelCase name, such as
+	 * `, e.g. `database_id`, not `databaseId``. Empty when no member's key differs.
+	 *
+	 * @param array<string,mixed> $extension The registered namespace.
+	 *
+	 * @phpstan-param RequestExtension $extension
+	 */
+	private function get_request_extension_header_key_example( array $extension ): string {
+		foreach ( $extension['members'] as $name => $member ) {
+			if ( $member['header_key'] !== $name ) {
+				return sprintf(
+					/* translators: 1: a header key, 2: the camelCase member name it stands for */
+					__( ', e.g. `%1$s`, not `%2$s`', 'wp-graphql' ),
+					$member['header_key'],
+					$name
+				);
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Releases the request extension registry this request marked as read, so a namespace
+	 * or member registered from now on is in time for the next request. Runs when the
+	 * request finishes, including when execution throws, so the registry is never left
+	 * marked as read.
+	 */
+	private function release_request_extensions(): void {
+		if ( ! $this->holds_request_extension_read ) {
+			return;
+		}
+
+		$this->holds_request_extension_read = false;
+		\WPGraphQL::get_request_extension_registry()->end_read();
 	}
 
 	/**
@@ -796,7 +861,15 @@ class Request {
 	 * @phpstan-param RequestExtensionMember $member
 	 */
 	private function get_request_extension_member_type_label( array $member ): string {
-		return 'inner-list' === $member['types'][0] ? 'inner-list of ' . $member['items'] : implode( '` or `', $member['types'] );
+		if ( 'inner-list' === $member['types'][0] ) {
+			return sprintf(
+				/* translators: %s: the type of the list's items, e.g. `integer` */
+				__( 'inner-list of %s', 'wp-graphql' ),
+				(string) $member['items']
+			);
+		}
+
+		return implode( '` or `', $member['types'] );
 	}
 
 	/**
@@ -853,9 +926,6 @@ class Request {
 	 * @return T
 	 */
 	private function after_execute( $response ) {
-		// The request is done with its request extensions, so registering one is in time for the next request.
-		\WPGraphQL::get_request_extension_registry()->set_read( false );
-
 		/**
 		 * Authentication check has been moved to before_execute() as of 2.6.0.
 		 * This ensures auth is validated BEFORE query execution, not after.
@@ -1081,6 +1151,21 @@ class Request {
 			throw new \Exception( 'Invalid request params.' );
 		}
 
+		try {
+			return $this->execute_operation();
+		} finally {
+			$this->release_request_extensions();
+		}
+	}
+
+	/**
+	 * Executes a single operation of a request made from PHP (see execute()).
+	 *
+	 * @return mixed[]
+	 * @phpstan-return SerializableResult|mixed[]
+	 * @throws \Exception
+	 */
+	private function execute_operation() {
 		/**
 		 * Initialize the GraphQL Request
 		 */
@@ -1188,6 +1273,22 @@ class Request {
 			return $this->get_invalid_content_type_response();
 		}
 
+		$this->is_http_request = true;
+
+		try {
+			return $this->execute_http_request();
+		} finally {
+			$this->release_request_extensions();
+		}
+	}
+
+	/**
+	 * Parses and executes an HTTP request (see execute_http()).
+	 *
+	 * @return SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
+	 * @throws \Exception
+	 */
+	private function execute_http_request() {
 		/**
 		 * Parse HTTP request.
 		 */

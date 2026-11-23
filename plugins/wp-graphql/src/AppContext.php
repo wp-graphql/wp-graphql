@@ -93,6 +93,11 @@ class AppContext {
 	 * (?int), `postFormat` (?string) and `nonce` (?string); members registered with
 	 * register_graphql_preview_context_member() are added under their camelCase names.
 	 *
+	 * These are the values the client sent, checked only for type and sanitized: they are
+	 * set whether or not the viewer may preview the post. A field's `previewResolve`
+	 * callback only runs for a viewer who may; code that reads this property directly must
+	 * check \WPGraphQL\Utils\Preview::viewer_can_preview( $preview['databaseId'] ) itself.
+	 *
 	 * @var array<string,mixed>|null
 	 */
 	public $preview = null;
@@ -103,7 +108,9 @@ class AppContext {
 	 * array as $preview), parsed from its header or its object in the request `extensions`.
 	 * Every registered member is present, null when absent or invalid.
 	 *
-	 * Read it with get_request_extension().
+	 * The values are what the client sent, checked for type and sanitized, and grant
+	 * nothing by themselves: the code that reads them decides what they unlock, and for
+	 * whom. Read it with get_request_extension().
 	 *
 	 * @var array<string,array<string,mixed>>
 	 *
@@ -455,6 +462,10 @@ class AppContext {
 	 * $post_password = $context->get_request_extension( 'postPassword' );
 	 * $password      = $post_password['password'] ?? null;
 	 * ```
+	 *
+	 * The values are what the client sent, checked for type and sanitized, and are not
+	 * authorized: for `preview`, check \WPGraphQL\Utils\Preview::viewer_can_preview()
+	 * before using them, as `previewResolve` does.
 	 *
 	 * @param string $name The namespace, e.g. `preview`.
 	 *

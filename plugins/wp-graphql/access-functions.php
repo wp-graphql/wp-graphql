@@ -1234,8 +1234,9 @@ function register_graphql_preview_context_member( string $name, array $config ):
  *
  * A client sends the namespace either as a JSON object in the request `extensions` (keyed by
  * the camelCase member names) or, when the namespace declares a `header`, as that header with
- * an RFC 8941 dictionary value (keyed by the snake_case header keys). The header takes
- * precedence; a header that fails to parse, or carries none of the namespace's keys, is
+ * an RFC 8941 dictionary value (keyed by the snake_case header keys). Headers are only read
+ * from HTTP requests: a call to graphql() from PHP passes the namespace in its `extensions`.
+ * The header takes precedence; a header that fails to parse, or carries none of the namespace's keys, is
  * ignored with a debug notice and the `extensions` object applies. In a batch request only
  * the header applies (to every operation); per-operation `extensions` objects are ignored
  * with a debug notice.
@@ -1251,8 +1252,9 @@ function register_graphql_preview_context_member( string $name, array $config ):
  * secret or viewer-specific, such as a password.
  *
  * Core's namespaces (`preview`) are reserved, and when two extensions register the same
- * namespace or header the first registration wins; refused registrations surface a debug
- * notice saying why. Register namespaces on the `graphql_register_request_extensions` action,
+ * namespace or header the first registration wins. Headers that WordPress, browsers or
+ * proxies already use (such as `Authorization`, `Cookie`, `Origin` or `X-WP-Nonce`) are
+ * reserved too. Refused registrations surface a debug notice saying why. Register namespaces on the `graphql_register_request_extensions` action,
  * or on `init` or earlier.
  *
  * @param string              $name   The camelCase namespace, e.g. `postPassword`.
@@ -1297,7 +1299,9 @@ function register_graphql_request_extension( string $name, array $config ): void
  *
  * Core's members are reserved, and when two registrations use the same name or header key
  * within a namespace the first wins; refused registrations surface a debug notice. A member
- * may be registered before its namespace: it is added when the namespace is registered.
+ * may be registered before its namespace: it is added when the namespace is registered,
+ * after the namespace's own `members`, so one of those with the same name or header key
+ * wins over it.
  *
  * @param string              $extension_name The namespace the member belongs to, e.g. `postPassword`.
  * @param string              $name           The camelCase member name, e.g. `password`.

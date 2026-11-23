@@ -70,7 +70,7 @@ if ( null !== $post_password && $post_password['postId'] === $post->databaseId )
 
 The namespace config:
 
-- **`header`** (optional) is the name of the HTTP header that carries the namespace, made of letters, digits and hyphens. Without one, the namespace is only read from the request `extensions`. A namespace can't use a header another namespace already uses, or `Authorization` or `Content-Type`.
+- **`header`** (optional) is the name of the HTTP header that carries the namespace, made of letters, digits and hyphens. Without one, the namespace is only read from the request `extensions`. A namespace can't use a header another namespace already uses, or one that WordPress, browsers or proxies already use for something else: `Accept`, `Authorization`, `Cache-Control`, `Connection`, `Content-Length`, `Content-Type`, `Cookie`, `Forwarded`, `Host`, `If-Modified-Since`, `If-None-Match`, `Origin`, `Pragma`, `Referer`, `User-Agent`, `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto` and `X-WP-Nonce`, or any header starting with `Access-Control-`, `Proxy-` or `Sec-`.
 - **`cache`** (optional) is `vary` (the default) or `no-store`. Either way, the header is added to the response's `Vary` header, so caches keep requests with and without it apart. With `no-store`, a response to a request that carries the namespace is also sent with `Cache-Control: no-store, private`, so no cache stores it at all. Use `no-store` for anything secret or specific to one client, like a password: the unlocked response must not be cached and served to someone else.
 - **`members`** are the values the namespace carries, keyed by camelCase name. They can also be registered separately (see below).
 - **`description`** (optional) says what the namespace is for.
@@ -101,12 +101,25 @@ register_graphql_request_extension_member(
 );
 ```
 
-A member can be registered before its namespace is; it's added when the namespace registers. If the namespace is never registered, a debug notice says so. For `preview`, `register_graphql_preview_context_member()` is the same as passing `'preview'` here; see [Adding your own preview context members](/docs/previews/#adding-your-own-preview-context-members).
+A member can be registered before its namespace is; it's added when the namespace registers, after the namespace's own `members`. So if it has the same name or header key as one of them, the namespace's own member is kept, since whoever registers a namespace defines its shape, and a debug notice says the other was refused. If the namespace is never registered, a debug notice says so. For `preview`, `register_graphql_preview_context_member()` is the same as passing `'preview'` here; see [Adding your own preview context members](/docs/previews/#adding-your-own-preview-context-members).
 
 ## How a request is read
 
 - **The header wins.** When the namespace has a header and the request sends it, its value is parsed as an [RFC 8941 Structured Field](https://www.rfc-editor.org/rfc/rfc8941) dictionary, and the request `extensions` object is ignored. The header is parsed as sent, and each value is then passed to its member's sanitizer.
 - **A header that can't be used falls back.** As the RFC requires, a header that fails to parse (a trailing comma, or a camelCase key) is discarded in its entirety. A header that parses but carries none of the namespace's keys, or none of the right type, is ignored too. In both cases the `extensions` object applies, and a debug notice says why the header was ignored.
+- **Headers are read from HTTP requests only.** A query run from PHP with `graphql()` passes its request extensions in `extensions`, and never reads headers, even when it runs during an HTTP request that sent them (a resolver running a nested query, say). Otherwise a query run from PHP would quietly pick up whatever the surrounding request carried:
+
+  ```php
+  graphql(
+  	[
+  		'query'      => '{ post(id: 123, idType: DATABASE_ID) { title content } }',
+  		'extensions' => [
+  			'postPassword' => [ 'postId' => 123, 'password' => 'correct horse' ],
+  		],
+  	]
+  );
+  ```
+
 - **Batch requests use the header only.** An `extensions` object belongs to one operation, while a request extension applies to the whole request, so in a batch the header applies to every operation and a per-operation `extensions` object is ignored, with a debug notice.
 - **GET requests** work with both transports. With the query-string form of `extensions`, the values become part of the URL (and any access logs); a header keeps them out of the URL.
 
@@ -116,7 +129,7 @@ With `GRAPHQL_DEBUG` enabled, each of these cases adds a debug notice to the res
 
 - **Register on the `graphql_register_request_extensions` action, or on `init` or earlier.** The action fires the first time a request reads the registry, and receives the `RequestExtensionRegistry`. The registration functions can be called before it fires: they wait for it. A request reads the registry before it builds the schema, so a namespace or member registered on `graphql_register_types`, or later, isn't read for that request, and a debug notice says so.
 - **Core's namespaces and members are reserved.** `preview` can't be registered again, so its header and its `no-store` rule can't change, and its members (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`, and their header keys) can't be registered or replaced.
-- **The first registration wins.** If two extensions register the same namespace, header, member name or header key, the second registration is refused, so the outcome never depends on plugin load order.
+- **The first registration wins.** If two extensions register the same namespace, header, member name or header key, the second registration is refused, so the outcome never depends on plugin load order. The one exception is a member registered for a namespace before the namespace itself: the namespace's own `members` are registered first, so they win over it.
 - **Every refusal says why**, in a debug notice (with `GRAPHQL_DEBUG` enabled): `REQUEST_EXTENSION_NOT_REGISTERED` for a namespace, `REQUEST_EXTENSION_MEMBER_NOT_REGISTERED` for a member, and `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` for a member of `preview`.
 
 Registering a namespace or a member grants no access by itself. It only gets the client's values to your resolvers: deciding what they unlock, and for whom, is up to the code that reads them.
