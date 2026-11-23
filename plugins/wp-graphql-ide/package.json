@@ -84,7 +84,7 @@
 		"graphql-ws": "^6.4.1",
 		"lz-string": "^1.5.0",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
+		"react-dom": "^19.3.1",
 		"vaul": "^1.1.2"
 	},
 	"devDependencies": {
