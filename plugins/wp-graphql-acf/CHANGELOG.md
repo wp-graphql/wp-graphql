@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.3.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.1...wp-graphql-acf/v3.3.0) (2026-11-20)
+
+
+### New Features
+
+* **acf:** add a graphql_capability setting for field groups, fields and options pages ([#4650](https://github.com/wp-graphql/wp-graphql/issues/4650)) ([9788036](https://github.com/wp-graphql/wp-graphql/commit/97880360d3aa9cf7e011042a6e5e0d2268702f8b))
+* leave the admin email and an administrator's name out of the usage data copy sent to telemetry.wpgraphql.com ([#4707](https://github.com/wp-graphql/wp-graphql/issues/4707)) ([154dade](https://github.com/wp-graphql/wp-graphql/commit/154dadedcdcdb1998bd00a3cbab353f4f500d944))
+
+
+### Bug Fixes
+
+* **acf:** link unsupported field type message to the field type guide ([#4700](https://github.com/wp-graphql/wp-graphql/issues/4700)) ([f4a8094](https://github.com/wp-graphql/wp-graphql/commit/f4a809465f1136b98f39d3131fae82c4afa30413))
+* **acf:** skip attaching field group interface to types where field name collides ([#4709](https://github.com/wp-graphql/wp-graphql/issues/4709)) ([10ea4bb](https://github.com/wp-graphql/wp-graphql/commit/10ea4bb98473d887598c11b2340351e43e827e8c))
+* **acf:** skip the field group lookup for fields nested in another field ([#4736](https://github.com/wp-graphql/wp-graphql/issues/4736)) ([788777b](https://github.com/wp-graphql/wp-graphql/commit/788777bcf13bc7e5f258ec62edad917f56e41d51))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.25.0 to 2.26.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4682](https://github.com/wp-graphql/wp-graphql/issues/4682)) ([1895da7](https://github.com/wp-graphql/wp-graphql/commit/1895da72dbb04ae99e0beb4b343760fc5cd3c524))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.26.0 to 2.26.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4721](https://github.com/wp-graphql/wp-graphql/issues/4721)) ([a6bf1e1](https://github.com/wp-graphql/wp-graphql/commit/a6bf1e1763ad3d0390cde5303cdbad13659a0250))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4714](https://github.com/wp-graphql/wp-graphql/issues/4714)) ([de15e14](https://github.com/wp-graphql/wp-graphql/commit/de15e141b5c05737cfd981f19e06b07801e1640e))
+
 ## [3.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.0...wp-graphql-acf/v3.2.1) (2026-11-10)
 
 

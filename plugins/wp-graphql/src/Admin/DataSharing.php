@@ -16,7 +16,7 @@ namespace WPGraphQL\Admin;
  *
  * @package WPGraphQL\Admin
  *
- * @since x-release-please-version
+ * @since 2.29.0
  */
 final class DataSharing {
 
@@ -205,6 +205,6 @@ final class DataSharing {
 	 * @param string $message The reason.
 	 */
 	private static function doing_it_wrong( string $message ): void {
-		_doing_it_wrong( 'register_graphql_data_sharing_plugin', esc_html( $message ), 'x-release-please-version' );
+		_doing_it_wrong( 'register_graphql_data_sharing_plugin', esc_html( $message ), '2.29.0' );
 	}
 }

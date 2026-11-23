@@ -74,7 +74,7 @@ class UsageTracking {
 	 * @param string            $slug         The Appsero client slug.
 	 * @param string            $section      The settings section to add the toggle to.
 	 * @param string            $product_name The product name shown in the toggle's description, or as its label on the Data Sharing tab.
-	 * @param string            $field_name   The name of the toggle's field within the section. Since x-release-please-version.
+	 * @param string            $field_name   The name of the toggle's field within the section. Since 2.29.0.
 	 *
 	 * @since 2.26.0
 	 */
@@ -89,7 +89,7 @@ class UsageTracking {
 	/**
 	 * The name of the toggle's field within the settings section.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.29.0
 	 */
 	public function get_field_name(): string {
 		return $this->field_name;
@@ -173,7 +173,7 @@ class UsageTracking {
 	/**
 	 * Whether the site hasn't chosen yet: it hasn't opted in, and hasn't declined or dismissed the opt-in notice.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.29.0
 	 */
 	public function is_undecided(): bool {
 		return ! $this->is_tracking_allowed() && 'hide' !== get_option( $this->slug . '_tracking_notice' );
@@ -182,7 +182,7 @@ class UsageTracking {
 	/**
 	 * Opt the site in, as the opt-in notice's Allow button does. The caller checks `manage_options`.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.29.0
 	 */
 	public function opt_in(): void {
 		if ( ! $this->is_tracking_allowed() ) {
@@ -193,7 +193,7 @@ class UsageTracking {
 	/**
 	 * Decline, as the opt-in notice's No thanks button does: the site isn't opted in, and isn't asked again.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.29.0
 	 */
 	public function opt_out(): void {
 		$this->insights->optout();

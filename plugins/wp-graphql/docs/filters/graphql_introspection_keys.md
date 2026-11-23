@@ -28,7 +28,7 @@ Filter the keys that are prepared for introspection.
 
 ## Source
 
-- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:931`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L931)
+- [`plugins/wp-graphql/src/Registry/TypeRegistry.php:940`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L940)
 
 ```php
 apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
@@ -36,4 +36,4 @@ apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason
 
 ## Related
 
-- `TypeRegistry::get_introspection_keys()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:931`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L931)
+- `TypeRegistry::get_introspection_keys()` in [`plugins/wp-graphql/src/Registry/TypeRegistry.php:940`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Registry/TypeRegistry.php#L940)

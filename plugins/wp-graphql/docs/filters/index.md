@@ -724,6 +724,10 @@ Filters let your code modify a value as it passes through WPGraphQL — the sche
 
   Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 
+- [`graphql_email_updates_endpoint`](/filters/graphql_email_updates_endpoint)
+
+  Filters the URL of the telemetry service endpoint that email update confirmation requests are sent to.
+
 - [`graphql_enable_graphiql`](/filters/graphql_enable_graphiql)
 
   Filters whether the embedded GraphiQL IDE should be enabled.

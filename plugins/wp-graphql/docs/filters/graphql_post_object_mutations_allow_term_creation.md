@@ -29,7 +29,7 @@ Filter whether to allow terms to be created during a post mutation. If a post mu
 
 ## Source
 
-- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:294`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L294)
+- [`plugins/wp-graphql/src/Data/PostObjectMutation.php:298`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L298)
 
 ```php
 apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
@@ -37,4 +37,4 @@ apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_o
 
 ## Related
 
-- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:294`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L294)
+- `PostObjectMutation::set_object_terms()` in [`plugins/wp-graphql/src/Data/PostObjectMutation.php:298`](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Data/PostObjectMutation.php#L298)

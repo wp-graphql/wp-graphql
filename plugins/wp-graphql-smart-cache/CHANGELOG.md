@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.5.0...wp-graphql-smart-cache/v2.6.0) (2026-11-20)
+
+
+### New Features
+
+* **smart-cache:** add a setting for automatically saved queries with literal argument values ([#4723](https://github.com/wp-graphql/wp-graphql/issues/4723)) ([10f0cbd](https://github.com/wp-graphql/wp-graphql/commit/10f0cbd28f3fbf6cc999b2635fc7f375b4003b82))
+
 ## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.4.1...wp-graphql-smart-cache/v2.5.0) (2026-11-19)
 
 

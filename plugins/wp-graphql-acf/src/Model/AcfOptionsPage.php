@@ -42,7 +42,7 @@ class AcfOptionsPage extends Model {
 	 *
 	 * @return bool
 	 *
-	 * @since x-release-please-version
+	 * @since 3.3.0
 	 */
 	protected function is_private() {
 		return ! AccessControl::can_resolve_options_page( $this->data );

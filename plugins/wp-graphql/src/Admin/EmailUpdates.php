@@ -22,7 +22,7 @@ namespace WPGraphQL\Admin;
  *
  * @package WPGraphQL\Admin
  *
- * @since x-release-please-version
+ * @since 2.29.0
  */
 final class EmailUpdates {
 
@@ -147,7 +147,7 @@ final class EmailUpdates {
 		 * @param string[] $hashes   The telemetry client hashes of the plugins in the request, in the order the confirmation email lists them.
 		 *
 		 * @hookGroup settings
-		 * @since x-release-please-version
+		 * @since 2.29.0
 		 */
 		$endpoint = apply_filters( 'graphql_email_updates_endpoint', self::ENDPOINT, $hashes );
 
