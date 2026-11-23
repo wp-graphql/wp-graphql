@@ -83,6 +83,24 @@ $result = graphql(
 
 A `graphql()` call never reads the header, even when it runs during an HTTP request that sent one, such as a resolver that runs a nested query. That keeps a query run from PHP from quietly becoming a preview because of whatever headers the surrounding request carried. The same authorization applies: the current user must be allowed to preview the post.
 
+If a resolver runs a nested query that should be previewed along with the request it runs in, pass the request's preview context on:
+
+```php
+'resolve' => static function ( $source, array $args, \WPGraphQL\AppContext $context ) {
+	$result = graphql(
+		[
+			'query'      => '...',
+			'extensions' => [ 'preview' => $context->get_request_extension( 'preview' ) ],
+		]
+	);
+	// ...
+},
+```
+
+When the request carries no preview context, `get_request_extension( 'preview' )` returns `null` and the nested query isn't previewed.
+
+The same goes for tests: a test that sets `$_SERVER['HTTP_X_GRAPHQL_PREVIEW']` and then calls `graphql()` no longer gets a preview. Pass the context in `extensions` instead.
+
 ### Sending the preview context from clients and IDEs
 
 - **WPGraphQL IDE** (the standalone plugin): add the header in the Headers panel:

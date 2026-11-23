@@ -120,6 +120,8 @@ A member can be registered before its namespace is; it's added when the namespac
   );
   ```
 
+  To give a nested query the same values as the request it runs in, pass them on: `'extensions' => [ 'postPassword' => $context->get_request_extension( 'postPassword' ) ]`. The values are checked against the members again, so this works as long as each member's sanitizer returns a value of the member's declared type.
+
 - **Batch requests use the header only.** An `extensions` object belongs to one operation, while a request extension applies to the whole request, so in a batch the header applies to every operation and a per-operation `extensions` object is ignored, with a debug notice.
 - **GET requests** work with both transports. With the query-string form of `extensions`, the values become part of the URL (and any access logs); a header keeps them out of the URL.
 

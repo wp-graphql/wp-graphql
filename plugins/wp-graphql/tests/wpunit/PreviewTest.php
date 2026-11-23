@@ -1845,6 +1845,59 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * A graphql() call from PHP doesn't read the preview header of the HTTP request it runs
+	 * during, so a nested query isn't previewed unless the resolver passes the request's
+	 * preview context on in `extensions`.
+	 */
+	public function testNestedGraphqlCallIsPreviewedOnlyWhenTheContextIsPassedOn() {
+		add_action(
+			'graphql_register_types',
+			function () {
+				register_graphql_field(
+					'RootQuery',
+					'nestedPostContent',
+					[
+						'type'    => 'String',
+						'args'    => [
+							'passContextOn' => [ 'type' => 'Boolean' ],
+						],
+						'resolve' => function ( $root, array $args, \WPGraphQL\AppContext $context ) {
+							$request = [
+								'query'     => 'query( $id: ID! ) { post( id: $id, idType: DATABASE_ID ) { content } }',
+								'variables' => [ 'id' => $this->post ],
+							];
+
+							if ( ! empty( $args['passContextOn'] ) ) {
+								$request['extensions'] = [ 'preview' => $context->get_request_extension( 'preview' ) ];
+							}
+
+							return graphql( $request )['data']['post']['content'] ?? null;
+						},
+					]
+				);
+			}
+		);
+		\WPGraphQL::clear_schema();
+
+		wp_set_current_user( $this->admin );
+		$_SERVER['HTTP_X_GRAPHQL_PREVIEW'] = sprintf( 'database_id=%d', $this->post );
+
+		try {
+			$actual = $this->http_graphql(
+				[
+					'query' => '{ inherited: nestedPostContent passedOn: nestedPostContent( passContextOn: true ) }',
+				]
+			);
+		} finally {
+			unset( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringNotContainsString( 'Preview Content', $actual['data']['inherited'], 'The nested query does not read the outer request\'s header' );
+		$this->assertStringContainsString( 'Preview Content', $actual['data']['passedOn'], 'Passing the preview context on previews the nested query' );
+	}
+
+	/**
 	 * The preview context is supplied via the `X-GraphQL-Preview` header as an RFC 8941
 	 * structured-field dictionary (the primary transport). This exercises multi-member
 	 * parsing (an integer and a string member) and both the content overlay and the
