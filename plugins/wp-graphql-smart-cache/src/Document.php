@@ -115,7 +115,8 @@ class Document {
 	public function init() {
 		add_filter( 'graphql_request_data', [ $this, 'graphql_query_contains_query_id_cb' ], 10, 2 );
 		add_filter( 'graphql_execute_query_params', [ $this, 'graphql_execute_query_params_cb' ], 10, 2 );
-		add_action( 'graphql_return_response', [ $this, 'persist_pending_document_cb' ], 10, 8 );
+		// Refresh save failures before other response filters can format or redact the result.
+		add_filter( 'graphql_request_results', [ $this, 'persist_pending_document_cb' ], PHP_INT_MIN, 7 );
 
 		add_action( 'post_updated', [ $this, 'after_updated_cb' ], 10, 3 );
 
@@ -376,8 +377,8 @@ class Document {
 	 *
 	 * The queryId must be the hash of the query it accompanies. A matching pair is
 	 * buffered and served to the persisted query loader for this request; it is
-	 * written to the database by persist_pending_document_cb() only after the
-	 * request passed validation. Alias names are never claimed on this path.
+	 * written to the database by persist_pending_document_cb() on graphql_request_results
+	 * only after the request passed validation. Alias names are never claimed on this path.
 	 *
 	 * @param  array $parsed_body_params Request parameters.
 	 * @param  array $request_context An array containing both body and query params.
@@ -452,8 +453,8 @@ class Document {
 	 * allowed to save while it runs, for example by logging a user in, and
 	 * persist_pending_document_cb() uses them to refuse the save under Reject.
 	 *
-	 * The warning is added here rather than after the save because the debug log is
-	 * already in the response by the time persist_pending_document_cb() runs.
+	 * Warn before execution so the message is included even when validation later
+	 * prevents the save. Save failures refresh the response's debug log separately.
 	 *
 	 * @param \GraphQL\Language\AST\DocumentNode $ast      The parsed query.
 	 * @param string                             $query_id The queryId sent with it.
@@ -621,25 +622,27 @@ class Document {
 	 * Persist a document buffered by graphql_query_contains_query_id_cb() once the
 	 * request that carried it has executed, and only when it passed validation.
 	 *
-	 * A response without a `data` member means graphql-php stopped at parsing or
-	 * validation (including the allow/deny document rule), so nothing is stored.
-	 * Resolver-level errors leave `data` in place and do not block persistence:
-	 * the document is bound to its hash, so storing it grants nothing.
+	 * Parsing or validation failures (including the allow/deny document rule) leave
+	 * no `data` member, so nothing is stored. Responses with accessible `data` can
+	 * still be persisted when resolvers report errors: the document is bound to its
+	 * hash, so storing it grants nothing.
 	 *
-	 * @param mixed                            $filtered_response The filtered response for the GraphQL request.
-	 * @param mixed                            $response          The response for the GraphQL request.
-	 * @param \WPGraphQL\WPSchema              $schema            The schema object for the root request.
-	 * @param ?string                          $operation         The name of the operation.
-	 * @param ?string                          $query             The query that GraphQL executed.
-	 * @param ?array<string,mixed>             $variables         Variables passed to the GraphQL query.
-	 * @param \WPGraphQL\Request               $request           Instance of the Request.
-	 * @param ?string                          $query_id          The query id that GraphQL executed.
+	 * Runs early on graphql_request_results so a failed save can update the debug
+	 * log before other filters format or redact the response.
 	 *
-	 * @return void
+	 * @param mixed                            $response  The response filtered so far for the GraphQL request.
+	 * @param \WPGraphQL\WPSchema              $schema    The schema object for the root request.
+	 * @param ?string                          $operation The name of the operation.
+	 * @param ?string                          $query     The query that GraphQL executed.
+	 * @param ?array<string,mixed>             $variables Variables passed to the GraphQL query.
+	 * @param \WPGraphQL\Request|null          $request   Instance of the Request, when available.
+	 * @param ?string                          $query_id  The query id that GraphQL executed.
+	 *
+	 * @return mixed The response, with refreshed debug logs after a failed save when a Request is available.
 	 */
-	public function persist_pending_document_cb( $filtered_response, $response, $schema, $operation, $query, $variables, $request, $query_id ) {
+	public function persist_pending_document_cb( $response, $schema, $operation, $query, $variables, $request, $query_id ) {
 		if ( empty( self::$pending_documents ) ) {
-			return;
+			return $response;
 		}
 
 		// The request may reach this point either by queryId (graphql-php loaded the
@@ -655,7 +658,7 @@ class Document {
 		}
 
 		if ( null === $matched_id ) {
-			return;
+			return $response;
 		}
 
 		$pending = self::$pending_documents[ $matched_id ];
@@ -670,16 +673,16 @@ class Document {
 		}
 
 		if ( ! $passed_validation ) {
-			return;
+			return $response;
 		}
 
 		if ( ! self::can_auto_persist_document() ) {
-			return;
+			return $response;
 		}
 
 		// Covers a request that was only allowed to save once it ran, so it skipped the check up front.
 		if ( ! empty( $pending['literal_arguments'] ) && self::LITERAL_ARGUMENTS_REJECT === self::literal_arguments_mode() ) {
-			return;
+			return $response;
 		}
 
 		try {
@@ -688,7 +691,18 @@ class Document {
 		} catch ( \Throwable $e ) {
 			// The request already executed; a failed write must not turn a successful response into an error.
 			graphql_debug( sprintf( 'Persisted query document could not be saved: %s', $e->getMessage() ), [ 'queryId' => $matched_id ] );
+
+			if ( $request instanceof \WPGraphQL\Request ) {
+				$logs = $request->debug_log->get_logs();
+				if ( is_array( $response ) ) {
+					$response['extensions']['debug'] = $logs;
+				} else {
+					$response->extensions['debug'] = $logs;
+				}
+			}
 		}
+
+		return $response;
 	}
 
 	/**

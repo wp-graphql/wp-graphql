@@ -150,7 +150,7 @@ class DocumentLiteralArgumentsTest extends \Codeception\TestCase\WPTestCase {
 		};
 
 		add_action( 'pre_get_posts', $record );
-		add_action( 'graphql_return_response', $stop, 0 );
+		add_action( 'graphql_execute', $stop, 0 );
 		// The hash of the raw text, so looking up the queryId itself isn't counted.
 		$response = graphql(
 			[
@@ -159,7 +159,7 @@ class DocumentLiteralArgumentsTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 		remove_action( 'pre_get_posts', $record );
-		remove_action( 'graphql_return_response', $stop, 0 );
+		remove_action( 'graphql_execute', $stop, 0 );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 		if ( $looks_up ) {
