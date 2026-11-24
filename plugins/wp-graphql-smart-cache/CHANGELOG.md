@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.6.0...wp-graphql-smart-cache/v2.6.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.26.2 to 2.28.0 in /plugins/wp-graphql-smart-cache in the wp-graphql-smart-cache-composer-dev-minor-patch group ([#4744](https://github.com/wp-graphql/wp-graphql/issues/4744)) ([d93c609](https://github.com/wp-graphql/wp-graphql/commit/d93c609ffe49ea4ab00991a43a00ae45734eb570))
+
 ## [2.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-smart-cache/v2.5.0...wp-graphql-smart-cache/v2.6.0) (2026-11-20)
 
 
