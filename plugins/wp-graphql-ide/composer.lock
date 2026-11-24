@@ -117,16 +117,16 @@
         },
         {
             "name": "axepress/wp-graphql-stubs",
-            "version": "v2.26.2",
+            "version": "v2.28.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AxeWP/wp-graphql-stubs.git",
-                "reference": "df942d5e1be1e812d89ca3439317e0dd1cadf7fe"
+                "reference": "378d6804275c1a5c5925a008436eda08aecac4bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/df942d5e1be1e812d89ca3439317e0dd1cadf7fe",
-                "reference": "df942d5e1be1e812d89ca3439317e0dd1cadf7fe",
+                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/378d6804275c1a5c5925a008436eda08aecac4bd",
+                "reference": "378d6804275c1a5c5925a008436eda08aecac4bd",
                 "shasum": ""
             },
             "require": {
@@ -158,7 +158,7 @@
             ],
             "support": {
                 "issues": "https://github.com/AxeWP/wp-graphql-stubs/issues",
-                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.26.2"
+                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.28.0"
             },
             "funding": [
                 {
@@ -166,7 +166,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-05T19:49:51+00:00"
+            "time": "2026-11-12T19:48:36+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -2433,11 +2433,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/645a1bd6bead15fc1b8474137467961d0fa30a79",
-                "reference": "645a1bd6bead15fc1b8474137467961d0fa30a79",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
                 "shasum": ""
             },
             "require": {
@@ -2493,7 +2493,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00"
+            "time": "2026-11-15T19:58:26+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
