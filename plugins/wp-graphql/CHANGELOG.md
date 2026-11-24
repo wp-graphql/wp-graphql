@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.30.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.29.0...wp-graphql/v2.30.0) (2026-11-24)
+
+
+### New Features
+
+* **deps:** bump @wordpress/api-fetch from 7.57.0 to 8.0.0 ([#4753](https://github.com/wp-graphql/wp-graphql/issues/4753)) ([e924be4](https://github.com/wp-graphql/wp-graphql/commit/e924be45a84d0b97a0010d41fd1be326b949fcd3))
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4750](https://github.com/wp-graphql/wp-graphql/issues/4750)) ([f00a235](https://github.com/wp-graphql/wp-graphql/commit/f00a2354f3e153665e610a88db47212b2ca69706))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump @wordpress/env from 11.17.0 to 12.0.0 ([#4752](https://github.com/wp-graphql/wp-graphql/issues/4752)) ([4251596](https://github.com/wp-graphql/wp-graphql/commit/4251596745ad7101ccd35c187a5936571c8c1661))
+* **deps-dev:** bump phpcompatibility/phpcompatibility-wp from 3.0.0-alpha2 to 3.0.0-alpha3 in /plugins/wp-graphql ([#4746](https://github.com/wp-graphql/wp-graphql/issues/4746)) ([a072660](https://github.com/wp-graphql/wp-graphql/commit/a0726604612a903df2cebf211bcc4cfeb5d90e26))
+* **deps-dev:** bump phpstan/phpstan from 2.3.5 to 2.3.6 in /plugins/wp-graphql in the wp-graphql-composer-dev-minor-patch group ([#4743](https://github.com/wp-graphql/wp-graphql/issues/4743)) ([47d60c0](https://github.com/wp-graphql/wp-graphql/commit/47d60c0aa99aeb3e8ee5b90bf1d300e46a006f3f))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4748](https://github.com/wp-graphql/wp-graphql/issues/4748)) ([91c7549](https://github.com/wp-graphql/wp-graphql/commit/91c7549e36fafad5b74213324bbff256ff9d0abf))
+
 ## [2.29.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.28.0...wp-graphql/v2.29.0) (2026-11-19)
 
 
