@@ -149,6 +149,18 @@ updates:
       # Babel 8, and raise engines.node at the same time.
       - dependency-name: '@babel/preset-env'
         update-types: ['version-update:semver-major']
+      # React majors move deliberately, not as Dependabot bumps. The IDE does
+      # not bundle React: its webpack config maps react and react-dom to the
+      # copies WordPress loads, so the npm version only decides what its unit
+      # tests run against (its overrides pin React 18). An IDE upgrade means
+      # testing against the React each supported WordPress version ships. wpgraphql.com does bundle its own React through Next.js,
+      # so it can upgrade on its own, but react and react-dom have to move
+      # together: Dependabot bumps them separately, and react-dom 19 on react 18
+      # crashes at load.
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
     groups:
       npm-dev-minor-patch:
         dependency-type: 'development'
