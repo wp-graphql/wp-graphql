@@ -51,7 +51,7 @@
 	"dependencies": {
 		"@ant-design/icons": "6.3.4",
 		"@apollo/client": "3.14.1",
-		"@wordpress/api-fetch": "^7.57.0",
+		"@wordpress/api-fetch": "^8.0.0",
 		"@wordpress/components": "^42.0.0",
 		"@wordpress/compose": "^8.10.0",
 		"@wordpress/data": "^10.57.0",
