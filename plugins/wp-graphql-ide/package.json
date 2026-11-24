@@ -88,13 +88,13 @@
 		"vaul": "^1.1.2"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.29.7",
+		"@babel/preset-env": "^7.29.14",
 		"@babel/preset-react": "^8.0.1",
-		"@playwright/test": "^1.65.0",
+		"@playwright/test": "^1.65.1",
 		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/react": "^16.3.3",
 		"@types/node": "^26.6.6",
-		"@typescript-eslint/eslint-plugin": "^8.72.1",
+		"@typescript-eslint/eslint-plugin": "^8.73.0",
 		"@typescript-eslint/parser": "^8.66.0",
 		"@wordpress/e2e-test-utils-playwright": "^3.2.0",
 		"@wordpress/env": "^12.0.0",
@@ -108,7 +108,7 @@
 		"docker-compose": "^1.5.0",
 		"eslint-plugin-jest": "^28.14.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.6.0",
+		"lint-staged": "^17.6.1",
 		"rimraf": "^6.1.4",
 		"sort-package-json": "^4.1.0"
 	},
