@@ -3,7 +3,7 @@ Contributors: jasonbahl, joefusco
 Tags: headless, decoupled, graphql, devtools
 Requires at least: 6.1
 Tested up to: 7.0
-Stable tag: 5.10.0
+Stable tag: 5.11.0
 Requires PHP: 7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -123,6 +123,18 @@ Major rebuild on `@wordpress/components` + CodeMirror 6. Saved-document storage 
 WPGraphQL IDE follows Semver versioning. Breaking changes will be documented in the Upgrade Notice section above.
 
 == Changelog ==
+
+= 5.11.0 =
+
+**New Features**
+
+* **deps:** bump the npm-prod-minor-patch group across 1 directory with 6 updates ([#4750](https://github.com/wp-graphql/wp-graphql/issues/4750))
+
+**Bug Fixes**
+
+* **deps-dev:** bump @wordpress/env from 11.17.0 to 12.0.0 ([#4752](https://github.com/wp-graphql/wp-graphql/issues/4752))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4748](https://github.com/wp-graphql/wp-graphql/issues/4748))
+* **deps-dev:** bump the wp-graphql-ide-composer-dev-minor-patch group across 1 directory with 2 updates ([#4745](https://github.com/wp-graphql/wp-graphql/issues/4745))
 
 = 5.10.0 =
 
