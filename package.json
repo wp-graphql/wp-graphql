@@ -41,9 +41,9 @@
 		"@wordpress/prettier-config": "^4.57.0",
 		"@wordpress/scripts": "^27.9.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.6.0",
+		"lint-staged": "^17.6.1",
 		"patch-package": "8.0.1",
-		"turbo": "^2.11.10",
+		"turbo": "^2.11.11",
 		"turndown": "^7.2.5"
 	}
 }
