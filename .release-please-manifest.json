@@ -1,6 +1,6 @@
 {
   "plugins/wp-graphql": "2.29.0",
   "plugins/wp-graphql-smart-cache": "2.6.0",
-  "plugins/wp-graphql-ide": "5.10.0",
+  "plugins/wp-graphql-ide": "5.11.0",
   "plugins/wp-graphql-acf": "3.3.0"
 }
