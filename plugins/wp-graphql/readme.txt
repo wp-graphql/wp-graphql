@@ -84,6 +84,10 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.30.0 =
+
+**The `X-GraphQL-Preview` header now only applies to HTTP requests.** A query run from PHP with `graphql()` used to read the preview header of the HTTP request it ran during, so a query run inside a preview request, such as a nested query in a resolver, was previewed too. It now uses only its own `extensions`. To preview from PHP, pass the preview context there, for example `'extensions' => [ 'preview' => [ 'databaseId' => 123 ] ]`, and to keep a nested query previewed along with the request it runs in, pass `$context->get_request_extension( 'preview' )`. Tests that set the header in `$_SERVER` before calling `graphql()` need the same change. Requests to the GraphQL endpoint are unchanged. See https://www.wpgraphql.com/docs/previews/#previews-from-php.
+
 = 2.29.0 =
 
 **Share Usage Data moved to GraphQL → Settings → Data Sharing.** Your choice carries over, and the same data is shared, except that the copy sent to https://telemetry.wpgraphql.com no longer includes this site's admin email address or an administrator's name.

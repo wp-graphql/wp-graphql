@@ -58,12 +58,48 @@ The same object may instead be sent as a `preview` entry in the request `extensi
 }
 ```
 
-This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them.
+This is useful when you want the preview context to travel inside the operation body rather than the transport (for example to keep it with a logged or replayed operation). The `X-GraphQL-Preview` header takes precedence when both are present. You can also send both for resilience against an intermediary that drops one of them. Keys other than core's and those [registered by an extension](#adding-your-own-preview-context-members) are dropped, on either transport.
 
 ### Batch and GET requests
 
 - **Batch requests** (an array of operations in one HTTP request): `extensions.preview` is per-operation, while the preview overlay is request-level, so it is **not supported in a batch**. Send the `X-GraphQL-Preview` header instead; it applies to **every** operation in the batch. A per-operation `extensions.preview` inside a batch is ignored, with a debug notice under `GRAPHQL_DEBUG`.
 - **GET requests**: both transports work. With the query-string form of `extensions`, the preview parameters become part of the URL (and any access logs); the header keeps them out of the URL.
+
+### Previews from PHP
+
+The `X-GraphQL-Preview` header is only read from HTTP requests to the GraphQL endpoint. A query run from PHP with `graphql()` passes the preview context in its `extensions` instead:
+
+```php
+$result = graphql(
+	[
+		'query'      => 'query Post($id: ID!) { post(id: $id, idType: DATABASE_ID) { title content } }',
+		'variables'  => [ 'id' => 123 ],
+		'extensions' => [
+			'preview' => [ 'databaseId' => 123 ],
+		],
+	]
+);
+```
+
+A `graphql()` call never reads the header, even when it runs during an HTTP request that sent one, such as a resolver that runs a nested query. That keeps a query run from PHP from quietly becoming a preview because of whatever headers the surrounding request carried. The same authorization applies: the current user must be allowed to preview the post.
+
+If a resolver runs a nested query that should be previewed along with the request it runs in, pass the request's preview context on:
+
+```php
+'resolve' => static function ( $source, array $args, \WPGraphQL\AppContext $context ) {
+	$result = graphql(
+		[
+			'query'      => '...',
+			'extensions' => [ 'preview' => $context->get_request_extension( 'preview' ) ],
+		]
+	);
+	// ...
+},
+```
+
+When the request carries no preview context, `get_request_extension( 'preview' )` returns `null` and the nested query isn't previewed.
+
+The same goes for tests: a test that sets `$_SERVER['HTTP_X_GRAPHQL_PREVIEW']` and then calls `graphql()` no longer gets a preview. Pass the context in `extensions` instead.
 
 ### Sending the preview context from clients and IDEs
 
@@ -201,6 +237,65 @@ X-GraphQL-Preview: database_id=123, post_format="video"
 ```
 
 Other taxonomies (categories, tags, custom taxonomies) resolve from the published post when previewing, as in core: terms are stored against the published post, not the autosave.
+
+### Adding your own preview context members
+
+An extension that needs a client-supplied preview value core doesn't know about (for example, the locale of the translation being previewed) can register its own member of the preview context:
+
+```php
+add_action(
+	'init',
+	static function () {
+		register_graphql_preview_context_member(
+			'translationLocale',
+			[
+				'type'        => 'string',
+				'description' => 'The locale of the translation being previewed.',
+				'sanitize'    => static function ( $value ) {
+					return sanitize_text_field( $value );
+				},
+			]
+		);
+	}
+);
+```
+
+The member is then accepted from both transports: as `translationLocale` in `extensions.preview`, and as `translation_locale` in the `X-GraphQL-Preview` header. The header key is derived from the camelCase name; pass `header_key` to override it. It arrives on `AppContext::$preview` under its camelCase name (`null` when it was not sent or was invalid), so a field's `previewResolve` callback reads it from its `$preview` argument, just like `featuredImageDatabaseId`:
+
+```php
+register_graphql_field(
+	'Post',
+	'translationLocale',
+	[
+		'type'           => 'String',
+		'resolve'        => static fn () => null,
+		'previewResolve' => static function ( $post, $args, $context, $info, array $preview ) {
+			return $preview['translationLocale'];
+		},
+	]
+);
+```
+
+Any other resolver can read the same values with `$context->get_request_extension( 'preview' )`, which returns the same array as `AppContext::$preview`. Those are the values the client sent, checked for type and sanitized, and they're set whoever the viewer is. A `previewResolve` callback only runs for a viewer who is allowed to preview the post, but a resolver that reads the context directly has to check that itself:
+
+```php
+$preview = $context->get_request_extension( 'preview' );
+
+if ( null !== $preview && \WPGraphQL\Utils\Preview::viewer_can_preview( $preview['databaseId'] ) ) {
+	// Use $preview['translationLocale'].
+}
+```
+
+Preview is one of WPGraphQL's [request extension namespaces](/docs/request-extensions/), the one core registers, so `register_graphql_preview_context_member( $name, $config )` is shorthand for `register_graphql_request_extension_member( 'preview', $name, $config )`, and the member follows the same contract as any request extension member:
+
+- **`type`** (required) is one of `integer`, `string`, `boolean` or `inner-list`. An `inner-list` also declares its item type in `items` (`integer`, `string` or `boolean`), for example `[ 'type' => 'inner-list', 'items' => 'integer' ]`, sent as `translation_ids=(1 2)` in the header or `[1, 2]` in JSON.
+- Values must match the declared type exactly; nothing is coerced. A value of the wrong type is discarded, with a `PREVIEW_CONTEXT_MEMBER_INVALID` debug notice naming the key and the expected type.
+- **`sanitize`** (required) runs after the type check and receives the type-checked value. Whatever it returns lands on the context; return `null` to treat the value as absent.
+- Core's keys (`databaseId`, `revisionDatabaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`, and their header keys) are reserved and can't be registered. If two extensions register the same name or header key, the first registration wins. Refused registrations surface a `PREVIEW_CONTEXT_MEMBER_NOT_REGISTERED` debug notice.
+
+Register members on `init` or earlier, or on the `graphql_register_request_extensions` action. A request reads the registered members before it builds the schema, so a member registered on `graphql_register_types`, or later, is not parsed for that request, and a `PREVIEW_CONTEXT_MEMBER_REGISTERED_LATE` debug notice says so.
+
+Declaring a member grants no access by itself. Through `previewResolve`, as with core's own members, previewed values only apply to a viewer who is allowed to preview the post. Code that reads the context directly gets the client's values for any viewer, so it must check `Preview::viewer_can_preview()` itself, as shown above.
 
 ### The preview flow, end to end
 

@@ -89,9 +89,34 @@ class AppContext {
 	 * `X-GraphQL-Preview` header or the `preview` object in the request `extensions`.
 	 * Null when the request does not carry preview context.
 	 *
-	 * @var array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,postFormat:?string,nonce:?string}|null
+	 * Core's keys are `databaseId` (int), `revisionDatabaseId` (int), `featuredImageDatabaseId`
+	 * (?int), `postFormat` (?string) and `nonce` (?string); members registered with
+	 * register_graphql_preview_context_member() are added under their camelCase names.
+	 *
+	 * These are the values the client sent, checked only for type and sanitized: they are
+	 * set whether or not the viewer may preview the post. A field's `previewResolve`
+	 * callback only runs for a viewer who may; code that reads this property directly must
+	 * check \WPGraphQL\Utils\Preview::viewer_can_preview( $preview['databaseId'] ) itself.
+	 *
+	 * @var array<string,mixed>|null
 	 */
 	public $preview = null;
+
+	/**
+	 * Stores the request extensions the request carries, keyed by namespace: each one
+	 * registered with register_graphql_request_extension() (and core's `preview`, the same
+	 * array as $preview), parsed from its header or its object in the request `extensions`.
+	 * Every registered member is present, null when absent or invalid.
+	 *
+	 * The values are what the client sent, checked for type and sanitized, and grant
+	 * nothing by themselves: the code that reads them decides what they unlock, and for
+	 * whom. Read it with get_request_extension().
+	 *
+	 * @var array<string,array<string,mixed>>
+	 *
+	 * @since x-release-please-version
+	 */
+	public $request_extensions = [];
 
 	/**
 	 * Stores additional $config properties
@@ -427,6 +452,29 @@ class AppContext {
 	 */
 	public function get( string $namespace, string $key, $default = null ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound, Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Semantically appropriate.
 		return $this->store[ $namespace ][ $key ] ?? $default;
+	}
+
+	/**
+	 * Returns the parsed members of a request extension namespace the request carries.
+	 *
+	 * Example, for a namespace registered with register_graphql_request_extension():
+	 * ```php
+	 * $post_password = $context->get_request_extension( 'postPassword' );
+	 * $password      = $post_password['password'] ?? null;
+	 * ```
+	 *
+	 * The values are what the client sent, checked for type and sanitized, and are not
+	 * authorized: for `preview`, check \WPGraphQL\Utils\Preview::viewer_can_preview()
+	 * before using them, as `previewResolve` does.
+	 *
+	 * @param string $name The namespace, e.g. `preview`.
+	 *
+	 * @return array<string,mixed>|null Every registered member (null when absent or invalid), or null when the request does not carry the namespace.
+	 *
+	 * @since x-release-please-version
+	 */
+	public function get_request_extension( string $name ): ?array {
+		return $this->request_extensions[ $name ] ?? null;
 	}
 
 	/**

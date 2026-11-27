@@ -11,6 +11,103 @@ use WPGraphQL\Model\Post;
 class Preview {
 
 	/**
+	 * Returns the config of the `preview` request extension namespace core registers
+	 * (see RequestExtensionRegistry), carried by the `X-GraphQL-Preview` header or the
+	 * `preview` object in the request `extensions`.
+	 *
+	 * Core's members predate the member contract of register_graphql_preview_context_member()
+	 * and keep their original, more lenient profile: each accepts an Integer or a String (so
+	 * `"123"` still works as a post ID), a value of any other type is ignored without a
+	 * notice, and the sanitizer applies the rest of the validation. `revisionDatabaseId` is
+	 * not client-supplied (the request resolves it), but it is reserved all the same.
+	 *
+	 * @internal Plumbing behind the preview namespace, not public API.
+	 *
+	 * @return array{
+	 *  description: string,
+	 *  header: string,
+	 *  members: array<string,array{types:list<string>,header_key:string,description:string,sanitize:callable(mixed):mixed}>,
+	 *  reserved_members: array<string,string>
+	 * }
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function get_request_extension_config(): array {
+		$types = [ 'integer', 'string' ];
+
+		return [
+			'description'      => 'The request-level preview context: the post being previewed, and the values previewed with it.', // i18n-ignore -- developer-facing registry metadata.
+			'header'           => 'X-GraphQL-Preview',
+			'members'          => [
+				'databaseId'              => [
+					'types'       => $types,
+					'header_key'  => 'database_id',
+					'description' => 'The database ID of the post being previewed.', // i18n-ignore -- developer-facing registry metadata.
+					'sanitize'    => static function ( $value ): ?int {
+						$value = self::get_non_negative_int_input( $value );
+						return null !== $value && $value > 0 ? $value : null;
+					},
+				],
+				// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
+				// in the preview), so only an absent or invalid value means "no override".
+				'featuredImageDatabaseId' => [
+					'types'       => $types,
+					'header_key'  => 'featured_image_database_id',
+					'description' => 'The database ID of the previewed featured image, or 0 when it was removed.', // i18n-ignore -- developer-facing registry metadata.
+					'sanitize'    => [ self::class, 'get_non_negative_int_input' ],
+				],
+				// As in core, `standard` is accepted and means no format; a value that is not a
+				// registered post format is treated as absent ("no override").
+				'postFormat'              => [
+					'types'       => $types,
+					'header_key'  => 'post_format',
+					'description' => 'The previewed post format.', // i18n-ignore -- developer-facing registry metadata.
+					'sanitize'    => static function ( $value ): ?string {
+						return is_string( $value ) && array_key_exists( $value, get_post_format_slugs() ) ? $value : null;
+					},
+				],
+				'nonce'                   => [
+					'types'       => $types,
+					'header_key'  => 'nonce',
+					'description' => 'The preview nonce, accepted but not verified.', // i18n-ignore -- developer-facing registry metadata.
+					'sanitize'    => static function ( $value ): ?string {
+						return is_string( $value ) ? sanitize_text_field( $value ) : null;
+					},
+				],
+			],
+			'reserved_members' => [
+				'revisionDatabaseId' => 'revision_database_id',
+			],
+		];
+	}
+
+	/**
+	 * Normalizes a client-supplied ID to a non-negative integer, rejecting invalid input
+	 * rather than coercing it. `absint()` would silently flip a negative ID into a
+	 * different, valid-looking positive ID, so a negative or malformed value must be
+	 * treated as absent instead.
+	 *
+	 * @internal
+	 *
+	 * @param mixed $value The raw client-supplied value.
+	 *
+	 * @return ?int The non-negative integer, or null when the value is absent or invalid.
+	 *
+	 * @since x-release-please-version
+	 */
+	public static function get_non_negative_int_input( $value ): ?int {
+		if ( is_int( $value ) && $value >= 0 ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) && ctype_digit( $value ) ) {
+			return (int) $value;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Returns the schema deprecation reason for the `asPreview` argument.
 	 *
 	 * Single-sourced so the schema's guidance cannot drift from the runtime behavior:

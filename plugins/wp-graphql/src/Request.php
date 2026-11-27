@@ -29,6 +29,8 @@ use WPGraphQL\Utils\StructuredFields;
  * phpcs:disable -- PHPStan annotation.
  * @phpstan-import-type RootValueResolver from \GraphQL\Server\ServerConfig
  * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
+ * @phpstan-import-type RequestExtension from \WPGraphQL\Registry\RequestExtensionRegistry
+ * @phpstan-import-type RequestExtensionMember from \WPGraphQL\Registry\RequestExtensionRegistry
  * phpcs:enable
  */
 class Request {
@@ -123,6 +125,23 @@ class Request {
 	 * @var \WP_Error|bool|null
 	 */
 	protected $authentication_error = null;
+
+	/**
+	 * Whether the request came in over HTTP (execute_http()), as opposed to a call to
+	 * graphql() from PHP. Only an HTTP request reads the headers of the registered request
+	 * extension namespaces; a call from PHP passes them in its `extensions` instead.
+	 *
+	 * @var bool
+	 */
+	private $is_http_request = false;
+
+	/**
+	 * Whether this request has marked the request extension registry as read and still
+	 * has to release it (see release_request_extensions()).
+	 *
+	 * @var bool
+	 */
+	private $holds_request_extension_read = false;
 
 	/**
 	 * Constructor
@@ -306,13 +325,14 @@ class Request {
 		$this->app_context->viewer = wp_get_current_user();
 
 		/**
-		 * Set the preview context for the request, if provided (the `X-GraphQL-Preview`
-		 * header, or the `preview` object in the request `extensions`). This carries the
-		 * request-scoped preview params (the post being previewed, and the previewed
-		 * featured image), mirroring the query params WordPress core uses for front-end
-		 * previews.
+		 * Set the request extensions for the request, if provided: each registered namespace
+		 * is read from its header or from the request `extensions`. This includes the preview
+		 * context (the `X-GraphQL-Preview` header, or the `preview` object in the request
+		 * `extensions`), which carries the request-scoped preview params (the post being
+		 * previewed, and the previewed featured image), mirroring the query params WordPress
+		 * core uses for front-end previews.
 		 */
-		$this->app_context->preview = $this->get_preview_context();
+		$this->set_request_extensions();
 
 		/**
 		 * If a preview was requested for a post the current user is not allowed to preview,
@@ -376,7 +396,47 @@ class Request {
 	}
 
 	/**
-	 * Parses and normalizes the preview context for the request.
+	 * Reads the registered request extensions into the AppContext.
+	 *
+	 * Each namespace registered in the RequestExtensionRegistry (core's `preview`, and any
+	 * registered with register_graphql_request_extension()) is read from its header, when it
+	 * declares one and the request came in over HTTP and sends it, or else from its object
+	 * in the request `extensions`. A call to graphql() from PHP never reads the headers, even
+	 * when it runs during an HTTP request that sent them: it passes its request extensions
+	 * in its own `extensions`. A namespace the request carries lands on
+	 * AppContext::$request_extensions under its name (see AppContext::get_request_extension()),
+	 * with every registered member present (null when absent or invalid). The preview context is set on
+	 * AppContext::$preview from the same parsed values (see get_preview_context()).
+	 */
+	private function set_request_extensions(): void {
+		$registry = \WPGraphQL::get_request_extension_registry();
+
+		// Registered namespaces and members are read from here on; one registered later is
+		// reported as too late. Released by release_request_extensions(), even if execution throws.
+		if ( ! $this->holds_request_extension_read ) {
+			$registry->begin_read();
+			$this->holds_request_extension_read = true;
+		}
+
+		$this->app_context->request_extensions = [];
+		$this->app_context->preview            = null;
+
+		foreach ( $registry->get_extensions() as $name => $extension ) {
+			$values = $this->get_request_extension_values( $extension );
+
+			if ( 'preview' === $name ) {
+				$values                     = $this->get_preview_context( $values );
+				$this->app_context->preview = $values;
+			}
+
+			if ( null !== $values ) {
+				$this->app_context->request_extensions[ $name ] = $values;
+			}
+		}
+	}
+
+	/**
+	 * Builds the preview context for the request from the parsed `preview` namespace.
 	 *
 	 * The context mirrors the query params WordPress core uses for front-end previews
 	 * (`preview_id`, `_thumbnail_id`, `post_format`, `preview_nonce`). Each transport uses its native
@@ -402,19 +462,22 @@ class Request {
 	 * contract in docs/previews.md, pinned by
 	 * PreviewTest::testNonceIsAcceptedButNotVerifiedToday.
 	 *
-	 * @return array{databaseId:int,revisionDatabaseId:int,featuredImageDatabaseId:?int,postFormat:?string,nonce:?string}|null
+	 * Members registered with register_graphql_preview_context_member() follow core's keys
+	 * under their camelCase names (null when absent or invalid).
+	 *
+	 * @param array<string,mixed>|null $values The parsed and sanitized `preview` members, or null when the request carries none.
+	 *
+	 * @return array<string,mixed>|null
 	 */
-	private function get_preview_context(): ?array {
-		$preview = $this->get_preview_input();
-
-		if ( null === $preview ) {
+	private function get_preview_context( ?array $values ): ?array {
+		if ( null === $values ) {
 			return null;
 		}
 
-		$database_id = $this->get_positive_int_input( $preview['databaseId'] ?? null );
+		$database_id = is_int( $values['databaseId'] ?? null ) ? $values['databaseId'] : 0;
 
 		// Without a post id there is nothing to preview.
-		if ( empty( $database_id ) ) {
+		if ( $database_id <= 0 ) {
 			return null;
 		}
 
@@ -431,101 +494,283 @@ class Request {
 			$revision_database_id = $autosave instanceof \WP_Post ? (int) $autosave->ID : 0;
 		}
 
-		return [
+		$context = [
 			'databaseId'              => $database_id,
 			// The post's newest autosave (a revision) to overlay previewable fields from.
 			'revisionDatabaseId'      => $revision_database_id,
-			// A `featuredImageDatabaseId` of 0 is meaningful (the featured image was removed
-			// in the preview), so only an absent or invalid value means "no override".
-			'featuredImageDatabaseId' => $this->get_non_negative_int_input( $preview['featuredImageDatabaseId'] ?? null ),
-			// As in core, `standard` is accepted and means no format; a value that is not a
-			// registered post format is treated as absent ("no override").
-			'postFormat'              => isset( $preview['postFormat'] ) && is_string( $preview['postFormat'] ) && array_key_exists( $preview['postFormat'], get_post_format_slugs() ) ? $preview['postFormat'] : null,
-			'nonce'                   => isset( $preview['nonce'] ) && is_string( $preview['nonce'] ) ? sanitize_text_field( $preview['nonce'] ) : null,
+			'featuredImageDatabaseId' => $values['featuredImageDatabaseId'] ?? null,
+			'postFormat'              => $values['postFormat'] ?? null,
+			'nonce'                   => $values['nonce'] ?? null,
 		];
+
+		// Members registered by extensions (register_graphql_preview_context_member()).
+		return $context + $values;
 	}
 
 	/**
-	 * Normalizes a client-supplied ID to a positive integer, rejecting invalid input
-	 * rather than coercing it. `absint()` would silently flip a negative ID into a
-	 * different, valid-looking positive ID, so a negative or malformed value must be
-	 * treated as absent instead.
+	 * Returns the parsed and sanitized members of a registered namespace for the request.
 	 *
-	 * @param mixed $value The raw client-supplied value.
+	 * The namespace's header, when it declares one and an HTTP request sends a usable value,
+	 * takes precedence over its object in the request `extensions`. Only registered members
+	 * are kept: keys no member registered are dropped, since nothing validated or sanitized
+	 * them. Each value must match the member's declared type, with no coercion, and the
+	 * member's sanitizer then runs on the type-checked value.
 	 *
-	 * @return int The positive integer, or 0 when the value is absent or invalid.
+	 * @param array<string,mixed> $extension The registered namespace.
+	 *
+	 * @phpstan-param RequestExtension $extension
+	 *
+	 * @return array<string,mixed>|null Every registered member (null when absent or invalid), or null when the request does not carry the namespace.
 	 */
-	private function get_positive_int_input( $value ): int {
-		if ( is_int( $value ) && $value > 0 ) {
-			return $value;
+	private function get_request_extension_values( array $extension ): ?array {
+		// With no registered members there is nothing the request could carry.
+		if ( [] === $extension['members'] ) {
+			return null;
 		}
 
-		if ( is_string( $value ) && ctype_digit( $value ) && (int) $value > 0 ) {
-			return (int) $value;
+		// Only an HTTP request reads headers: a call to graphql() from PHP would otherwise
+		// pick up whatever headers the surrounding HTTP request happened to send.
+		$input = $this->is_http_request && null !== $extension['header'] ? $this->get_request_extension_header_input( $extension ) : null;
+
+		if ( null === $input ) {
+			$input = $this->get_request_extension_body_input( $extension );
 		}
 
-		return 0;
+		if ( null === $input ) {
+			return null;
+		}
+
+		$values = [];
+		foreach ( $extension['members'] as $name => $member ) {
+			$values[ $name ] = $this->normalize_request_extension_member( $extension, $name, $member, $input[ $name ] ?? null );
+		}
+
+		return $values;
 	}
 
 	/**
-	 * Like get_positive_int_input(), but 0 is a meaningful value (the previewed
-	 * featured image was removed), so it is preserved rather than rejected.
+	 * Parses a namespace's header as an RFC 8941 Structured Field dictionary.
 	 *
-	 * @param mixed $value The raw client-supplied value.
+	 * Example: `database_id=123, featured_image_database_id=456, nonce="abc"`.
 	 *
-	 * @return ?int The non-negative integer, or null when the value is absent or invalid.
+	 * The full dictionary syntax is parsed (see Utils\StructuredFields), and the namespace's
+	 * profile is applied on top: only its members' header keys are recognized (unknown keys
+	 * are ignored), and each member must be of its declared type. A member of the wrong type
+	 * is ignored, with a debug notice for a member an extension registered (core's preview
+	 * members ignore other types silently, as they always have). The recognized keys are
+	 * mapped to the member names, the same shape as the JSON `extensions` object, so both
+	 * transports normalize identically.
+	 *
+	 * The raw header is parsed as is. Sanitizing it as a whole first (with
+	 * `sanitize_text_field()`) would change String values, since that strips `%xx`
+	 * sequences and anything that looks like a tag; each member is sanitized by its own
+	 * sanitizer after the type check instead.
+	 *
+	 * As RFC 8941 requires, a value that fails to parse is discarded in its entirety,
+	 * in which case (as with an empty parse, or one with no usable members) the
+	 * `extensions` fallback applies. A discarded or key-less header surfaces a debug
+	 * notice under GRAPHQL_DEBUG, so the silent fallback is still diagnosable.
+	 *
+	 * @param array<string,mixed> $extension The registered namespace.
+	 *
+	 * @phpstan-param RequestExtension $extension
+	 *
+	 * @return array<string,mixed>|null The bare header values keyed by member name, or null when the header is absent or unusable.
 	 */
-	private function get_non_negative_int_input( $value ): ?int {
-		if ( is_int( $value ) && $value >= 0 ) {
-			return $value;
+	private function get_request_extension_header_input( array $extension ): ?array {
+		$header     = (string) $extension['header'];
+		$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header ) );
+
+		if ( empty( $_SERVER[ $server_key ] ) || ! is_string( $_SERVER[ $server_key ] ) ) {
+			return null;
 		}
 
-		if ( is_string( $value ) && ctype_digit( $value ) ) {
-			return (int) $value;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed as an RFC 8941 dictionary; each member is then type-checked and sanitized by its registered sanitizer (see the docblock).
+		$dictionary = StructuredFields::parse_dictionary( (string) wp_unslash( $_SERVER[ $server_key ] ) );
+
+		// As RFC 8941 requires, a value that fails to parse is discarded in its
+		// entirety. Surface why under GRAPHQL_DEBUG rather than discarding silently.
+		if ( null === $dictionary ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: the header name, 2: an example of the namespace's header keys, 3: the request extension namespace */
+					__( 'The `%1$s` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase%2$s). The `extensions.%3$s` fallback applies if present.', 'wp-graphql' ),
+					$header,
+					$this->get_request_extension_header_key_example( $extension ),
+					$extension['namespace']
+				),
+				[ 'type' => $extension['debug_prefix'] . '_MALFORMED' ]
+			);
+			return null;
 		}
 
-		return null;
-	}
+		if ( empty( $dictionary ) ) {
+			return null;
+		}
 
-	/**
-	 * Resolves the raw `preview` input for the request, keyed like the JSON `extensions.preview`
-	 * object (`databaseId`, `featuredImageDatabaseId`, `postFormat`, `nonce`).
-	 *
-	 * The `X-GraphQL-Preview` header (an RFC 8941 Structured Field dictionary) is the primary
-	 * source, since a headers UI is available in every GraphQL IDE. When the header is absent,
-	 * the same context is accepted as a JSON `preview` object in the request `extensions`.
-	 *
-	 * @return array<string,mixed>|null The raw (unnormalized) preview input, or null when none.
-	 */
-	private function get_preview_input(): ?array {
-		// Primary: the `X-GraphQL-Preview` header (a structured-field dictionary).
-		if ( ! empty( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) {
-			$parsed = $this->parse_preview_header( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GRAPHQL_PREVIEW'] ) ) );
+		$names = [];
+		foreach ( $extension['members'] as $name => $member ) {
+			$names[ $member['header_key'] ] = $name;
+		}
 
-			if ( ! empty( $parsed ) ) {
-				return $parsed;
+		$input = [];
+		foreach ( $dictionary as $key => $item ) {
+			if ( ! isset( $names[ $key ] ) ) {
+				continue;
+			}
+
+			$value = $this->get_request_extension_header_member_value( $extension, $extension['members'][ $names[ $key ] ], $item );
+
+			if ( null !== $value ) {
+				$input[ $names[ $key ] ] = $value;
 			}
 		}
 
-		// Fallback: the JSON `preview` object in the request extensions.
+		// A parseable header that carries none of the recognized keys is almost always
+		// a key-name mistake; say so instead of ignoring it silently.
+		if ( empty( $input ) ) {
+			graphql_debug(
+				sprintf(
+					/* translators: 1: the header name, 2: the recognized header keys, 3: the request extension namespace */
+					__( 'The `%1$s` header parsed as a valid dictionary but contained none of the recognized keys (%2$s) and was ignored. The `extensions.%3$s` fallback applies if present.', 'wp-graphql' ),
+					$header,
+					'`' . implode( '`, `', array_keys( $names ) ) . '`',
+					$extension['namespace']
+				),
+				[ 'type' => $extension['debug_prefix'] . '_UNRECOGNIZED' ]
+			);
+			return null;
+		}
+
+		return $input;
+	}
+
+	/**
+	 * Returns an example of a namespace's header keys for the malformed-header notice, built
+	 * from its first member whose header key differs from its camelCase name, such as
+	 * `, e.g. `database_id`, not `databaseId``. Empty when no member's key differs.
+	 *
+	 * @param array<string,mixed> $extension The registered namespace.
+	 *
+	 * @phpstan-param RequestExtension $extension
+	 */
+	private function get_request_extension_header_key_example( array $extension ): string {
+		foreach ( $extension['members'] as $name => $member ) {
+			if ( $member['header_key'] !== $name ) {
+				return sprintf(
+					/* translators: 1: a header key, 2: the camelCase member name it stands for */
+					__( ', e.g. `%1$s`, not `%2$s`', 'wp-graphql' ),
+					$member['header_key'],
+					$name
+				);
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Releases the request extension registry this request marked as read, so a namespace
+	 * or member registered from now on is in time for the next request. Runs when the
+	 * request finishes, including when execution throws, so the registry is never left
+	 * marked as read.
+	 */
+	private function release_request_extensions(): void {
+		if ( ! $this->holds_request_extension_read ) {
+			return;
+		}
+
+		$this->holds_request_extension_read = false;
+		\WPGraphQL::get_request_extension_registry()->end_read();
+	}
+
+	/**
+	 * Returns the bare value of a header member, enforcing the RFC 8941 type the member
+	 * declares (an inner list's items must all be of the declared item type).
+	 *
+	 * @param array<string,mixed>            $extension The registered namespace.
+	 * @param array<string,mixed>            $member    The registered member.
+	 * @param array{type:string,value:mixed} $item      The parsed header member.
+	 *
+	 * @phpstan-param RequestExtension       $extension
+	 * @phpstan-param RequestExtensionMember $member
+	 *
+	 * @return mixed The bare value (a list of bare values for an inner list), or null when it is not of the declared type.
+	 */
+	private function get_request_extension_header_member_value( array $extension, array $member, array $item ) {
+		$valid = in_array( $item['type'], $member['types'], true );
+
+		if ( $valid && 'inner-list' === $item['type'] ) {
+			$valid = is_array( $item['value'] ) && [] === array_diff( wp_list_pluck( $item['value'], 'type' ), [ (string) $member['items'] ] );
+		}
+
+		if ( ! $valid ) {
+			if ( ! $member['core'] ) {
+				graphql_debug(
+					sprintf(
+						/* translators: 1: the header name, 2: the header key, 3: the expected type */
+						__( 'The `%1$s` header member `%2$s` was ignored because it is not of the expected type `%3$s`.', 'wp-graphql' ),
+						(string) $extension['header'],
+						$member['header_key'],
+						$this->get_request_extension_member_type_label( $member )
+					),
+					[ 'type' => $extension['debug_prefix'] . '_MEMBER_INVALID' ]
+				);
+			}
+			return null;
+		}
+
+		return 'inner-list' === $item['type'] ? wp_list_pluck( $item['value'], 'value' ) : $item['value'];
+	}
+
+	/**
+	 * Returns a namespace's object in the request `extensions`, limited to its registered
+	 * members.
+	 *
+	 * Batch requests: the object is per-operation, while a request extension is
+	 * request-level, so it is not supported in a batch; only the header (which applies to
+	 * every operation in the batch) carries it. A debug notice says so rather than ignoring
+	 * it silently.
+	 *
+	 * @param array<string,mixed> $extension The registered namespace.
+	 *
+	 * @phpstan-param RequestExtension $extension
+	 *
+	 * @return array<string,mixed>|null The raw values of the registered members the object carries, or null when none.
+	 */
+	private function get_request_extension_body_input( array $extension ): ?array {
+		$name = $extension['namespace'];
+
 		if ( $this->params instanceof OperationParams ) {
 			$extensions = $this->params->extensions;
 
-			if ( is_array( $extensions ) && ! empty( $extensions['preview'] ) && is_array( $extensions['preview'] ) ) {
-				return $extensions['preview'];
+			if ( ! is_array( $extensions ) || empty( $extensions[ $name ] ) || ! is_array( $extensions[ $name ] ) ) {
+				return null;
 			}
+
+			// Keys no member registered are dropped: nothing would validate or sanitize them.
+			$input = array_intersect_key( $extensions[ $name ], $extension['members'] );
+
+			return [] !== $input ? $input : null;
 		}
 
-		// Batch requests: `extensions.preview` is per-operation, while the preview
-		// overlay is request-level, so it is not supported in a batch; only the header
-		// (which applies to every operation in the batch) carries preview context.
-		// Surface a debug notice rather than ignoring it silently.
 		if ( is_array( $this->params ) ) {
 			foreach ( $this->params as $operation ) {
-				if ( $operation instanceof OperationParams && is_array( $operation->extensions ) && ! empty( $operation->extensions['preview'] ) ) {
+				if ( $operation instanceof OperationParams && is_array( $operation->extensions ) && ! empty( $operation->extensions[ $name ] ) ) {
 					graphql_debug(
-						__( 'The `extensions.preview` object is not supported in batch requests and was ignored. Send the `X-GraphQL-Preview` header instead; it applies to every operation in the batch.', 'wp-graphql' ),
-						[ 'type' => 'PREVIEW_CONTEXT_IGNORED' ]
+						null !== $extension['header']
+							? sprintf(
+								/* translators: 1: the request extension namespace, 2: the header name */
+								__( 'The `extensions.%1$s` object is not supported in batch requests and was ignored. Send the `%2$s` header instead; it applies to every operation in the batch.', 'wp-graphql' ),
+								$name,
+								$extension['header']
+							)
+							: sprintf(
+								/* translators: %s: the request extension namespace */
+								__( 'The `extensions.%s` object is not supported in batch requests and was ignored, since it applies to the whole request rather than to one operation.', 'wp-graphql' ),
+								$name
+							),
+						[ 'type' => $extension['debug_prefix'] . '_IGNORED' ]
 					);
 					break;
 				}
@@ -536,75 +781,95 @@ class Request {
 	}
 
 	/**
-	 * Parses the `X-GraphQL-Preview` header as an RFC 8941 Structured Field dictionary.
+	 * Normalizes a client-supplied value for a registered member.
 	 *
-	 * Example: `database_id=123, featured_image_database_id=456, nonce="abc"`.
+	 * The value must match the declared type exactly (no coercion); the member's
+	 * sanitizer then runs on the type-checked value, and its return is used as is.
+	 * A value that fails the type check is treated as absent, with a debug notice for a
+	 * member an extension registered.
 	 *
-	 * The full dictionary syntax is parsed (see Utils\StructuredFields), and the preview
-	 * profile is applied on top: only the keys this feature defines are recognized, and
-	 * their members must be Integers or Strings; members of any other type, and unknown
-	 * keys, are ignored. The recognized keys are mapped to the same shape as the JSON
-	 * `extensions.preview` object so both transports normalize identically.
+	 * @param array<string,mixed> $extension The registered namespace.
+	 * @param string              $name      The camelCase member name.
+	 * @param array<string,mixed> $member    The registered member.
+	 * @param mixed               $value     The raw client-supplied value.
 	 *
-	 * As RFC 8941 requires, a value that fails to parse is discarded in its entirety,
-	 * in which case (as with an empty parse) the `extensions.preview` fallback applies.
-	 * A discarded or key-less header surfaces a debug notice under GRAPHQL_DEBUG, so
-	 * the silent fallback is still diagnosable.
+	 * @phpstan-param RequestExtension       $extension
+	 * @phpstan-param RequestExtensionMember $member
 	 *
-	 * @param string $header The raw header value.
-	 *
-	 * @return array<string,mixed> The parsed preview input, keyed like `extensions.preview`.
+	 * @return mixed The sanitized value, or null when absent or invalid.
 	 */
-	private function parse_preview_header( string $header ): array {
-		// Map the header's lowercase structured-field keys to the JSON `preview` object keys.
-		$key_map = [
-			'database_id'                => 'databaseId',
-			'featured_image_database_id' => 'featuredImageDatabaseId',
-			'post_format'                => 'postFormat',
-			'nonce'                      => 'nonce',
-		];
-
-		$dictionary = StructuredFields::parse_dictionary( $header );
-
-		// As RFC 8941 requires, a value that fails to parse is discarded in its
-		// entirety. Surface why under GRAPHQL_DEBUG rather than discarding silently.
-		if ( null === $dictionary ) {
-			graphql_debug(
-				__( 'The `X-GraphQL-Preview` header could not be parsed as an RFC 8941 dictionary and was discarded entirely, as the RFC requires. Common causes: a trailing comma, or camelCase keys (dictionary keys must be lowercase, e.g. `database_id`, not `databaseId`). The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
-				[ 'type' => 'PREVIEW_CONTEXT_MALFORMED' ]
-			);
-			return [];
+	private function normalize_request_extension_member( array $extension, string $name, array $member, $value ) {
+		if ( null === $value ) {
+			return null;
 		}
 
-		if ( empty( $dictionary ) ) {
-			return [];
-		}
+		$is_valid = false;
+		foreach ( $member['types'] as $type ) {
+			$is_valid = 'inner-list' === $type
+				? is_array( $value ) && array_values( $value ) === $value && count( array_filter( $value, fn ( $item ) => $this->is_request_extension_value_of_type( $item, (string) $member['items'] ) ) ) === count( $value )
+				: $this->is_request_extension_value_of_type( $value, $type );
 
-		$parsed = [];
-
-		foreach ( $dictionary as $key => $member ) {
-			if ( ! isset( $key_map[ $key ] ) ) {
-				continue;
+			if ( $is_valid ) {
+				break;
 			}
-
-			// The preview profile accepts Integer and String members only.
-			if ( ! in_array( $member['type'], [ 'integer', 'string' ], true ) ) {
-				continue;
-			}
-
-			$parsed[ $key_map[ $key ] ] = $member['value'];
 		}
 
-		// A parseable header that carries none of the recognized keys is almost always
-		// a key-name mistake; say so instead of ignoring it silently.
-		if ( empty( $parsed ) ) {
-			graphql_debug(
-				__( 'The `X-GraphQL-Preview` header parsed as a valid dictionary but contained none of the recognized keys (`database_id`, `featured_image_database_id`, `post_format`, `nonce`) and was ignored. The `extensions.preview` fallback applies if present.', 'wp-graphql' ),
-				[ 'type' => 'PREVIEW_CONTEXT_UNRECOGNIZED' ]
+		if ( ! $is_valid ) {
+			if ( ! $member['core'] ) {
+				graphql_debug(
+					sprintf(
+						/* translators: 1: the request extension namespace, 2: the member name, 3: the header key, 4: the expected type */
+						__( 'The `extensions.%1$s` member `%2$s` (header key `%3$s`) was ignored because its value is not of the expected type `%4$s`.', 'wp-graphql' ),
+						$extension['namespace'],
+						$name,
+						$member['header_key'],
+						$this->get_request_extension_member_type_label( $member )
+					),
+					[ 'type' => $extension['debug_prefix'] . '_MEMBER_INVALID' ]
+				);
+			}
+			return null;
+		}
+
+		return call_user_func( $member['sanitize'], $value );
+	}
+
+	/**
+	 * Whether a value is of the given member (or item) type.
+	 *
+	 * @param mixed  $value The value.
+	 * @param string $type  One of `integer`, `string` or `boolean`.
+	 */
+	private function is_request_extension_value_of_type( $value, string $type ): bool {
+		switch ( $type ) {
+			case 'integer':
+				return is_int( $value );
+			case 'string':
+				return is_string( $value );
+			case 'boolean':
+				return is_bool( $value );
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Returns the type a member expects, as shown in debug notices.
+	 *
+	 * @param array<string,mixed> $member The registered member.
+	 *
+	 * @phpstan-param RequestExtensionMember $member
+	 */
+	private function get_request_extension_member_type_label( array $member ): string {
+		if ( 'inner-list' === $member['types'][0] ) {
+			return sprintf(
+				/* translators: %s: the type of the list's items, e.g. `integer` */
+				__( 'inner-list of %s', 'wp-graphql' ),
+				(string) $member['items']
 			);
 		}
 
-		return $parsed;
+		return implode( '` or `', $member['types'] );
 	}
 
 	/**
@@ -661,7 +926,6 @@ class Request {
 	 * @return T
 	 */
 	private function after_execute( $response ) {
-
 		/**
 		 * Authentication check has been moved to before_execute() as of 2.6.0.
 		 * This ensures auth is validated BEFORE query execution, not after.
@@ -887,6 +1151,21 @@ class Request {
 			throw new \Exception( 'Invalid request params.' );
 		}
 
+		try {
+			return $this->execute_operation();
+		} finally {
+			$this->release_request_extensions();
+		}
+	}
+
+	/**
+	 * Executes a single operation of a request made from PHP (see execute()).
+	 *
+	 * @return mixed[]
+	 * @phpstan-return SerializableResult|mixed[]
+	 * @throws \Exception
+	 */
+	private function execute_operation() {
 		/**
 		 * Initialize the GraphQL Request
 		 */
@@ -994,6 +1273,22 @@ class Request {
 			return $this->get_invalid_content_type_response();
 		}
 
+		$this->is_http_request = true;
+
+		try {
+			return $this->execute_http_request();
+		} finally {
+			$this->release_request_extensions();
+		}
+	}
+
+	/**
+	 * Parses and executes an HTTP request (see execute_http()).
+	 *
+	 * @return SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
+	 * @throws \Exception
+	 */
+	private function execute_http_request() {
 		/**
 		 * Parse HTTP request.
 		 */

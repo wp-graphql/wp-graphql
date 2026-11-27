@@ -135,6 +135,10 @@
 			"href": "/docs/node-context"
 		},
 		{
+			"title": "Request Extensions",
+			"href": "/docs/request-extensions"
+		},
+		{
 			"title": "Mutations",
 			"href": "/docs/graphql-mutations"
 		},
